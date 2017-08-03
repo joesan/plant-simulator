@@ -19,6 +19,8 @@ package com.inland24.plantsim.services.database
 
 import java.sql.Timestamp
 
+import com.inland24.plantsim.models.PowerPlantType
+import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
 import slick.jdbc.JdbcProfile
 
@@ -33,6 +35,14 @@ class DBSchema private (val driver: JdbcProfile) {
   implicit def dateTimeMapping = MappedColumnType.base[DateTime, java.sql.Timestamp](
     dt => new Timestamp(dt.getMillis),
     ts => new DateTime(ts.getTime, DateTimeZone.UTC)
+  )
+
+  /**
+    * Mapping for using PowerPlantType conversions.
+    */
+  implicit def powerPlantTypeMapping = MappedColumnType.base[PowerPlantType, String](
+    powerPlantType    => PowerPlantType.toString(powerPlantType),
+    powerPlantTypeStr => PowerPlantType.fromString(powerPlantTypeStr)
   )
 
   ///////////////// PowerPlant Table
@@ -59,7 +69,7 @@ class DBSchema private (val driver: JdbcProfile) {
     }
   }
 
-  // Contains the SQL querry for [[ PowerPlantTable ]]
+  // Contains the SQL query for [[ PowerPlantTable ]]
   object PowerPlantTable {
     /**
       * A TableQuery can be used for composing queries, inserts
@@ -68,14 +78,15 @@ class DBSchema private (val driver: JdbcProfile) {
     val all = TableQuery[PowerPlantTable]
 
     /**
-      * Query to filter and fetch all active organizations
+      * Filter and fetch all PowerPlant's based on
+      * the isActive flag
       */
-    def activePowerPlants = {
-      all.filter(_.isActive === true)
+    def activePowerPlants(isActive: Boolean) = {
+      all.filter(_.isActive === isActive)
     }
 
     /**
-      * Query to de-activate a PowerPlant
+      * Deactivate a PowerPlant
       * (i.e., to set the isActive flag to false)
       */
     def deActivatePowerPlant(id: Int) = {
@@ -85,7 +96,7 @@ class DBSchema private (val driver: JdbcProfile) {
     }
 
     /**
-      * Query to filter and fetch organization by a given id
+      * Filter and fetch PowerPlant by organization id
       */
     def powerPlantById(id: Int) = {
       all.filter(_.id === id)
