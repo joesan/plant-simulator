@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package com.inland24.powersim.services.simulator.rampUpType
+package com.inland24.plantsim.services.simulator.rampUpType
 
 import org.joda.time.{DateTime, DateTimeZone, Seconds}
 

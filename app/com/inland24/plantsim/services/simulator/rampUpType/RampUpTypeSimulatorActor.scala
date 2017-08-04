@@ -13,11 +13,11 @@
  * limitations under the License.
  */
 
-package com.inland24.powersim.services.simulator.rampUpType
+package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.{Actor, ActorLogging, Props}
-import com.inland24.powersim.models.PowerPlantConfig.RampUpTypeConfig
 import RampUpTypeSimulatorActor._
+import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
