@@ -18,8 +18,9 @@
 package com.inland24.plantsim.services.database
 
 import com.inland24.plantsim.config.DBConfig
+import com.inland24.plantsim.services.database.models.PowerPlantRow
 
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class DBService(val dbConfig: DBConfig)(
@@ -33,4 +34,17 @@ class DBService(val dbConfig: DBConfig)(
   import schema.driver.api._
 
   // TODO Write service methods!
+  def allPowerPlants(fetchOnlyActive: Boolean = false): Future[Seq[PowerPlantRow]] = {
+    val query =
+      if (fetchOnlyActive)
+        PowerPlantTable.activePowerPlants
+      else
+        PowerPlantTable.all
+
+    database.run(query.result)
+  }
+
+  def powerPlantById(id: Int): Future[Option[PowerPlantRow]] = {
+    database.run(PowerPlantTable.powerPlantById(id).result.headOption)
+  }
 }

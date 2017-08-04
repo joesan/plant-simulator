@@ -20,7 +20,7 @@ package com.inland24.plantsim.services.database
 import java.sql.Timestamp
 
 import com.inland24.plantsim.models.PowerPlantType
-import com.inland24.plantsim.services.database.models.PowerPlantRow
+import com.inland24.plantsim.services.database.models.{AddressRow, PowerPlantRow}
 import org.joda.time.{DateTime, DateTimeZone}
 import slick.jdbc.JdbcProfile
 
@@ -52,7 +52,6 @@ class DBSchema private (val driver: JdbcProfile) {
   class PowerPlantTable(tag: Tag) extends Table[PowerPlantRow](tag, "PowerPlant") {
     def id            = column[Int]("id", O.PrimaryKey)
     def orgName       = column[String]("powerPlantName")
-    def orgAddressId  = column[Int]("powerPlantAddressId")
     def isActive      = column[Boolean]("isActive")
     def minPower      = column[Double]("minPower")
     def maxPower      = column[Double]("maxPower")
@@ -63,7 +62,7 @@ class DBSchema private (val driver: JdbcProfile) {
     def updatedAt     = column[DateTime]("updated_at")
 
     def * = {
-      (id, orgName, orgAddressId, isActive, minPower, maxPower,
+      (id, orgName, isActive, minPower, maxPower,
         powerRampRate, rampRateSecs, powerPlantType, createdAt, updatedAt) <>
         (PowerPlantRow.tupled, PowerPlantRow.unapply)
     }
@@ -78,11 +77,10 @@ class DBSchema private (val driver: JdbcProfile) {
     val all = TableQuery[PowerPlantTable]
 
     /**
-      * Filter and fetch all PowerPlant's based on
-      * the isActive flag
+      * Fetch all active PowerPlant's
       */
-    def activePowerPlants(isActive: Boolean) = {
-      all.filter(_.isActive === isActive)
+    def activePowerPlants = {
+      all.filter(_.isActive === true)
     }
 
     /**
@@ -99,6 +97,33 @@ class DBSchema private (val driver: JdbcProfile) {
       * Filter and fetch PowerPlant by organization id
       */
     def powerPlantById(id: Int) = {
+      all.filter(_.id === id)
+    }
+  }
+
+  ///////////////// Address Table
+  /**
+    * The Address details are maintained in the Address table
+    */
+  class AddressTable(tag: Tag) extends Table[AddressRow](tag, "Address") {
+    def id        = column[Int]("id", O.PrimaryKey)
+    def streetNum = column[Int]("streetNum")
+    def street    = column[String]("street")
+    def city      = column[String]("city")
+    def plz       = column[Int]("plz")
+    def country   = column[String]("country")
+
+    def * = {
+      (id, streetNum, street, city, plz, country) <>
+        (AddressRow.tupled, AddressRow.unapply)
+    }
+  }
+
+  object AddressTable {
+
+    val all = TableQuery[AddressTable]
+
+    def addressById(id: Int) = {
       all.filter(_.id === id)
     }
   }

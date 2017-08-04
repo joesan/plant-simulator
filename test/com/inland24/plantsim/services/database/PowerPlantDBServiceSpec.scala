@@ -17,11 +17,12 @@
 
 package com.inland24.plantsim.services.database
 
+import com.inland24.plantsim.models.PowerPlantType
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll}
 
 
 final class PowerPlantDBServiceSpec extends AsyncFlatSpec
-  with PowerPlantDBServiceSpec with BeforeAndAfterAll {
+  with DBServiceSpec with BeforeAndAfterAll {
 
   override def beforeAll(): Unit = {
     // 1. Set up the Schemas
@@ -65,45 +66,6 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
         assert(powerPlant.isActive)
 
       case _ => fail("expected the powerPlant with id 105 but was not found in the database")
-    }
-  }
-
-  "inactivatePowerPlant" should "deactivate a PowerPlant for a given id" in {
-    powerPlantDBService.inActivatePowerPlant(106).map {
-      updateCount =>
-        assert(updateCount === 1)
-    }
-
-    // check if the powerPlant is really in activated
-    powerPlantDBService.powerPlantById(106).flatMap {
-      case Some(powerPlant) =>
-        assert(powerPlant.id === 106)
-        assert(!powerPlant.isActive)
-
-      case _ => fail("expected the PowerPlant with id 106 to be inActive, but was active")
-    }
-  }
-
-  "allPowerPlants" should "fetch only active PowerPlant's when setting the flag to true" in {
-    // let's first deactivate one!
-    powerPlantDBService.inActivatePowerPlant(106).map {
-      updateCount =>
-        assert(updateCount === 1)
-    }
-
-    powerPlantDBService.allPowerPlants(fetchOnlyActive = true).map {
-      allPowerPlants =>
-        assert(allPowerPlants.length === 5)
-
-        allPowerPlants.lastOption match {
-          case Some(powerPlant5) =>
-            assert(powerPlant5.id === 105)
-            assert(powerPlant5.orgName === "joesan 5")
-            assert(powerPlant5.isActive)
-            assert(powerPlant5.powerPlantTyp === PowerPlantType.RampUpType)
-          case _ =>
-            fail("expected a PowerPlant with id = 105 from the database, but not found")
-        }
     }
   }
 }

@@ -17,19 +17,11 @@
 
 package com.inland24.plantsim.services.database.models
 
-import com.inland24.plantsim.models.PowerPlantType
-import org.joda.time.DateTime
-
-
-case class PowerPlantRow(
-  id           : Int,
-  orgName      : String,
-  isActive     : Boolean,
-  minPower     : Double,
-  maxPower     : Double,
-  rampRatePower: Option[Double] = None,
-  rampRateSecs : Option[Long] = None,
-  powerPlantTyp: PowerPlantType,
-  createdAt    : DateTime,
-  updatedAt    : DateTime
+case class AddressRow (
+  id        : Int,
+  streetNum : Int,
+  street    : String,
+  city      : String,
+  plz       : Int,
+  country   : String
 )
