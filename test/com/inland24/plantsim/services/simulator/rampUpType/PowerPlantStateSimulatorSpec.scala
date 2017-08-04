@@ -17,7 +17,6 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantType
-import com.inland24.powersim.services.simulator.rampUpType.PowerPlantState
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.FlatSpec
 
