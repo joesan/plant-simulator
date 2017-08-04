@@ -1,6 +1,7 @@
-
+# We are building a Scala project!
 language: scala
 
+# Which unfortunately need the shitty JVM!
 jdk:
   - oraclejdk8
   
