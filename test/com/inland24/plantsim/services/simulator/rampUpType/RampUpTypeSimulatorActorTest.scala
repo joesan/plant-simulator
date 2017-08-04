@@ -13,14 +13,14 @@
  * limitations under the License.
  */
 
-package com.inland24.powersim.services.simulator.rampUpType
+package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import com.inland24.powersim.services.simulator.rampUpType.RampUpTypeSimulatorActor._
-import com.inland24.powersim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.powersim.models.PowerPlantType
-import com.inland24.powersim.services.simulator.rampUpType.PowerPlantState._
+import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeSimulatorActor._
+import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
+import com.inland24.plantsim.models.PowerPlantType
+import com.inland24.plantsim.services.simulator.rampUpType.PowerPlantState._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
