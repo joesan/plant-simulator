@@ -93,4 +93,3 @@ Feel free to use it
 
 * To everybody that helped in this project
 * The [Monix library](https://monix.io/)
-
