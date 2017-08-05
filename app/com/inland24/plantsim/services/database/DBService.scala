@@ -33,7 +33,6 @@ class DBService(val dbConfig: DBConfig)(
   import schema._
   import schema.driver.api._
 
-  // TODO Write service methods!
   def allPowerPlants(fetchOnlyActive: Boolean = false): Future[Seq[PowerPlantRow]] = {
     val query =
       if (fetchOnlyActive)

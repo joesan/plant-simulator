@@ -15,27 +15,15 @@
  *
  */
 
-package com.inland24.plantsim.core
+package com.inland24.plantsim.controllers
 
-import akka.actor.{ActorRef, ActorSystem}
-import akka.stream.Materializer
-import com.inland24.plantsim.config.AppConfig
+import com.inland24.plantsim.core.AppBindings
+import play.api.mvc.{Action, Controller}
 
-trait AppBindings {
 
-  def actorSystem: ActorSystem
-  def materializer: Materializer
+class AppController(bindings: AppBindings) extends Controller {
 
-  def supervisorActor: ActorRef
-}
-object AppBindings {
-
-  def apply(system: ActorSystem, actorMaterializer: Materializer): AppBindings = new AppBindings {
-
-    override val actorSystem: ActorSystem = system
-    override val materializer: Materializer = actorMaterializer
-
-    override val supervisorActor: ActorRef =
-      system.actorOf(SupervisorActor.props(AppConfig.load()))
+  def home = Action { implicit request =>
+    Ok("The API is ready")
   }
 }
