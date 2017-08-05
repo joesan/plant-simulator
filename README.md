@@ -11,6 +11,8 @@ plants:
 1. A PowerPlant that is steerable by turning it on or off (ex., battery)
 2. A PowerPlant that is steerable by ramping it up (ex., generators, gas turbines)
 
+ALERT: We do not steer Nuclear Power Plants - We stay away from them!
+
 ## Getting Started
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
