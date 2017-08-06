@@ -179,7 +179,7 @@ class SupervisorActor(config: AppConfig) extends Actor
     case PowerPlantUpdateEvent(id, powerPlantCfg) =>
       log.info(s"Re-starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
 
-    case PowerPlantDeleteEvent(id, powerPlantCfg) =>
+    case PowerPlantDeleteEvent(id, powerPlantCfg) => // TODO
       log.info(s"Stopping PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
 
       val stoppedP = Promise[Continue]()
