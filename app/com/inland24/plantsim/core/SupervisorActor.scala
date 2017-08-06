@@ -77,6 +77,8 @@ class SupervisorActor(config: AppConfig) extends Actor
 
   override def preStart(): Unit = {
     super.preStart()
+
+    context.become(active())
     self ! Init
   }
 
@@ -184,7 +186,8 @@ class SupervisorActor(config: AppConfig) extends Actor
 
       // Start the PowerPlant, and pipe the message to self
       startPowerPlant(id, powerPlantCfg).pipeTo(self)
-      context.become(waitForStart(sender())) // The sender is the SimulatorSupervisorActor
+      // TODO: waitForStart not needed!
+      //context.become(waitForStart(sender())) // The sender is the SimulatorSupervisorActor
 
     // TODO: Stop and Re-start the Actor instance and write some tests later!
     case PowerPlantUpdateEvent(id, powerPlantCfg) =>
@@ -221,7 +224,7 @@ class SupervisorActor(config: AppConfig) extends Actor
   }
 
   override def receive: Receive = {
-    case Init => context.become(active())
+    case _ => context.become(active())
   }
 }
 object SupervisorActor {
