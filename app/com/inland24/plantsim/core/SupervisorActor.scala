@@ -179,7 +179,17 @@ class SupervisorActor(config: AppConfig) extends Actor
   }
 
   def waitForRestart(stop: Promise[Continue], source: ActorRef): Receive = {
-    case _ => context.become(waitForStop(stop, source))
+    case Continue =>
+      source ! Continue
+      context.become(receive)
+
+    case Terminated(actor) =>
+      context.unwatch(actor)
+      stop.success(Continue)
+
+    case someDamnThing =>
+      log.error(s"Unexpected message $someDamnThing :: " +
+        s"received while waiting for an actor to be re-started")
   }
 
   def stopPowerPlant(id: Long, stoppedP: Promise[Continue]): Future[Continue] = async {
@@ -231,11 +241,9 @@ class SupervisorActor(config: AppConfig) extends Actor
       startPowerPlant(id, powerPlantCfg).pipeTo(self)
       context.become(waitForStart(sender()))
 
-    // TODO: Stop and Re-start the Actor instance and write some tests later!
     case PowerPlantUpdateEvent(id, powerPlantCfg) =>
       log.info(s"Re-starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
 
-      // First we stop the Actor
       val stoppedP = Promise[Continue]()
       val future = for {
         // First - we stop this Actor
@@ -251,17 +259,8 @@ class SupervisorActor(config: AppConfig) extends Actor
       log.info(s"Stopping PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
 
       val stoppedP = Promise[Continue]()
-      fetchActorRef(id)
-        .map {
-          case Some(actorRef) =>
-            // 1. We first try to stop using context.stop
-            context.stop(actorRef)
-            context.watch(actorRef)
-            // Let's now as a fallback, Timeout the future and force kill the Actor if needed
-            timeoutPowerPlantActor(id, actorRef, stoppedP)
-
-          case _ => // TODO: Log and shit out!
-        }
+      stopPowerPlant(id, stoppedP).pipeTo(self)
+      context.become(waitForStop(stoppedP, sender()))
   }
 }
 object SupervisorActor {
