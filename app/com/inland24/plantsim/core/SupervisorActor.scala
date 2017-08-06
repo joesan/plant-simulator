@@ -19,7 +19,7 @@ package com.inland24.plantsim.core
 
 import akka.actor.{Actor, ActorKilledException, ActorLogging, ActorRef, Kill, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
 import akka.pattern.pipe
-
+import akka.pattern.ask
 import akka.util.Timeout
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.SupervisorActor.Init
@@ -27,12 +27,15 @@ import com.inland24.plantsim.models.PowerPlantConfig
 import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig}
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
+import com.inland24.plantsim.services.database.DBServiceActor
+import com.inland24.plantsim.services.database.DBServiceActor.{PowerPlantEvents, PowerPlantEventsSeq}
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeSimulatorActor
 import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.FutureUtils.extensions._
 import monix.execution.Scheduler.Implicits.global
+import monix.reactive.Observable
 
 import scala.async.Async.{async, await}
 import scala.concurrent.{Future, Promise, TimeoutException}
@@ -60,6 +63,23 @@ class SupervisorActor(config: AppConfig) extends Actor
 
   private def fetchActor(id: Long): Future[ActorRef] = {
     context.actorSelection(s"$simulatorActorNamePrefix$id").resolveOne(2.seconds)
+  }
+
+  // Our DBServiceActor instance that is responsible for tracking changes to the PowerPlant table
+  val dbServiceActor = context.actorOf(DBServiceActor.props(config.database))
+
+  // Observable to stream events regarding PowerPlant's
+  val powerPlantEventObservable =
+    // For every config.database.refreshInterval in seconds
+    Observable.interval(config.database.refreshInterval)
+      // We ask the actor for the latest messages
+      .map(_ => (dbServiceActor ? DBServiceActor.PowerPlantEvents).mapTo[PowerPlantEventsSeq])
+      .concatMap(Observable.fromFuture(_))
+      .concatMap(Observable.fromIterable(_))
+
+  // Subscriber that pipes the messages to this Actor
+  powerPlantEventObservable.subscribe { update =>
+    (self ? update).map(_ => Continue)
   }
 
   override val supervisorStrategy: OneForOneStrategy =
@@ -115,23 +135,6 @@ class SupervisorActor(config: AppConfig) extends Actor
     }
   }
 
-  private def timeoutAndRestartPowerPlantActor(id: Long, actorRef: ActorRef, stoppedP: Promise[Continue]) = {
-    // If the Promise is not completed within 3 seconds or in other words, if we
-    // try to force Kill the actor. This will trigger an ActorKilledException which
-    // will subsequently result in a Terminated(actorRef) message being sent to this
-    // SimulatorSupervisorActor instance
-    stoppedP.future.timeout(3.seconds).recoverWith {
-      case _: TimeoutException =>
-        log.error(s"Time out waiting for PowerPlant actor $id to stop, so sending a Kill message")
-        actorRef ! Kill
-
-        // Now restart this Actor for the given PowerPlant id
-        startPowerPlant(id, )
-
-        stoppedP.future
-    }
-  }
-
   private def timeoutPowerPlantActor(id: Long, actorRef: ActorRef, stoppedP: Promise[Continue]) = {
     // If the Promise is not completed within 3 seconds or in other words, if we
     // try to force Kill the actor. This will trigger an ActorKilledException which
@@ -143,6 +146,20 @@ class SupervisorActor(config: AppConfig) extends Actor
         actorRef ! Kill
         stoppedP.future
     }
+  }
+
+  def waitForStop(stop: Promise[Continue], source: ActorRef): Receive = {
+    case Continue =>
+      source ! Continue
+      context.become(receive)
+
+    case Terminated(actor) =>
+      context.unwatch(actor)
+      stop.success(Continue)
+
+    case someDamnThing =>
+      log.error(s"Unexpected message processed $someDamnThing :: " +
+        s"Expected Terminated or Continue message when terminating an actor")
   }
 
   def waitForStart(source: ActorRef): Receive = {
@@ -173,7 +190,7 @@ class SupervisorActor(config: AppConfig) extends Actor
     * 2. We do a context.stop
     * 3. We set a Promise
     */
-  def active(): Receive = {
+  override def receive: Receive = {
     /*
      * When we get a Terminated message, we remove this ActorRef from
      * the Map that we pass around!
@@ -221,10 +238,6 @@ class SupervisorActor(config: AppConfig) extends Actor
 
           case _ => // TODO: Log and shit out!
         }
-  }
-
-  override def receive: Receive = {
-    case _ => context.become(active())
   }
 }
 object SupervisorActor {

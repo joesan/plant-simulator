@@ -97,8 +97,8 @@ class DBServiceActor(dbConfig: DBConfig) extends Actor with ActorLogging {
       )
     case GetActivePowerPlants =>
       sender() ! activePowerPlantsConfig
-    case events: PowerPlantEvents =>
-      sender() ! PowerPlantEvents(DateTime.now(DateTimeZone.UTC), events)
+    case PowerPlantEvents =>
+      sender() ! events
   }
 }
 
@@ -106,6 +106,11 @@ object DBServiceActor {
 
   type PowerPlantConfigMap = Map[Long, PowerPlantConfig]
   type PowerPlantEventsSeq = Seq[PowerPlantEvent[PowerPlantConfig]]
+
+  sealed trait Message
+  case object GetActivePowerPlants extends Message
+  case object PowerPlantEvents extends Message
+  //case class PowerPlantEvents(eventTime: DateTime, events: PowerPlantEventsSeq) extends Message
 
   /**
     * Transform a given sequence of old and new state of PowerPlantConfig
@@ -139,10 +144,6 @@ object DBServiceActor {
 
     deletedEvents(oldMap, newMap) ++ updatedEvents(oldMap, newMap) ++ createdEvents(oldMap, newMap)
   }
-
-  sealed trait Message
-  case object GetActivePowerPlants extends Message
-  case class PowerPlantEvents(eventTime: DateTime, events: PowerPlantEvents) extends Message
 
   def props(dbConfig: DBConfig): Props =
     Props(new DBServiceActor(dbConfig))
