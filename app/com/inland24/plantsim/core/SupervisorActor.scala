@@ -113,6 +113,23 @@ class SupervisorActor(config: AppConfig) extends Actor
     }
   }
 
+  private def timeoutAndRestartPowerPlantActor(id: Long, actorRef: ActorRef, stoppedP: Promise[Continue]) = {
+    // If the Promise is not completed within 3 seconds or in other words, if we
+    // try to force Kill the actor. This will trigger an ActorKilledException which
+    // will subsequently result in a Terminated(actorRef) message being sent to this
+    // SimulatorSupervisorActor instance
+    stoppedP.future.timeout(3.seconds).recoverWith {
+      case _: TimeoutException =>
+        log.error(s"Time out waiting for PowerPlant actor $id to stop, so sending a Kill message")
+        actorRef ! Kill
+
+        // Now restart this Actor for the given PowerPlant id
+        startPowerPlant(id, )
+
+        stoppedP.future
+    }
+  }
+
   private def timeoutPowerPlantActor(id: Long, actorRef: ActorRef, stoppedP: Promise[Continue]) = {
     // If the Promise is not completed within 3 seconds or in other words, if we
     // try to force Kill the actor. This will trigger an ActorKilledException which
@@ -134,12 +151,6 @@ class SupervisorActor(config: AppConfig) extends Actor
     case someShit =>
       log.error(s"Unexpected message $someShit received while waiting for an actor to be started")
   }
-
-  sealed trait ActorState
-  case class Start(actorRef: ActorRef, promise: Promise[Continue]) extends ActorState
-  case class Restart(actorRef: ActorRef, promise: Promise[Continue])extends ActorState
-  case class Stop(actorRef: ActorRef, promise: Promise[Continue])extends ActorState
-  case class Unknown(promise: Promise[Continue]) extends ActorState
 
   /**
     *
@@ -179,6 +190,19 @@ class SupervisorActor(config: AppConfig) extends Actor
     case PowerPlantUpdateEvent(id, powerPlantCfg) =>
       log.info(s"Re-starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
 
+      val stoppedP = Promise[Continue]()
+      fetchActorRef(id)
+        .map {
+          case Some(actorRef) =>
+            // 1. We first try to stop using context.stop
+            context.stop(actorRef)
+            context.watch(actorRef)
+            // Let's now as a fallback, Timeout the future and force kill the Actor if needed
+            timeoutPowerPlantActor(id, actorRef, stoppedP)
+
+          case _ => // TODO: Log and shit out!
+        }
+
     case PowerPlantDeleteEvent(id, powerPlantCfg) => // TODO
       log.info(s"Stopping PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
 
@@ -197,7 +221,7 @@ class SupervisorActor(config: AppConfig) extends Actor
   }
 
   override def receive: Receive = {
-    case Init => context.become(active)
+    case Init => context.become(active())
   }
 }
 object SupervisorActor {
