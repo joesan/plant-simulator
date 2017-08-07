@@ -146,7 +146,7 @@ class SupervisorActor(config: AppConfig) extends Actor
     // If the Promise is not completed within 3 seconds or in other words, if we
     // try to force Kill the actor. This will trigger an ActorKilledException which
     // will subsequently result in a Terminated(actorRef) message being sent to this
-    // SimulatorSupervisorActor instance
+    // SupervisorActor instance
     stoppedP.future.timeout(3.seconds).recoverWith {
       case _: TimeoutException =>
         log.error(s"Time out waiting for PowerPlant actor $id to stop, so sending a Kill message")
