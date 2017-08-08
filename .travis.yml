@@ -53,6 +53,7 @@ jobs:
             docker images;
             #docker push $DOCKER_REGISTRY_URL/$APPLICATION_NAME:$IMAGE_VERSION_DEV;
             docker push $DOCKER_APP_URL:$IMAGE_VERSION_DEV;
+            
           fi
   
 after_script:
