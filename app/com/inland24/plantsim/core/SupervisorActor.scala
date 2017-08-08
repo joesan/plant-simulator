@@ -22,7 +22,7 @@ import akka.pattern.pipe
 import akka.pattern.ask
 import akka.util.Timeout
 import com.inland24.plantsim.config.AppConfig
-import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantEvent}
+import com.inland24.plantsim.models.PowerPlantConfig
 import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig}
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
@@ -32,15 +32,12 @@ import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActo
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeSimulatorActor
 import monix.execution.Ack
 import monix.execution.Ack.Continue
-import monix.execution.FutureUtils.extensions._
 // TODO: This import should not be here!
 import monix.execution.Scheduler.Implicits.global
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.Observable
 
-import scala.async.Async.{async, await}
-import scala.concurrent.{Future, Promise, TimeoutException}
-import scala.util.{Failure, Success}
+import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration._
 
 /**
@@ -66,12 +63,6 @@ class SupervisorActor(config: AppConfig) extends Actor
 
   // The default timeout for all Ask's the Actor makes
   implicit val timeout = Timeout(3.seconds)
-
-  // Resolves an active Actor instance - if one exists
-  private def fetchActor(id: Long): Future[ActorRef] = {
-    context.actorSelection(s"$simulatorActorNamePrefix$id")
-      .resolveOne(2.seconds)
-  }
 
   // Our DBServiceActor instance that is responsible for tracking changes to the PowerPlant table
   val dbServiceActor = context.actorOf(DBServiceActor.props(config.database))
@@ -131,30 +122,6 @@ class SupervisorActor(config: AppConfig) extends Actor
       Continue
   }
 
-  private def fetchActorRef(id: Long): Future[Option[ActorRef]] = async {
-    await(fetchActor(id).materialize) match {
-      case Success(actorRef) =>
-        log.info(s"Fetched Actor for PowerPlant with id = $id")
-        Some(actorRef)
-      case Failure(fail) =>
-        log.warning(s"Unable to fetch Actor for PowerPlant with id = $id because of ${fail.getCause}")
-        None
-    }
-  }
-
-  private def timeoutPowerPlantActor(id: Long, actorRef: ActorRef, stoppedP: Promise[Continue]) = {
-    // If the Promise is not completed within 3 seconds or in other words, if we
-    // try to force Kill the actor. This will trigger an ActorKilledException which
-    // will subsequently result in a Terminated(actorRef) message being sent to this
-    // SupervisorActor instance
-    stoppedP.future.timeout(3.seconds).recoverWith {
-      case _: TimeoutException =>
-        log.error(s"Time out waiting for PowerPlant actor $id to stop, so sending a Kill message")
-        actorRef ! Kill
-        stoppedP.future
-    }
-  }
-
   def waitForStop(stop: Promise[Continue], source: ActorRef): Receive = {
     case Continue =>
       source ! Continue
@@ -168,44 +135,6 @@ class SupervisorActor(config: AppConfig) extends Actor
       log.error(s"Unexpected message $someDamnThing :: " +
         s"received while waiting for an actor to be stopped")
   }
-/*
-  def waitForStart(source: ActorRef): Receive = {
-    case Continue =>
-      source ! Continue
-      context.become(receive)
-
-    case someShit =>
-      log.error(s"Unexpected message $someShit received while waiting for an actor to be started")
-  }
-
-  def waitForRestart(stop: Promise[Continue], source: ActorRef): Receive = {
-    case Continue =>
-      source ! Continue
-      context.become(receive)
-
-    case Terminated(actor) =>
-      context.unwatch(actor)
-      stop.success(Continue)
-
-    case someDamnThing =>
-      log.error(s"Unexpected message $someDamnThing :: " +
-        s"received while waiting for an actor to be re-started")
-  }
-
-  def stopPowerPlant(id: Long, stoppedP: Promise[Continue]): Future[Continue] = async {
-    await(fetchActorRef(id)) match {
-      case Some(actorRef) =>
-        // 1. We first try to stop using context.stop
-        context.stop(actorRef)
-        context.watch(actorRef)
-        // Let's now as a fallback, Timeout the future and force kill the Actor with a Timeout
-        await(timeoutPowerPlantActor(id = id, actorRef = actorRef, stoppedP = stoppedP))
-
-      case _ =>
-        log.error(s"Unfortunately there is no Actor for the given PowerPlant id $id that could be stopped")
-        Continue
-    }
-  } */
 
   def waitForRestart(source: ActorRef, powerPlantCreateEvent: PowerPlantCreateEvent[PowerPlantConfig]): Receive = {
     case Terminated(actor) =>
@@ -281,65 +210,9 @@ class SupervisorActor(config: AppConfig) extends Actor
           actorRef ! Kill
 
         case None =>
-          log.warning(s"No running actor instance found for id $id :: Creating a new instance")
+          log.warning(s"No running actor instance found for id $id ")
       }
   }
-
-  /**
-    *
-    * Create Event
-    * ------------
-    * 1. We check if the Actor for the given PowerPlant exists
-    * 2. If it exists, we forcefully kill it and spin up a new Actor instance
-    *
-    * Update Event
-    * ------------
-    * 1. Check for existence of the Actor for the given PowerPlant
-    * 2. If exists, stop it - asynchronously wait for the stop
-    * 3. Start a new instance of this Actor
-    *
-    * Delete Event
-    * ------------
-    * 1. PowerPlantDeleteEvent is called
-    * 2. We do a context.stop
-    * 3. We set a Promise
-    */ /*
-  override def receive1: Receive = {
-    /*
-     * When we get a Terminated message, we remove this ActorRef from
-     * the Map that we pass around!
-     */
-    case Terminated(actorRef) =>
-      context.unwatch(actorRef)
-
-    case PowerPlantCreateEvent(id, powerPlantCfg) =>
-      log.info(s"Starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
-
-      // Start the PowerPlant, and pipe the message to self
-      startPowerPlant(id, powerPlantCfg).pipeTo(self)
-      context.become(waitForStart(sender()))
-
-    case PowerPlantUpdateEvent(id, powerPlantCfg) =>
-      log.info(s"Re-starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
-
-      val stoppedP = Promise[Continue]()
-      val future = for {
-        // First - we stop this Actor
-        _ <- stopPowerPlant(id, stoppedP)
-        // Second - we reanimate this to life
-        _ <- startPowerPlant(id, powerPlantCfg)
-      } yield Continue
-
-      future.pipeTo(self)
-      context.become(waitForRestart(stoppedP, sender()))
-
-    case PowerPlantDeleteEvent(id, powerPlantCfg) => // TODO
-      log.info(s"Stopping PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
-
-      val stoppedP = Promise[Continue]()
-      stopPowerPlant(id, stoppedP).pipeTo(self)
-      context.become(waitForStop(stoppedP, sender()))
-  } */
 }
 object SupervisorActor {
 
