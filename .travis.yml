@@ -28,9 +28,18 @@ scala:
   - 2.11.11
   - 2.12.2
 
+# Whitelist of the branches that we consider to build
+branches:
+ only:
+   - master
+   - /^develop-.*$/ # regex ok
+
 script:
   - sbt clean coverage test coverageReport
   - sbt docker:publishLocal
+  
+after_script:
+  - echo "Successfully build docker image"
   
 # Email specific recipient all the time
 notifications:
@@ -41,3 +50,6 @@ notifications:
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  
+before_deploy:
+  - test $TRAVIS_TEST_RESULT = 0 \# check that build passed successfully
