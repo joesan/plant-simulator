@@ -17,12 +17,12 @@
 
 package com.inland24.plantsim.core
 
-import akka.actor.{Actor, ActorKilledException, ActorLogging, ActorRef, Kill, OneForOneStrategy, Props, SupervisorStrategy, Terminated}
+import akka.actor.{Actor, ActorKilledException, ActorLogging, ActorRef, Kill, OneForOneStrategy, PoisonPill, Props, Stash, SupervisorStrategy, Terminated}
 import akka.pattern.pipe
 import akka.pattern.ask
 import akka.util.Timeout
 import com.inland24.plantsim.config.AppConfig
-import com.inland24.plantsim.models.PowerPlantConfig
+import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantEvent}
 import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig}
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
@@ -56,7 +56,7 @@ import scala.concurrent.duration._
   * 4. Re-starts the child actors when needed (in case of failures)
   */
 class SupervisorActor(config: AppConfig) extends Actor
-  with ActorLogging {
+  with ActorLogging with Stash {
 
   // We would use this to safely dispose any open connections
   val cancelable = SingleAssignmentCancelable()
@@ -168,7 +168,7 @@ class SupervisorActor(config: AppConfig) extends Actor
       log.error(s"Unexpected message $someDamnThing :: " +
         s"received while waiting for an actor to be stopped")
   }
-
+/*
   def waitForStart(source: ActorRef): Receive = {
     case Continue =>
       source ! Continue
@@ -205,6 +205,19 @@ class SupervisorActor(config: AppConfig) extends Actor
         log.error(s"Unfortunately there is no Actor for the given PowerPlant id $id that could be stopped")
         Continue
     }
+  } */
+
+  def waitForRestart(source: ActorRef, powerPlantCreateEvent: PowerPlantCreateEvent[PowerPlantConfig]): Receive = {
+    case Terminated(actor) =>
+      context.unwatch(actor)
+      self ! powerPlantCreateEvent
+      // Now unstash all of the messages
+      unstashAll()
+
+    case someDamnThing =>
+      log.error(s"Unexpected message $someDamnThing :: " +
+        s"received while waiting for an actor to be stopped")
+      stash()
   }
 
   /**
@@ -226,7 +239,72 @@ class SupervisorActor(config: AppConfig) extends Actor
     * 2. We do a context.stop
     * 3. We set a Promise
     */
-  override def receive: Receive = {
+  def receive: Receive = {
+
+    case Terminated(actorRef) =>
+      context.unwatch(actorRef)
+
+    case PowerPlantCreateEvent(id, powerPlantCfg) =>
+      log.info(s"Starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
+
+      // Start the PowerPlant, and pipe the message to self
+      startPowerPlant(id, powerPlantCfg).pipeTo(self)
+
+    case PowerPlantUpdateEvent(id, powerPlantCfg) =>
+      log.info(s"Re-starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
+
+      context.child(s"$simulatorActorNamePrefix$id") match {
+        case Some(actorRef) =>
+          context.watch(actorRef)
+          // We first kill
+          actorRef ! PoisonPill
+
+          // We wait asynchronously until this Actor is re-started
+          context.become(
+            waitForRestart(
+              actorRef,
+              PowerPlantCreateEvent(id, powerPlantCfg)
+            )
+          )
+
+        case None =>
+          log.warning(s"No running actor instance found for id $id :: Creating a new instance")
+          self ! PowerPlantCreateEvent(id, powerPlantCfg)
+      }
+
+    case PowerPlantDeleteEvent(id, powerPlantCfg) =>
+      log.info(s"Stopping PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
+
+      context.child(s"$simulatorActorNamePrefix$id") match {
+        case Some(actorRef) =>
+          context.watch(actorRef)
+          actorRef ! Kill
+
+        case None =>
+          log.warning(s"No running actor instance found for id $id :: Creating a new instance")
+      }
+  }
+
+  /**
+    *
+    * Create Event
+    * ------------
+    * 1. We check if the Actor for the given PowerPlant exists
+    * 2. If it exists, we forcefully kill it and spin up a new Actor instance
+    *
+    * Update Event
+    * ------------
+    * 1. Check for existence of the Actor for the given PowerPlant
+    * 2. If exists, stop it - asynchronously wait for the stop
+    * 3. Start a new instance of this Actor
+    *
+    * Delete Event
+    * ------------
+    * 1. PowerPlantDeleteEvent is called
+    * 2. We do a context.stop
+    * 3. We set a Promise
+    */ /*
+  override def receive1: Receive = {
     /*
      * When we get a Terminated message, we remove this ActorRef from
      * the Map that we pass around!
@@ -261,7 +339,7 @@ class SupervisorActor(config: AppConfig) extends Actor
       val stoppedP = Promise[Continue]()
       stopPowerPlant(id, stoppedP).pipeTo(self)
       context.become(waitForStop(stoppedP, sender()))
-  }
+  } */
 }
 object SupervisorActor {
 
