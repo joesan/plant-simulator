@@ -12,8 +12,8 @@ services: docker
 
 env:
  global:
-   - APPLICATION_NAME    = inland24/joesan/plant-simulator
-   - DOCKER_REGISTRY_URL = docker.dev.eon.com
+   - APPLICATION_NAME    = plant-simulator
+   - DOCKER_REGISTRY_URL = repo.treescale.com/Joesan/inland24
    - IMAGE_VERSION_DEV   = 1.0-SNAPSHOT
    - TIMEOUT             = 500
 
@@ -48,12 +48,12 @@ jobs:
       script:
         - if [ $TRAVIS_BRANCH == "master" ]; then
             sbt docker:publishLocal;
-            docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
-            docker push $APPLICATION_NAME:$IMAGE_VERSION_DEV;
+            docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
+            docker push $DOCKER_REGISTRY_URL/$APPLICATION_NAME:$IMAGE_VERSION_DEV;
           fi
   
 after_script:
-  - if [ $TRAVIS_BRANCH = "master" ]; then echo "Completed building docker image"; fi
+  - if [ $TRAVIS_BRANCH == "master" ]; then echo "Completed building docker image"; fi
   - echo $TRAVIS_BRANCH
   
 # Email specific recipient all the time
