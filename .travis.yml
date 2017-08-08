@@ -6,7 +6,10 @@ jdk:
   - oraclejdk8
   
 # Use container-based infrastructure
-sudo: false
+sudo: required
+
+services:
+  - docker
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
@@ -27,6 +30,7 @@ scala:
 
 script:
   - sbt clean coverage test coverageReport
+  - sbt docker:publishLocal
   
 # Email specific recipient all the time
 notifications:
