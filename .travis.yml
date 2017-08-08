@@ -35,7 +35,7 @@ branches:
    - /^develop-.*$/ # regex ok
 
 script:
-  - if [ $TRAVIS_BRANCH == "master" ]; then
+  - if [ $TRAVIS_BRANCH == "feature" ]; then
       sbt clean coverage test coverageReport docker:publishLocal;
     fi
   - if [ $TRAVIS_BRANCH == "/^develop-.*$/" ]; then
