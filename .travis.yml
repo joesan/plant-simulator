@@ -35,11 +35,11 @@ branches:
    - /^develop-.*$/ # regex ok
 
 script:
-  - sbt clean coverage test coverageReport
-  - sbt docker:publishLocal
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then sbt clean coverage test coverageReport docker:publishLocal; fi
+  - if [ "$TRAVIS_BRANCH" = "/^develop-.*$/" ]; then sbt clean coverage test coverageReport; fi
   
 after_script:
-  - echo "Successfully build docker image"
+  - if [ "$TRAVIS_BRANCH" = "master" ]; then echo "Completed building docker image"
   
 # Email specific recipient all the time
 notifications:
