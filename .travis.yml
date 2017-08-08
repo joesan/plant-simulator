@@ -34,13 +34,15 @@ branches:
    - master
    - /^develop-.*$/ # regex ok
 
-script:
-  - if [ $TRAVIS_BRANCH == "feature" ]; then
-      sbt clean coverage test coverageReport docker:publishLocal;
-    fi
-  - if [ $TRAVIS_BRANCH == "/^develop-.*$/" ]; then
-      sbt clean coverage test coverageReport;
-    fi
+jobs:
+  include:
+    - stage: test
+      script: sbt clean coverage test coverageReport
+    - stage: docker-build
+      script:
+        - if [ $TRAVIS_BRANCH == "master" ]; then
+            sbt docker:publishLocal;
+          fi
   
 after_script:
   - if [ $TRAVIS_BRANCH = "master" ]; then echo "Completed building docker image"; fi
