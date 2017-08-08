@@ -2,14 +2,19 @@
 language: scala
 
 # Which unfortunately need the shitty JVM!
-jdk:
-  - oraclejdk8
+jdk: oraclejdk8
   
 # Use container-based infrastructure
 sudo: required
 
-services:
-  - docker
+# We want to build docker containers
+services: docker
+
+env:
+ global:
+   - APPLICATION_NAME    = inland24/joesan/plant-simulator
+   # DOCKER_REGISTRY_URL = docker.dev.eon.com
+   - IMAGE_VERSION_DEV   = 1.0-SNAPSHOT
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
@@ -38,10 +43,12 @@ jobs:
   include:
     - stage: test
       script: sbt clean coverage test coverageReport
-    - stage: docker-build
+    - stage: build docker image
       script:
         - if [ $TRAVIS_BRANCH == "master" ]; then
             sbt docker:publishLocal;
+            docker login -u $REGISTRY_USER -p $REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
+            docker push $APPLICATION_NAME:$IMAGE_VERSION_DEV;
           fi
   
 after_script:

@@ -2,7 +2,8 @@ name := """plant-simulator"""
 
 version := "1.0-SNAPSHOT"
 
-lazy val root = (project in file(".")).enablePlugins(PlayScala)
+lazy val root = (project in file("."))
+  .enablePlugins(PlayScala, DockerPlugin)
 
 scalaVersion := "2.11.11"
 
@@ -45,7 +46,22 @@ javacOptions ++= Seq(
   "-Xlint:unchecked", "-Xlint:deprecation"
 )
 
-resolvers += "scalaz-bintray" at "http://dl.bintray.com/scalaz/releases"
+// We will use alpine os as out base image
+dockerBaseImage := "anapsix/alpine-java:8_server-jre_unlimited"
+
+// These values will be assigned the docker image name
+maintainer in Docker := "https://github.com/joesan"
+packageName in Docker := s"inland24/joesan/${name.value}"
+version in Docker := version.value
+
+import com.typesafe.sbt.packager.docker._
+dockerCommands ++= Seq(
+  Cmd("ENV", "configEnv", "default"), // This will be overridden when running!
+  // This is the entry point where we can run the application against different environments
+  ExecCmd("ENTRYPOINT", "sh", "-c", "bin/" + s"${executableScriptName.value}" + " -Denv=$configEnv")
+)
+
+resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/public/"
 
 doc in Compile <<= target.map(_ / "none")
 
