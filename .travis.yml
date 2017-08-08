@@ -13,9 +13,8 @@ services: docker
 env:
  global:
    - APPLICATION_NAME    = plant-simulator
-   - DOCKER_REGISTRY_URL = repo.treescale.com/Joesan/inland24
+   - DOCKER_REGISTRY_URL = repo.treescale.com/joesan/inland24
    - IMAGE_VERSION_DEV   = 1.0-SNAPSHOT
-   - TIMEOUT             = 500
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
