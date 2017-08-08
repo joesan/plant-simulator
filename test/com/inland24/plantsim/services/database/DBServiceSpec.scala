@@ -32,7 +32,7 @@ trait DBServiceSpec {
   }
 
   // let's use test configurations
-  System.setProperty("ENV", "default")
+  System.setProperty("ENV", "test")
 
   val config = AppConfig.load()
   val testDatabase = config.database.database
