@@ -40,7 +40,7 @@ script:
   
 after_script:
   - if [ "$TRAVIS_BRANCH" = "master" ]; then echo "Completed building docker image" fi
-  - echo "$TRAVIS_BRANCH"
+  - echo $TRAVIS_BRANCH
   
 # Email specific recipient all the time
 notifications:
