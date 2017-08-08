@@ -13,8 +13,9 @@ services: docker
 env:
  global:
    - APPLICATION_NAME    = inland24/joesan/plant-simulator
-   # DOCKER_REGISTRY_URL = docker.dev.eon.com
+   - DOCKER_REGISTRY_URL = docker.dev.eon.com
    - IMAGE_VERSION_DEV   = 1.0-SNAPSHOT
+   - TIMEOUT             = 500
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
