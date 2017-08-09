@@ -43,18 +43,16 @@ branches:
 
 jobs:
   include:
-    - stage: test
-      script: sbt clean coverage test coverageReport
+    #- stage: test
+      # script: sbt clean coverage test coverageReport
     - stage: build docker image
       script:
         - if [ $TRAVIS_BRANCH == "master" ]; then
-            docker stop $(docker ps -a -q);
-            docker rm $(docker ps -a -q);
             sbt docker:publishLocal;
             docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
             docker images;
             docker rm $DOCKER_APP_URL:$IMAGE_VERSION_DEV;
-            docker push $DOCKER_APP_URL:$IMAGE_VERSION_DEV;
+            docker push repo.treescale.com/joesan/inland24/plant-simulator:1.0-SNAPSHOT;
           fi
   
 after_script:
