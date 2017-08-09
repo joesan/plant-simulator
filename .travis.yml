@@ -53,6 +53,7 @@ jobs:
     - stage: push docker image
       script:
         - if [ $TRAVIS_BRANCH == "master" ]; then
+            docker images;
             docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
             docker push $DOCKER_APP_NAME;
           fi
