@@ -185,7 +185,7 @@ class SupervisorActor(config: AppConfig) extends Actor
       context.child(s"$simulatorActorNamePrefix$id") match {
         case Some(actorRef) =>
           context.watch(actorRef)
-          // We first kill
+          // We first kill the child actor instance
           actorRef ! PoisonPill
 
           // We wait asynchronously until this Actor is re-started
