@@ -14,7 +14,6 @@ env:
  global:
    - APPLICATION_NAME    = joesan/inland24/plant-simulator
    - DOCKER_REGISTRY_URL = repo.treescale.com
-   # : remove this line
    - DOCKER_APP_URL = repo.treescale.com/joesan/inland24/plant-simulator
    - IMAGE_VERSION_DEV   = 1.0-SNAPSHOT
 
@@ -48,6 +47,7 @@ jobs:
     - stage: build docker image
       script:
         - if [ $TRAVIS_BRANCH == "master" ]; then
+            echo $APPLICATION_NAME
             sbt docker:publishLocal;
             docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
             docker images;
