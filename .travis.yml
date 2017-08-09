@@ -42,8 +42,8 @@ branches:
 
 jobs:
   include:
-    #- stage: test
-      # script: sbt clean coverage test coverageReport
+    - stage: test
+      script: sbt clean coverage test coverageReport
     - stage: build docker image
       script:
         - if [ $TRAVIS_BRANCH == "master" ]; then
@@ -51,9 +51,9 @@ jobs:
           fi
 
 after_success:
-  - echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL"
   - if [ $TRAVIS_BRANCH == "master" ]; then
       docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
+      echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL";
       docker push $DOCKER_APP_NAME;
     fi
 
