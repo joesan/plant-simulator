@@ -51,7 +51,7 @@ jobs:
             sbt docker:publishLocal;
             docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
             docker images;
-            docker rm repo.treescale.com/[secure]/inland24/plant-simulator:1.0-SNAPSHOT
+            docker rm repo.treescale.com/[secure]/inland24/plant-simulator:1.0-SNAPSHOT;
             docker rm $DOCKER_APP_URL:$IMAGE_VERSION_DEV;
             docker push $DOCKER_APP_URL:$IMAGE_VERSION_DEV;
           fi
