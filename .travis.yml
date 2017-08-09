@@ -50,12 +50,13 @@ jobs:
             sbt docker:publishLocal;
             docker images;
           fi
-  
+    - stage: push docker image
+        - if [ $TRAVIS_BRANCH == "master" ]; then
+            docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
+            docker push $DOCKER_APP_NAME;
+          fi
+
 after_script:
-  - if [ $TRAVIS_BRANCH == "master" ]; then echo "Completed building docker image";
-      docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
-      docker push $DOCKER_APP_NAME;
-    fi
   - echo $TRAVIS_BRANCH
 
 # Email specific recipient all the time
