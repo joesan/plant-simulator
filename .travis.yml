@@ -50,8 +50,9 @@ jobs:
             sbt docker:publishLocal;
             docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
             docker images;
+            docker tag $DOCKER_TAG_NAME $DOCKER_APP_NAME
             echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL";
-            docker push $DOCKER_APP_NAME;
+            docker push $DOCKER_TAG_NAME;
           fi
 
 after_success:
