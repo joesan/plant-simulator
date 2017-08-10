@@ -76,7 +76,7 @@ perform the following steps: TODO: Descibe how to dockerize!
 
 [[TODO]] Add additional notes about how to deploy this on a live system
 
-## Built With [![forthebadge](http://forthebadge.com/images/badges/built-with-love.svg)](http://forthebadge.com)
+## Built With [![forthebadge](http://forthebadge.com/images/badges/built-with-grammas-recipe.svg)](http://forthebadge.com)
 
 * [SBT](http://www.scala-sbt.org/) - Scala Build Tool
 
