@@ -79,6 +79,8 @@ perform the following steps: TODO: Descibe how to dockerize!
 
 * [SBT](http://www.scala-sbt.org/) - Scala Build Tool
 
+* [Travis CI](https://travis-ci.com/) - Travis CI
+
 ## Contributing
 
 [[TODO]] Add CONTRIBUTING.md to the project root
