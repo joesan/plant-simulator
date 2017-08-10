@@ -98,3 +98,5 @@ Feel free to use it
 
 * To everybody that helped in this project
 * The [Monix library](https://monix.io/)
+
+<sup>[![HitCount](https://hitt.herokuapp.com/joesan/plant-simulator.svg)](https://github.com/joesan/plant-simulator)</sup>
