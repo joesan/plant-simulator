@@ -1,8 +1,9 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/996bef52feb148039c61f0db9cff9830)](https://www.codacy.com/app/joesan/plant-simulator?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=joesan/plant-simulator&amp;utm_campaign=Badge_Grade)
+[![codecov](https://codecov.io/gh/joesan/plant-simulator/branch/master/graph/badge.svg)](https://codecov.io/gh/joesan/plant-simulator)
 [![Build Status](https://travis-ci.org/joesan/plant-simulator.svg?branch=master)](https://travis-ci.org/joesan/plant-simulator)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-# plant-simulator
+# plant-simulator<sup> [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)</sup>
 A simple simulator app that simulates the running of a power producing plant
 
 For simplicity, this simulator assumes that there are essentially two types of power producing
@@ -75,7 +76,7 @@ perform the following steps: TODO: Descibe how to dockerize!
 
 [[TODO]] Add additional notes about how to deploy this on a live system
 
-## Built With
+## Tools Used
 
 * [SBT](http://www.scala-sbt.org/) - Scala Build Tool
 
@@ -83,7 +84,7 @@ perform the following steps: TODO: Descibe how to dockerize!
 
 ## Contributing
 
-[[TODO]] Add CONTRIBUTING.md to the project root
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/joesan/plant-simulator/issues)
 
 ## Authors / Maintainers
 
@@ -97,3 +98,8 @@ Feel free to use it
 
 * To everybody that helped in this project
 * The [Monix library](https://monix.io/)
+
+##
+<sup>[![forthebadge](http://forthebadge.com/images/badges/powered-by-electricity.svg)](http://forthebadge.com)</sup>
+<sup>[![forthebadge](http://forthebadge.com/images/badges/built-with-grammas-recipe.svg)](http://forthebadge.com)</sup>
+<sup>[![forthebadge](http://forthebadge.com/images/badges/fuck-it-ship-it.svg)](http://forthebadge.com)</sup>
