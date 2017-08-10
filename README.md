@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/joesan/plant-simulator.svg?branch=master)](https://travis-ci.org/joesan/plant-simulator)
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+[![Github Releases](https://img.shields.io/github/downloads/atom/atom/latest/total.svg?style=plastic)](https://github.com/joesan/plant-simulator)
+
 # plant-simulator
 A simple simulator app that simulates the running of a power producing plant
 
