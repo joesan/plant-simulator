@@ -98,3 +98,5 @@ Feel free to use it
 
 * To everybody that helped in this project
 * The [Monix library](https://monix.io/)
+
+<sup>[![forthebadge](http://forthebadge.com/images/badges/powered-by-electricity.svg)](http://forthebadge.com)</sup>
