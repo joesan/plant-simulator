@@ -39,7 +39,8 @@ object AppBindings {
     override val materializer: Materializer = actorMaterializer
 
     override val appConfig: AppConfig = AppConfig.load()
-    override val dbService = DBService(appConfig.database)
+    // TODO: pass this execution context in
+    override val dbService = DBService(appConfig.database)(scala.concurrent.ExecutionContext.Implicits.global)
 
     override val supervisorActor: ActorRef =
       system.actorOf(SupervisorActor.props(appConfig))

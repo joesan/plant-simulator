@@ -36,13 +36,16 @@ class AppController(bindings: AppBindings) extends Controller {
   // Place a reference to the underlying ActorSystem
   implicit val system = bindings.actorSystem
   val dbService = bindings.dbService
+  // TODO: pass in this execution context
+  import monix.execution.Scheduler.Implicits.global
+  implicit val timeout = 3.seconds
 
   def home = Action { implicit request =>
     Ok("The API is ready")
   }
 
   // Utility to resolve an actor reference
-  def actorFor(powerPlantId: Long): Future[Option[ActorRef]] = {
+  def actorFor(powerPlantId: Int): Future[Option[ActorRef]] = {
     system.actorSelection(s"${bindings.appConfig.appName}-$powerPlantId")
       .resolveOne(2.seconds)
       .materialize
@@ -52,7 +55,7 @@ class AppController(bindings: AppBindings) extends Controller {
       }
   }
 
-  def powerPlantDetails(id: Long) = Action.async {
+  def powerPlantDetails(id: Int) = Action.async {
     dbService.powerPlantById(id).flatMap {
       case None =>
         Future.successful(
@@ -65,7 +68,7 @@ class AppController(bindings: AppBindings) extends Controller {
     }
   }
 
-  def powerPlantStatus(id: Long) = Action.async {
+  def powerPlantStatus(id: Int) = Action.async {
     actorFor(id) flatMap {
       case None =>
         Future.successful(NotFound(s"HTTP 404 :: PowerPlant with ID $id not found"))

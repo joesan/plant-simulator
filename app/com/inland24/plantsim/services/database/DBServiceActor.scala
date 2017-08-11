@@ -53,7 +53,7 @@ class DBServiceActor(dbConfig: DBConfig) extends Actor with ActorLogging {
   implicit val scheduler = monix.execution.Scheduler.Implicits.global
 
   // This represents the PowerPlantDBService instance
-  val powerPlantDBService = new DBService(dbConfig)(scheduler)
+  val powerPlantDBService = DBService(dbConfig)(scheduler)
 
   // This will be our subscription to fetch from the database
   val powerPlantDBSubscription = SingleAssignmentCancelable()
@@ -61,7 +61,7 @@ class DBServiceActor(dbConfig: DBConfig) extends Actor with ActorLogging {
   // This will be our Observable that will stream events from the database
   val obs =
     DBServiceObservable.powerPlantDBServiceObservable(
-      powerPlantDBService.dbConfig.refreshInterval,
+      dbConfig.refreshInterval,
       powerPlantDBService.allPowerPlants(fetchOnlyActive = true)
     )(com.inland24.plantsim.models.toPowerPlantsConfig)
 
