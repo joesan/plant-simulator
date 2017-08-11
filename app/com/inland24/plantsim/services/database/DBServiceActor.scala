@@ -114,7 +114,7 @@ class DBServiceActor(dbConfig: DBConfig) extends Actor with ActorLogging {
 
 object DBServiceActor {
 
-  type PowerPlantConfigMap = Map[Long, PowerPlantConfig]
+  type PowerPlantConfigMap = Map[Int, PowerPlantConfig]
   type PowerPlantEventsSeq = Seq[PowerPlantEvent[PowerPlantConfig]]
 
   sealed trait Message

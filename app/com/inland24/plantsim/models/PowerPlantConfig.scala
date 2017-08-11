@@ -23,7 +23,7 @@ import scala.concurrent.duration.FiniteDuration
 
 
 sealed trait PowerPlantConfig {
-  def id: Long
+  def id: Int
   def name: String
   def minPower: Double
   def maxPower: Double
@@ -32,7 +32,7 @@ sealed trait PowerPlantConfig {
 object PowerPlantConfig {
 
   case class OnOffTypeConfig(
-    id: Long,
+    id: Int,
     name: String,
     minPower: Double,
     maxPower: Double,
@@ -40,7 +40,7 @@ object PowerPlantConfig {
   ) extends PowerPlantConfig
 
   case class RampUpTypeConfig(
-    id: Long,
+    id: Int,
     name: String,
     minPower: Double,
     maxPower: Double,
@@ -50,7 +50,7 @@ object PowerPlantConfig {
   ) extends PowerPlantConfig
 
   case class UnknownConfig(
-    id: Long,
+    id: Int,
     name: String,
     minPower: Double,
     maxPower: Double,

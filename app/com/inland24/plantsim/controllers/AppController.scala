@@ -22,6 +22,7 @@ import akka.pattern.ask
 import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor.StateRequest
 import com.inland24.plantsim.services.simulator.onOffType.PowerPlantState
+import com.inland24.plantsim.models._
 import play.api.mvc.{Action, Controller}
 import monix.execution.FutureUtils.extensions._
 import play.api.libs.json.Json
@@ -63,7 +64,9 @@ class AppController(bindings: AppBindings) extends Controller {
         )
       case Some(powerPlantRow) =>
         Future.successful(
-          Ok(Json.toJson(powerPlantRow))
+          Ok(Json.toJson(
+            toPowerPlantConfig(powerPlantRow))
+          )
         )
     }
   }
