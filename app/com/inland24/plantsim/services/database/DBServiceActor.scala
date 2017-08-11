@@ -17,18 +17,23 @@
 
 package com.inland24.plantsim.services.database
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import akka.pattern.ask
 import akka.pattern.pipe
 import com.inland24.plantsim.config.DBConfig
+import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
 import com.inland24.plantsim.models.PowerPlantConfig.PowerPlantsConfig
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantEvent}
 import com.inland24.plantsim.services.database.DBServiceActor.{GetActivePowerPlants, PowerPlantEvents, PowerPlantEventsSeq}
 import com.inland24.plantsim.streams.DBServiceObservable
+import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
+import monix.reactive.observers.Subscriber
+import org.joda.time.{DateTime, DateTimeZone}
 
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 // TODO: pass in the execution context
@@ -44,71 +49,80 @@ import scala.concurrent.duration._
   * TODO: If the database is down the stream should not throw an error!!!
   * but rather it should just continue processing as usual!!
   */
-class DBServiceActor(dbConfig: DBConfig) extends Actor with ActorLogging {
+class DBServiceActor(dbConfig: DBConfig, supervisorActorRef: ActorRef) extends Actor with ActorLogging {
 
   // TODO: revisit this timeout duration, should come from parameters
   implicit val timeout: akka.util.Timeout = 5.seconds
 
   // TODO: import scheduler from method parameters
-  implicit val scheduler = monix.execution.Scheduler.Implicits.global
+  implicit val s = monix.execution.Scheduler.Implicits.global
 
   // This represents the PowerPlantDBService instance
-  val powerPlantDBService = DBService(dbConfig)(scheduler)
+  val powerPlantDBService = DBService(dbConfig)(s)
 
   // This will be our subscription to fetch from the database
-  val powerPlantDBSubscription = SingleAssignmentCancelable()
-
-  // This will be our Observable that will stream events from the database
-  val obs =
-    DBServiceObservable.powerPlantDBServiceObservable(
-      dbConfig.refreshInterval,
-      powerPlantDBService.allPowerPlants(fetchOnlyActive = true)
-    )(com.inland24.plantsim.models.toPowerPlantsConfig)
+  val dbSubscription = SingleAssignmentCancelable()
 
   override def preStart(): Unit = {
     super.preStart()
     log.info("Pre-start DBServiceActor")
 
-    // On the start, we signal the set of active power plants
-    powerPlantDBService.allPowerPlants(fetchOnlyActive = true) pipeTo self
+    // This will be our Observable that will stream events from the database
+    val obs =
+      DBServiceObservable.powerPlantDBServiceObservable(
+        dbConfig.refreshInterval,
+        powerPlantDBService.allPowerPlants(fetchOnlyActive = true)
+      )(com.inland24.plantsim.models.toPowerPlantsConfig)
+
+    dbSubscription := obs.unsafeSubscribeFn (new Subscriber[PowerPlantsConfig] {
+      override implicit def scheduler: Scheduler = s
+
+      override def onNext(elem: PowerPlantsConfig): Future[Ack] = {
+        self ! elem
+        Continue
+      }
+
+      override def onError(ex: Throwable): Unit = log.error("error")
+
+      override def onComplete(): Unit = log.info("complete")
+    })
   }
 
   override def postStop(): Unit = {
     super.postStop()
 
     log.info("Cancelling DB lookup subscription")
-    powerPlantDBSubscription.cancel()
+    dbSubscription.cancel()
   }
 
   override def receive: Receive = {
     case powerPlantsConfig: PowerPlantsConfig =>
-
-      // Subscribe to the Observable for fetching updates to the PowerPlant and send it to self
-      powerPlantDBSubscription := obs.subscribe { update =>
-        (self ? update).map(_ => Continue)
+      val newEvents = DBServiceActor.toEvents(
+        powerPlantsConfig,
+        PowerPlantsConfig(DateTime.now(DateTimeZone.UTC), Seq.empty[PowerPlantConfig])
+      )
+      // Signal these events to SupervisorActor
+      if (newEvents.nonEmpty) {
+        // send them to the SupervisorActor
+        supervisorActorRef ! SupervisorEvents(newEvents)
       }
-
       // We can now context become on active, so that subsequent updates are piped
       context.become(
-        active(
-          powerPlantsConfig,
-          Seq.empty[PowerPlantEvent[PowerPlantConfig]]
-        )
+        active(powerPlantsConfig)
       )
   }
 
-  def active(activePowerPlantsConfig: PowerPlantsConfig, events: PowerPlantEventsSeq): Receive = {
+  def active(activePowerPlantsConfig: PowerPlantsConfig): Receive = {
     case newPowerPlantsConfig: PowerPlantsConfig =>
+      val newEvents = DBServiceActor.toEvents(activePowerPlantsConfig, newPowerPlantsConfig)
+      if (newEvents.nonEmpty) {
+        // Signal these events to SupervisorActor
+        supervisorActorRef ! SupervisorEvents(newEvents)
+      }
+      // We can now context become on active, so that subsequent events could be calculated
       context.become(
-        active(
-          newPowerPlantsConfig,
-          DBServiceActor.toEvents(activePowerPlantsConfig, newPowerPlantsConfig)
-        )
+        active(newPowerPlantsConfig)
       )
-    case GetActivePowerPlants =>
-      sender() ! activePowerPlantsConfig
-    case PowerPlantEvents =>
-      sender() ! events
   }
 }
 
@@ -154,6 +168,6 @@ object DBServiceActor {
     deletedEvents(oldMap, newMap) ++ updatedEvents(oldMap, newMap) ++ createdEvents(oldMap, newMap)
   }
 
-  def props(dbConfig: DBConfig): Props =
-    Props(new DBServiceActor(dbConfig))
+  def props(dbConfig: DBConfig, supervisorActorRef: ActorRef): Props =
+    Props(new DBServiceActor(dbConfig, supervisorActorRef))
 }

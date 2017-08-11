@@ -22,6 +22,7 @@ import akka.pattern.pipe
 import akka.pattern.ask
 import akka.util.Timeout
 import com.inland24.plantsim.config.AppConfig
+import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
 import com.inland24.plantsim.models.PowerPlantConfig
 import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig}
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
@@ -65,7 +66,7 @@ class SupervisorActor(config: AppConfig) extends Actor
   implicit val timeout = Timeout(5.seconds)
 
   // Our DBServiceActor instance that is responsible for tracking changes to the PowerPlant table
-  val dbServiceActor = context.actorOf(DBServiceActor.props(config.database))
+  val dbServiceActor = context.actorOf(DBServiceActor.props(config.database, self), "plant-simulator-dbService")
 
   override val supervisorStrategy: OneForOneStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 5.seconds) {
@@ -81,20 +82,6 @@ class SupervisorActor(config: AppConfig) extends Actor
     super.preStart()
 
     log.info(s"initialized db service actor $dbServiceActor")
-
-    // Observable to stream events regarding PowerPlant's
-    val powerPlantEventObservable =
-    // For every config.database.refreshInterval in seconds
-      Observable.interval(config.database.refreshInterval)
-        // We ask the actor for the latest messages
-        .map(_ => (dbServiceActor ? DBServiceActor.PowerPlantEvents).mapTo[PowerPlantEventsSeq])
-        .concatMap(Observable.fromFuture(_))
-        .concatMap(Observable.fromIterable(_))
-
-    // Subscriber that pipes the messages to this Actor
-    cancelable := powerPlantEventObservable.subscribe { update =>
-      (self ? update).map(_ => Continue)
-    }
   }
 
   override def postStop(): Unit = {
@@ -175,14 +162,19 @@ class SupervisorActor(config: AppConfig) extends Actor
     case Terminated(actorRef) =>
       context.unwatch(actorRef)
 
+    case SupervisorEvents(events) =>
+      log.info(s"Received a total of ${events.length} PowerPlantEvent's")
+      events foreach println
+      events.foreach(event => self ! event)
+
     case PowerPlantCreateEvent(id, powerPlantCfg) =>
-      log.info(s"Starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
+      log.info(s"PowerPlantCreateEvent # Starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
 
       // Start the PowerPlant, and pipe the message to self
       startPowerPlant(id, powerPlantCfg).pipeTo(self)
 
     case PowerPlantUpdateEvent(id, powerPlantCfg) =>
-      log.info(s"Re-starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
+      log.info(s"PowerPlantUpdateEvent # Re-starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
 
       context.child(s"$simulatorActorNamePrefix$id") match {
         case Some(actorRef) =>
@@ -204,7 +196,7 @@ class SupervisorActor(config: AppConfig) extends Actor
       }
 
     case PowerPlantDeleteEvent(id, powerPlantCfg) =>
-      log.info(s"Stopping PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
+      log.info(s"PowerPlantDeleteEvent # Stopping PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
 
       context.child(s"$simulatorActorNamePrefix$id") match {
         case Some(actorRef) =>
@@ -212,7 +204,7 @@ class SupervisorActor(config: AppConfig) extends Actor
           actorRef ! Kill
 
         case None =>
-          log.warning(s"No running actor instance found for id $id ")
+          log.warning(s"PowerPlantDeleteEvent # No running actor instance found for id $id ")
       }
   }
 }
@@ -220,6 +212,7 @@ object SupervisorActor {
 
   sealed trait Message
   case object Init extends Message
+  case class SupervisorEvents(events: PowerPlantEventsSeq)
 
   def props(cfg: AppConfig) = Props(new SupervisorActor(cfg))
 }

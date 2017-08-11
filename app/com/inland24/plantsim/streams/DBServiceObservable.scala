@@ -40,6 +40,7 @@ class DBServiceObservable[T, U] private(refreshInterval: FiniteDuration, fn: => 
   override def unsafeSubscribeFn(subscriber: Subscriber[U]): Cancelable = {
 
     def underlying = {
+      logger.info("Checking the database for PowerPlant updates")
       val someFuture = fn.materialize.map {
         case Success(succ) => Some(succ)
         case Failure(ex) =>
@@ -53,9 +54,9 @@ class DBServiceObservable[T, U] private(refreshInterval: FiniteDuration, fn: => 
     Observable
       .intervalAtFixedRate(refreshInterval)
       .flatMap(_ => underlying)
+      .distinctUntilChanged
       // We map it to the target type we need!
       .collect { case Some(powerPlantsSeq) => mapper(powerPlantsSeq) }
-      .distinctUntilChanged
       .unsafeSubscribeFn(subscriber)
   }
 }
