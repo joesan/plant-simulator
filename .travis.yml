@@ -8,14 +8,15 @@ jdk: oraclejdk8
 sudo: required
 
 # We want to build docker containers
-services: docker
+services:
+  - docker
 
 env:
  global:
-   - APPLICATION_NAME    = inland24/plant-simulator
-   - DOCKER_REGISTRY_URL = repo.treescale.com
-   - DOCKER_APP_URL = hub.docker.com/inland24/plant-simulator
-   - IMAGE_VERSION_DEV   = 1.0-SNAPSHOT
+   - APPLICATION_NAME=inland24/plant-simulator
+   - DOCKER_REGISTRY_URL=repo.treescale.com
+   - DOCKER_APP_URL=hub.docker.com/inland24/plant-simulator
+   - IMAGE_VERSION_DEV=1.0-SNAPSHOT
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
@@ -36,14 +37,14 @@ scala:
 
 # Whitelist of the branches that we consider to build
 branches:
- only:
-   - master
-   - /^develop-.*$/ # regex ok
+  only:
+    - master
+    - /^develop-.*$/ # regex ok
 
 jobs:
   include:
     - stage: test
-     script: sbt clean coverage test coverageReport
+      script: sbt clean coverage test coverageReport
     - stage: build and push docker image
       script:
         - if [ $TRAVIS_BRANCH == "master" ]; then
