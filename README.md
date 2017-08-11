@@ -63,11 +63,12 @@ perform the following steps: TODO: Descibe how to dockerize!
 ```
 1. Open a terminal and navigate to the project root folder 
    
-2. Issue the following command:
+2. Issue one of the following commands to run:
+   To run against a default (application.conf)
    sbt run
    
-   To run in production mode:
-   sbt -Denv=prod -Dlogger.resource run
+   To run in production mode (application.prod.conf):
+   sbt -Denv=prod -Dlogger.resource=prod-logger.xml run
    
 3. Navigate to the following url on your favorite browser:
    http://localhost:9000
