@@ -25,7 +25,7 @@ import com.inland24.plantsim.services.simulator.onOffType.PowerPlantState
 import com.inland24.plantsim.models._
 import play.api.mvc.{Action, Controller}
 import monix.execution.FutureUtils.extensions._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, JsString, Json}
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -39,7 +39,7 @@ class AppController(bindings: AppBindings) extends Controller {
   val dbService = bindings.dbService
   // TODO: pass in this execution context
   import monix.execution.Scheduler.Implicits.global
-  implicit val timeout = 3.seconds
+  implicit val timeout: akka.util.Timeout = 3.seconds
 
   def home = Action { implicit request =>
     Ok("The API is ready")
@@ -74,11 +74,25 @@ class AppController(bindings: AppBindings) extends Controller {
   def powerPlantStatus(id: Int) = Action.async {
     actorFor(id) flatMap {
       case None =>
-        Future.successful(NotFound(s"HTTP 404 :: PowerPlant with ID $id not found"))
+        Future.successful(
+          NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
+        )
       case Some(actorRef) =>
         (actorRef ? StateRequest)
           .mapTo[PowerPlantState]
-          .map(powerPlantState => Ok(Json.toJson(powerPlantState)))
+          .map(powerPlantState =>
+            Ok(
+              Json.prettyPrint(
+                JsObject(
+                  Seq(
+                    "powerPlantId" -> JsString(powerPlantState.powerPlantId.toString)
+                  ) ++ powerPlantState.signals.map {
+                    case (key, value) => key -> JsString(value)
+                  }
+                )
+              )
+            )
+          )
     }
   }
 }

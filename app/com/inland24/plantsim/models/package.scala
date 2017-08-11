@@ -23,7 +23,7 @@ import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, PowerPlan
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType, UnknownType}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.libs.json.{Format, JsValue, Json}
+import play.api.libs.json._
 
 import scala.concurrent.duration.FiniteDuration
 
@@ -31,36 +31,36 @@ package object models {
 
   // Json serialization and de-serialization
   implicit val powerPlantCfgFormat: Format[PowerPlantConfig] = new Format[PowerPlantConfig] {
-    def reads(json: JsValue): PowerPlantConfig = {
+    def reads(json: JsValue): JsResult[PowerPlantConfig] = {
       val powerPlantTyp = PowerPlantType.fromString((json \ "powerPlantType").as[String])
       powerPlantTyp match {
         case PowerPlantType.OnOffType =>
-          OnOffTypeConfig(
+         JsSuccess(OnOffTypeConfig(
             id = (json \ "powerPlantId").as[Int],
             name = (json \ "powerPlantName").as[String],
             minPower = (json \ "minPower").as[Double],
             maxPower = (json \ "maxPower").as[Double],
             powerPlantType = powerPlantTyp
-          )
+          ))
         case PowerPlantType.RampUpType =>
-          RampUpTypeConfig(
+          JsSuccess(RampUpTypeConfig(
             id = (json \ "powerPlantId").as[Int],
             name = (json \ "powerPlantName").as[String],
             minPower = (json \ "minPower").as[Double],
             rampPowerRate = (json \ "rampPowerRate").as[Double],
-            rampRateInSeconds = (json \ "rampRateInSeconds").as[FiniteDuration],
+            rampRateInSeconds = FiniteDuration((json \ "rampRateInSeconds").as[Long], TimeUnit.SECONDS),
             maxPower = (json \ "maxPower").as[Double],
             powerPlantType = powerPlantTyp
-          )
+          ))
         case _ =>
-          UnknownConfig(
+          JsSuccess(UnknownConfig(
             id = (json \ "powerPlantId").as[Int],
             name = (json \ "powerPlantName").as[String],
             minPower = (json \ "minPower").as[Double],
             maxPower = (json \ "maxPower").as[Double],
             powerPlantType = powerPlantTyp
-          )
-      }
+          ))
+      }.
     }
 
     def writes(o: PowerPlantConfig): JsValue = {
