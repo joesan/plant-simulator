@@ -46,6 +46,9 @@ final case class DBConfig(
     case "org.sqlite.JDBC" =>
       Class.forName(driver)
       slick.jdbc.SQLiteProfile
+    case "com.mysql.jdbc.Driver" =>
+      Class.forName(driver)
+      slick.jdbc.MySQLProfile
     case "org.h2.Driver" =>
       Class.forName(driver)
       slick.jdbc.H2Profile
@@ -68,7 +71,7 @@ object AppConfig {
       appName = config.getString("appName"),
       database = DBConfig(
         url = config.getString("db.url"),
-        user = Try(config.getString("db.user")).toOption.filterNot(_.isEmpty),
+        user = Try(config.getString("db.username")).toOption.filterNot(_.isEmpty),
         password = Try(config.getString("db.password")).toOption.filterNot(_.isEmpty),
         driver = config.getString("db.driver"),
         refreshInterval = config.getDuration("db.refreshInterval", TimeUnit.MILLISECONDS).millis

@@ -37,7 +37,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
   }
 
   // This will be our service instance
-  val powerPlantDBService = new DBService(config.database)
+  val powerPlantDBService = DBService(config.database)
 
   behavior of "PowerPlantDBService"
 

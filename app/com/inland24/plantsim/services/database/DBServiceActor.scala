@@ -83,7 +83,7 @@ class DBServiceActor(dbConfig: DBConfig) extends Actor with ActorLogging {
   override def receive: Receive = {
     case powerPlantsConfig: PowerPlantsConfig =>
 
-      // Subscribe to the Observable for fetching updates to the PowerPlant and pipe it to self
+      // Subscribe to the Observable for fetching updates to the PowerPlant and send it to self
       powerPlantDBSubscription := obs.subscribe { update =>
         (self ? update).map(_ => Continue)
       }

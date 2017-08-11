@@ -19,6 +19,7 @@ package com.inland24.plantsim
 
 import java.util.concurrent.TimeUnit
 
+import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, PowerPlantsConfig, RampUpTypeConfig, UnknownConfig}
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType, UnknownType}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
@@ -29,7 +30,20 @@ import scala.concurrent.duration.FiniteDuration
 
 package object models {
 
-  // Json serialization and de-serialization
+  implicit val appConfigWrites = new Writes[AppConfig] {
+    def writes(appConfig: AppConfig) = Json.obj(
+      "environment" -> appConfig.environment,
+      "application" -> appConfig.appName,
+      "dbConfig" -> Json.obj(
+        "databaseDriver" -> appConfig.database.driver,
+        "databaseUrl" -> appConfig.database.url,
+        "databaseUser" -> "***********",
+        "databasePass" -> "***********"
+      )
+    )
+  }
+
+  // Json serialization and de-serialization TODO: Re-Work on this!
   implicit val powerPlantCfgFormat: Format[PowerPlantConfig] = new Format[PowerPlantConfig] {
     def reads(json: JsValue): JsResult[PowerPlantConfig] = {
       val powerPlantTyp = PowerPlantType.fromString((json \ "powerPlantType").as[String])
@@ -60,7 +74,7 @@ package object models {
             maxPower = (json \ "maxPower").as[Double],
             powerPlantType = powerPlantTyp
           ))
-      }.
+      }
     }
 
     def writes(o: PowerPlantConfig): JsValue = {

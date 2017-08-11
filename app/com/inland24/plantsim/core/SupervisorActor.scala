@@ -62,7 +62,7 @@ class SupervisorActor(config: AppConfig) extends Actor
   val simulatorActorNamePrefix = config.appName
 
   // The default timeout for all Ask's the Actor makes
-  implicit val timeout = Timeout(3.seconds)
+  implicit val timeout = Timeout(5.seconds)
 
   // Our DBServiceActor instance that is responsible for tracking changes to the PowerPlant table
   val dbServiceActor = context.actorOf(DBServiceActor.props(config.database))
@@ -79,6 +79,8 @@ class SupervisorActor(config: AppConfig) extends Actor
 
   override def preStart(): Unit = {
     super.preStart()
+
+    log.info(s"initialized db service actor $dbServiceActor")
 
     // Observable to stream events regarding PowerPlant's
     val powerPlantEventObservable =

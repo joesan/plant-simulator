@@ -24,13 +24,17 @@
             <pattern>%date [%level] from %logger in %thread - %message%n%xException</pattern>
         </encoder>
     </appender>
+
+    <logger name="play" level="INFO" />
+    <logger name="application" level="INFO" />
+    <logger name="akka" level="INFO" />
+
     <appender name="ASYNCFILE" class="ch.qos.logback.classic.AsyncAppender">
         <appender-ref ref="FILE" />
     </appender>
 
     <root level="WARN">
         <appender-ref ref="ASYNCFILE" />
-        <appender-ref ref="ASYNCSTDOUT" />
     </root>
 
     <logger name="scala.slick" level="INFO" />

@@ -49,17 +49,17 @@ class DBSchema private (val driver: JdbcProfile) {
   /**
     * The PowerPlant details are maintained in the PowerPlant table
     */
-  class PowerPlantTable(tag: Tag) extends Table[PowerPlantRow](tag, "PowerPlant") {
-    def id            = column[Int]("id", O.PrimaryKey)
-    def orgName       = column[String]("powerPlantName")
+  class PowerPlantTable(tag: Tag) extends Table[PowerPlantRow](tag, "powerPlant") {
+    def id            = column[Int]("powerPlantId", O.PrimaryKey)
+    def orgName       = column[String]("orgName")
     def isActive      = column[Boolean]("isActive")
     def minPower      = column[Double]("minPower")
     def maxPower      = column[Double]("maxPower")
-    def powerRampRate = column[Option[Double]]("rampRatePower")
+    def powerRampRate = column[Option[Double]]("rampRate")
     def rampRateSecs  = column[Option[Long]]("rampRateSecs")
     def powerPlantType= column[PowerPlantType]("powerPlantType")
-    def createdAt     = column[DateTime]("created_at")
-    def updatedAt     = column[DateTime]("updated_at")
+    def createdAt     = column[DateTime]("createdAt")
+    def updatedAt     = column[DateTime]("updatedAt")
 
     def * = {
       (id, orgName, isActive, minPower, maxPower,

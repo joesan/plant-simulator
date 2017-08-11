@@ -13,3 +13,4 @@ project/target/*
 /target/*
 *.class
 *.log
+conf/application.dev.conf

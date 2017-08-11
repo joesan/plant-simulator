@@ -73,6 +73,7 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.6",
   "com.zaxxer" % "HikariCP" % "2.4.1",
   "com.typesafe" % "config" % "1.3.1",
+  "mysql" % "mysql-connector-java" % "5.1.26",
 
   // test
   "com.typesafe.akka" %% "akka-testkit" % "2.5.2" % Test,

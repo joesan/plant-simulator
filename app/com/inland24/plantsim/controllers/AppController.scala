@@ -56,6 +56,14 @@ class AppController(bindings: AppBindings) extends Controller {
       }
   }
 
+  def appConfig = Action.async {
+    Future.successful(
+      Ok(Json.prettyPrint(
+        Json.toJson(bindings.appConfig))
+      )
+    )
+  }
+
   def powerPlantDetails(id: Int) = Action.async {
     dbService.powerPlantById(id).flatMap {
       case None =>
@@ -64,8 +72,8 @@ class AppController(bindings: AppBindings) extends Controller {
         )
       case Some(powerPlantRow) =>
         Future.successful(
-          Ok(Json.toJson(
-            toPowerPlantConfig(powerPlantRow))
+          Ok(Json.prettyPrint(
+            Json.toJson(toPowerPlantConfig(powerPlantRow)))
           )
         )
     }
