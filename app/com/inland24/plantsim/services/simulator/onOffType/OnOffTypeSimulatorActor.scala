@@ -15,13 +15,13 @@
 
 package com.inland24.plantsim.services.simulator.onOffType
 
-import akka.actor.{Actor, Props}
+import akka.actor.{Actor, ActorLogging, Props}
 import OnOffTypeSimulatorActor._
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 
 
 class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
-  extends Actor {
+  extends Actor with ActorLogging {
 
   /*
    * Initialize the PowerPlant
@@ -36,6 +36,7 @@ class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
       context.become(
         active(PowerPlantState.init(PowerPlantState.empty(cfg.id), cfg.minPower))
       )
+      log.info(s"Successfully initialized PowerPlant actor with id ${cfg.id}")
   }
 
   def active(state: PowerPlantState): Receive = {

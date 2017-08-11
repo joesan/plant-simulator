@@ -98,8 +98,8 @@ class DBServiceActor(dbConfig: DBConfig, supervisorActorRef: ActorRef) extends A
   override def receive: Receive = {
     case powerPlantsConfig: PowerPlantsConfig =>
       val newEvents = DBServiceActor.toEvents(
-        powerPlantsConfig,
-        PowerPlantsConfig(DateTime.now(DateTimeZone.UTC), Seq.empty[PowerPlantConfig])
+        PowerPlantsConfig(DateTime.now(DateTimeZone.UTC), Seq.empty[PowerPlantConfig]),
+        powerPlantsConfig
       )
       // Signal these events to SupervisorActor
       if (newEvents.nonEmpty) {
@@ -112,9 +112,9 @@ class DBServiceActor(dbConfig: DBConfig, supervisorActorRef: ActorRef) extends A
       )
   }
 
-  def active(activePowerPlantsConfig: PowerPlantsConfig): Receive = {
+  def active(oldPowerPlantsConfig: PowerPlantsConfig): Receive = {
     case newPowerPlantsConfig: PowerPlantsConfig =>
-      val newEvents = DBServiceActor.toEvents(activePowerPlantsConfig, newPowerPlantsConfig)
+      val newEvents = DBServiceActor.toEvents(oldPowerPlantsConfig, newPowerPlantsConfig)
       if (newEvents.nonEmpty) {
         // Signal these events to SupervisorActor
         supervisorActorRef ! SupervisorEvents(newEvents)

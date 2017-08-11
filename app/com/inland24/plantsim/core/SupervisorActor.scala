@@ -94,16 +94,19 @@ class SupervisorActor(config: AppConfig) extends Actor
   // ***********************************************************************************
   private def startPowerPlant(id: Long, cfg: PowerPlantConfig): Future[Ack] = cfg.powerPlantType match {
     case OnOffType =>
+      log.info(s"Starting OnOffType PowerPlant with id $id")
       context.actorOf(
         OnOffTypeSimulatorActor.props(cfg.asInstanceOf[OnOffTypeConfig]),
-        s"$simulatorActorNamePrefix$id"
+        s"$simulatorActorNamePrefix-$id"
       )
+      log.info(s"Successfully started OnOffType PowerPlant with id $id")
       Continue
 
     case RampUpType =>
+      log.info(s"Starting RampUpType PowerPlant with id $id")
       context.actorOf(
         RampUpTypeSimulatorActor.props(cfg.asInstanceOf[RampUpTypeConfig]),
-        s"$simulatorActorNamePrefix$id"
+        s"$simulatorActorNamePrefix-$id"
       )
       Continue
 
@@ -168,15 +171,15 @@ class SupervisorActor(config: AppConfig) extends Actor
       events.foreach(event => self ! event)
 
     case PowerPlantCreateEvent(id, powerPlantCfg) =>
-      log.info(s"PowerPlantCreateEvent # Starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
+      log.info(s"PowerPlantCreateEvent # Starting PowerPlant actor with id = $id, type ${powerPlantCfg.powerPlantType}")
 
       // Start the PowerPlant, and pipe the message to self
       startPowerPlant(id, powerPlantCfg).pipeTo(self)
 
     case PowerPlantUpdateEvent(id, powerPlantCfg) =>
-      log.info(s"PowerPlantUpdateEvent # Re-starting PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
+      log.info(s"PowerPlantUpdateEvent # Re-starting PowerPlant actor with id = $id, type ${powerPlantCfg.powerPlantType}")
 
-      context.child(s"$simulatorActorNamePrefix$id") match {
+      context.child(s"$simulatorActorNamePrefix-$id") match {
         case Some(actorRef) =>
           context.watch(actorRef)
           // We first kill the child actor instance
@@ -196,9 +199,9 @@ class SupervisorActor(config: AppConfig) extends Actor
       }
 
     case PowerPlantDeleteEvent(id, powerPlantCfg) =>
-      log.info(s"PowerPlantDeleteEvent # Stopping PowerPlant actor with id = $id and type ${powerPlantCfg.powerPlantType}")
+      log.info(s"PowerPlantDeleteEvent # Stopping PowerPlant actor with id = $id, type ${powerPlantCfg.powerPlantType}")
 
-      context.child(s"$simulatorActorNamePrefix$id") match {
+      context.child(s"$simulatorActorNamePrefix-$id") match {
         case Some(actorRef) =>
           context.watch(actorRef)
           actorRef ! Kill
