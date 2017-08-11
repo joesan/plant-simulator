@@ -66,6 +66,9 @@ perform the following steps: TODO: Descibe how to dockerize!
 2. Issue the following command:
    sbt run
    
+   To run in production mode:
+   sbt -Denv=prod -Dlogger.resource run
+   
 3. Navigate to the following url on your favorite browser:
    http://localhost:9000
    
