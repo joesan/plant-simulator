@@ -32,6 +32,7 @@ import scala.util.Try
   */
 final case class AppConfig(
   environment: String,
+  appName: String,
   database: DBConfig
 )
 final case class DBConfig(
@@ -64,6 +65,7 @@ object AppConfig {
   def load(config: Config): AppConfig = {
     AppConfig(
       environment = config.getString("environment"),
+      appName = config.getString("appName"),
       database = DBConfig(
         url = config.getString("db.url"),
         user = Try(config.getString("db.user")).toOption.filterNot(_.isEmpty),

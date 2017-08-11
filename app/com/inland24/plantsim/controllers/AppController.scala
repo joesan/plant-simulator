@@ -17,13 +17,62 @@
 
 package com.inland24.plantsim.controllers
 
+import akka.actor.ActorRef
+import akka.pattern.ask
 import com.inland24.plantsim.core.AppBindings
+import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor.StateRequest
+import com.inland24.plantsim.services.simulator.onOffType.PowerPlantState
 import play.api.mvc.{Action, Controller}
+import monix.execution.FutureUtils.extensions._
+import play.api.libs.json.Json
+
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.{Failure, Success}
 
 
 class AppController(bindings: AppBindings) extends Controller {
 
+  // Place a reference to the underlying ActorSystem
+  implicit val system = bindings.actorSystem
+  val dbService = bindings.dbService
+
   def home = Action { implicit request =>
     Ok("The API is ready")
+  }
+
+  // Utility to resolve an actor reference
+  def actorFor(powerPlantId: Long): Future[Option[ActorRef]] = {
+    system.actorSelection(s"${bindings.appConfig.appName}-$powerPlantId")
+      .resolveOne(2.seconds)
+      .materialize
+      .map {
+        case Success(actorRef) => Some(actorRef)
+        case Failure(_) => None
+      }
+  }
+
+  def powerPlantDetails(id: Long) = Action.async {
+    dbService.powerPlantById(id).flatMap {
+      case None =>
+        Future.successful(
+          NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
+        )
+      case Some(powerPlantRow) =>
+        Future.successful(
+          Ok(Json.toJson(powerPlantRow))
+        )
+    }
+  }
+
+  def powerPlantStatus(id: Long) = Action.async {
+    actorFor(id) flatMap {
+      case None =>
+        Future.successful(NotFound(s"HTTP 404 :: PowerPlant with ID $id not found"))
+      case Some(actorRef) =>
+        (actorRef ? StateRequest)
+          .mapTo[PowerPlantState]
+          .map(powerPlantState => Ok(Json.toJson(powerPlantState)))
+    }
   }
 }

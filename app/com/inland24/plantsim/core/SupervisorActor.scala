@@ -59,7 +59,7 @@ class SupervisorActor(config: AppConfig) extends Actor
   val cancelable = SingleAssignmentCancelable()
 
   // This is how we name our actors
-  val simulatorActorNamePrefix = "plant-simulator-actor-"
+  val simulatorActorNamePrefix = config.appName
 
   // The default timeout for all Ask's the Actor makes
   implicit val timeout = Timeout(3.seconds)

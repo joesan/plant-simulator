@@ -20,12 +20,15 @@ package com.inland24.plantsim.core
 import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.Materializer
 import com.inland24.plantsim.config.AppConfig
+import com.inland24.plantsim.services.database.DBService
 
 trait AppBindings {
 
   def actorSystem: ActorSystem
   def materializer: Materializer
 
+  def dbService: DBService
+  def appConfig: AppConfig
   def supervisorActor: ActorRef
 }
 object AppBindings {
@@ -35,7 +38,10 @@ object AppBindings {
     override val actorSystem: ActorSystem = system
     override val materializer: Materializer = actorMaterializer
 
+    override val appConfig: AppConfig = AppConfig.load()
+    override val dbService = DBService(appConfig.database)
+
     override val supervisorActor: ActorRef =
-      system.actorOf(SupervisorActor.props(AppConfig.load()))
+      system.actorOf(SupervisorActor.props(appConfig))
   }
 }

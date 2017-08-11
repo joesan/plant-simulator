@@ -23,8 +23,8 @@ import com.inland24.plantsim.services.database.models.PowerPlantRow
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class DBService(val dbConfig: DBConfig)(
-  implicit ec: ExecutionContext) { self =>
+class DBService private (dbConfig: DBConfig)
+  (implicit ec: ExecutionContext) { self =>
 
   private val schema = DBSchema(dbConfig.slickDriver)
   private val database = dbConfig.database
@@ -43,7 +43,12 @@ class DBService(val dbConfig: DBConfig)(
     database.run(query.result)
   }
 
-  def powerPlantById(id: Int): Future[Option[PowerPlantRow]] = {
+  def powerPlantById(id: Long): Future[Option[PowerPlantRow]] = {
     database.run(PowerPlantTable.powerPlantById(id).result.headOption)
   }
+}
+object DBService {
+
+  def apply(dbCfg: DBConfig)(implicit ec: ExecutionContext) =
+    new DBService(dbCfg)(ec)
 }
