@@ -18,15 +18,13 @@
 package com.inland24.plantsim.services.database
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import akka.pattern.ask
-import akka.pattern.pipe
 import com.inland24.plantsim.config.DBConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
 import com.inland24.plantsim.models.PowerPlantConfig.PowerPlantsConfig
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantEvent}
-import com.inland24.plantsim.services.database.DBServiceActor.{GetActivePowerPlants, PowerPlantEvents, PowerPlantEventsSeq}
-import com.inland24.plantsim.streams.DBServiceObservable
+import com.inland24.plantsim.services.database.models.PowerPlantRow
+import com.inland24.plantsim.streams.DBObservable
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
@@ -36,8 +34,6 @@ import org.joda.time.{DateTime, DateTimeZone}
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-// TODO: pass in the execution context
-// TODO: start emitting events for updates
 /**
   * This Actor is responsible for reacting to updates on a PowerPlant
   * in the database. So whenever a PowerPlant is updated, the update
@@ -49,7 +45,8 @@ import scala.concurrent.duration._
   * TODO: If the database is down the stream should not throw an error!!!
   * but rather it should just continue processing as usual!!
   */
-class DBServiceActor(dbConfig: DBConfig, supervisorActorRef: ActorRef) extends Actor with ActorLogging {
+class DBServiceActor private (dbConfig: DBConfig, supervisorActor: ActorRef)(implicit ec: Scheduler)
+  extends Actor with ActorLogging {
 
   // TODO: revisit this timeout duration, should come from parameters
   implicit val timeout: akka.util.Timeout = 5.seconds
@@ -66,7 +63,8 @@ class DBServiceActor(dbConfig: DBConfig, supervisorActorRef: ActorRef) extends A
   override def preStart(): Unit = {
     super.preStart()
     log.info("Pre-start DBServiceActor")
-
+    /*
+    // TODO: Test this later - This is not working
     // This will be our Observable that will stream events from the database
     val obs =
       DBServiceObservable.powerPlantDBServiceObservable(
@@ -79,6 +77,26 @@ class DBServiceActor(dbConfig: DBConfig, supervisorActorRef: ActorRef) extends A
 
       override def onNext(elem: PowerPlantsConfig): Future[Ack] = {
         self ! elem
+        Continue
+      }
+
+      override def onError(ex: Throwable): Unit = log.error("error")
+
+      override def onComplete(): Unit = log.info("complete")
+    })
+
+     */
+
+    val obs = DBObservable(
+      dbConfig.refreshInterval,
+      powerPlantDBService.allPowerPlants(fetchOnlyActive = true)
+    )
+
+    dbSubscription := obs.unsafeSubscribeFn (new Subscriber[Seq[PowerPlantRow]] {
+      override implicit def scheduler: Scheduler = s
+
+      override def onNext(elem: Seq[PowerPlantRow]): Future[Ack] = {
+        self ! com.inland24.plantsim.models.toPowerPlantsConfig(elem)
         Continue
       }
 
@@ -104,7 +122,7 @@ class DBServiceActor(dbConfig: DBConfig, supervisorActorRef: ActorRef) extends A
       // Signal these events to SupervisorActor
       if (newEvents.nonEmpty) {
         // send them to the SupervisorActor
-        supervisorActorRef ! SupervisorEvents(newEvents)
+        supervisorActor ! SupervisorEvents(newEvents)
       }
       // We can now context become on active, so that subsequent updates are piped
       context.become(
@@ -117,7 +135,7 @@ class DBServiceActor(dbConfig: DBConfig, supervisorActorRef: ActorRef) extends A
       val newEvents = DBServiceActor.toEvents(oldPowerPlantsConfig, newPowerPlantsConfig)
       if (newEvents.nonEmpty) {
         // Signal these events to SupervisorActor
-        supervisorActorRef ! SupervisorEvents(newEvents)
+        supervisorActor ! SupervisorEvents(newEvents)
       }
       // We can now context become on active, so that subsequent events could be calculated
       context.become(
@@ -168,6 +186,6 @@ object DBServiceActor {
     deletedEvents(oldMap, newMap) ++ updatedEvents(oldMap, newMap) ++ createdEvents(oldMap, newMap)
   }
 
-  def props(dbConfig: DBConfig, supervisorActorRef: ActorRef): Props =
-    Props(new DBServiceActor(dbConfig, supervisorActorRef))
+  def props(dbConfig: DBConfig, supervisorActorRef: ActorRef)(implicit ec: Scheduler): Props =
+    Props(new DBServiceActor(dbConfig, supervisorActorRef)(ec))
 }

@@ -43,6 +43,8 @@ object AppBindings {
     override val dbService = DBService(appConfig.database)(scala.concurrent.ExecutionContext.Implicits.global)
 
     override val supervisorActor: ActorRef =
-      system.actorOf(SupervisorActor.props(appConfig))
+      system.actorOf(
+        SupervisorActor.props(appConfig)(monix.execution.Scheduler.Implicits.global)
+      )
   }
 }

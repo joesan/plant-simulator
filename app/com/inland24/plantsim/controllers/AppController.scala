@@ -20,8 +20,7 @@ package com.inland24.plantsim.controllers
 import akka.actor.ActorRef
 import akka.pattern.ask
 import com.inland24.plantsim.core.AppBindings
-import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor.StateRequest
-import com.inland24.plantsim.services.simulator.onOffType.PowerPlantState
+import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models._
 import play.api.mvc.{Action, Controller}
 import monix.execution.FutureUtils.extensions._
@@ -80,22 +79,22 @@ class AppController(bindings: AppBindings) extends Controller {
     }
   }
 
-  def powerPlantStatus(id: Int) = Action.async {
+  def powerPlantSignals(id: Int) = Action.async {
     actorFor(id) flatMap {
       case None =>
         Future.successful(
           NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
         )
       case Some(actorRef) =>
-        (actorRef ? StateRequest)
-          .mapTo[PowerPlantState]
-          .map(powerPlantState =>
+        (actorRef ? TelemetrySignals)
+          .mapTo[Map[String, String]]
+          .map(signals =>
             Ok(
               Json.prettyPrint(
                 JsObject(
                   Seq(
-                    "powerPlantId" -> JsString(powerPlantState.powerPlantId.toString)
-                  ) ++ powerPlantState.signals.map {
+                    "powerPlantId" -> JsString(id.toString)
+                  ) ++ signals.map {
                     case (key, value) => key -> JsString(value)
                   }
                 )

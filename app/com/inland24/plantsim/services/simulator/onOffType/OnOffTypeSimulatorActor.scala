@@ -17,6 +17,7 @@ package com.inland24.plantsim.services.simulator.onOffType
 
 import akka.actor.{Actor, ActorLogging, Props}
 import OnOffTypeSimulatorActor._
+import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 
 
@@ -36,24 +37,30 @@ class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
       context.become(
         active(PowerPlantState.init(PowerPlantState.empty(cfg.id), cfg.minPower))
       )
-      log.info(s"Successfully initialized PowerPlant actor with id ${cfg.id}")
   }
 
   def active(state: PowerPlantState): Receive = {
+    case TelemetrySignals =>
+      sender ! state.signals
+
     case StateRequest =>
       sender ! state
+
     case TurnOn => // Turning On means deliver max power
       context.become(
         active(PowerPlantState.turnOn(state, maxPower = cfg.maxPower))
       )
+
     case TurnOff => // Turning Off means returning to min power
       context.become(
         active(PowerPlantState.turnOff(state, minPower = cfg.minPower))
       )
+
     case OutOfService =>
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
       )
+
     case ReturnToService =>
       context.become(receive)
       self ! Init

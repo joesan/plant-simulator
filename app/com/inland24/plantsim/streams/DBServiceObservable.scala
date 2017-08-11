@@ -32,15 +32,17 @@ import scala.util.{Failure, Success}
   * whoever that subscribes to this stream. The kind of data that we
   * stream depends on the caller and is governed by the function that
   * he passes to the constructor.
+  * TODO: This seems not to work!
   */
-class DBServiceObservable[T, U] private(refreshInterval: FiniteDuration, fn: => Future[T])
+class DBServiceObservable[T, U] private (refreshInterval: FiniteDuration, fn: => Future[T])
   (mapper: T => U)(implicit ec: ExecutionContext)
   extends Observable[U] with LazyLogging {
 
   override def unsafeSubscribeFn(subscriber: Subscriber[U]): Cancelable = {
 
-    def underlying = {
+    def underlying() = {
       logger.info("Checking the database for PowerPlant updates")
+      println("Checking the database for PowerPlant updates")
       val someFuture = fn.materialize.map {
         case Success(succ) => Some(succ)
         case Failure(ex) =>
@@ -52,11 +54,15 @@ class DBServiceObservable[T, U] private(refreshInterval: FiniteDuration, fn: => 
     }
 
     Observable
-      .intervalAtFixedRate(refreshInterval)
-      .flatMap(_ => underlying)
-      .distinctUntilChanged
+      .intervalWithFixedDelay(refreshInterval)
+      .flatMap(_ => underlying())
+      //.distinctUntilChanged
       // We map it to the target type we need!
       .collect { case Some(powerPlantsSeq) => mapper(powerPlantsSeq) }
+      .map(elem => {
+        println(elem)
+        elem
+      })
       .unsafeSubscribeFn(subscriber)
   }
 }

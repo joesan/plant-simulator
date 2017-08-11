@@ -19,7 +19,6 @@ package com.inland24.plantsim.core
 
 import akka.actor.{Actor, ActorKilledException, ActorLogging, ActorRef, Kill, OneForOneStrategy, PoisonPill, Props, Stash, SupervisorStrategy, Terminated}
 import akka.pattern.pipe
-import akka.pattern.ask
 import akka.util.Timeout
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
@@ -31,12 +30,9 @@ import com.inland24.plantsim.services.database.DBServiceActor
 import com.inland24.plantsim.services.database.DBServiceActor.PowerPlantEventsSeq
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeSimulatorActor
-import monix.execution.Ack
+import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
-// TODO: This import should not be here!
-import monix.execution.Scheduler.Implicits.global
 import monix.execution.cancelables.SingleAssignmentCancelable
-import monix.reactive.Observable
 
 import scala.concurrent.{Future, Promise}
 import scala.concurrent.duration._
@@ -53,7 +49,7 @@ import scala.concurrent.duration._
   * 3. Starts the child actors and watches them
   * 4. Re-starts the child actors when needed (in case of failures)
   */
-class SupervisorActor(config: AppConfig) extends Actor
+class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
   with ActorLogging with Stash {
 
   // We would use this to safely dispose any open connections
@@ -171,13 +167,13 @@ class SupervisorActor(config: AppConfig) extends Actor
       events.foreach(event => self ! event)
 
     case PowerPlantCreateEvent(id, powerPlantCfg) =>
-      log.info(s"PowerPlantCreateEvent # Starting PowerPlant actor with id = $id, type ${powerPlantCfg.powerPlantType}")
+      log.info(s"PowerPlantCreateEvent # Starting PowerPlant actor with id = $id, type = ${powerPlantCfg.powerPlantType}")
 
       // Start the PowerPlant, and pipe the message to self
       startPowerPlant(id, powerPlantCfg).pipeTo(self)
 
     case PowerPlantUpdateEvent(id, powerPlantCfg) =>
-      log.info(s"PowerPlantUpdateEvent # Re-starting PowerPlant actor with id = $id, type ${powerPlantCfg.powerPlantType}")
+      log.info(s"PowerPlantUpdateEvent # Re-starting PowerPlant actor with id = $id, type = ${powerPlantCfg.powerPlantType}")
 
       context.child(s"$simulatorActorNamePrefix-$id") match {
         case Some(actorRef) =>
@@ -215,7 +211,9 @@ object SupervisorActor {
 
   sealed trait Message
   case object Init extends Message
+  case object TelemetrySignals
   case class SupervisorEvents(events: PowerPlantEventsSeq)
 
-  def props(cfg: AppConfig) = Props(new SupervisorActor(cfg))
+  def props(cfg: AppConfig)(implicit s: Scheduler) =
+    Props(new SupervisorActor(cfg)(s))
 }

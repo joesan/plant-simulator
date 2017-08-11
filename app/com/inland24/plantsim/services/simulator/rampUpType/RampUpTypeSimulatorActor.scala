@@ -17,6 +17,7 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.{Actor, ActorLogging, Props}
 import RampUpTypeSimulatorActor._
+import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import monix.execution.Ack
 import monix.execution.Ack.Continue
@@ -76,8 +77,12 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
   }
 
   def active(state: PowerPlantState): Receive = {
+    case TelemetrySignals =>
+      sender ! state.signals
+
     case StateRequest =>
       sender ! state
+
     case Dispatch(power) => // Dispatch to the specified power value
       startSubscription
       context.become(
@@ -85,10 +90,12 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
           PowerPlantState.dispatch(state.copy(setPoint = power))
         )
       )
+
     case OutOfService =>
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
       )
+
     case ReturnToService =>
       context.become(receive)
       self ! Init
@@ -100,8 +107,12 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     * up. The recursivity is governed by the Monix Observable!
     */
   def checkRamp(state: PowerPlantState): Receive = {
+    case TelemetrySignals =>
+      sender ! state.signals
+
     case StateRequest =>
       sender ! state
+
     case RampCheck =>
       val isDispatched = PowerPlantState.isDispatched(state)
       // We first check if we have reached the setPoint, if yes, we switch context
@@ -115,6 +126,7 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
           checkRamp(PowerPlantState.dispatch(state))
         )
       }
+
     // If we need to throw this plant OutOfService, we do it
     case OutOfService =>
       // but as always, cancel the subscription first
@@ -129,13 +141,18 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     * is fully dispatched
     */
   def dispatched(state: PowerPlantState): Receive = {
+    case TelemetrySignals =>
+      sender ! state.signals
+
     case StateRequest =>
       sender ! state
+
     // If we need to throw this plant OutOfService, we do it
     case OutOfService =>
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
       )
+
     case ReturnToNormal =>
       context.become(receive)
       self ! Init

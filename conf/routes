@@ -7,7 +7,7 @@ GET			/							 com.inland24.plantsim.controllers.AppController.home
 GET			/config					     com.inland24.plantsim.controllers.AppController.appConfig
 
 # Endpoints to fetch details about the PowerPlant
-GET         /powerPlant/:id/signals      com.inland24.plantsim.controllers.AppController.powerPlantStatus(id: Int)
+GET         /powerPlant/:id/telemetry    com.inland24.plantsim.controllers.AppController.powerPlantSignals(id: Int)
 GET         /powerPlant/:id/details      com.inland24.plantsim.controllers.AppController.powerPlantDetails(id: Int)
 
 # Map static resources from the /public folder to the /assets URL path
