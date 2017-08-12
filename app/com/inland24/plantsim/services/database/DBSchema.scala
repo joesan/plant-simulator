@@ -20,7 +20,7 @@ package com.inland24.plantsim.services.database
 import java.sql.Timestamp
 
 import com.inland24.plantsim.models.PowerPlantType
-import com.inland24.plantsim.services.database.models.{AddressRow, PowerPlantRow}
+import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
 import slick.jdbc.JdbcProfile
 

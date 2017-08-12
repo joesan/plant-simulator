@@ -89,12 +89,9 @@ class AppController(bindings: AppBindings) extends Controller {
         (actorRef ? TelemetrySignals)
           .mapTo[Map[String, String]]
           .map(signals =>
-            Ok(
-              Json.prettyPrint(
+            Ok(Json.prettyPrint(
                 JsObject(
-                  Seq(
-                    "powerPlantId" -> JsString(id.toString)
-                  ) ++ signals.map {
+                  Seq("powerPlantId" -> JsString(id.toString)) ++ signals.map {
                     case (key, value) => key -> JsString(value)
                   }
                 )
