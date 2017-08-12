@@ -38,9 +38,10 @@ object RandomValueGeneratorService {
       from + (random.nextDouble() * (within - from) )
   }
 
+  /* TODO: Check if this method is needed, if not remove it!
   object StringRandomValue extends RandomValueGeneratorService[String] {
     val rndm = new Random(9988)
     override def random(from: String, within: String): String = // TODO: make use of from and within
       rndm.nextString(from.length + within.length)
-  }
+  } */
 }

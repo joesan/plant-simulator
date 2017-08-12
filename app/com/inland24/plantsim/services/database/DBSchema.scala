@@ -100,33 +100,6 @@ class DBSchema private (val driver: JdbcProfile) {
       all.filter(_.id === id)
     }
   }
-
-  ///////////////// Address Table
-  /**
-    * The Address details are maintained in the Address table
-    */
-  class AddressTable(tag: Tag) extends Table[AddressRow](tag, "Address") {
-    def id        = column[Int]("id", O.PrimaryKey)
-    def streetNum = column[Int]("streetNum")
-    def street    = column[String]("street")
-    def city      = column[String]("city")
-    def plz       = column[Int]("plz")
-    def country   = column[String]("country")
-
-    def * = {
-      (id, streetNum, street, city, plz, country) <>
-        (AddressRow.tupled, AddressRow.unapply)
-    }
-  }
-
-  object AddressTable {
-
-    val all = TableQuery[AddressTable]
-
-    def addressById(id: Int) = {
-      all.filter(_.id === id)
-    }
-  }
 }
 object DBSchema {
   def apply(driver: JdbcProfile) = {
