@@ -14,7 +14,7 @@ services:
 env:
  global:
    - APPLICATION_NAME=inland24/plant-simulator
-   - DOCKER_REGISTRY_URL=repo.treescale.com
+   - DOCKER_REGISTRY_URL=hub.docker.com
    - DOCKER_APP_URL=hub.docker.com/inland24/plant-simulator
    - IMAGE_VERSION_DEV=1.0-SNAPSHOT
 

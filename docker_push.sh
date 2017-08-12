@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 if [ $TRAVIS_BRANCH == "master" ]; then
   sbt docker:publishLocal;
   docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
