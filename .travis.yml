@@ -8,7 +8,15 @@ jdk: oraclejdk8
 sudo: required
 
 # We want to build docker containers
-services: docker
+services:
+  - docker
+
+env:
+ global:
+   - APPLICATION_NAME=inland24/plant-simulator
+   - DOCKER_REGISTRY_URL=repo.treescale.com
+   - DOCKER_APP_URL=hub.docker.com/inland24/plant-simulator
+   - IMAGE_VERSION_DEV=1.0-SNAPSHOT
 
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
@@ -29,24 +37,16 @@ scala:
 
 # Whitelist of the branches that we consider to build
 branches:
- only:
-   - master
-   - /^develop-.*$/ # regex ok
+  only:
+    - master
+    - /^develop-.*$/ # regex ok
 
 jobs:
   include:
     - stage: test
       script: sbt clean coverage test coverageReport
     - stage: build and push docker image
-      script:
-        - if [ $TRAVIS_BRANCH == "master" ]; then
-            sbt docker:publishLocal;
-            docker login -u $DOCKER_REGISTRY_USERNAME -p $DOCKER_REGISTRY_PASSWORD $DOCKER_REGISTRY_URL;
-            docker images;
-            echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL";
-            # We wait for 5 minutes until we opt out
-            docker push $DOCKER_TAG_NAME;
-          fi
+      script: chmod +x ./docker_push.sh && ./docker_push.sh
 
 after_success:
   - bash <(curl -s https://codecov.io/bash)
