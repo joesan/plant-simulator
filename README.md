@@ -121,6 +121,8 @@ This application is built as a web application using the Play framework. We have
 
 * *Joesan*           - [Joesan @ GitHub](https://github.com/joesan/)
 
+See also the list of [contributors](https://github.com/joesan/plant-simulator/graphs/contributors) who helped.
+
 ## License
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
