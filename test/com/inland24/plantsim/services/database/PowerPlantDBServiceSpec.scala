@@ -17,8 +17,16 @@
 
 package com.inland24.plantsim.services.database
 
+import java.util.concurrent.TimeUnit
+
 import com.inland24.plantsim.models.PowerPlantType
+import com.inland24.plantsim.models.PowerPlantType.OnOffType
+import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll}
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.{Failure, Success}
 
 
 final class PowerPlantDBServiceSpec extends AsyncFlatSpec
@@ -66,6 +74,30 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
         assert(powerPlant.isActive)
 
       case _ => fail("expected the powerPlant with id 105 but was not found in the database")
+    }
+  }
+
+  "newPowerPlant" should "add a new PowerPlant to the PowerPlant table" in {
+    val newPowerPlantRow = PowerPlantRow(
+      id = 10000,
+      orgName = s"joesan_10000",
+      isActive = true,
+      minPower = 100.0,
+      maxPower = 400.0,
+      powerPlantTyp = OnOffType,
+      createdAt = getNowAsDateTime(),
+      updatedAt = getNowAsDateTime()
+    )
+
+    powerPlantDBService.newPowerPlant(newPowerPlantRow).flatMap {
+      _ =>
+        powerPlantDBService.powerPlantById(10000).flatMap {
+          case Some(powerPlant) =>
+            assert(powerPlant.id === 10000)
+            assert(powerPlant.isActive)
+
+          case _ => fail("expected the powerPlant with id 10000 but was not found in the database")
+        }
     }
   }
 }

@@ -46,6 +46,10 @@ class DBService private (dbConfig: DBConfig)
   def powerPlantById(id: Int): Future[Option[PowerPlantRow]] = {
     database.run(PowerPlantTable.powerPlantById(id).result.headOption)
   }
+
+  def newPowerPlant(powerPlantRow: PowerPlantRow): Future[Int] = {
+    database.run(PowerPlantTable.all += powerPlantRow)
+  }
 }
 object DBService {
 

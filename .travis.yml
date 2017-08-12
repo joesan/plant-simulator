@@ -10,13 +10,6 @@ sudo: required
 # We want to build docker containers
 services: docker
 
-env:
- global:
-   - APPLICATION_NAME    = inland24/plant-simulator
-   - DOCKER_REGISTRY_URL = repo.treescale.com
-   - DOCKER_APP_URL = hub.docker.com/inland24/plant-simulator
-   - IMAGE_VERSION_DEV   = 1.0-SNAPSHOT
-
 before_cache:
   # Cleanup the cached directories to avoid unnecessary cache updates
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
@@ -43,7 +36,7 @@ branches:
 jobs:
   include:
     - stage: test
-     script: sbt clean coverage test coverageReport
+      script: sbt clean coverage test coverageReport
     - stage: build and push docker image
       script:
         - if [ $TRAVIS_BRANCH == "master" ]; then
@@ -52,7 +45,7 @@ jobs:
             docker images;
             echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL";
             # We wait for 5 minutes until we opt out
-            travis_wait 5 docker push $DOCKER_TAG_NAME;
+            docker push $DOCKER_TAG_NAME;
           fi
 
 after_success:
