@@ -18,7 +18,8 @@ ALERT: We do not steer Nuclear Power Plants - We stay away from them!
 [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/) - This project is completely OpenSource - Feel free to explore and if you have better ideas, please let me know!
 
 These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
-See deployment for notes on how to deploy the project on a live system.
+
+See [deployment](#Deployment) for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
