@@ -37,9 +37,9 @@ class AppConfigTest extends FlatSpec {
   environments foreach { env =>
     "AppConfig#load" should s"load the configuration for $env environment" in {
       clearSystemProperty()
+      if (env != "default")
+        setSystemProperty("env", env)
       val appConfig = AppConfig.load()
-      setSystemProperty("ENV", env)
-      setSystemProperty("env", env)
       assert(appConfig.environment === env)
       assert(appConfig.appName === "plant-simulator")
     }
