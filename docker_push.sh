@@ -5,5 +5,5 @@ if [ $TRAVIS_BRANCH == "master" ]; then
   docker images;
   echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL";
   # We wait for 5 minutes until we opt out
-  travis_wait 5 docker push $DOCKER_TAG_NAME;
+  docker push $DOCKER_TAG_NAME;
 fi
