@@ -46,6 +46,8 @@ javacOptions ++= Seq(
   "-Xlint:unchecked", "-Xlint:deprecation"
 )
 
+logLevel := Level.Info
+
 // We will use alpine os as out base image
 dockerBaseImage := "anapsix/alpine-java:8_server-jre_unlimited"
 
