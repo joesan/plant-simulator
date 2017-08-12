@@ -125,7 +125,7 @@ This application is built as a web application using the Play framework. We have
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
-The whole project is licensed under Apache License, Version 2.0. See [LICENCE.txt](./LICENSE.txt).
+The whole project is licensed under Apache License, Version 2.0. See [LICENSE.txt](./LICENSE.txt).
 
 ## Acknowledgments
 
