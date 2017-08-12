@@ -65,6 +65,7 @@ object PowerPlantState {
     elapsed.getSeconds.seconds >= rampRateInSeconds
   }
 
+  /* TODO: Check if this method is needed, if not remove it!
   def rampCheck(state: PowerPlantState): PowerPlantState = {
     state.signals.get(activePowerSignalKey) match {
       case Some(activePower) =>
@@ -78,7 +79,7 @@ object PowerPlantState {
         )
       case _ => state
     }
-  }
+  } */
 
   def init(powerPlantState: PowerPlantState, minPower: Double): PowerPlantState = {
     powerPlantState.copy(
@@ -90,6 +91,7 @@ object PowerPlantState {
     )
   }
 
+  /* TODO: Check if this method is needed, if not remove it!
   def release(powerPlantState: PowerPlantState, minPower: Double): PowerPlantState = {
     val collectedSignals = powerPlantState.signals.collect { // to turn Off, you got to be available and be in an on state
       case (key, value) if key == isAvailableSignalKey && value.toBoolean => key -> value
@@ -108,7 +110,7 @@ object PowerPlantState {
     } else {
       powerPlantState
     }
-  }
+  } */
 
   def dispatch(state: PowerPlantState): PowerPlantState = {
 
