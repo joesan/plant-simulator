@@ -19,18 +19,8 @@ package com.inland24.plantsim.config
 
 import org.scalatest.FlatSpec
 
-import scala.concurrent.duration._
-
 
 class AppConfigTest extends FlatSpec {
-
-  val dbConfigTest = DBConfig(
-    url = "jdbc:h2:mem:power-simulator;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1",
-    user = None,
-    password = None,
-    driver = "org.h2.Driver",
-    refreshInterval = 5.seconds
-  )
 
   private def clearSystemProperty() = {
     System.clearProperty("config.file")
@@ -38,25 +28,19 @@ class AppConfigTest extends FlatSpec {
     System.clearProperty("env")
   }
 
-  "AppConfig#load" should "load the default configuration when nothing is specified in the environment" in {
-    clearSystemProperty()
-    val appConfig = AppConfig.load()
-    assert(appConfig.environment === "default")
+  private def setSystemProperty(key: String, value: String) = {
+    System.setProperty(key, value)
   }
 
-  "AppConfig#load" should "load the test configuration when specified in the environment" in {
-    clearSystemProperty()
-    System.setProperty("ENV", "test")
-    val appConfig = AppConfig.load()
-    assert(appConfig.environment === "test")
-    assert(appConfig.database === dbConfigTest)
-  }
+  val environments = Seq("dev", "default", "test")
 
-  "AppConfig#load" should "load the dev configuration when specified in the environment" in {
-    clearSystemProperty()
-    System.setProperty("env", "dev")
-    val appConfig = AppConfig.load()
-    assert(appConfig.environment === "dev")
-    assert(appConfig.database.driver === "org.sqlite.JDBC")
+  environments foreach { env =>
+    "AppConfig#load" should s"load the configuration for $env environment" in {
+      clearSystemProperty()
+      val appConfig = AppConfig.load()
+      setSystemProperty("ENV", env)
+      setSystemProperty("env", env)
+      assert(appConfig.environment === env)
+    }
   }
 }
