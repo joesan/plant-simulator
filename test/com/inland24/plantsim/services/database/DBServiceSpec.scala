@@ -44,18 +44,6 @@ trait DBServiceSpec {
   import dbSchema._
   import dbSchema.driver.api._
 
-  val addresses = (1 to 6) map {
-    i =>
-      AddressRow(
-        id = i,
-        streetNum = 80 + i,
-        street = s"Random Street $i",
-        city = s"Random City $i",
-        plz = 1000 * i,
-        country = "Germany"
-      )
-  }
-
   val powerPlants = (1 to 6) map {
     i =>
       PowerPlantRow(
@@ -72,14 +60,16 @@ trait DBServiceSpec {
 
   protected def h2SchemaDrop() = {
     val schema = DBIO.seq(
-      (AddressTable.all.schema ++ PowerPlantTable.all.schema).drop
+      //(AddressTable.all.schema ++ PowerPlantTable.all.schema).drop
+      (PowerPlantTable.all.schema).drop
     )
     Await.result(testDatabase.run(schema), 5.seconds)
   }
 
   protected def h2SchemaSetup() = {
     val schema = DBIO.seq(
-      (AddressTable.all.schema ++ PowerPlantTable.all.schema).create
+      //(AddressTable.all.schema ++ PowerPlantTable.all.schema).create
+      (PowerPlantTable.all.schema).create
     )
     Await.result(testDatabase.run(schema), 5.seconds)
   }
@@ -87,7 +77,7 @@ trait DBServiceSpec {
   protected def populateTables() = {
     val setup = DBIO.seq(
       // Insert some addresses
-      AddressTable.all ++= addresses,
+      //AddressTable.all ++= addresses,
 
       // Insert some power plants
       PowerPlantTable.all ++= powerPlants
