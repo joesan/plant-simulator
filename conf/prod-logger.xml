@@ -25,6 +25,7 @@
         </encoder>
     </appender>
 
+    <logger name="scala.slick" level="INFO" />
     <logger name="play" level="INFO" />
     <logger name="application" level="INFO" />
     <logger name="akka" level="INFO" />
