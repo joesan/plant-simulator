@@ -59,8 +59,12 @@ run and click Run
 
 ### Running the application
 
-This application is built as a web application using the Play framework. To run the application,
-perform the following steps: TODO: Descibe how to dockerize!
+This application is built as a web application using the Play framework. We have two options to run the application:
+
+* Run as a standalone jar
+* Run as a Docker container
+
+#### To run as a standalone jar, do the following
 
 ```
 1. Open a terminal and navigate to the project root folder 
@@ -75,7 +79,29 @@ perform the following steps: TODO: Descibe how to dockerize!
 3. Navigate to the following url on your favorite browser:
    http://localhost:9000
    
-   [TODO...] document!
+   [TODO] Add the Swagger API Docs and put the URL here
+   
+```
+
+#### To run as a Docker container
+
+```
+1. Makue sure you have Docker installed on your host system 
+   
+2. Issue one of the following commands to build the docker image:
+   sbt docker:publishLocal
+   
+   The above command would have built the image and push it to your local
+   docker registry (on your host system)
+   
+3. Issue the following command to run the container:
+   TODO - Document
+   
+4. Navigate to the following url on your favorite browser:
+   
+   
+   [TODO] Add the Swagger API Docs and put the URL here
+   
 ```
 
 ## Deployment
