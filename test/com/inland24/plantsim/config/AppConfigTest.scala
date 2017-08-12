@@ -32,7 +32,7 @@ class AppConfigTest extends FlatSpec {
     System.setProperty(key, value)
   }
 
-  val environments = Seq("dev", "default", "test")
+  val environments = Seq("default", "test", "prod")
 
   environments foreach { env =>
     "AppConfig#load" should s"load the configuration for $env environment" in {
@@ -41,6 +41,7 @@ class AppConfigTest extends FlatSpec {
       setSystemProperty("ENV", env)
       setSystemProperty("env", env)
       assert(appConfig.environment === env)
+      assert(appConfig.appName === "plant-simulator")
     }
   }
 }
