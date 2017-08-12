@@ -44,7 +44,7 @@ branches:
 jobs:
   include:
     - stage: test
-      script: sbt --info clean coverage test coverageReport
+      script: sbt -Dlogger.resource=conf/logback.xml clean coverage test coverageReport
     - stage: build and push docker image
       script: chmod +x ./docker_push.sh && ./docker_push.sh
 
