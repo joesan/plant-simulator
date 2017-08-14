@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/joesan/plant-simulator.svg?branch=master)](https://travis-ci.org/joesan/plant-simulator)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1185/badge)](https://bestpractices.coreinfrastructure.org/projects/1185)
 [![Github All Releases](https://img.shields.io/github/downloads/joesan/plant-simulator/total.svg)]()
-(https://img.shields.io/badge/poweredBy-Scala-brightgreen.svg)
+[![Powered By](https://img.shields.io/badge/poweredBy-Scala-brightgreen.svg)]()
 
 # plant-simulator [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 A simple simulator app that simulates the running of a power producing plant
