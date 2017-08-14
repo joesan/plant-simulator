@@ -28,7 +28,7 @@ object PowerPlantType {
   def toString(powerPlantType: PowerPlantType): String = powerPlantType match {
     case OnOffType  => "OnOffType"
     case RampUpType => "RampUpType"
-    case _          => "Unknown"
+    case _          => "UnknownType"
   }
 
   def fromString(powerPlantTypeStr: String): PowerPlantType = powerPlantTypeStr match {

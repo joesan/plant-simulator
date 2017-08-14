@@ -27,6 +27,16 @@ import scala.concurrent.duration._
 
 class ModelsTest extends FlatSpec {
 
+  "PowerPlantType" should "fetch proper PowerPlantType instances" in {
+    PowerPlantType.toString(PowerPlantType.OnOffType) === "OnOffType"
+    PowerPlantType.toString(PowerPlantType.RampUpType) === "RampUpType"
+    PowerPlantType.toString(PowerPlantType.UnknownType) === "UnknownType"
+
+    PowerPlantType.fromString("OnOffType") === PowerPlantType.OnOffType
+    PowerPlantType.fromString("RampUpType") === PowerPlantType.RampUpType
+    PowerPlantType.fromString("UnknownType") === PowerPlantType.UnknownType
+  }
+
   "appConfigWrites" should "produce a JSON for the given AppConfig" in {
     val expectedJson =
       """
