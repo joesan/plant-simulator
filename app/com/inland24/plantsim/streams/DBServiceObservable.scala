@@ -34,6 +34,10 @@ import scala.util.{Failure, Success}
   * he passes to the constructor.
   * TODO: This seems not to work!
   */
+
+class DBServiceObservable {}
+
+/*
 class DBServiceObservable[T, U] private (refreshInterval: FiniteDuration, fn: => Future[T])
   (mapper: T => U)(implicit ec: ExecutionContext)
   extends Observable[U] with LazyLogging {
@@ -72,4 +76,4 @@ object DBServiceObservable {
   (refreshInterval: FiniteDuration, fn: Future[T])
     (mapper: T => U)(implicit ec: ExecutionContext): DBServiceObservable[T, U] =
     new DBServiceObservable[T, U](refreshInterval, fn)(mapper)(ec)
-}
+} */
