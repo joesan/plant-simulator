@@ -1,8 +1,9 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/996bef52feb148039c61f0db9cff9830)](https://www.codacy.com/app/joesan/plant-simulator?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=joesan/plant-simulator&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/joesan/plant-simulator/branch/master/graph/badge.svg)](https://codecov.io/gh/joesan/plant-simulator)
 [![Build Status](https://travis-ci.org/joesan/plant-simulator.svg?branch=master)](https://travis-ci.org/joesan/plant-simulator)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1185/badge)](https://bestpractices.coreinfrastructure.org/projects/1185)
 
-# plant-simulator
+# plant-simulator [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 A simple simulator app that simulates the running of a power producing plant
 
 For simplicity, this simulator assumes that there are essentially two types of power producing
@@ -13,11 +14,11 @@ plants:
 
 ALERT: We do not steer Nuclear Power Plants - We stay away from them!
 
-## Getting Started
+## Getting Started 
 
-[![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/) - This project is completely OpenSource - Feel free to explore and if you have better ideas, please let me know!
+This project is completely OpenSource, so feel free to explore and if you have better ideas, please let me know or even better please contribute!
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
+These instructions below will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
 See [deployment](#Deployment) for notes on how to deploy the project on a live system.
 
