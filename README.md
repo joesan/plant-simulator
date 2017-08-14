@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/joesan/plant-simulator.svg?branch=master)](https://travis-ci.org/joesan/plant-simulator)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1185/badge)](https://bestpractices.coreinfrastructure.org/projects/1185)
 
-# plant-simulator
+# plant-simulator [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 A simple simulator app that simulates the running of a power producing plant
 
 For simplicity, this simulator assumes that there are essentially two types of power producing
@@ -14,7 +14,7 @@ plants:
 
 ALERT: We do not steer Nuclear Power Plants - We stay away from them!
 
-## Getting Started [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
+## Getting Started 
 
 This project is completely OpenSource, so feel free to explore and if you have better ideas, please let me know or even better please contribute!
 
