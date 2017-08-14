@@ -1,4 +1,4 @@
-/test/resources/*
+/test/resources/target/*
 *.idea
 *.ipr
 *.iml
