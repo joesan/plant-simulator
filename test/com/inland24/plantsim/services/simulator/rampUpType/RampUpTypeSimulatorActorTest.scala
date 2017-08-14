@@ -190,7 +190,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       }
 
       // 2. Send a ReturnToService message
-      within(3.seconds) {
+      within(5.seconds) {
         rampUpTypeSimActor ! ReturnToService
       }
 
