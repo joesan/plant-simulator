@@ -49,7 +49,7 @@ javacOptions ++= Seq(
 logLevel := Level.Info
 
 // use logback.xml when running unit tests
-javaOptions in Test +="-Dlogger.file=test/resources/logback.xml"
+javaOptions in Test +="-Dlogger.file=test/conf/logback.xml"
 
 // Docker container configurations
 // We will use alpine os as out base image
