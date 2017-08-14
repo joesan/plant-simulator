@@ -48,6 +48,10 @@ javacOptions ++= Seq(
 
 logLevel := Level.Info
 
+// use test-logger.xml when running unit tests
+javaOptions in Test +="-Dlogger.file=conf/test-logger.xml"
+
+// Docker container configurations
 // We will use alpine os as out base image
 dockerBaseImage := "anapsix/alpine-java:8_server-jre_unlimited"
 
@@ -69,15 +73,22 @@ doc in Compile <<= target.map(_ / "none")
 
 libraryDependencies ++= Seq(
   ws,
+  // Our streaming library
   "io.monix" %% "monix" % "2.1.0",
+
+  // Dependencies needed for Slick
   "com.typesafe.slick" %% "slick" % "3.2.0",
+  //"org.slf4j" % "slf4j-nop" % "1.6.4",
+  "com.typesafe.slick" %% "slick-hikaricp" % "3.2.0",
+
   "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.6",
-  "com.zaxxer" % "HikariCP" % "2.4.1",
   "com.typesafe" % "config" % "1.3.1",
+
+  // JDBC driver for MySQL
   "mysql" % "mysql-connector-java" % "5.1.26",
 
-  // test
+  // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % "2.5.2" % Test,
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
   "com.h2database" % "h2" % "1.4.186" % Test,

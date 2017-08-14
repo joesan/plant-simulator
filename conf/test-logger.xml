@@ -18,8 +18,9 @@
 
 <configuration>
 
-    <logger name="scala.slick" level="INFO" />
+    <logger name="slick" level="INFO" />
     <logger name="play" level="INFO" />
+    <logger name="com.zaxxer.hikari" level="INFO"/>
     <logger name="application" level="INFO" />
     <logger name="akka" level="INFO" />
 

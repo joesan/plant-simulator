@@ -67,37 +67,6 @@ class PowerPlantConfigTest extends FlatSpec {
     // We expect 2 entries in the result
     assert(powerPlantCfg.powerPlantConfigSeq.length === 2)
 
-    import monix.execution.Scheduler.Implicits.global
-
-    def toAdd(elem: Long) = Future { elem + 1 }
-
-    // TODO: Remove this bit of code!!!
-    val someFuture = Future { 1 + 1 }.map(elem => {
-      val added = toAdd(elem)
-      println(added)
-      println(elem)
-      elem.toString
-    })
-
-    import scala.concurrent.duration._
-    val obs = Observable.intervalAtFixedRate(2.seconds)
-                .flatMap(_ => Observable.fromFuture(someFuture))
-
-    val subs = new Subscriber[String] {
-      override def onNext(str: String): Future[Ack] = {
-        println(s"in onNext $str")
-        Continue
-      }
-
-      override implicit def scheduler: Scheduler = monix.execution.Scheduler.Implicits.global
-
-      override def onError(ex: Throwable): Unit = ex.printStackTrace()
-
-      override def onComplete(): Unit = println("done ****")
-    }
-
-    obs.subscribe(subs)
-
     powerPlantCfg.powerPlantConfigSeq.foreach {
       case cfg if cfg.powerPlantType == RampUpType =>
         assert(cfg.isInstanceOf[RampUpTypeConfig])
