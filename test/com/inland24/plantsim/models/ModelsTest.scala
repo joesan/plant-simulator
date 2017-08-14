@@ -18,7 +18,7 @@
 package com.inland24.plantsim.models
 
 import com.inland24.plantsim.config.AppConfig
-import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig}
+import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig, UnknownConfig}
 import org.scalatest.FlatSpec
 import play.api.libs.json.Json
 
@@ -105,5 +105,32 @@ class ModelsTest extends FlatSpec {
       Json.parse(expectedJsonRampUpType)
     ).get
     actualRampUpTypeCfg === rampUpTypePlantCfg
+  }
+
+  "UnknownConfigTypeConfigWrites" should "Serialize and De-Serialize for the given UnknownConfigTypeConfig" in {
+    val expectedJsonUnknownType =
+      """
+        |{
+        |   "powerPlantId":1,
+        |   "powerPlantName":"SomeName",
+        |   "minPower":10,
+        |   "maxPower":20,
+        |   "powerPlantType":"SomeShitType"
+        |}
+      """.stripMargin
+
+    val unknownPlantCfg = UnknownConfig(
+      id = 1,
+      name = "SomeName",
+      maxPower = 20.0,
+      minPower = 10.0,
+      powerPlantType = PowerPlantType.UnknownType
+    )
+    powerPlantCfgFormat.writes(unknownPlantCfg) === expectedJsonUnknownType
+
+    val actualRampUpTypeCfg = powerPlantCfgFormat.reads(
+      Json.parse(expectedJsonUnknownType)
+    ).get
+    actualRampUpTypeCfg === unknownPlantCfg
   }
 }
