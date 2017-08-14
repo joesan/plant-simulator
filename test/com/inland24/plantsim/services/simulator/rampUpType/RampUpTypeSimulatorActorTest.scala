@@ -184,7 +184,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
     // PowerPlant # ReturnToService tests
     "return the PowerPlant from OutOfService to Active when sending ReturnToService message" in {
       // 1. First make the PowerPlant OutOfService
-      within(3.seconds) {
+      within(5.seconds) {
         rampUpTypeSimActor ! OutOfService
         expectNoMsg()
       }
