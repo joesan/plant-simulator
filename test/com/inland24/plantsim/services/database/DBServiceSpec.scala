@@ -17,7 +17,7 @@ package com.inland24.plantsim.services.database
 
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
-import com.inland24.plantsim.services.database.models.{AddressRow, PowerPlantRow}
+import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Await
@@ -53,6 +53,8 @@ trait DBServiceSpec {
         minPower = 100.0 * i,
         maxPower = 400.0 * 2 * i,
         powerPlantTyp = if (i % 2 == 0) OnOffType else RampUpType,
+        rampRatePower = if (i % 2 == 0) None else Some(20.0),
+        rampRateSecs = if (i % 2 == 0)  None else Some(2),
         createdAt = getNowAsDateTime(),
         updatedAt = getNowAsDateTime()
       )

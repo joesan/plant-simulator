@@ -17,16 +17,10 @@
 
 package com.inland24.plantsim.services.database
 
-import java.util.concurrent.TimeUnit
-
 import com.inland24.plantsim.models.PowerPlantType
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll}
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
-import scala.util.{Failure, Success}
 
 
 final class PowerPlantDBServiceSpec extends AsyncFlatSpec

@@ -32,7 +32,6 @@ import monix.reactive.observers.Subscriber
 import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
-import scala.concurrent.duration._
 
 /**
   * This Actor is responsible for reacting to updates on a PowerPlant
@@ -43,19 +42,13 @@ import scala.concurrent.duration._
   * emitted when asked for the events.
   *
   * TODO: If the database is down the stream should not throw an error!!!
-  * but rather it should just continue processing as usual!!
+  * TODO: but rather it should just continue processing as usual!!
   */
-class DBServiceActor private (dbConfig: DBConfig, supervisorActor: ActorRef)(implicit ec: Scheduler)
-  extends Actor with ActorLogging {
-
-  // TODO: revisit this timeout duration, should come from parameters
-  implicit val timeout: akka.util.Timeout = 5.seconds
-
-  // TODO: import scheduler from method parameters
-  implicit val s = monix.execution.Scheduler.Implicits.global
+class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enableSubscription: Boolean = true)
+  (implicit ec: Scheduler) extends Actor with ActorLogging {
 
   // This represents the PowerPlantDBService instance
-  val powerPlantDBService = DBService(dbConfig)(s)
+  val powerPlantDBService = DBService(dbConfig)(ec)
 
   // This will be our subscription to fetch from the database
   val dbSubscription = SingleAssignmentCancelable()
@@ -63,6 +56,7 @@ class DBServiceActor private (dbConfig: DBConfig, supervisorActor: ActorRef)(imp
   override def preStart(): Unit = {
     super.preStart()
     log.info("Pre-start DBServiceActor")
+
     /*
     // TODO: Test this later - This is not working
     // This will be our Observable that will stream events from the database
@@ -87,23 +81,33 @@ class DBServiceActor private (dbConfig: DBConfig, supervisorActor: ActorRef)(imp
 
      */
 
-    val obs = DBObservable(
-      dbConfig.refreshInterval,
-      powerPlantDBService.allPowerPlants(fetchOnlyActive = true)
-    )
+    /**
+      * We stream events only when this flag is set to true and by default it is
+      * in fact set to true! It becomes of use when we run unit tests, so that
+      * we can control the sending of events to this actor instead of having
+      * this Observable inside this actor sending messages!
+      */
+    if (enableSubscription) {
+      val obs = DBObservable(
+        dbConfig.refreshInterval,
+        powerPlantDBService.allPowerPlants(fetchOnlyActive = true)
+      )
 
-    dbSubscription := obs.unsafeSubscribeFn (new Subscriber[Seq[PowerPlantRow]] {
-      override implicit def scheduler: Scheduler = s
+      log.info("Activating DB lookup subscription")
 
-      override def onNext(elem: Seq[PowerPlantRow]): Future[Ack] = {
-        self ! com.inland24.plantsim.models.toPowerPlantsConfig(elem)
-        Continue
-      }
+      dbSubscription := obs.unsafeSubscribeFn (new Subscriber[Seq[PowerPlantRow]] {
+        override implicit def scheduler: Scheduler = ec
 
-      override def onError(ex: Throwable): Unit = log.error("error")
+        override def onNext(elem: Seq[PowerPlantRow]): Future[Ack] = {
+          self ! com.inland24.plantsim.models.toPowerPlantsConfig(elem)
+          Continue
+        }
 
-      override def onComplete(): Unit = log.info("complete")
-    })
+        override def onError(ex: Throwable): Unit = log.error(s"error ${ex.getMessage}")
+
+        override def onComplete(): Unit = log.info("complete")
+      })
+    }
   }
 
   override def postStop(): Unit = {
@@ -149,10 +153,6 @@ object DBServiceActor {
   type PowerPlantConfigMap = Map[Int, PowerPlantConfig]
   type PowerPlantEventsSeq = Seq[PowerPlantEvent[PowerPlantConfig]]
 
-  sealed trait Message
-  case object GetActivePowerPlants extends Message
-  case object PowerPlantEvents extends Message
-
   /**
     * Transform a given sequence of old and new state of PowerPlantConfig
     * to a sequence of events. These events will determine how the actors
@@ -186,6 +186,6 @@ object DBServiceActor {
     deletedEvents(oldMap, newMap) ++ updatedEvents(oldMap, newMap) ++ createdEvents(oldMap, newMap)
   }
 
-  def props(dbConfig: DBConfig, supervisorActorRef: ActorRef)(implicit ec: Scheduler): Props =
-    Props(new DBServiceActor(dbConfig, supervisorActorRef)(ec))
+  def props(dbConfig: DBConfig, supervisorActorRef: ActorRef, enableSubscription: Boolean = true)(implicit ec: Scheduler): Props =
+    Props(new DBServiceActor(dbConfig, supervisorActorRef, enableSubscription)(ec))
 }

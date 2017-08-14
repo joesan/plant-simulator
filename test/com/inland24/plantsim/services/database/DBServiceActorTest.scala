@@ -17,23 +17,43 @@
 
 package com.inland24.plantsim.services.database
 
-import akka.actor.ActorSystem
+import akka.actor.{Actor, ActorSystem, Props}
+import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
+import com.inland24.plantsim.config.AppConfig
+import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
 import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, PowerPlantsConfig, RampUpTypeConfig}
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
+import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantEvent, PowerPlantType}
+import com.typesafe.scalalogging.LazyLogging
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 
 class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
   with ImplicitSender with WordSpecLike with Matchers
-  with BeforeAndAfterAll {
+  with BeforeAndAfterAll with DBServiceSpec with LazyLogging {
 
-  override def afterAll {
-    TestKit.shutdownActorSystem(system)
+  implicit val ec = monix.execution.Scheduler.Implicits.global
+  implicit val timeout: akka.util.Timeout = 3.seconds
+
+  override def beforeAll(): Unit = {
+    // 1. Set up the Schemas
+    super.h2SchemaSetup()
+
+    // 2. Populate the tables
+    super.populateTables()
   }
+
+  override def afterAll(): Unit = {
+
+    TestKit.shutdownActorSystem(system)
+    super.h2SchemaDrop()
+  }
+
   val testOnOffConfig = OnOffTypeConfig(
     id = 1,
     name = "1",
@@ -58,7 +78,7 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
     powerPlantConfigSeq = Seq(testOnOffConfig, testRampUpConfig)
   )
 
-  "DBServiceActor" must {
+  "DBServiceActor#toEvents" must {
 
     // tests to test the DBServiceActor companion
     "populate update events when an update happens in the database" in {
@@ -200,6 +220,110 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
 
         case _ => fail("Was expected PowerPlantDeleteEvent event but an unexpected event was triggered")
       }
+    }
+  }
+
+  "DBServiceActor" must {
+
+    /**
+      * We are running against a test configuration (application.test.conf)
+      * see [[DBServiceSpec]] where we set the environment variable to load
+      * the application.test.conf
+      */
+    val appConfig = AppConfig.load()
+
+    // This message is used to fetch and check the received events in the TestSupervisorActorRef
+    case object GetReceivedEvents
+
+    // Our Test Actor that will receive events from the DBServiceActor which is being tested here
+    class TestSupervisorActorRef extends Actor {
+
+      override def preStart(): Unit = {
+        super.preStart()
+        context.become(
+          active(SupervisorEvents(Seq.empty[PowerPlantEvent[PowerPlantConfig]]))
+        )
+      }
+
+      override def receive: Receive = {
+        case _ => logger.info("Nothing to receive")
+      }
+
+      def active(supervisorEvents: SupervisorEvents): Receive = {
+        case GetReceivedEvents =>
+          sender ! supervisorEvents
+
+        case newEvents @ SupervisorEvents(_) =>
+          // When we get new events, we update the call stack
+          context.become(active(newEvents))
+      }
+    }
+
+    // Get a reference to our TestSupervisorActor
+    val testSupervisorActorRef = system.actorOf(Props(new TestSupervisorActorRef), "test-supervisor-actor")
+
+    // We disable the Observable inside the DBServiceActor, so that it is easy to unit test!
+    val dbServiceActor = system.actorOf(
+      DBServiceActor.props(
+        AppConfig.load().database,
+        testSupervisorActorRef,
+        enableSubscription = false
+      )
+    )
+
+    "populate PowerPlantsConfig upon every message it receives" in {
+
+      val dbService = DBService(appConfig.database)
+
+      // Let us start initially with the available PowerPlant entries in the database
+      val allActivePowerPlants = Await.result(dbService.allPowerPlants(fetchOnlyActive = true), 3.seconds)
+
+      // Now send this initial Seq of PowerPlant's to the dbServiceActor (transformed as a PowerPlantConfig type)
+      within(2.seconds) {
+        dbServiceActor ! com.inland24.plantsim.models.toPowerPlantsConfig(allActivePowerPlants)
+        expectNoMsg()
+      }
+
+      // The dbServiceActor should have send those messages to our TestSupervisorActor instance, check it
+      val supEvents1 = Await.result((testSupervisorActorRef ? GetReceivedEvents).mapTo[SupervisorEvents], 3.seconds)
+      assert(
+        supEvents1.events.length ===  allActivePowerPlants.length,
+        s"unexpected number of events received by the TestSupervisorActor, " +
+          s"was expecting ${allActivePowerPlants.length} events but got ${supEvents1.events.length} events"
+      )
+
+      // So far so good! Now let us assume that we removed all PowerPlant's with RampUpType from the database
+      val allOnOffTypePlants = allActivePowerPlants.filter(_.powerPlantTyp == OnOffType)
+      val updatedPowerPlant = allOnOffTypePlants.head.copy(orgName = "Joesan updated the name")
+
+      // And updated the PowerPlant with id == 1
+      val allOnOffPlantsUpdated = allOnOffTypePlants.map {
+        case powerPlant if updatedPowerPlant.id == powerPlant.id =>
+          updatedPowerPlant
+        case powerPlant =>
+          powerPlant
+      }
+
+      // And then send this update to the dbServiceActor
+      within(3.seconds) {
+        dbServiceActor ! com.inland24.plantsim.models.toPowerPlantsConfig(allOnOffPlantsUpdated)
+        expectNoMsg()
+      }
+
+      /*
+       * Now let us check if we have received the following events it the TestSupervisorActor
+       *
+       * PowerPlantUpdateEvent - 1 event expected for PowerPlant with id = 1
+       * PowerPlantDeleteEvent - 3 event's expected for all RampUpType PowerPlant's
+       *
+       * So a total of 4 events are expected
+       */
+      val supEvents2 = Await.result((testSupervisorActorRef ? GetReceivedEvents).mapTo[SupervisorEvents], 3.seconds)
+      assert(
+        supEvents2.events.length ===  4,
+        s"unexpected number of events received by the TestSupervisorActor, " +
+          s"was expecting 4 events but got ${supEvents2.events.length} events"
+      )
     }
   }
 }
