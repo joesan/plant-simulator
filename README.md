@@ -127,9 +127,7 @@ This application is built as a web application using the Play framework. We have
 
 See also the list of [contributors](https://github.com/joesan/plant-simulator/graphs/contributors) who helped.
 
-## License
-
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+## License [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 The whole project is licensed under Apache License, Version 2.0. See [LICENSE.txt](./LICENSE.txt).
 
