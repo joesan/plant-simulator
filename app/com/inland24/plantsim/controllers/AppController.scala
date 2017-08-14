@@ -79,6 +79,10 @@ class AppController(bindings: AppBindings) extends Controller {
     }
   }
 
+  def dispatchPowerPlant(id: Int) = Action.async {
+    Future.successful(Ok("TODO"))
+  }
+
   def powerPlantSignals(id: Int) = Action.async {
     actorFor(id) flatMap {
       case None =>
