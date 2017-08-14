@@ -27,9 +27,6 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
   with DBServiceSpec with BeforeAndAfterAll {
 
   override def beforeAll(): Unit = {
-    // 0. Drop Schema if exists
-    super.h2SchemaDrop()
-
     // 1. Set up the Schemas
     super.h2SchemaSetup()
 
