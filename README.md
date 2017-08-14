@@ -14,11 +14,11 @@ plants:
 
 ALERT: We do not steer Nuclear Power Plants - We stay away from them!
 
-## Getting Started
+## Getting Started [![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/)
 
-[![Open Source Love](https://badges.frapsoft.com/os/v2/open-source.svg?v=103)](https://github.com/ellerbrock/open-source-badges/) - This project is completely OpenSource - Feel free to explore and if you have better ideas, please let me know!
+This project is completely OpenSource, so feel free to explore and if you have better ideas, please let me know or even better please contribute!
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. 
+These instructions below will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
 See [deployment](#Deployment) for notes on how to deploy the project on a live system.
 
