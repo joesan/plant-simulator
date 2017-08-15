@@ -35,7 +35,6 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
    */
   override def preStart(): Unit = {
     super.preStart()
-    log.info("in preStart() of the actor")
     self ! Init
   }
 

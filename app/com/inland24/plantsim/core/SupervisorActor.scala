@@ -104,6 +104,7 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
         RampUpTypeSimulatorActor.props(cfg.asInstanceOf[RampUpTypeConfig]),
         s"$simulatorActorNamePrefix-$id"
       )
+      log.info(s"Successfully started RampUpType PowerPlant with id $id")
       Continue
 
     case _ => Continue
@@ -127,13 +128,15 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
   def waitForRestart(source: ActorRef, powerPlantCreateEvent: PowerPlantCreateEvent[PowerPlantConfig]): Receive = {
     case Terminated(actor) =>
       context.unwatch(actor)
+      log.info(s"ActorTerminated message received for actor ${source.path.name}")
       self ! powerPlantCreateEvent
       // Now unstash all of the messages
+      log.info(s"un-stashing all messages")
       unstashAll()
 
     case someDamnThing =>
-      log.error(s"Unexpected message $someDamnThing :: " +
-        s"received while waiting for an actor to be stopped")
+      log.warning(s"Unexpected message $someDamnThing :: " +
+        s"received while waiting for an actor to be stopped - Stashing messages")
       stash()
   }
 
@@ -162,7 +165,7 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
       context.unwatch(actorRef)
 
     case SupervisorEvents(events) =>
-      log.info(s"Received a total of ${events.length} PowerPlantEvent's")
+      log.info(s"SupervisorActor received new PowerPlantEvent events of size ${events.length}")
       events.foreach(event => self ! event)
 
     case PowerPlantCreateEvent(id, powerPlantCfg) =>

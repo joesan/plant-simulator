@@ -127,19 +127,34 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
       }
     }
 
+    pending
     "Stop and Re-start a running PowerPlant Actor when a PowerPlantUpdate event is received" in {
+      // First let us create the Actor instances
+      val createEventsSeq = Seq(
+        PowerPlantCreateEvent[OnOffTypeConfig](2, powerPlantCfg(2, OnOffType).asInstanceOf[OnOffTypeConfig]),
+        PowerPlantCreateEvent[RampUpTypeConfig](5, powerPlantCfg(5, RampUpType).asInstanceOf[RampUpTypeConfig])
+      ).asInstanceOf[PowerPlantEventsSeq]
+
+      within(5.seconds) {
+        supervisorActor ! SupervisorEvents(createEventsSeq)
+        expectNoMsg()
+      }
+
+      // Now let us send Update events, so that the Actors are re-started!
       val updateEventsSeq = Seq(
         onOffTypePowerPlantEventsSeq.tail.head,
         rampUpTypePowerPlantEventsSeq.tail.head
       ).asInstanceOf[PowerPlantEventsSeq]
 
-      within(3.seconds) {
+      within(5.seconds) {
         supervisorActor ! SupervisorEvents(updateEventsSeq)
         expectNoMsg()
       }
 
+      Thread.sleep(10000)
+
       // Now check if the corresponding ActorRef's are created!
-      Await.result(childActorRef(updateEventsSeq.head.id.toInt), 3.seconds) match {
+      Await.result(childActorRef(updateEventsSeq.head.id.toInt), 5.seconds) match {
         case Success(_) => // Nothing to do!
         case Failure(_) =>
           fail(s"expected child Actor to be found for " +
@@ -147,7 +162,7 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
           )
       }
 
-      Await.result(childActorRef(updateEventsSeq.last.id.toInt), 3.seconds) match {
+      Await.result(childActorRef(updateEventsSeq.last.id.toInt), 5.seconds) match {
         case Success(_) => // Nothing to do!
         case Failure(_) =>
           fail(s"expected child Actor to be found for " +

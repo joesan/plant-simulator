@@ -29,7 +29,6 @@ class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
    */
   override def preStart(): Unit = {
     super.preStart()
-    log.info(s"Pre-Start OnOffType PowerPlant Actor with name ${self.path.name}")
     self ! Init
   }
 
