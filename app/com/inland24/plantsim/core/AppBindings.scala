@@ -44,7 +44,8 @@ object AppBindings {
 
     override val supervisorActor: ActorRef =
       system.actorOf(
-        SupervisorActor.props(appConfig)(monix.execution.Scheduler.Implicits.global)
+        SupervisorActor.props(appConfig)(monix.execution.Scheduler.Implicits.global),
+        s"${appConfig.appName}-supervisor"
       )
   }
 }
