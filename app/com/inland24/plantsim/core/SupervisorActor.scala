@@ -17,7 +17,7 @@
 
 package com.inland24.plantsim.core
 
-import akka.actor.{Actor, ActorKilledException, ActorLogging, ActorRef, Kill, OneForOneStrategy, PoisonPill, Props, Stash, SupervisorStrategy, Terminated}
+import akka.actor._
 import akka.pattern.pipe
 import akka.util.Timeout
 import com.inland24.plantsim.config.AppConfig

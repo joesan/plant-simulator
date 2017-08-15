@@ -23,6 +23,8 @@ import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.Observable
+// TODO: use a passed in ExecutionContext
+import monix.execution.Scheduler.Implicits.global
 
 import scala.concurrent.Future
 
@@ -51,8 +53,6 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     subscription.cancel()
   }
 
-  // TODO: use a passed in ExecutionContext
-  import monix.execution.Scheduler.Implicits.global
   private def startSubscription: Future[Unit] = Future {
     def onNext(long: Long): Future[Ack] = {
       self ! RampCheck

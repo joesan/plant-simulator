@@ -24,6 +24,9 @@ import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models._
 import play.api.mvc.{Action, Controller}
 import monix.execution.FutureUtils.extensions._
+// TODO: pass in this execution context
+import monix.execution.Scheduler.Implicits.global
+
 import play.api.libs.json.{JsObject, JsString, Json}
 
 import scala.concurrent.Future
@@ -36,8 +39,7 @@ class AppController(bindings: AppBindings) extends Controller {
   // Place a reference to the underlying ActorSystem
   implicit val system = bindings.actorSystem
   val dbService = bindings.dbService
-  // TODO: pass in this execution context
-  import monix.execution.Scheduler.Implicits.global
+
   implicit val timeout: akka.util.Timeout = 3.seconds
 
   def home = Action { implicit request =>
