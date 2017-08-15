@@ -22,9 +22,9 @@ import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
-import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig}
+import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig, UnknownConfig}
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
-import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
+import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType, UnknownType}
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantType}
 import com.inland24.plantsim.services.database.DBServiceActor.PowerPlantEventsSeq
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
@@ -62,9 +62,17 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
         rampPowerRate = powerPlantId * 5.0,
         rampRateInSeconds = 2.seconds
       )
-    case _ =>
+    case OnOffType =>
       OnOffTypeConfig(
         powerPlantType = OnOffType,
+        id = powerPlantId,
+        name = s"$powerPlantId",
+        minPower = powerPlantId * 10.0,
+        maxPower = powerPlantId * 20.0
+      )
+    case UnknownType  =>
+      UnknownConfig(
+        powerPlantType = UnknownType,
         id = powerPlantId,
         name = s"$powerPlantId",
         minPower = powerPlantId * 10.0,
@@ -191,7 +199,27 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
       Await.result(childActorRef(deleteEventsSeq.last.id.toInt), 3.seconds) match {
         case Success(_) =>
           fail(s"expected child Actor Not to be found for " +
-            s"RampUpType PowerPlant with id ${deleteEventsSeq.last.id}, but was not found"
+            s"RampUpType PowerPlant with id ${deleteEventsSeq.last.id}, but was found"
+          )
+        case Failure(_) => // Nothing to do, as we expect a Failure
+      }
+    }
+
+    "Do nothing when an event of type UnknownConfig is encountered" in {
+      val createEventsSeq = Seq(
+        PowerPlantCreateEvent[UnknownConfig](100, powerPlantCfg(100, UnknownType).asInstanceOf[UnknownConfig])
+      ).asInstanceOf[PowerPlantEventsSeq]
+
+      within(3.seconds) {
+        supervisorActor ! SupervisorEvents(createEventsSeq)
+        expectNoMsg()
+      }
+
+      // Now check if the corresponding ActorRef's are created!
+      Await.result(childActorRef(createEventsSeq.head.id.toInt), 3.seconds) match {
+        case Success(_) =>
+          fail(s"expected child Actor Not to be found for " +
+            s"UnknownType PowerPlant with id ${createEventsSeq.head.id}, but was found"
           )
         case Failure(_) => // Nothing to do, as we expect a Failure
       }
