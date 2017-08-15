@@ -17,6 +17,7 @@
 
 package com.inland24.plantsim.core
 
+import monix.execution.FutureUtils.extensions._
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.config.AppConfig
@@ -24,11 +25,13 @@ import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
 import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig}
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
-import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantEvent, PowerPlantType}
+import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantType}
 import com.inland24.plantsim.services.database.DBServiceActor.PowerPlantEventsSeq
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
+import scala.util.{Failure, Success, Try}
 
 
 class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
@@ -41,9 +44,11 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
   // Use a default AppConfig
   val appCfg = AppConfig.load()
 
+  implicit val ec = monix.execution.Scheduler.Implicits.global
+
   // Let us create our SupervisorActor instance
   val supervisorActor = system.actorOf(
-    SupervisorActor.props(appCfg)(monix.execution.Scheduler.Implicits.global)
+    SupervisorActor.props(appCfg)
   )
 
   def powerPlantCfg(powerPlantId: Int, powerPlantType: PowerPlantType): PowerPlantConfig = powerPlantType match {
@@ -71,25 +76,113 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
     PowerPlantCreateEvent[PowerPlantConfig](powerPlantId, powerPlantCfg)
   }
 
+  def childActorRef(powerPlantId: Int) = {
+    system.actorSelection(
+      s"akka://SupervisorActorTest/user/*/${appCfg.appName}-$powerPlantId"
+    ).resolveOne(2.seconds).materialize
+  }
+
   "SupervisorActor" must {
 
     // Let us create 3 events, one PowerPlantCreateEvent, a PowerPlantUpdateEvent and  a PowerPlantDeleteEvent
-    val powerPlantEventsSeq = Seq(
+    val onOffTypePowerPlantEventsSeq = Seq(
       PowerPlantCreateEvent[OnOffTypeConfig](1, powerPlantCfg(1, OnOffType).asInstanceOf[OnOffTypeConfig]),
       PowerPlantUpdateEvent[OnOffTypeConfig](2, powerPlantCfg(2, OnOffType).asInstanceOf[OnOffTypeConfig]),
       PowerPlantDeleteEvent[OnOffTypeConfig](3, powerPlantCfg(3, OnOffType).asInstanceOf[OnOffTypeConfig])
     )
 
+    // Let us create 3 events, one PowerPlantCreateEvent, a PowerPlantUpdateEvent and  a PowerPlantDeleteEvent
+    val rampUpTypePowerPlantEventsSeq = Seq(
+      PowerPlantCreateEvent[RampUpTypeConfig](4, powerPlantCfg(4, RampUpType).asInstanceOf[RampUpTypeConfig]),
+      PowerPlantUpdateEvent[RampUpTypeConfig](5, powerPlantCfg(5, RampUpType).asInstanceOf[RampUpTypeConfig]),
+      PowerPlantDeleteEvent[RampUpTypeConfig](6, powerPlantCfg(6, RampUpType).asInstanceOf[RampUpTypeConfig])
+    )
+
     "Create a new PowerPlant Actor when a PowerPlantCreate event is received" in {
-      supervisorActor ! SupervisorEvents(Seq(powerPlantEventsSeq.head).asInstanceOf[PowerPlantEventsSeq])
+      val createEventsSeq = Seq(
+        onOffTypePowerPlantEventsSeq.head,
+        rampUpTypePowerPlantEventsSeq.head
+      ).asInstanceOf[PowerPlantEventsSeq]
+
+      within(3.seconds) {
+        supervisorActor ! SupervisorEvents(createEventsSeq)
+        expectNoMsg()
+      }
+
+      // Now check if the corresponding ActorRef's are created!
+      Await.result(childActorRef(createEventsSeq.head.id.toInt), 3.seconds) match {
+        case Success(_) => // Nothing to do!
+        case Failure(_) =>
+          fail(s"expected child Actor to be found for " +
+            s"OnOffType PowerPlant with id ${createEventsSeq.head.id}, but was not found"
+          )
+      }
+
+      Await.result(childActorRef(createEventsSeq.last.id.toInt), 3.seconds) match {
+        case Success(_) => // Nothing to do!
+        case Failure(_) =>
+          fail(s"expected child Actor to be found for " +
+            s"RampUpType PowerPlant with id ${createEventsSeq.last.id}, but was not found"
+          )
+      }
     }
 
     "Stop and Re-start a running PowerPlant Actor when a PowerPlantUpdate event is received" in {
+      val updateEventsSeq = Seq(
+        onOffTypePowerPlantEventsSeq.tail.head,
+        rampUpTypePowerPlantEventsSeq.tail.head
+      ).asInstanceOf[PowerPlantEventsSeq]
 
+      within(3.seconds) {
+        supervisorActor ! SupervisorEvents(updateEventsSeq)
+        expectNoMsg()
+      }
+
+      // Now check if the corresponding ActorRef's are created!
+      Await.result(childActorRef(updateEventsSeq.head.id.toInt), 3.seconds) match {
+        case Success(_) => // Nothing to do!
+        case Failure(_) =>
+          fail(s"expected child Actor to be found for " +
+            s"OnOffType PowerPlant with id ${updateEventsSeq.head.id}, but was not found"
+          )
+      }
+
+      Await.result(childActorRef(updateEventsSeq.last.id.toInt), 3.seconds) match {
+        case Success(_) => // Nothing to do!
+        case Failure(_) =>
+          fail(s"expected child Actor to be found for " +
+            s"RampUpType PowerPlant with id ${updateEventsSeq.last.id}, but was not found"
+          )
+      }
     }
 
     "Stop a running PowerPlant Actor when a PowerPlantDelete event is received" in {
+      val deleteEventsSeq = Seq(
+        onOffTypePowerPlantEventsSeq.last,
+        rampUpTypePowerPlantEventsSeq.last
+      ).asInstanceOf[PowerPlantEventsSeq]
 
+      within(3.seconds) {
+        supervisorActor ! SupervisorEvents(deleteEventsSeq)
+        expectNoMsg()
+      }
+
+      // Now check if the corresponding ActorRef's are created!
+      Await.result(childActorRef(deleteEventsSeq.head.id.toInt), 3.seconds) match {
+        case Success(_) =>
+          fail(s"expected child Actor Not to be found for " +
+            s"OnOffType PowerPlant with id ${deleteEventsSeq.head.id}, but was not found"
+          )
+        case Failure(_) => // Nothing to do, as we expect a Failure
+      }
+
+      Await.result(childActorRef(deleteEventsSeq.last.id.toInt), 3.seconds) match {
+        case Success(_) =>
+          fail(s"expected child Actor Not to be found for " +
+            s"RampUpType PowerPlant with id ${deleteEventsSeq.last.id}, but was not found"
+          )
+        case Failure(_) => // Nothing to do, as we expect a Failure
+      }
     }
   }
 }

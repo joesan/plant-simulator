@@ -46,7 +46,6 @@ class AppController(bindings: AppBindings) extends Controller {
 
   // Utility to resolve an actor reference
   def actorFor(powerPlantId: Int): Future[Option[ActorRef]] = {
-    println(s"Searching for Actor with name = ${bindings.appConfig.appName}-$powerPlantId")
     system.actorSelection(s"akka://application/user/*/${bindings.appConfig.appName}-$powerPlantId")
       .resolveOne(2.seconds)
       .materialize

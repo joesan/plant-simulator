@@ -163,7 +163,6 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
 
     case SupervisorEvents(events) =>
       log.info(s"Received a total of ${events.length} PowerPlantEvent's")
-      events foreach println
       events.foreach(event => self ! event)
 
     case PowerPlantCreateEvent(id, powerPlantCfg) =>
