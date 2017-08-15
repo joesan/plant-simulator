@@ -111,18 +111,19 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
       Continue
   }
 
-  def waitForStop(stop: Promise[Continue], source: ActorRef): Receive = {
-    case Continue =>
-      source ! Continue
-      context.become(receive)
-
+  def waitForStop(source: ActorRef): Receive = {
     case Terminated(actor) =>
       context.unwatch(actor)
-      stop.success(Continue)
+      log.info(s"Actor Terminated message received for actor ${source.path.name}")
+      // Now unstash all of the messages
+      log.info(s"Un-stashing all messages")
+      context.become(receive)
+      unstashAll()
 
     case someDamnThing =>
       log.error(s"Unexpected message $someDamnThing :: " +
-        s"received while waiting for an actor to be stopped")
+        s"received while waiting for an actor to be stopped => Stashing message")
+      stash()
   }
 
   def waitForRestart(source: ActorRef, powerPlantCreateEvent: PowerPlantCreateEvent[PowerPlantConfig]): Receive = {
@@ -131,13 +132,13 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
       log.info(s"Actor Terminated message received for actor ${source.path.name}")
       self ! powerPlantCreateEvent
       // Now unstash all of the messages
-      log.info(s"un-stashing all messages")
+      log.info(s"Un-stashing all messages")
       context.become(receive)
       unstashAll()
 
     case someDamnThing =>
       log.warning(s"Unexpected message $someDamnThing :: " +
-        s"received while waiting for an actor to be stopped - Stashing messages")
+        s"received while waiting for an actor to be re-started => Stashing message")
       stash()
   }
 
@@ -203,10 +204,11 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
       context.child(s"$simulatorActorNamePrefix-$id") match {
         case Some(actorRef) =>
           context.watch(actorRef)
+          context.become(waitForStop(actorRef))
           actorRef ! Kill
 
         case None =>
-          log.warning(s"PowerPlantDeleteEvent # No running actor instance found for id $id ")
+          log.warning(s"PowerPlantDeleteEvent # No running actor instance found for id $id")
       }
   }
 }
