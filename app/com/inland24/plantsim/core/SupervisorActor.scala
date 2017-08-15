@@ -128,10 +128,11 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
   def waitForRestart(source: ActorRef, powerPlantCreateEvent: PowerPlantCreateEvent[PowerPlantConfig]): Receive = {
     case Terminated(actor) =>
       context.unwatch(actor)
-      log.info(s"ActorTerminated message received for actor ${source.path.name}")
+      log.info(s"Actor Terminated message received for actor ${source.path.name}")
       self ! powerPlantCreateEvent
       // Now unstash all of the messages
       log.info(s"un-stashing all messages")
+      context.become(receive)
       unstashAll()
 
     case someDamnThing =>

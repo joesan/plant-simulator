@@ -127,7 +127,6 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
       }
     }
 
-    pending
     "Stop and Re-start a running PowerPlant Actor when a PowerPlantUpdate event is received" in {
       // First let us create the Actor instances
       val createEventsSeq = Seq(
@@ -150,8 +149,6 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
         supervisorActor ! SupervisorEvents(updateEventsSeq)
         expectNoMsg()
       }
-
-      Thread.sleep(10000)
 
       // Now check if the corresponding ActorRef's are created!
       Await.result(childActorRef(updateEventsSeq.head.id.toInt), 5.seconds) match {
