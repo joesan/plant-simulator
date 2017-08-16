@@ -40,7 +40,7 @@ object AppBindings {
 
     override val appConfig: AppConfig = AppConfig.load()
     // TODO: pass this execution context in
-    override val dbService = DBService(appConfig.database)(scala.concurrent.ExecutionContext.Implicits.global)
+    override val dbService = DBService(appConfig.dbConfig)(scala.concurrent.ExecutionContext.Implicits.global)
 
     override val supervisorActor: ActorRef =
       system.actorOf(

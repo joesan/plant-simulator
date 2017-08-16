@@ -62,7 +62,7 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
   implicit val timeout = Timeout(5.seconds)
 
   // Our DBServiceActor instance that is responsible for tracking changes to the PowerPlant table
-  val dbServiceActor = context.actorOf(DBServiceActor.props(config.database, self), "plant-simulator-dbService")
+  val dbServiceActor = context.actorOf(DBServiceActor.props(config.dbConfig, self), "plant-simulator-dbService")
 
   override val supervisorStrategy: OneForOneStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 5.seconds) {

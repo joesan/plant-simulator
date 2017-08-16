@@ -35,8 +35,8 @@ package object models {
       "environment" -> appConfig.environment,
       "application" -> appConfig.appName,
       "dbConfig" -> Json.obj(
-        "databaseDriver" -> appConfig.database.driver,
-        "databaseUrl" -> appConfig.database.url,
+        "databaseDriver" -> appConfig.dbConfig.driver,
+        "databaseUrl" -> appConfig.dbConfig.url,
         "databaseUser" -> "***********",
         "databasePass" -> "***********"
       )

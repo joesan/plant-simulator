@@ -35,10 +35,10 @@ trait DBServiceSpec {
   System.setProperty("ENV", "test")
 
   val config = AppConfig.load()
-  val testDatabase = config.database.database
+  val testDatabase = config.dbConfig.database
 
   // initialize the db service
-  val dbSchema = DBSchema(config.database.slickDriver)
+  val dbSchema = DBSchema(config.dbConfig.slickDriver)
 
   /* This shitty import should be here - Do not remove */
   import dbSchema._

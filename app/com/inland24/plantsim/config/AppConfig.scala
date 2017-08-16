@@ -33,7 +33,7 @@ import scala.util.Try
 final case class AppConfig(
   environment: String,
   appName: String,
-  database: DBConfig
+  dbConfig: DBConfig
 )
 final case class DBConfig(
   url: String,
@@ -59,14 +59,11 @@ object AppConfig {
   def load(): AppConfig =
     load(ConfigUtil.loadFromEnv())
 
-  def load(config: api.Configuration): AppConfig =
-    load(config.underlying)
-
   def load(config: Config): AppConfig = {
     AppConfig(
       environment = config.getString("environment"),
       appName = config.getString("appName"),
-      database = DBConfig(
+      dbConfig = DBConfig(
         url = config.getString("db.url"),
         user = Try(config.getString("db.username")).toOption.filterNot(_.isEmpty),
         password = Try(config.getString("db.password")).toOption.filterNot(_.isEmpty),

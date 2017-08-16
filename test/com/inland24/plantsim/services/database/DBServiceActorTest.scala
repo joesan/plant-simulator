@@ -265,7 +265,7 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
     // We disable the Observable inside the DBServiceActor, so that it is easy to unit test!
     val dbServiceActor = system.actorOf(
       DBServiceActor.props(
-        AppConfig.load().database,
+        AppConfig.load().dbConfig,
         testSupervisorActorRef,
         enableSubscription = false
       )
@@ -273,7 +273,7 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
 
     "populate PowerPlantsConfig upon every message it receives" in {
 
-      val dbService = DBService(appConfig.database)
+      val dbService = DBService(appConfig.dbConfig)
 
       // Let us start initially with the available PowerPlant entries in the database
       val allActivePowerPlants = Await.result(dbService.allPowerPlants(fetchOnlyActive = true), 3.seconds)
