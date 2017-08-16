@@ -177,12 +177,23 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
     }
 
     "Stop a running PowerPlant Actor when a PowerPlantDelete event is received" in {
-      val deleteEventsSeq = Seq(
-        onOffTypePowerPlantEventsSeq.last,
-        rampUpTypePowerPlantEventsSeq.last
+      // First let us start the actors, so that we can stop them later
+      val createEventsSeq = Seq(
+        PowerPlantCreateEvent[OnOffTypeConfig](200, powerPlantCfg(200, OnOffType).asInstanceOf[OnOffTypeConfig]),
+        PowerPlantCreateEvent[RampUpTypeConfig](201, powerPlantCfg(201, RampUpType).asInstanceOf[RampUpTypeConfig])
       ).asInstanceOf[PowerPlantEventsSeq]
 
-      within(3.seconds) {
+      within(5.seconds) {
+        supervisorActor ! SupervisorEvents(createEventsSeq)
+        expectNoMsg()
+      }
+
+      val deleteEventsSeq = Seq(
+        PowerPlantDeleteEvent[OnOffTypeConfig](200, powerPlantCfg(200, OnOffType).asInstanceOf[OnOffTypeConfig]),
+        PowerPlantDeleteEvent[RampUpTypeConfig](201, powerPlantCfg(201, RampUpType).asInstanceOf[RampUpTypeConfig])
+      ).asInstanceOf[PowerPlantEventsSeq]
+
+      within(6.seconds) {
         supervisorActor ! SupervisorEvents(deleteEventsSeq)
         expectNoMsg()
       }
@@ -193,7 +204,7 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
           fail(s"expected child Actor Not to be found for " +
             s"OnOffType PowerPlant with id ${deleteEventsSeq.head.id}, but was not found"
           )
-        case Failure(_) => // Nothing to do, as we expect a Failure
+        case Failure(ex) => // Nothing to do, as we expect a Failure
       }
 
       Await.result(childActorRef(deleteEventsSeq.last.id.toInt), 3.seconds) match {
