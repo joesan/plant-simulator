@@ -88,7 +88,7 @@ This application is built as a web application using the Play framework. We have
 
 To do something meaningful with the application, have a look here to the possible end points that you can execute against the application:
 
-https://github.com/joesan/plant-simulator/wiki
+[Documentation](https://github.com/joesan/plant-simulator/wiki)
 
 #### To run as a Docker container
 
