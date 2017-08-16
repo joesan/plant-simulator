@@ -106,15 +106,6 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
         )
       }
 
-    // TODO: Remove this case!
-    case Dispatch(power) => // Dispatch to the specified power value
-      startSubscription
-      context.become(
-        checkRamp(
-          PowerPlantState.dispatch(state.copy(setPoint = power))
-        )
-      )
-
     case OutOfService =>
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
@@ -187,7 +178,6 @@ object RampUpTypeSimulatorActor {
   sealed trait Message
   case object Init extends Message
   case object StateRequest extends Message
-  case class  Dispatch(power: Double) extends Message
   case object Release extends Message
   case object RampCheck extends Message
   case object ReturnToNormal extends Message

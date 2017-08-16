@@ -17,9 +17,11 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
+import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeSimulatorActor._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantType
+import com.inland24.plantsim.models.PowerPlantType.RampUpType
 import com.inland24.plantsim.services.simulator.rampUpType.PowerPlantState._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -75,7 +77,66 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
     // PowerPlant # RampUp tests
     "start to RampUp when a Dispatch command is sent" in {
       within(10.seconds) {
-        rampUpTypeSimActor ! Dispatch(rampUpTypeCfg.maxPower)
+        rampUpTypeSimActor ! DispatchRampUpPowerPlant(
+          powerPlantId = rampUpTypeCfg.id,
+          command = "dispatch",
+          powerPlantType = RampUpType,
+          value = rampUpTypeCfg.maxPower
+        )
+        expectNoMsg
+      }
+      rampUpTypeSimActor ! StateRequest
+      expectMsgPF() {
+        case state: PowerPlantState =>
+          // check the signals
+          assert(
+            state.signals(activePowerSignalKey).toDouble === 800.0,
+            "expecting activePower to be 800.0, but was not the case"
+          )
+          assert(
+            state.signals(isDispatchedSignalKey).toBoolean,
+            "expected isDispatched signal to be true, but was false instead"
+          )
+          assert(
+            state.signals(isAvailableSignalKey).toBoolean,
+            "expected isAvailable signal to be true, but was false instead"
+          )
+          assert(
+            state.rampRate === initPowerPlantState.rampRate,
+            "rampRate did not match"
+          )
+          assert(
+            state.setPoint === 800.0,
+            "setPoint did not match"
+          )
+        case x: Any => // If I get any other message, I fail
+          fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
+      }
+    }
+
+    "ignore Dispatch command when the dispatchPower is less than it's minPower" in {
+      within(3.seconds) {
+        rampUpTypeSimActor !
+          DispatchRampUpPowerPlant(
+            powerPlantId = rampUpTypeCfg.id,
+            command = "dispatch",
+            powerPlantType = RampUpType,
+            value = rampUpTypeCfg.minPower - 1.0
+          )
+        expectNoMsg
+      }
+    }
+
+    "dispatch to maxPower if the dispatchPower is more than the maxPower capacity of the PowerPlant" in {
+      within(10.seconds) {
+        // expected activePower should be this one here
+        rampUpTypeSimActor !
+          DispatchRampUpPowerPlant(
+            powerPlantId = rampUpTypeCfg.id,
+            command = "dispatch",
+            powerPlantType = RampUpType,
+            value = rampUpTypeCfg.maxPower + 1.0
+          )
         expectNoMsg
       }
       rampUpTypeSimActor ! StateRequest
@@ -110,10 +171,22 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
     "ignore multiple Dispatch commands and should respond only to the first dispatch command" in {
       within(10.seconds) {
         // expected activePower should be this one here
-        rampUpTypeSimActor ! Dispatch(rampUpTypeCfg.maxPower)
+        rampUpTypeSimActor !
+          DispatchRampUpPowerPlant(
+            powerPlantId = rampUpTypeCfg.id,
+            command = "dispatch",
+            powerPlantType = RampUpType,
+            value = rampUpTypeCfg.maxPower
+          )
 
         // this dispatch command should be ignored!!
-        rampUpTypeSimActor ! Dispatch(10000.0)
+        rampUpTypeSimActor !
+          DispatchRampUpPowerPlant(
+            powerPlantId = rampUpTypeCfg.id,
+            command = "dispatch",
+            powerPlantType = RampUpType,
+            value = 10000.0
+          )
         expectNoMsg
       }
       rampUpTypeSimActor ! StateRequest
@@ -164,7 +237,12 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
     "throw the PowerPlant into OutOfService when OutOfService message is sent during RampUp" in {
       // 1. Send a Dispatch message
       within(2.seconds) {
-        rampUpTypeSimActor ! Dispatch(rampUpTypeCfg.maxPower)
+        rampUpTypeSimActor ! DispatchRampUpPowerPlant(
+          powerPlantId = rampUpTypeCfg.id,
+          command = "dispatch",
+          powerPlantType = RampUpType,
+          value = rampUpTypeCfg.maxPower
+        )
         expectNoMsg()
       }
 
@@ -215,7 +293,12 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       val rampUpTypeSimActor = system.actorOf(RampUpTypeSimulatorActor.props(rampUpTypeCfg))
       // 1. Send a Dispatch message
       within(12.seconds) {
-        rampUpTypeSimActor ! Dispatch(rampUpTypeCfg.maxPower)
+        rampUpTypeSimActor ! DispatchRampUpPowerPlant(
+          powerPlantId = rampUpTypeCfg.id,
+          command = "dispatch",
+          powerPlantType = RampUpType,
+          value = rampUpTypeCfg.maxPower
+        )
         expectNoMsg()
       }
 
