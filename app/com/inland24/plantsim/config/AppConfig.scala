@@ -43,9 +43,6 @@ final case class DBConfig(
   refreshInterval: FiniteDuration) {
 
   lazy val slickDriver: JdbcProfile = driver match {
-    case "org.sqlite.JDBC" =>
-      Class.forName(driver)
-      slick.jdbc.SQLiteProfile
     case "com.mysql.jdbc.Driver" =>
       Class.forName(driver)
       slick.jdbc.MySQLProfile
