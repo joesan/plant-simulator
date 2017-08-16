@@ -195,7 +195,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       }
 
       // 3. Send a StateRequest message and check the signals
-      within(3.seconds) {
+      within(7.seconds) {
         rampUpTypeSimActor ! StateRequest
         expectMsgPF() {
           case state: PowerPlantState =>
