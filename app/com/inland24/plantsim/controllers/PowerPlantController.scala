@@ -24,6 +24,7 @@ import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models._
 import play.api.mvc.{Action, Controller}
 import monix.execution.FutureUtils.extensions._
+import play.api.libs.json.JsError
 // TODO: pass in this execution context
 import monix.execution.Scheduler.Implicits.global
 
@@ -34,7 +35,7 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 
-class AppController(bindings: AppBindings) extends Controller {
+class PowerPlantController(bindings: AppBindings) extends Controller {
 
   // Place a reference to the underlying ActorSystem
   implicit val system = bindings.actorSystem
@@ -80,7 +81,16 @@ class AppController(bindings: AppBindings) extends Controller {
     }
   }
 
-  def dispatchPowerPlant(id: Int) = Action.async {
+  // TODO: Implement!
+  def dispatchPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
+    request.body.validate[DispatchCommand].fold(
+      errors => {
+        BadRequest(Json.obj("status" -> "error", "message" -> JsError.toJson(errors)))
+      },
+      commands => {
+        Ok
+      }
+      )
     Future.successful(Ok("TODO"))
   }
 

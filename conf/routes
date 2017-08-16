@@ -3,12 +3,12 @@
 # ~~~~
 
 # Root PAGE
-GET			/							 com.inland24.plantsim.controllers.AppController.home
-GET			/config					     com.inland24.plantsim.controllers.AppController.appConfig
+GET			/							 com.inland24.plantsim.controllers.PowerPlantController.home
+GET			/config					     com.inland24.plantsim.controllers.PowerPlantController.appConfig
 
 # Endpoints to fetch details about the PowerPlant
-GET         /powerPlant/:id/telemetry    com.inland24.plantsim.controllers.AppController.powerPlantSignals(id: Int)
-GET         /powerPlant/:id/details      com.inland24.plantsim.controllers.AppController.powerPlantDetails(id: Int)
+GET         /powerPlant/:id/telemetry    com.inland24.plantsim.controllers.PowerPlantController.powerPlantSignals(id: Int)
+GET         /powerPlant/:id/details      com.inland24.plantsim.controllers.PowerPlantController.powerPlantDetails(id: Int)
 
 # Map static resources from the /public folder to the /assets URL path
 GET			/assets/*file				 controllers.Assets.versioned(path="/public", file: Asset)
