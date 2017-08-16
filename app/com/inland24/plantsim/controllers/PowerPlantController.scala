@@ -81,17 +81,19 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     }
   }
 
-  // TODO: Implement!
   def dispatchPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
     request.body.validate[DispatchCommand].fold(
       errors => {
-        BadRequest(Json.obj("status" -> "error", "message" -> JsError.toJson(errors)))
+        Future.successful{
+          BadRequest(Json.obj("status" -> "error", "message" -> JsError.toJson(errors)))
+        }
       },
-      commands => {
-        Ok
+      _ => {
+        Future.successful {
+          Accepted(Json.obj("message" -> s"dispatch message accepted for PowerPlant with id $id"))
+        }
       }
-      )
-    Future.successful(Ok("TODO"))
+    )
   }
 
   def powerPlantSignals(id: Int) = Action.async {
