@@ -49,9 +49,8 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
   }
 
   override def afterAll(): Unit = {
-
-    TestKit.shutdownActorSystem(system)
     super.h2SchemaDrop()
+    TestKit.shutdownActorSystem(system)
   }
 
   val testOnOffConfig = OnOffTypeConfig(
