@@ -20,6 +20,7 @@ import RampUpTypeSimulatorActor._
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
+import com.inland24.plantsim.models.ReturnToNormalCommand
 import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
@@ -168,7 +169,7 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
       )
 
-    case ReturnToNormal =>
+    case ReturnToNormalCommand =>
       context.become(receive)
       self ! Init
   }

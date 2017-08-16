@@ -1,0 +1,61 @@
+/*
+ * Copyright (c) 2017 joesan @ http://github.com/joesan
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+
+package com.inland24.plantsim.models
+
+import play.api.libs.json._
+
+
+trait ReturnToNormalCommand {
+
+  def powerPlantId: Int
+  def toPowerValue: Option[Double]
+}
+object ReturnToNormalCommand {
+
+  def apply(powerPlantId: Int) = new ReturnToNormalCommand {
+    override def powerPlantId: Int = powerPlantId
+
+    override def toPowerValue: Option[Double] = None
+  }
+/* TODO: Use this classes later
+  case class RTNOnOffTypePowerPlant(
+    powerPlantId: Int,
+    toPowerValue: Option[Double] = None
+  ) extends ReturnToNormalCommand
+
+  case class RTNRampUpTypePowerPlant(
+    powerPlantId: Int,
+    toPowerValue: Option[Double] = None
+  ) */
+
+  implicit def jsonReads = new Reads[ReturnToNormalCommand] {
+
+    def reads(json: JsValue): JsResult[ReturnToNormalCommand] = {
+      if((json \ "powerPlantId").asOpt[Int].isEmpty) {
+        JsError(
+          JsPath \ "ReturnToNormalCommand is missing powerPlantId key",
+          "powerPlantId"
+        )
+      } else {
+        JsSuccess(
+          ReturnToNormalCommand((json \ "powerPlantId").as[Int])
+        )
+      }
+    }
+  }
+}

@@ -81,6 +81,28 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     }
   }
 
+  def returnToNormalPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
+    request.body.validate[ReturnToNormalCommand].fold(
+      errors => {
+        Future.successful{
+          BadRequest(
+            Json.obj("status" -> "error", "message" -> JsError.toJson(errors))
+          )
+        }
+      },
+      returnToNormalCommand => {
+        Future.successful {
+          system.actorSelection(
+            s"akka://application/user/*/${bindings.appConfig.appName}-$id"
+          ) ! returnToNormalCommand
+          Accepted(
+            Json.obj("message" -> s"ReturnToNormal message accepted for PowerPlant with id $id")
+          )
+        }
+      }
+    )
+  }
+
   def dispatchPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
     request.body.validate[DispatchCommand].fold(
       errors => {

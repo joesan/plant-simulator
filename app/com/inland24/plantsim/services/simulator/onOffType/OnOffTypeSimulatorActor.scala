@@ -20,6 +20,7 @@ import OnOffTypeSimulatorActor._
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
+import com.inland24.plantsim.models.ReturnToNormalCommand
 
 
 class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
@@ -53,11 +54,17 @@ class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
         context.become(
           active(PowerPlantState.turnOn(state, maxPower = cfg.maxPower))
         )
-      else
+      else // We could also ReturnToNormal using the DispatchOnOffPowerPlant command
         context.become(
           active(PowerPlantState.turnOff(state, minPower = cfg.minPower))
         )
 
+    case ReturnToNormalCommand => // ReturnToNormal means means returning to min power
+      context.become(
+        active(PowerPlantState.turnOff(state, minPower = cfg.minPower))
+      )
+
+    // TODO: Remove these two methods below!
     case TurnOn => // Turning On means deliver max power
       context.become(
         active(PowerPlantState.turnOn(state, maxPower = cfg.maxPower))
