@@ -10,5 +10,8 @@ GET			/config					     com.inland24.plantsim.controllers.PowerPlantController.ap
 GET         /powerPlant/:id/telemetry    com.inland24.plantsim.controllers.PowerPlantController.powerPlantSignals(id: Int)
 GET         /powerPlant/:id/details      com.inland24.plantsim.controllers.PowerPlantController.powerPlantDetails(id: Int)
 
+# Endpoints to steer a PowerPlant
+POST       /powerPlant/:id/dispatch      com.inland24.plantsim.controllers.PowerPlantController.dispatchPowerPlant(id: Int)
+
 # Map static resources from the /public folder to the /assets URL path
 GET			/assets/*file				 controllers.Assets.versioned(path="/public", file: Asset)

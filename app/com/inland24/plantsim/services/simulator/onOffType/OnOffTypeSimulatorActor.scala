@@ -18,6 +18,7 @@ package com.inland24.plantsim.services.simulator.onOffType
 import akka.actor.{Actor, ActorLogging, Props}
 import OnOffTypeSimulatorActor._
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
+import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 
 
@@ -45,6 +46,17 @@ class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
 
     case StateRequest =>
       sender ! state
+
+    // TODO: Write unit tests for this!
+    case DispatchOnOffPowerPlant(_,_,_,turnOn) =>
+      if (turnOn)
+        context.become(
+          active(PowerPlantState.turnOn(state, maxPower = cfg.maxPower))
+        )
+      else
+        context.become(
+          active(PowerPlantState.turnOff(state, minPower = cfg.minPower))
+        )
 
     case TurnOn => // Turning On means deliver max power
       context.become(

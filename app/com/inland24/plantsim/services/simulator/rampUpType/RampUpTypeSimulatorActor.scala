@@ -18,6 +18,7 @@ package com.inland24.plantsim.services.simulator.rampUpType
 import akka.actor.{Actor, ActorLogging, Props}
 import RampUpTypeSimulatorActor._
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
+import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import monix.execution.Ack
 import monix.execution.Ack.Continue
@@ -82,6 +83,30 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     case StateRequest =>
       sender ! state
 
+    // TODO: Add unit tests for the case below!
+    case DispatchRampUpPowerPlant(_,_,_,dispatchPower) =>
+      // If the dispatch power is equal or less than to its minPower, do nothing
+      if (dispatchPower <= cfg.minPower) {
+        log.info(s"Not dispatching because the current " +
+          s"dispatchPower ($dispatchPower) <= minPower (${cfg.minPower}), " +
+          "so ignoring this dispatch signal")
+      } else {
+        startSubscription
+        val calculatedDispatch =
+          if(dispatchPower >= cfg.maxPower) {
+            log.warning(s"requested dispatchPower = $dispatchPower is greater " +
+              s"than maxPower = ${cfg.maxPower} capacity of the PowerPlant, so curtailing at maxPower")
+            cfg.maxPower
+          }
+          else dispatchPower
+        context.become(
+          checkRamp(
+            PowerPlantState.dispatch(state.copy(setPoint = calculatedDispatch))
+          )
+        )
+      }
+
+    // TODO: Remove this case!
     case Dispatch(power) => // Dispatch to the specified power value
       startSubscription
       context.become(

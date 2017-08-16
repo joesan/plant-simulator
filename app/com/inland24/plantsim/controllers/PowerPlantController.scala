@@ -85,12 +85,19 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     request.body.validate[DispatchCommand].fold(
       errors => {
         Future.successful{
-          BadRequest(Json.obj("status" -> "error", "message" -> JsError.toJson(errors)))
+          BadRequest(
+            Json.obj("status" -> "error", "message" -> JsError.toJson(errors))
+          )
         }
       },
-      _ => {
+      dispatchCommand => {
         Future.successful {
-          Accepted(Json.obj("message" -> s"dispatch message accepted for PowerPlant with id $id"))
+          system.actorSelection(
+            s"akka://application/user/*/${bindings.appConfig.appName}-$id"
+          ) ! dispatchCommand
+          Accepted(
+            Json.obj("message" -> s"dispatch message accepted for PowerPlant with id $id")
+          )
         }
       }
     )
