@@ -215,13 +215,33 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
         expectNoMsg()
       }
 
-      // Now check if the corresponding ActorRef's are created!
+      // Now check if the corresponding ActorRef's are not created!
       Await.result(childActorRef(createEventsSeq.head.id.toInt), 3.seconds) match {
         case Success(_) =>
           fail(s"expected child Actor Not to be found for " +
             s"UnknownType PowerPlant with id ${createEventsSeq.head.id}, but was found"
           )
         case Failure(_) => // Nothing to do, as we expect a Failure
+      }
+    }
+
+    "Start an Actor if a PowerPlantUpdate event is received, but there was no Actor already running" in {
+      val updateEventsSeq = Seq(
+        PowerPlantUpdateEvent[OnOffTypeConfig](101, powerPlantCfg(101, OnOffType).asInstanceOf[OnOffTypeConfig])
+      ).asInstanceOf[PowerPlantEventsSeq]
+
+      within(3.seconds) {
+        supervisorActor ! SupervisorEvents(updateEventsSeq)
+        expectNoMsg()
+      }
+
+      // Now check if the corresponding ActorRef's are created!
+      Await.result(childActorRef(updateEventsSeq.head.id.toInt), 3.seconds) match {
+        case Success(_) => // Nothing to do!
+        case Failure(_) =>
+          fail(s"expected child Actor Not to be found for " +
+            s"UnknownType PowerPlant with id ${updateEventsSeq.head.id}, but was found"
+          )
       }
     }
   }
