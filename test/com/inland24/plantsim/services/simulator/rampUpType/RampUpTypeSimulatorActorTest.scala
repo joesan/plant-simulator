@@ -76,11 +76,8 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
 
       rampUpTypeSimActor ! TelemetrySignals
       expectMsgPF(2.seconds) {
-        case state: PowerPlantState =>
-          assert(state.signals === initPowerPlantState.signals, "signals did not match")
-          assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
-          assert(state.rampRate === initPowerPlantState.rampRate, "rampRate did not match")
-          assert(state.setPoint === initPowerPlantState.setPoint, "setPoint did not match")
+        case signals: Map[_, _] =>
+          assert(signals === initPowerPlantState.signals, "signals did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
