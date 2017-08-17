@@ -17,8 +17,10 @@ package com.inland24.plantsim.services.simulator.onOffType
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
+import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.PowerPlantType
+import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.simulator.onOffType.PowerPlantState._
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
@@ -70,7 +72,12 @@ class OnOffTypeSimulatorActorTest extends TestKit(ActorSystem("OnOffTypeSimulato
     // PowerPlant # TurnOn tests
     "turn on when a TurnOn message is sent when in Active state" in {
       within(1.seconds) {
-        onOffTypeSimActor ! TurnOn
+        onOffTypeSimActor ! DispatchOnOffPowerPlant(
+          powerPlantId = onOffTypeCfg.id,
+          command = "turnOn",
+          powerPlantType = OnOffType,
+          value = true
+        )
         expectNoMsg()
       }
 
@@ -89,7 +96,12 @@ class OnOffTypeSimulatorActorTest extends TestKit(ActorSystem("OnOffTypeSimulato
     // PowerPlant # TurnOff tests
     "turn on when a TurnOn message is sent when in turned on state" in {
       within(1.seconds) {
-        onOffTypeSimActor ! TurnOff
+        onOffTypeSimActor ! DispatchOnOffPowerPlant(
+          powerPlantId = onOffTypeCfg.id,
+          command = "turnOn",
+          powerPlantType = OnOffType,
+          value = false
+        )
         expectNoMsg()
       }
 
@@ -106,7 +118,12 @@ class OnOffTypeSimulatorActorTest extends TestKit(ActorSystem("OnOffTypeSimulato
     // PowerPlant # OutOfService tests
     "go to OutOfService when OutOfService message is sent during Turned on state" in {
       within(1.seconds) {
-        onOffTypeSimActor ! TurnOn
+        onOffTypeSimActor ! DispatchOnOffPowerPlant(
+          powerPlantId = onOffTypeCfg.id,
+          command = "turnOn",
+          powerPlantType = OnOffType,
+          value = true
+        )
         expectNoMsg()
       }
 
@@ -126,7 +143,12 @@ class OnOffTypeSimulatorActorTest extends TestKit(ActorSystem("OnOffTypeSimulato
 
     "go to OutOfService when OutOfService message is sent during Turned off state" in {
       within(1.seconds) {
-        onOffTypeSimActor ! TurnOff
+        onOffTypeSimActor ! DispatchOnOffPowerPlant(
+          powerPlantId = onOffTypeCfg.id,
+          command = "turnOn",
+          powerPlantType = OnOffType,
+          value = true
+        )
         expectNoMsg()
       }
 

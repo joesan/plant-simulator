@@ -64,17 +64,6 @@ class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
         active(PowerPlantState.turnOff(state, minPower = cfg.minPower))
       )
 
-    // TODO: Remove these two methods below!
-    case TurnOn => // Turning On means deliver max power
-      context.become(
-        active(PowerPlantState.turnOn(state, maxPower = cfg.maxPower))
-      )
-
-    case TurnOff => // Turning Off means returning to min power
-      context.become(
-        active(PowerPlantState.turnOff(state, minPower = cfg.minPower))
-      )
-
     case OutOfService =>
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
@@ -90,8 +79,8 @@ object OnOffTypeSimulatorActor {
   sealed trait Message
   case object Init extends Message
   case object StateRequest extends Message
-  case object TurnOn  extends Message
-  case object TurnOff extends Message
+  //case object TurnOn  extends Message
+  //case object TurnOff extends Message
 
   // These messages are meant for manually faulting and un-faulting the power plant
   case object OutOfService extends Message
