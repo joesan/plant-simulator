@@ -38,9 +38,8 @@ import scala.util.{Failure, Success}
 class PowerPlantController(bindings: AppBindings) extends Controller {
 
   // Place a reference to the underlying ActorSystem
-  implicit val system = bindings.actorSystem
-  implicit val appName = bindings.appConfig.appName
-  val dbService = bindings.dbService
+  private val system = bindings.actorSystem
+  private val dbService = bindings.dbService
 
   implicit val timeout: akka.util.Timeout = 3.seconds
 
@@ -57,6 +56,15 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
         case Success(actorRef) => Some(actorRef)
         case Failure(_) => None
       }
+  }
+
+  def sendCommand(actorRef: ActorRef, id: Int, command: PowerPlantCommand) = {
+    actorRef ! command
+    Future.successful {
+      Accepted(
+        Json.obj("message" -> s"${command.commandName} accepted for PowerPlant with id $id")
+      )
+    }
   }
 
   def appConfig = Action.async {
@@ -99,12 +107,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
               NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
             }
           case Some(actorRef) =>
-            actorRef ! returnToNormalCommand
-            Future.successful {
-              Accepted(
-                Json.obj("message" -> s"ReturnToNormal command accepted for PowerPlant with id $id")
-              )
-            }
+            sendCommand(actorRef, id, returnToNormalCommand)
         }
       }
     )
@@ -127,12 +130,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
               NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
             }
           case Some(actorRef) =>
-            actorRef ! dispatchCommand
-            Future.successful {
-              Accepted(
-                Json.obj("message" -> s"Dispatch command accepted for PowerPlant with id $id")
-              )
-            }
+            sendCommand(actorRef, id, dispatchCommand)
         }
       }
     )

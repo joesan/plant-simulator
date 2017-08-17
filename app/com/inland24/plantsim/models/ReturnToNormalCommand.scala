@@ -20,10 +20,12 @@ package com.inland24.plantsim.models
 import play.api.libs.json._
 
 
-trait ReturnToNormalCommand {
+trait ReturnToNormalCommand extends PowerPlantCommand {
 
   def powerPlantId: Int
   def toPowerValue: Option[Double]
+
+  override def commandName: String = "ReturnToNormalCommand"
 }
 object ReturnToNormalCommand {
 

@@ -21,10 +21,12 @@ import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
 import play.api.libs.json._
 
 
-trait DispatchCommand {
+trait DispatchCommand extends PowerPlantCommand {
   def powerPlantId: Int
   def powerPlantType: PowerPlantType
   def command: String
+
+  override def commandName: String = "DispatchCommand"
 }
 object DispatchCommand {
 
