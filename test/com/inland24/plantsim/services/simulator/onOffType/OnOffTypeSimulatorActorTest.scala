@@ -19,7 +19,7 @@ import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
-import com.inland24.plantsim.models.PowerPlantType
+import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.simulator.onOffType.PowerPlantState._
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor._
@@ -102,6 +102,34 @@ class OnOffTypeSimulatorActorTest extends TestKit(ActorSystem("OnOffTypeSimulato
           powerPlantType = OnOffType,
           value = false
         )
+        expectNoMsg()
+      }
+
+      onOffTypeSimActor ! StateRequest
+      expectMsgPF() {
+        case state: PowerPlantState =>
+          assert(state.signals === initPowerPlantState.signals, "signals did not match")
+          assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
+        case x: Any => // If I get any other message, I fail
+          fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
+      }
+    }
+
+    "turn off when a ReturnToNormalCommand message is sent when in turned on state" in {
+      // First turn it on
+      within(1.seconds) {
+        onOffTypeSimActor ! DispatchOnOffPowerPlant(
+          powerPlantId = onOffTypeCfg.id,
+          command = "turnOn",
+          powerPlantType = OnOffType,
+          value = true
+        )
+        expectNoMsg()
+      }
+
+      // Now turin it off
+      within(1.seconds) {
+        onOffTypeSimActor ! ReturnToNormalCommand
         expectNoMsg()
       }
 
