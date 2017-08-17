@@ -17,6 +17,7 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
+import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeSimulatorActor._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
@@ -63,7 +64,18 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
         expectNoMsg()
       }
       rampUpTypeSimActor ! StateRequest
-      expectMsgPF(3.seconds) {
+      expectMsgPF(2.seconds) {
+        case state: PowerPlantState =>
+          assert(state.signals === initPowerPlantState.signals, "signals did not match")
+          assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
+          assert(state.rampRate === initPowerPlantState.rampRate, "rampRate did not match")
+          assert(state.setPoint === initPowerPlantState.setPoint, "setPoint did not match")
+        case x: Any => // If I get any other message, I fail
+          fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
+      }
+
+      rampUpTypeSimActor ! TelemetrySignals
+      expectMsgPF(2.seconds) {
         case state: PowerPlantState =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
           assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
