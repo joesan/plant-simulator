@@ -39,6 +39,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
 
   // Place a reference to the underlying ActorSystem
   implicit val system = bindings.actorSystem
+  implicit val appName = bindings.appConfig.appName
   val dbService = bindings.dbService
 
   implicit val timeout: akka.util.Timeout = 3.seconds
@@ -81,6 +82,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     }
   }
 
+  // TODO: Re-Work for unit testability!
   def returnToNormalPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
     request.body.validate[ReturnToNormalCommand].fold(
       errors => {
@@ -91,18 +93,24 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
         }
       },
       returnToNormalCommand => {
-        Future.successful {
-          system.actorSelection(
-            s"akka://application/user/*/${bindings.appConfig.appName}-$id"
-          ) ! returnToNormalCommand
-          Accepted(
-            Json.obj("message" -> s"ReturnToNormal message accepted for PowerPlant with id $id")
-          )
+        actorFor(id) flatMap {
+          case None =>
+            Future.successful {
+              NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
+            }
+          case Some(actorRef) =>
+            actorRef ! returnToNormalCommand
+            Future.successful {
+              Accepted(
+                Json.obj("message" -> s"ReturnToNormal command accepted for PowerPlant with id $id")
+              )
+            }
         }
       }
     )
   }
 
+  // TODO: Re-Work for unit testability!
   def dispatchPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
     request.body.validate[DispatchCommand].fold(
       errors => {
@@ -113,13 +121,18 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
         }
       },
       dispatchCommand => {
-        Future.successful {
-          system.actorSelection(
-            s"akka://application/user/*/${bindings.appConfig.appName}-$id"
-          ) ! dispatchCommand
-          Accepted(
-            Json.obj("message" -> s"dispatch message accepted for PowerPlant with id $id")
-          )
+        actorFor(id) flatMap {
+          case None =>
+            Future.successful {
+              NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
+            }
+          case Some(actorRef) =>
+            actorRef ! dispatchCommand
+            Future.successful {
+              Accepted(
+                Json.obj("message" -> s"Dispatch command accepted for PowerPlant with id $id")
+              )
+            }
         }
       }
     )
