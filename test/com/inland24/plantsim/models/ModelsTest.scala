@@ -285,11 +285,47 @@ class ModelsTest extends FlatSpec {
     )
 
     Json.parse(invalidValue).validate[DispatchCommand].fold(
-      _ => {
+      _ => { // errors
         // Nothing to check!
       },
-      _ => {
+      _ => { // success
         fail(s"expected the parsing of an invalid DispatchCommand $invalidValue to fail, but it succeeded")
+      }
+    )
+  }
+
+  behavior of "ReturnToNormalCommand"
+
+  "ReturnToNormalCommand#reads" should "parse a Valid ReturnToNormalCommand" in {
+    val returnToNormalCommand =
+      """
+        | { "powerPlantId": 2 }
+      """.stripMargin
+
+    Json.parse(returnToNormalCommand).validate[ReturnToNormalCommand].fold(
+      _ => { // errors
+        fail(s"expected a valid ReturnToNormalCommand $returnToNormalCommand " +
+          s"to have validated successfully, but it did not!")
+      },
+      _ => { // success
+        // Nothing to check!
+      }
+    )
+  }
+
+  "ReturnToNormalCommand#reads" should "fail parsing for an in-valid ReturnToNormalCommand" in {
+    val returnToNormalCommand =
+      """
+        | { "": 2 }
+      """.stripMargin
+
+    Json.parse(returnToNormalCommand).validate[ReturnToNormalCommand].fold(
+      _ => { // errors
+        // Nothing to check!
+      },
+      _ => { // success
+        fail(s"expected a in-valid ReturnToNormalCommand $returnToNormalCommand " +
+          s"to have failed validation, but the validation was successful, please analyze!")
       }
     )
   }
