@@ -20,7 +20,7 @@ import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeSimulatorActor._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.PowerPlantType
+import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
 import com.inland24.plantsim.services.simulator.rampUpType.PowerPlantState._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
@@ -288,7 +288,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
     }
 
     // PowerPlant # ReturnToNormal tests
-    "return the PowerPlant to Normal when ReturnToNormal message is sent in dispatched state" in {
+    "return the PowerPlant to Normal when ReturnToNormalCommand message is sent in dispatched state" in {
       // To avoid confusion and the tests failing, we create a new actor instance for this test
       val rampUpTypeSimActor = system.actorOf(RampUpTypeSimulatorActor.props(rampUpTypeCfg))
       // 1. Send a Dispatch message
@@ -304,7 +304,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
 
       // 2. Send a ReturnToNormal message
       within(1.seconds) {
-        rampUpTypeSimActor ! ReturnToNormal
+        rampUpTypeSimActor ! ReturnToNormalCommand
         expectNoMsg()
       }
 

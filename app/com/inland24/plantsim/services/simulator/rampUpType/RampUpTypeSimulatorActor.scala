@@ -68,7 +68,6 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
 
   override def receive: Receive = {
     case Init =>
-      log.info(s"In receive back again ***** ")
       context.become(
         active(
           PowerPlantState.init(
@@ -171,7 +170,6 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       )
 
     case ReturnToNormalCommand =>
-      log.info("received message to RTN *********** ")
       context.become(receive)
       self ! Init
   }
