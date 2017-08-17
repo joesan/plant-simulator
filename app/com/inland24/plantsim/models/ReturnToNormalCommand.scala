@@ -27,10 +27,10 @@ trait ReturnToNormalCommand {
 }
 object ReturnToNormalCommand {
 
-  def apply(powerPlantId: Int) = new ReturnToNormalCommand {
-    override def powerPlantId: Int = powerPlantId
+  def apply(id: Int) = new ReturnToNormalCommand {
+    val powerPlantId: Int = id
 
-    override def toPowerValue: Option[Double] = None
+    val toPowerValue: Option[Double] = None
   }
 /* TODO: Use this classes later
   case class RTNOnOffTypePowerPlant(
