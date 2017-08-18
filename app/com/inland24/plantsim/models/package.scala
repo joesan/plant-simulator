@@ -88,6 +88,35 @@ package object models {
     }
   }
 
+  implicit def toPowerPlantRow(cfg: PowerPlantConfig): PowerPlantRow = cfg.powerPlantType match{
+    case OnOffType =>
+      PowerPlantRow(
+        id = cfg.id,
+        orgName = cfg.name,
+        isActive = true,
+        minPower = cfg.minPower,
+        powerPlantTyp = OnOffType,
+        maxPower = cfg.maxPower,
+        rampRatePower = None,
+        rampRateSecs = None,
+        createdAt = DateTime.now(DateTimeZone.UTC),
+        updatedAt = DateTime.now(DateTimeZone.UTC)
+      )
+    case RampUpType =>
+      PowerPlantRow(
+        id = cfg.id,
+        orgName = cfg.name,
+        isActive = true,
+        minPower = cfg.minPower,
+        powerPlantTyp = OnOffType,
+        maxPower = cfg.maxPower,
+        rampRatePower = Some(cfg.asInstanceOf[RampUpTypeConfig].rampPowerRate),
+        rampRateSecs = Some(cfg.asInstanceOf[RampUpTypeConfig].rampRateInSeconds.toSeconds),
+        createdAt = DateTime.now(DateTimeZone.UTC),
+        updatedAt = DateTime.now(DateTimeZone.UTC)
+      )
+  }
+
   // implicit conversion from database row types to model types
   implicit def toPowerPlantsConfig(seqPowerPlantRow: Seq[PowerPlantRow]): PowerPlantsConfig = {
     PowerPlantsConfig(

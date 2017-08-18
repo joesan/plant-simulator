@@ -25,6 +25,8 @@ import com.inland24.plantsim.models._
 import play.api.mvc.{Action, Controller}
 import monix.execution.FutureUtils.extensions._
 import play.api.libs.json.JsError
+
+import scala.util.control.NonFatal
 // TODO: pass in this execution context
 import monix.execution.Scheduler.Implicits.global
 
@@ -88,6 +90,26 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
           )
         )
     }
+  }
+
+  // TODO: Check implementatiom!
+  def createNewPowerPlant = Action.async(parse.tolerantJson) { request =>
+    request.body.validate[PowerPlantConfig].fold(
+      errors => {
+        Future.successful(
+          BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig $errors"))
+        )
+      },
+      success => {
+        dbService.newPowerPlant(toPowerPlantRow(success)).recover {
+          case NonFatal(ex) =>
+            UnprocessableEntity(
+              Json.obj("message" -> s"Could not create new PowerPlant because of ${ex.getMessage}")
+            )
+        }
+        Future.successful(Ok())
+      }
+    )
   }
 
   // TODO: Re-Work for unit testability!
