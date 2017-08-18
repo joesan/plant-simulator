@@ -90,13 +90,14 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       if (dispatchPower <= cfg.minPower) {
         log.info(s"Not dispatching because the current " +
           s"dispatchPower ($dispatchPower) <= minPower (${cfg.minPower}), " +
-          "so ignoring this dispatch signal")
+          s"so ignoring this dispatch signal for PowerPlant ${self.path.name}")
       } else {
         startSubscription
         val calculatedDispatch =
           if(dispatchPower >= cfg.maxPower) {
             log.warning(s"requested dispatchPower = $dispatchPower is greater " +
-              s"than maxPower = ${cfg.maxPower} capacity of the PowerPlant, so curtailing at maxPower")
+              s"than maxPower = ${cfg.maxPower} capacity of the PowerPlant, " +
+              s"so curtailing at maxPower for PowerPlant ${self.path.name}")
             cfg.maxPower
           }
           else dispatchPower
