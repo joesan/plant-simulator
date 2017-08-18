@@ -48,7 +48,6 @@ class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
     case StateRequest =>
       sender ! state
 
-    // TODO: Write unit tests for this!
     case DispatchOnOffPowerPlant(_,_,_,turnOn) =>
       if (turnOn)
         context.become(
@@ -79,8 +78,6 @@ object OnOffTypeSimulatorActor {
   sealed trait Message
   case object Init extends Message
   case object StateRequest extends Message
-  //case object TurnOn  extends Message
-  //case object TurnOff extends Message
 
   // These messages are meant for manually faulting and un-faulting the power plant
   case object OutOfService extends Message
