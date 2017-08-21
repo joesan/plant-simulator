@@ -67,17 +67,13 @@ package object models {
             powerPlantType = powerPlantTyp
           ))
         case _ =>
-          JsError(
-            s"error state - PowerPlantType $powerPlantTyp not allowed"
-          ) /*
-        case _ =>
           JsSuccess(UnknownConfig(
             id = (json \ "powerPlantId").as[Int],
             name = (json \ "powerPlantName").as[String],
             minPower = (json \ "minPower").as[Double],
             maxPower = (json \ "maxPower").as[Double],
             powerPlantType = powerPlantTyp
-          )) */
+          ))
       }
     }
 
