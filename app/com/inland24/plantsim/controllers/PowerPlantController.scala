@@ -92,7 +92,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     }
   }
 
-  // TODO: Check implementatiom!
+  // TODO: Check implementation!
   def createNewPowerPlant = Action.async(parse.tolerantJson) { request =>
     request.body.validate[PowerPlantConfig].fold(
       errors => {
@@ -101,13 +101,20 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
         )
       },
       success => {
-        dbService.newPowerPlant(toPowerPlantRow(success)).recover {
-          case NonFatal(ex) =>
-            UnprocessableEntity(
-              Json.obj("message" -> s"Could not create new PowerPlant because of ${ex.getMessage}")
-            )
+        toPowerPlantRow(success) match {
+          case None => Future.successful(
+            BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig ")) // TODO: fix errors
+          )
+          case Some(row) =>
+            dbService.newPowerPlant(row) /* recoverWith {
+              case ex: Exception => Future.successful {
+                UnprocessableEntity(
+                  Json.obj("message" -> s"Could not create new PowerPlant because of ${ex.getMessage}")
+                )
+              }
+            } */
         }
-        Future.successful(Ok())
+        Future.successful { Ok("") }
       }
     )
   }

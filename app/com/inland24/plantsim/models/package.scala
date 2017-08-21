@@ -67,13 +67,17 @@ package object models {
             powerPlantType = powerPlantTyp
           ))
         case _ =>
+          JsError(
+            s"error state - PowerPlantType $powerPlantTyp not allowed"
+          ) /*
+        case _ =>
           JsSuccess(UnknownConfig(
             id = (json \ "powerPlantId").as[Int],
             name = (json \ "powerPlantName").as[String],
             minPower = (json \ "minPower").as[Double],
             maxPower = (json \ "maxPower").as[Double],
             powerPlantType = powerPlantTyp
-          ))
+          )) */
       }
     }
 
@@ -88,9 +92,9 @@ package object models {
     }
   }
 
-  implicit def toPowerPlantRow(cfg: PowerPlantConfig): PowerPlantRow = cfg.powerPlantType match{
+  implicit def toPowerPlantRow(cfg: PowerPlantConfig): Option[PowerPlantRow] = cfg.powerPlantType match {
     case OnOffType =>
-      PowerPlantRow(
+      Some(PowerPlantRow(
         id = cfg.id,
         orgName = cfg.name,
         isActive = true,
@@ -101,9 +105,9 @@ package object models {
         rampRateSecs = None,
         createdAt = DateTime.now(DateTimeZone.UTC),
         updatedAt = DateTime.now(DateTimeZone.UTC)
-      )
+      ))
     case RampUpType =>
-      PowerPlantRow(
+      Some(PowerPlantRow(
         id = cfg.id,
         orgName = cfg.name,
         isActive = true,
@@ -114,7 +118,9 @@ package object models {
         rampRateSecs = Some(cfg.asInstanceOf[RampUpTypeConfig].rampRateInSeconds.toSeconds),
         createdAt = DateTime.now(DateTimeZone.UTC),
         updatedAt = DateTime.now(DateTimeZone.UTC)
-      )
+      ))
+    case _ => // TODO Log
+      None
   }
 
   // implicit conversion from database row types to model types
