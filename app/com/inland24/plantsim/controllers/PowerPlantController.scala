@@ -108,7 +108,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
           case Some(row) =>
             dbService.newPowerPlant(row).materialize.map {
               case Success(insertedRecordId) =>
-                Ok("")
+                Ok("TODO: Send a Success JSON back with the id of the newly inserted record")
               case Failure(ex) =>
                 UnprocessableEntity(
                   Json.obj("message" -> s"Could not create new PowerPlant because of ${ex.getMessage}")
