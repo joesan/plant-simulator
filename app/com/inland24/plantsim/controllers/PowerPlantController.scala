@@ -106,15 +106,15 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
             BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig ")) // TODO: fix errors
           )
           case Some(row) =>
-            dbService.newPowerPlant(row) /* recoverWith {
-              case ex: Exception => Future.successful {
+            dbService.newPowerPlant(row).materialize.map {
+              case Success(insertedRecordId) =>
+                Ok("")
+              case Failure(ex) =>
                 UnprocessableEntity(
                   Json.obj("message" -> s"Could not create new PowerPlant because of ${ex.getMessage}")
                 )
-              }
-            } */
+            }
         }
-        Future.successful { Ok("") }
       }
     )
   }
