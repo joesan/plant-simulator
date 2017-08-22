@@ -18,7 +18,6 @@
 package com.inland24.plantsim.streams
 
 import com.inland24.plantsim.services.database.models.PowerPlantRow
-import com.typesafe.scalalogging.StrictLogging
 import monix.execution.Cancelable
 import monix.reactive.Observable
 import monix.reactive.observers.Subscriber
@@ -28,19 +27,22 @@ import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Success}
 
+import play.api.Logger
+
 
 final class DBObservable private (period: FiniteDuration, f: => Future[Seq[PowerPlantRow]])
-  extends Observable[Seq[PowerPlantRow]] with StrictLogging {
+  extends Observable[Seq[PowerPlantRow]] {
 
   def unsafeSubscribeFn(subscriber: Subscriber[Seq[PowerPlantRow]]): Cancelable = {
     implicit val s = subscriber.scheduler
 
     def request() = {
+      Logger.info("Looking up the database for new updates")
       val safe = f.materialize.map { // materialize is cool!
         case Success(r) =>
           Some(r)
         case Failure(ex) =>
-          logger.error("Error while querying the database", ex)
+          Logger.error("Error while querying the database", ex)
           None
       }
 
@@ -55,7 +57,8 @@ final class DBObservable private (period: FiniteDuration, f: => Future[Seq[Power
   }
 }
 
-object DBObservable {
+object
+DBObservable {
   /**
     * Builder for [[DBObservable]].
     */

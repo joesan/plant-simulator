@@ -38,5 +38,4 @@
         <appender-ref ref="ASYNCFILE" />
     </root>
 
-    <logger name="scala.slick" level="INFO" />
 </configuration>

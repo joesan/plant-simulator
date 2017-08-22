@@ -54,6 +54,10 @@ final class Bootstrap extends ApplicationLoader with LazyLogging {
       AppBindings(actorSystem, materializer)
     }
 
+    // 0. Set the filters
+    lazy val loggingFilter: LoggingFilter = new LoggingFilter()
+    override lazy val httpFilters = Seq(loggingFilter)
+
     // 1. create the dependencies that will be injected
     lazy val appBindings = start
 
