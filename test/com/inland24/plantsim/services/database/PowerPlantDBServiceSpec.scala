@@ -60,6 +60,23 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
     }
   }
 
+  "allPowerPlantsPaginated" should "fetch all PowerPlant's from the database for the given pageNumber" in {
+    powerPlantDBService.allPowerPlantsPaginated().map { // by default we ask for the first page
+      allPowerPlants =>
+        assert(allPowerPlants.length === 5)
+
+        allPowerPlants.headOption match {
+          case Some(powerPlant1) =>
+            assert(powerPlant1.id === 101)
+            assert(powerPlant1.orgName === "joesan 1")
+            assert(powerPlant1.isActive)
+            assert(powerPlant1.powerPlantTyp === PowerPlantType.RampUpType)
+          case None =>
+            fail("expected a PowerPlant with id 101 in the database, but not found")
+        }
+    }
+  }
+
   "powerPlantById" should "fetch the PowerPlant for the given id" in {
     powerPlantDBService.powerPlantById(105).flatMap {
       case Some(powerPlant) =>

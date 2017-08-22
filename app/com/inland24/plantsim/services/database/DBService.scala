@@ -28,9 +28,7 @@ class DBService private (dbConfig: DBConfig)
 
   private val schema = DBSchema(dbConfig.slickDriver)
   private val database = dbConfig.database
-
-  // TODO: move this to the DBConfig!
-  val recordsPerPage = 5
+  private val recordsPerPage = dbConfig.recordCountPerPage
 
   /** Note: These imports should be here! Do not move it */
   import schema._
