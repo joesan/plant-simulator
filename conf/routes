@@ -9,6 +9,7 @@ GET			/config					     com.inland24.plantsim.controllers.PowerPlantController.ap
 # Endpoints to fetch details about the PowerPlant
 GET         /powerPlant/:id/telemetry    com.inland24.plantsim.controllers.PowerPlantController.powerPlantSignals(id: Int)
 GET         /powerPlant/:id/details      com.inland24.plantsim.controllers.PowerPlantController.powerPlantDetails(id: Int)
+GET         /powerPlants                 com.inland24.plantsim.controllers.PowerPlantController.powerPlants(active: Boolean ?= true, page: Int ?= 1)
 
 # Endpoints to steer a PowerPlant
 POST       /powerPlant/:id/dispatch      com.inland24.plantsim.controllers.PowerPlantController.dispatchPowerPlant(id: Int)

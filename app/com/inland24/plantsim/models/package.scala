@@ -20,8 +20,8 @@ package com.inland24.plantsim
 import java.util.concurrent.TimeUnit
 
 import com.inland24.plantsim.config.AppConfig
-import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, PowerPlantsConfig, RampUpTypeConfig, UnknownConfig}
-import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType, UnknownType}
+import com.inland24.plantsim.models.PowerPlantConfig._
+import com.inland24.plantsim.models.PowerPlantType._
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
@@ -78,13 +78,26 @@ package object models {
     }
 
     def writes(o: PowerPlantConfig): JsValue = {
-      Json.obj(
-        "powerPlantId" -> o.id,
-        "powerPlantName" -> o.name,
-        "minPower" -> o.minPower,
-        "maxPower" -> o.maxPower,
-        "powerPlantType" -> PowerPlantType.toString(o.powerPlantType)
-      )
+      if (o.powerPlantType == RampUpType) {
+        Json.obj(
+          "powerPlantId" -> o.id,
+          "powerPlantName" -> o.name,
+          "minPower" -> o.minPower,
+          "maxPower" -> o.maxPower,
+          "powerPlantType" -> PowerPlantType.toString(o.powerPlantType),
+          "rampPowerRate" -> o.asInstanceOf[RampUpTypeConfig].rampPowerRate,
+          "rampRateInSeconds" -> o.asInstanceOf[RampUpTypeConfig].rampPowerRate
+        )
+      }
+      else {
+        Json.obj(
+          "powerPlantId" -> o.id,
+          "powerPlantName" -> o.name,
+          "minPower" -> o.minPower,
+          "maxPower" -> o.maxPower,
+          "powerPlantType" -> PowerPlantType.toString(o.powerPlantType)
+        )
+      }
     }
   }
 

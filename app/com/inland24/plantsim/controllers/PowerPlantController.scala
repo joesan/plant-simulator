@@ -21,12 +21,12 @@ import akka.actor.ActorRef
 import akka.pattern.ask
 import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
+import com.inland24.plantsim.models.PowerPlantType.UnknownType
 import com.inland24.plantsim.models._
 import play.api.mvc.{Action, Controller}
 import monix.execution.FutureUtils.extensions._
 import play.api.libs.json.JsError
 
-import scala.util.control.NonFatal
 // TODO: pass in this execution context
 import monix.execution.Scheduler.Implicits.global
 
@@ -89,6 +89,23 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
             Json.toJson(toPowerPlantConfig(powerPlantRow)))
           )
         )
+    }
+  }
+
+  def powerPlants(isOnlyActive: Boolean, page: Int) = Action.async {
+
+    dbService.allPowerPlants(isOnlyActive).materialize.map {
+      case Success(powerPlantsSeqRow) =>
+        val collected = powerPlantsSeqRow.collect {
+          case powerPlantRow
+            if powerPlantRow.powerPlantType != UnknownType =>
+            toPowerPlantConfig(powerPlantRow)
+        }
+        Ok(Json.prettyPrint(Json.toJson(collected)))
+
+      case Failure(ex) =>
+        InternalServerError(s"Error fetching all PowerPlant's " +
+          s"from the database => ${ex.getMessage}")
     }
   }
 
