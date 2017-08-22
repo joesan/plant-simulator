@@ -20,7 +20,6 @@ package com.inland24.plantsim.config
 import java.util.concurrent.TimeUnit
 
 import com.typesafe.config.Config
-import play.api
 import slick.jdbc.JdbcBackend.Database
 import slick.jdbc.{JdbcBackend, JdbcProfile}
 
