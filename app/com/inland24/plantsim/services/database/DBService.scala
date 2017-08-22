@@ -46,11 +46,10 @@ class DBService private (dbConfig: DBConfig)
     database.run(query.result)
   }
 
+  // by default, get the first page!
   def allPowerPlantsPaginated(fetchOnlyActive: Boolean = false, pageNumber: Int = 1): Future[Seq[PowerPlantRow]] = {
 
-    type From = Int
-    type To = Int
-    def offset: (From, To) = (pageNumber * recordsPerPage - recordsPerPage, pageNumber * recordsPerPage)
+    def offset: (Int, Int) = (pageNumber * recordsPerPage - recordsPerPage, pageNumber * recordsPerPage)
 
     val query =
       if (fetchOnlyActive)

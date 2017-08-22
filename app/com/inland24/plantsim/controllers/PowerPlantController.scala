@@ -92,9 +92,9 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     }
   }
 
-  def powerPlants(isOnlyActive: Boolean, page: Int) = Action.async {
+  def powerPlants(onlyActive: Boolean, page: Int) = Action.async {
 
-    dbService.allPowerPlants(isOnlyActive).materialize.map {
+    dbService.allPowerPlantsPaginated(onlyActive, page).materialize.map {
       case Success(powerPlantsSeqRow) =>
         val collected = powerPlantsSeqRow.collect {
           case powerPlantRow

@@ -84,9 +84,9 @@ package object models {
           "powerPlantName" -> o.name,
           "minPower" -> o.minPower,
           "maxPower" -> o.maxPower,
-          "powerPlantType" -> PowerPlantType.toString(o.powerPlantType),
           "rampPowerRate" -> o.asInstanceOf[RampUpTypeConfig].rampPowerRate,
-          "rampRateInSeconds" -> o.asInstanceOf[RampUpTypeConfig].rampPowerRate
+          "rampRateInSeconds" -> o.asInstanceOf[RampUpTypeConfig].rampPowerRate,
+          "powerPlantType" -> PowerPlantType.toString(o.powerPlantType)
         )
       }
       else {
