@@ -146,6 +146,53 @@ class ModelsTest extends FlatSpec {
     actualRampUpTypeCfg === unknownPlantCfg
   }
 
+  behavior of "toPowerPlantRow"
+
+  "toPowerPlaneRow" should "return a PowerPlantRow when the PowerPlantType is OnOffType or RampUpType" in {
+    val onOffTypePlantCfg = OnOffTypeConfig(
+      id = 1,
+      name = "SomeName",
+      maxPower = 20.0,
+      minPower = 10.0,
+      powerPlantType = PowerPlantType.OnOffType
+    )
+
+    val onOffRow = toPowerPlantRow(onOffTypePlantCfg)
+    onOffRow.isDefined === true
+    onOffRow.head.id === onOffTypePlantCfg.id
+    onOffRow.head.rampRatePower === None
+    onOffRow.head.rampRateSecs === None
+
+    val rampUpTypePlantCfg = RampUpTypeConfig(
+      id = 1,
+      name = "SomeName",
+      maxPower = 20.0,
+      minPower = 10.0,
+      rampPowerRate = 2.0,
+      rampRateInSeconds = 2.seconds,
+      powerPlantType = PowerPlantType.RampUpType
+    )
+
+    val rampUpRow = toPowerPlantRow(rampUpTypePlantCfg)
+    rampUpRow.isDefined === true
+    rampUpRow.head.id === rampUpTypePlantCfg.id
+    rampUpRow.head.rampRatePower === Some(2.0)
+    rampUpRow.head.rampRateSecs === Some(2)
+  }
+
+  "toPowerPlaneRow" should "return a None when the PowerPlantType is UnknownType" in {
+    val unknownPlantCfg = UnknownConfig(
+      id = 1,
+      name = "SomeName",
+      maxPower = 20.0,
+      minPower = 10.0,
+      powerPlantType = PowerPlantType.UnknownType
+    )
+
+    val unknown = toPowerPlantRow(unknownPlantCfg)
+    unknown.isDefined === false
+  }
+
   behavior of "DispatchCommand"
 
   "DispatchCommand#reads" should "fail parsing for a DispatchCommand invalid PowerPlantType" in {
