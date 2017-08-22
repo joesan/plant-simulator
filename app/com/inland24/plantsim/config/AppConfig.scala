@@ -69,7 +69,7 @@ object AppConfig {
         user = Try(config.getString("db.username")).toOption.filterNot(_.isEmpty),
         password = Try(config.getString("db.password")).toOption.filterNot(_.isEmpty),
         driver = config.getString("db.driver"),
-        recordCountPerPage = config.getInt("recordsPerPage"),
+        recordCountPerPage = config.getInt("db.recordsPerPage"),
         refreshInterval = config.getDuration("db.refreshInterval", TimeUnit.MILLISECONDS).millis
       )
     )
