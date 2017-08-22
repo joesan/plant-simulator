@@ -29,6 +29,9 @@ class DBService private (dbConfig: DBConfig)
   private val schema = DBSchema(dbConfig.slickDriver)
   private val database = dbConfig.database
 
+  // TODO: move this to the DBConfig!
+  val recordsPerPage = 5
+
   /** Note: These imports should be here! Do not move it */
   import schema._
   import schema.driver.api._
@@ -41,6 +44,22 @@ class DBService private (dbConfig: DBConfig)
         PowerPlantTable.all
 
     database.run(query.result)
+  }
+
+  def allPowerPlantsPaginated(fetchOnlyActive: Boolean = false, pageNumber: Int = 1): Future[Seq[PowerPlantRow]] = {
+
+    type From = Int
+    type To = Int
+    def offset: (From, To) = (pageNumber * recordsPerPage - recordsPerPage, pageNumber * recordsPerPage)
+
+    val query =
+      if (fetchOnlyActive)
+        PowerPlantTable.activePowerPlants
+      else
+        PowerPlantTable.all
+
+    val (from, to) = offset
+    database.run(query.drop(from).take(to).result)
   }
 
   def powerPlantById(id: Int): Future[Option[PowerPlantRow]] = {
