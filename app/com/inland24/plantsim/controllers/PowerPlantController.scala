@@ -23,7 +23,7 @@ import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.PowerPlantType.UnknownType
 import com.inland24.plantsim.models._
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, Controller, Result}
 import monix.execution.FutureUtils.extensions._
 import play.api.libs.json.JsError
 
@@ -38,6 +38,15 @@ import scala.util.{Failure, Success}
 
 
 class PowerPlantController(bindings: AppBindings) extends Controller {
+
+  implicit class RichResult (result: Result) {
+    def enableCors =  result.withHeaders(
+      "Access-Control-Allow-Origin" -> "*"
+      , "Access-Control-Allow-Methods" -> "OPTIONS, GET, POST, PUT, DELETE, HEAD"   // OPTIONS for pre-flight
+      , "Access-Control-Allow-Headers" -> "Accept, Content-Type, Origin, X-Json, X-Prototype-Version, X-Requested-With" //, "X-My-NonStd-Option"
+      , "Access-Control-Allow-Credentials" -> "true"
+    )
+  }
 
   // Place a reference to the underlying ActorSystem
   private val system = bindings.actorSystem
@@ -81,13 +90,13 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     dbService.powerPlantById(id).flatMap {
       case None =>
         Future.successful(
-          NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
+          NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
         )
       case Some(powerPlantRow) =>
         Future.successful(
           Ok(Json.prettyPrint(
             Json.toJson(toPowerPlantConfig(powerPlantRow)))
-          )
+          ).enableCors
         )
     }
   }
@@ -101,11 +110,11 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
             if powerPlantRow.powerPlantType != UnknownType =>
             toPowerPlantConfig(powerPlantRow)
         }
-        Ok(Json.prettyPrint(Json.toJson(collected)))
+        Ok(Json.prettyPrint(Json.toJson(collected))).enableCors
 
       case Failure(ex) =>
         InternalServerError(s"Error fetching all PowerPlant's " +
-          s"from the database => ${ex.getMessage}")
+          s"from the database => ${ex.getMessage}").enableCors
     }
   }
 
@@ -114,22 +123,22 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     request.body.validate[PowerPlantConfig].fold(
       errors => {
         Future.successful(
-          BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig $errors"))
+          BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig $errors")).enableCors
         )
       },
       success => {
         toPowerPlantRow(success) match {
           case None => Future.successful(
-            BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig ")) // TODO: fix errors
+            BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig ")).enableCors // TODO: fix errors
           )
           case Some(row) =>
             dbService.newPowerPlant(row).materialize.map {
               case Success(insertedRecordId) =>
-                Ok("TODO: Send a Success JSON back with the id of the newly inserted record")
+                Ok("TODO: Send a Success JSON back with the id of the newly inserted record").enableCors
               case Failure(ex) =>
                 UnprocessableEntity(
                   Json.obj("message" -> s"Could not create new PowerPlant because of ${ex.getMessage}")
-                )
+                ).enableCors
             }
         }
       }
