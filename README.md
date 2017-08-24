@@ -123,9 +123,9 @@ To do something meaningful with the application, have a look at the [documentati
 
 * [Travis CI](https://travis-ci.com/) - Hosted Continuous Integration
 
-## Contributing
+## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/joesan/plant-simulator/issues)
 
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/joesan/plant-simulator/issues)
+For more information on how to contribute, have a look [here](https://github.com/joesan/plant-simulator/blob/master/CONTRIBUTING.md)
 
 ## Authors / Maintainers
 
