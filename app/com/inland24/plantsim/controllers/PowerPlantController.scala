@@ -54,6 +54,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
 
   implicit val timeout: akka.util.Timeout = 3.seconds
 
+  // TODO: This could return a list of supported API's
   def home = Action { implicit request =>
     Ok("The API is ready")
   }
