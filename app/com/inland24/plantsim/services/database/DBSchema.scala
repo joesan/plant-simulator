@@ -108,12 +108,17 @@ class DBSchema private (val driver: JdbcProfile) {
       all.filter(_.id === id)
     }
 
-    def powerPlantsFor(powerPlantType: Option[PowerPlantType], orgName: Option[String], onlyActive: Boolean) = {
-      MaybeFilter(all)
-        .filter(powerPlantType)(powerPlantType => powerPlantTable => powerPlantTable.powerPlantType === powerPlantType)
-        .filter(orgName)(orgName => powerPlantTable => powerPlantTable.orgName === orgName)
-        .query
-      .filter(_.isActive === onlyActive)
+    def powerPlantsFor(criteriaPowerPlantType: Option[PowerPlantType], criteriaOrgName: Option[String], criteriaOnlyActive: Option[Boolean]) = {
+      for {
+        filtered <- all.filter(f =>
+            criteriaOrgName.map(a =>
+              f.orgName like s"%$a%").getOrElse(slick.lifted.LiteralColumn(true)) &&
+            criteriaOnlyActive.map(b =>
+              f.isActive === b).getOrElse(slick.lifted.LiteralColumn(true)) &&
+            criteriaPowerPlantType.map(d =>
+              f.powerPlantType === d).getOrElse(slick.lifted.LiteralColumn(true))
+        )
+      } yield filtered
     }
   }
 }
