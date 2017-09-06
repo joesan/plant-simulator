@@ -23,6 +23,8 @@ import com.inland24.plantsim.models.PowerPlantType
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
 import slick.jdbc.JdbcProfile
+import slick.lifted.CanBeQueryCondition
+import scala.language.higherKinds
 
 
 class DBSchema private (val driver: JdbcProfile) {
@@ -44,6 +46,12 @@ class DBSchema private (val driver: JdbcProfile) {
     powerPlantType    => PowerPlantType.toString(powerPlantType),
     powerPlantTypeStr => PowerPlantType.fromString(powerPlantTypeStr)
   )
+
+  case class MaybeFilter[X, Y, C[_]](query: slick.lifted.Query[X, Y, C]) {
+    def filter[T, R: CanBeQueryCondition](data: Option[T])(f: T => X => R) = {
+      data.map(v => MaybeFilter(query.withFilter(f(v)))).getOrElse(this)
+    }
+  }
 
   ///////////////// PowerPlant Table
   /**
@@ -98,6 +106,14 @@ class DBSchema private (val driver: JdbcProfile) {
       */
     def powerPlantById(id: Int) = {
       all.filter(_.id === id)
+    }
+
+    def powerPlantsFor(powerPlantType: Option[PowerPlantType], orgName: Option[String], onlyActive: Boolean) = {
+      MaybeFilter(all)
+        .filter(powerPlantType)(powerPlantType => powerPlantTable => powerPlantTable.powerPlantType === powerPlantType)
+        .filter(orgName)(orgName => powerPlantTable => powerPlantTable.orgName === orgName)
+        .query
+      .filter(_.isActive === onlyActive)
     }
   }
 }

@@ -18,6 +18,7 @@
 package com.inland24.plantsim.services.database
 
 import com.inland24.plantsim.config.DBConfig
+import com.inland24.plantsim.models.PowerPlantFilter
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -44,10 +45,18 @@ class DBService private (dbConfig: DBConfig)
     database.run(query.result)
   }
 
+  def offset(pageNumber: Int): (Int, Int) =
+    (pageNumber * recordsPerPage - recordsPerPage, pageNumber * recordsPerPage)
+
+  // fetch the PowerPlants based on the Search criteria
+  def powerPlantsFor(filter: PowerPlantFilter): Future[Seq[PowerPlantRow]] = {
+    val (from, to) = offset(filter.pageNumber)
+    val query = PowerPlantTable.powerPlantsFor(filter.powerPlantType, filter.orgName, filter.onlyActive)
+    database.run(query.drop(from).take(to).result)
+  }
+
   // by default, get the first page!
   def allPowerPlantsPaginated(fetchOnlyActive: Boolean = false, pageNumber: Int = 1): Future[Seq[PowerPlantRow]] = {
-
-    def offset: (Int, Int) = (pageNumber * recordsPerPage - recordsPerPage, pageNumber * recordsPerPage)
 
     val query =
       if (fetchOnlyActive)
@@ -55,7 +64,7 @@ class DBService private (dbConfig: DBConfig)
       else
         PowerPlantTable.all
 
-    val (from, to) = offset
+    val (from, to) = offset(pageNumber)
     database.run(query.drop(from).take(to).result)
   }
 

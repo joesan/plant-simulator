@@ -27,7 +27,7 @@ import play.api.mvc.{Action, Controller, Result}
 import monix.execution.FutureUtils.extensions._
 import play.api.libs.json.JsError
 
-// TODO: pass in this execution context
+// TODO: pass in this execution context via AppBindings
 import monix.execution.Scheduler.Implicits.global
 
 import play.api.libs.json.{JsObject, JsString, Json}
@@ -105,6 +105,38 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
   def powerPlants(onlyActive: Boolean, page: Int) = Action.async {
 
     dbService.allPowerPlantsPaginated(onlyActive, page).materialize.map {
+      case Success(powerPlantsSeqRow) =>
+        val collected = powerPlantsSeqRow.collect {
+          case powerPlantRow
+            if powerPlantRow.powerPlantType != UnknownType =>
+            toPowerPlantConfig(powerPlantRow)
+        }
+        Ok(Json.prettyPrint(Json.toJson(collected))).enableCors
+
+      case Failure(ex) =>
+        InternalServerError(s"Error fetching all PowerPlant's " +
+          s"from the database => ${ex.getMessage}").enableCors
+    }
+  }
+
+  def searchPowerPlants(onlyActive: Boolean, page: Int,
+    powerPlantType: Option[String], powerPlantName: Option[String] = None,
+    orgName: Option[String] = None) = Action.async {
+
+    val mappedPowerPlantType = powerPlantType.flatMap(someType => {
+      val typ = PowerPlantType.fromString(someType)
+      if (typ == UnknownType) None
+      else Some(typ)
+    })
+
+    val filter = PowerPlantFilter(
+      onlyActive = onlyActive,
+      powerPlantType = mappedPowerPlantType,
+      orgName = orgName,
+      pageNumber = page
+    )
+
+    dbService.powerPlantsFor(filter).materialize.map {
       case Success(powerPlantsSeqRow) =>
         val collected = powerPlantsSeqRow.collect {
           case powerPlantRow
