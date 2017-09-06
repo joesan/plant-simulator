@@ -90,7 +90,9 @@ This application is built as a web application using the Play framework. We have
    
 ```
 
-To do something meaningful with the application, have a look at the [documentation](https://github.com/joesan/plant-simulator/wiki) for more information on how to call the API's!
+To do something meaningful with the application, have a look at the [documentation](https://github.com/joesan/plant-simulator/wiki) for more information on how to call the API's! 
+
+To visualize the application and to do some real work with it, have a look [here](https://github.com/joesan/plant-simulator-ui)
 
 #### To run as a Docker container
 
