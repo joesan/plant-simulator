@@ -22,6 +22,6 @@ case class PowerPlantFilter(
   powerPlantType: Option[PowerPlantType] = None,
   powerPlantName: Option[String] = None,
   orgName: Option[String] = None,
-  pageNumber: Int,
+  pageNumber: Int = 1,
   onlyActive: Boolean
 )
