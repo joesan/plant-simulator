@@ -101,6 +101,24 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       filtered =>
         assert(filtered.length === 0)
     }
+
+    val searchFilter5 = PowerPlantFilter(
+      onlyActive = true,
+      orgName = Some("joesan")
+    )
+    powerPlantDBService.powerPlantsPaginated(searchFilter5).map {
+      filtered =>
+        assert(filtered.length === 5)
+    }
+
+    val searchFilter6 = PowerPlantFilter(
+      onlyActive = false,
+      orgName = Some("joesan")
+    )
+    powerPlantDBService.powerPlantsPaginated(searchFilter6).map {
+      filtered =>
+        assert(filtered.length === 0)
+    }
   }
 
   "allPowerPlantsPaginated" should "fetch all PowerPlant's from the database for the given pageNumber" in {
