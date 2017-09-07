@@ -93,7 +93,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
     val searchFilter4 = PowerPlantFilter(
       onlyActive = true,
       // There is only one element which will return when pageNumber is 1,
-      // but nothing is there on pagenumber 20
+      // but nothing is there on pageNumber 20
       pageNumber = 20,
       orgName = Some("joesan 1")
     )
