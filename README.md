@@ -81,7 +81,7 @@ This application is built as a web application using the Play framework. We have
    sbt run
    
    To run in production mode (application.prod.conf):
-   sbt -Denv=prod -Dlogger.resource=prod-logger.xml run
+   sbt -Denv=prod -Dlogger.resource=logger-prod.xml run
    
 3. Navigate to the following url on your favorite browser:
    http://localhost:9000
