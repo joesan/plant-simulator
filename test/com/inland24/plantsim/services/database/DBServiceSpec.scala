@@ -71,7 +71,7 @@ trait DBServiceSpec {
   protected def h2SchemaSetup() = {
     val schema = DBIO.seq(
       //(AddressTable.all.schema ++ PowerPlantTable.all.schema).create
-      (PowerPlantTable.all.schema).create
+      PowerPlantTable.all.schema.create
     )
     Await.result(testDatabase.run(schema), 5.seconds)
   }

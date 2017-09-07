@@ -17,7 +17,7 @@
 
 package com.inland24.plantsim.services.database
 
-import com.inland24.plantsim.models.PowerPlantType
+import com.inland24.plantsim.models.{PowerPlantFilter, PowerPlantType}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll}
@@ -57,6 +57,29 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
           case None =>
             fail("expected a PowerPlant with id 101 in the database, but not found")
         }
+    }
+  }
+
+  "powerPlantsPaginated" should "fetch all PowerPlant's that metch the search criteria" in {
+    val searchFilter1 = PowerPlantFilter(
+      onlyActive = true,
+      pageNumber = 1,
+      powerPlantType = None
+    )
+    powerPlantDBService.powerPlantsPaginated(searchFilter1).map {
+      filtered =>
+        assert(filtered.length === 5)
+    }
+
+    val searchFilter2 = PowerPlantFilter(
+      onlyActive = true,
+      pageNumber = 1,
+      orgName = Some("Joesan 1")
+    )
+    powerPlantDBService.powerPlantsPaginated(searchFilter2).map {
+      filtered =>
+        assert(filtered.length === 1)
+        assert(filtered.head.id === 1)
     }
   }
 

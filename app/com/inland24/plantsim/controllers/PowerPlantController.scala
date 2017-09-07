@@ -136,7 +136,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
       pageNumber = page
     )
 
-    dbService.powerPlantsFor(filter).materialize.map {
+    dbService.powerPlantsPaginated(filter).materialize.map {
       case Success(powerPlantsSeqRow) =>
         val collected = powerPlantsSeqRow.collect {
           case powerPlantRow

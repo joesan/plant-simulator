@@ -49,7 +49,7 @@ class DBService private (dbConfig: DBConfig)
     (pageNumber * recordsPerPage - recordsPerPage, pageNumber * recordsPerPage)
 
   // fetch the PowerPlants based on the Search criteria
-  def powerPlantsFor(filter: PowerPlantFilter): Future[Seq[PowerPlantRow]] = {
+  def powerPlantsPaginated(filter: PowerPlantFilter): Future[Seq[PowerPlantRow]] = {
     val (from, to) = offset(filter.pageNumber)
     val query = PowerPlantTable.powerPlantsFor(filter.powerPlantType, filter.orgName, Some(filter.onlyActive))
     database.run(query.drop(from).take(to).result)
