@@ -120,7 +120,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
   }
 
   def searchPowerPlants(onlyActive: Boolean, page: Int,
-    powerPlantType: Option[String], powerPlantName: Option[String] = None,
+    powerPlantType: Option[String] = None, powerPlantName: Option[String] = None,
     orgName: Option[String] = None) = Action.async {
 
     val mappedPowerPlantType = powerPlantType.flatMap(someType => {
