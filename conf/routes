@@ -10,7 +10,7 @@ GET			/config					     com.inland24.plantsim.controllers.PowerPlantController.ap
 GET         /powerPlant/:id/telemetry    com.inland24.plantsim.controllers.PowerPlantController.powerPlantSignals(id: Int)
 GET         /powerPlant/:id/details      com.inland24.plantsim.controllers.PowerPlantController.powerPlantDetails(id: Int)
 GET         /powerPlants                 com.inland24.plantsim.controllers.PowerPlantController.powerPlants(onlyActive: Boolean ?= true, page: Int ?= 1)
-GET         /powerPlantsSearch           com.inland24.plantsim.controllers.PowerPlantController.searchPowerPlants(onlyActive: Boolean ?= true, page: Int ?= 1, powerPlantType: Option[String], powerPlantName: Option[String], orgName: Option[String])
+GET         /powerPlantsSearch           com.inland24.plantsim.controllers.PowerPlantController.searchPowerPlants(onlyActive: Option[Boolean], onlyDisabled: Option[Boolean], page: Int ?= 1, powerPlantType: Option[String], powerPlantName: Option[String], orgName: Option[String])
 
 # Endpoints to steer a PowerPlant
 POST       /powerPlant/:id/dispatch      com.inland24.plantsim.controllers.PowerPlantController.dispatchPowerPlant(id: Int)

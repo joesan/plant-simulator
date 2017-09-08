@@ -23,5 +23,6 @@ case class PowerPlantFilter(
   powerPlantName: Option[String] = None,
   orgName: Option[String] = None,
   pageNumber: Int = 1,
-  onlyActive: Boolean
+  onlyActive: Option[Boolean] = None,
+  onlyDisabled: Option[Boolean] = None
 )

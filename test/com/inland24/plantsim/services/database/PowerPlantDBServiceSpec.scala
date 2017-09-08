@@ -62,7 +62,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
 
   "powerPlantsPaginated" should "fetch all PowerPlant's that metch the search criteria" in {
     val searchFilter1 = PowerPlantFilter(
-      onlyActive = true,
+      onlyActive = Some(true),
       powerPlantType = None
     )
     powerPlantDBService.powerPlantsPaginated(searchFilter1).map {
@@ -71,7 +71,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
     }
 
     val searchFilter2 = PowerPlantFilter(
-      onlyActive = true,
+      onlyActive = Some(true),
       orgName = Some("joesan 1")
     )
     powerPlantDBService.powerPlantsPaginated(searchFilter2).map {
@@ -81,7 +81,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
     }
 
     val searchFilter3 = PowerPlantFilter(
-      onlyActive = true,
+      onlyActive = Some(true),
       // Notice the capital letter, there is no name with capital letter in the database
       orgName = Some("Joesan 1")
     )
@@ -91,7 +91,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
     }
 
     val searchFilter4 = PowerPlantFilter(
-      onlyActive = true,
+      onlyActive = Some(true),
       // There is only one element which will return when pageNumber is 1,
       // but nothing is there on pageNumber 20
       pageNumber = 20,
@@ -103,7 +103,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
     }
 
     val searchFilter5 = PowerPlantFilter(
-      onlyActive = true,
+      onlyActive = Some(true),
       orgName = Some("joesan")
     )
     powerPlantDBService.powerPlantsPaginated(searchFilter5).map {
@@ -112,7 +112,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
     }
 
     val searchFilter6 = PowerPlantFilter(
-      onlyActive = false,
+      onlyActive = Some(false),
       orgName = Some("joesan")
     )
     powerPlantDBService.powerPlantsPaginated(searchFilter6).map {
