@@ -118,7 +118,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     }
   }
 
-  def searchPowerPlants(onlyActive: Option[Boolean], onlyDisabled: Option[Boolean], page: Int,
+  def searchPowerPlants(onlyActive: Option[Boolean], page: Int,
     powerPlantType: Option[String] = None, powerPlantName: Option[String] = None,
     orgName: Option[String] = None) = Action.async {
 
@@ -128,20 +128,12 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
       else Some(typ)
     })
 
-    val filter = onlyActive match {
-      case Some(_) => PowerPlantFilter(
-        onlyActive = onlyActive,
-        powerPlantType = mappedPowerPlantType,
-        orgName = orgName,
-        pageNumber = page
-      )
-      case None => PowerPlantFilter(
-        powerPlantType = mappedPowerPlantType,
-        orgName = orgName,
-        pageNumber = page,
-        onlyDisabled = onlyDisabled
-      )
-    }
+    val filter = PowerPlantFilter(
+      onlyActive = onlyActive,
+      powerPlantType = mappedPowerPlantType,
+      orgName = orgName,
+      pageNumber = page
+    )
 
     dbService.powerPlantsPaginated(filter).materialize.map {
       case Success(powerPlantsSeqRow) =>

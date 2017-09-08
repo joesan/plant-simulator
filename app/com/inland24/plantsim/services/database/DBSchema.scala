@@ -109,15 +109,13 @@ class DBSchema private (val driver: JdbcProfile) {
     }
 
     def powerPlantsFor(criteriaPowerPlantType: Option[PowerPlantType], criteriaOrgName: Option[String],
-      criteriaOnlyActive: Option[Boolean], criteriaOnlyDisabled: Option[Boolean]) = {
+      criteriaOnlyActive: Option[Boolean]) = {
       for {
         filtered <- all.filter(f =>
             criteriaOrgName.map(a =>
               f.orgName like s"%$a%").getOrElse(slick.lifted.LiteralColumn(true)) &&
             criteriaOnlyActive.map(b =>
               f.isActive === b).getOrElse(slick.lifted.LiteralColumn(true)) &&
-            criteriaOnlyDisabled.map(b =>
-                f.isActive === b).getOrElse(slick.lifted.LiteralColumn(true)) &&
             criteriaPowerPlantType.map(d =>
               f.powerPlantType === d).getOrElse(slick.lifted.LiteralColumn(true))
         )
