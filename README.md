@@ -18,9 +18,12 @@ plants:
 1. A PowerPlant that is steerable by turning it on or off (ex., battery)
 2. A PowerPlant that is steerable by ramping it up (ex., generators, gas turbines, CHP units)
 
-ALERT: We do not steer Nuclear Power Plants - We stay away from them!
-
 We also assume that all the units that we deal here are in kw for power and in seconds for time.
+
+```diff
+-ALERT: We do not steer Nuclear Power Plants - We stay away from them!
+- this will be highlighted in red
+```
 
 ## Getting Started 
 
