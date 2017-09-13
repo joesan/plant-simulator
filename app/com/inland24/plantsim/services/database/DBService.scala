@@ -55,6 +55,8 @@ class DBService private (dbConfig: DBConfig)
     database.run(query.drop(from).take(to).result)
   }
 
+  def applySchedules = ???
+
   // by default, get the first page!
   def allPowerPlantsPaginated(fetchOnlyActive: Boolean = false, pageNumber: Int = 1): Future[Seq[PowerPlantRow]] = {
     val query =

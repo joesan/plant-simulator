@@ -65,22 +65,6 @@ object PowerPlantState {
     elapsed.getSeconds.seconds >= rampRateInSeconds
   }
 
-  /* TODO: Check if this method is needed, if not remove it!
-  def rampCheck(state: PowerPlantState): PowerPlantState = {
-    state.signals.get(activePowerSignalKey) match {
-      case Some(activePower) =>
-        state.copy(
-          signals = Map(
-            // The new activePower will be the sum of old activePower + rampRate
-            activePowerSignalKey -> (state.rampRate + activePower.toDouble).toString,
-            isDispatchedSignalKey      -> false.toString,
-            isAvailableSignalKey -> true.toString // indicates if the power plant is available for steering
-          )
-        )
-      case _ => state
-    }
-  } */
-
   def init(powerPlantState: PowerPlantState, minPower: Double): PowerPlantState = {
     powerPlantState.copy(
       signals = Map(
@@ -90,27 +74,6 @@ object PowerPlantState {
       )
     )
   }
-
-  /* TODO: Check if this method is needed, if not remove it!
-  def release(powerPlantState: PowerPlantState, minPower: Double): PowerPlantState = {
-    val collectedSignals = powerPlantState.signals.collect { // to turn Off, you got to be available and be in an on state
-      case (key, value) if key == isAvailableSignalKey && value.toBoolean => key -> value
-    }
-
-    if (collectedSignals.nonEmpty && powerPlantState.signals.get(activePowerSignalKey).isDefined) {
-      val currentActivePower = powerPlantState.signals(activePowerSignalKey).toDouble
-
-      powerPlantState.copy(
-        signals = Map(
-          activePowerSignalKey -> minPower.toString, // we turn it off to min power
-          isDispatchedSignalKey      -> false.toString,
-          isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
-        )
-      )
-    } else {
-      powerPlantState
-    }
-  } */
 
   def dispatch(state: PowerPlantState): PowerPlantState = {
 
