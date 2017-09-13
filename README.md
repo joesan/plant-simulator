@@ -21,8 +21,7 @@ plants:
 We also assume that all the units that we deal here are in kw for power and in seconds for time.
 
 ```diff
--ALERT: We do not steer Nuclear Power Plants - We stay away from them!
-- this will be highlighted in red
+- ALERT: We do not steer Nuclear Power Plants - We stay away from them!
 ```
 
 ## Getting Started 
