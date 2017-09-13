@@ -20,20 +20,22 @@ package com.inland24.plantsim.models
 import play.api.libs.json._
 
 
-trait ReturnToNormalCommand extends PowerPlantCommand {
+trait ReturnToNormal extends PowerPlantCommand {
 
   def powerPlantId: Int
   def toPowerValue: Option[Double]
 
   override def commandName: String = "ReturnToNormalCommand"
 }
-object ReturnToNormalCommand {
+case class ReturnToNormalCommand(
+  powerPlantId: Int,
+  toPowerValue: Option[Double] = None
+) extends ReturnToNormal
+object ReturnToNormal {
 
-  def apply(id: Int) = new ReturnToNormalCommand {
-    val powerPlantId: Int = id
-
-    val toPowerValue: Option[Double] = None
-  }
+  def apply(id: Int) = ReturnToNormalCommand(
+    powerPlantId = id
+  )
 /* TODO: Use this classes later
   case class RTNOnOffTypePowerPlant(
     powerPlantId: Int,

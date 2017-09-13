@@ -170,7 +170,7 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
       )
 
-    case ReturnToNormalCommand =>
+    case ReturnToNormalCommand(_, _) =>
       context.become(receive)
       self ! Init
   }
