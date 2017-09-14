@@ -75,6 +75,37 @@ object PowerPlantState {
     )
   }
 
+  def returnToNormal(state: PowerPlantState, minPower: Double): PowerPlantState = {
+    if (isRampUp(state.lastRampTime, state.rampRateInSeconds)) {
+      val collectedSignal = state.signals.collect { // to rampDown, you got to be in dispatched state
+        case (key, value) if key == isDispatchedSignalKey && value.toBoolean => key -> value
+      }
+
+      val newState = if (collectedSignal.nonEmpty && state.signals.get(activePowerSignalKey).isDefined) {
+        val currentActivePower = state.signals(activePowerSignalKey).toDouble
+        // check if the newActivePower is lesser than the minPower
+        if (currentActivePower <= minPower) { // if true, this means we have ramped down to the required minPower!
+          state.copy(
+            signals = Map(
+              isDispatchedSignalKey -> false.toString,
+              activePowerSignalKey  -> state.setPoint.toString,
+              isAvailableSignalKey  -> true.toString // the plant is available
+            )
+          )
+        } else {
+          state.copy(
+            signals = Map(
+              isDispatchedSignalKey -> false.toString,
+              activePowerSignalKey  -> (currentActivePower + state.rampRate).toString,
+              isAvailableSignalKey  -> true.toString // the plant is still available and not faulty!
+            )
+          )
+        }
+      } else { state }
+      newState
+    } else { state }
+  }
+
   def dispatch(state: PowerPlantState): PowerPlantState = {
 
     if (isRampUp(state.lastRampTime, state.rampRateInSeconds)) {
