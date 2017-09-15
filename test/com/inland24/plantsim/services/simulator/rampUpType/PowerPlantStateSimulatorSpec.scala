@@ -15,8 +15,6 @@
 
 package com.inland24.plantsim.services.simulator.rampUpType
 
-import java.util.concurrent.TimeUnit
-
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantType
 import com.inland24.plantsim.services.simulator.rampUpType.PowerPlantState.{activePowerSignalKey, isAvailableSignalKey, isDispatchedSignalKey}
@@ -41,7 +39,7 @@ class PowerPlantStateSimulatorSpec extends FlatSpec {
   behavior of PowerPlantState.getClass.getCanonicalName
 
   "PowerPlantState#empty" should "start with a default state" in {
-    val emptyState = PowerPlantState.empty(cfg.id, cfg.minPower, cfg.rampPowerRate, cfg.rampRateInSeconds)
+    val emptyState = PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds)
 
     assert(emptyState.rampRate == cfg.rampPowerRate)
     assert(emptyState.powerPlantId == cfg.id)
@@ -68,7 +66,7 @@ class PowerPlantStateSimulatorSpec extends FlatSpec {
 
   "PowerPlantState#dispatch" should "start dispatching the power plant according to its ramp rate" in {
     val initState = PowerPlantState.init(
-      PowerPlantState.empty(cfg.id, cfg.minPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
+      PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
     )
 
     /*
@@ -110,6 +108,8 @@ class PowerPlantStateSimulatorSpec extends FlatSpec {
     val dispatchedState = PowerPlantState(
       powerPlantId = 1,
       setPoint = cfg.maxPower,
+      minPower = cfg.minPower,
+      maxPower = cfg.maxPower,
       // Here we assume that this PowerPlant was up and running since 20 seconds
       lastRampTime = DateTime.now(DateTimeZone.UTC).minusSeconds(20),
       rampRate = cfg.rampPowerRate,
@@ -129,7 +129,7 @@ class PowerPlantStateSimulatorSpec extends FlatSpec {
      * Let us now test if this happens!
      * The first ReturnToNormal command should take its activePower to 700
      */
-    val rtnState1 = PowerPlantState.returnToNormal(dispatchedState, cfg.minPower)
+    val rtnState1 = PowerPlantState.returnToNormal(dispatchedState)
     assert(rtnState1.signals(PowerPlantState.activePowerSignalKey).toDouble === 700.0)
     // we now come back to the current time for the lastRampTime, so that we can do the next tests
     val reset1 = rtnState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
@@ -138,20 +138,20 @@ class PowerPlantStateSimulatorSpec extends FlatSpec {
      * On our second ReturnToNormal, we should go from 700.0 to 600.0, but we got to wait 4 seconds
      * Blocking may be a bad idea, so we simulate time (i.e., subtract 4 seconds to the isRampUp check)
      */
-    val rtnState2 = PowerPlantState.returnToNormal(reset1.copy(lastRampTime = rtnState1.lastRampTime.minusSeconds(4)), cfg.minPower)
+    val rtnState2 = PowerPlantState.returnToNormal(reset1.copy(lastRampTime = rtnState1.lastRampTime.minusSeconds(4)))
     assert(rtnState2.signals(PowerPlantState.activePowerSignalKey).toDouble === 600.0)
     val reset2 = rtnState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
     // Let's try another ReturnToNormal immediately, this should have no effect and we should still stay at 600.0
-    val rtnState2_copy = PowerPlantState.returnToNormal(reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)), cfg.minPower)
+    val rtnState2_copy = PowerPlantState.returnToNormal(reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)))
     assert(reset2.signals === rtnState2_copy.signals)
 
     // Another 4 seconds elapse, we move to 500.0
-    val rtnState3 = PowerPlantState.returnToNormal(rtnState2.copy(lastRampTime = rtnState2.lastRampTime.minusSeconds(4)), cfg.minPower)
+    val rtnState3 = PowerPlantState.returnToNormal(rtnState2.copy(lastRampTime = rtnState2.lastRampTime.minusSeconds(4)))
     assert(rtnState3.signals(PowerPlantState.activePowerSignalKey).toDouble === 500)
 
     // Another 4 seconds elapse, we move to 400.0, our minPower to which we ReturnToNormal to
-    val rtnState4 = PowerPlantState.returnToNormal(rtnState3.copy(lastRampTime = rtnState3.lastRampTime.minusSeconds(4)), cfg.minPower)
+    val rtnState4 = PowerPlantState.returnToNormal(rtnState3.copy(lastRampTime = rtnState3.lastRampTime.minusSeconds(4)))
     assert(rtnState4.signals(PowerPlantState.activePowerSignalKey).toDouble === cfg.minPower)
   }
 }

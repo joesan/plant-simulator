@@ -71,7 +71,7 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       context.become(
         active(
           PowerPlantState.init(
-            PowerPlantState.empty(cfg.id, cfg.minPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
+            PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
           )
         )
       )
@@ -166,13 +166,50 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
 
     // If we need to throw this plant OutOfService, we do it
     case OutOfService =>
+      // but as always, cancel the subscription first: just in case!
+      cancelSubscription()
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
       )
 
     case ReturnToNormalCommand(_, _) =>
-      context.become(receive)
-      self ! Init
+      startSubscription
+      context.become(
+        returnToNormal(
+          PowerPlantState.returnToNormal(state)
+        )
+      )
+  }
+
+  def returnToNormal(state: PowerPlantState): Receive = {
+    case TelemetrySignals =>
+      sender ! state.signals
+
+    case StateRequest =>
+      sender ! state
+
+    // If we need to throw this plant OutOfService, we do it
+    case OutOfService =>
+      // but as always, cancel the subscription first: just in case!
+      cancelSubscription()
+      context.become(
+        active(state.copy(signals = PowerPlantState.unAvailableSignals))
+      )
+
+    case RampCheck =>
+      val isReturnToNormal = PowerPlantState.isReturnedToNormal(state)
+      // We first check if we have reached the setPoint, if yes, we switch context
+      if (isReturnToNormal) {
+        // we cancel the subscription first
+        cancelSubscription()
+        // and then we become active
+        context.become(active(state))
+      } else {
+        // time for another ramp up!
+        context.become(
+          checkRamp(PowerPlantState.dispatch(state))
+        )
+      }
   }
 }
 object RampUpTypeSimulatorActor {
@@ -182,6 +219,7 @@ object RampUpTypeSimulatorActor {
   case object StateRequest extends Message
   case object Release extends Message
   case object RampCheck extends Message
+  case class RampOCheck(fn: PowerPlantState => PowerPlantState) extends Message
   case object ReturnToNormal extends Message
 
   // These messages are meant for manually faulting and un-faulting the power plant

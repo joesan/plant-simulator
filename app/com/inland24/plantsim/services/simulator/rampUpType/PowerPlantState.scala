@@ -23,6 +23,8 @@ import scala.concurrent.duration._
 case class PowerPlantState(
   powerPlantId: Long,
   setPoint: Double,
+  minPower: Double,
+  maxPower: Double,
   lastRampTime: DateTime,
   rampRate: Double,
   rampRateInSeconds: FiniteDuration,
@@ -32,9 +34,11 @@ case class PowerPlantState(
 // TODO: refactor and rewrite
 object PowerPlantState {
 
-  def empty(id: Long, minPower: Double, rampRate: Double, rampRateInSeconds: FiniteDuration): PowerPlantState = PowerPlantState(
+  def empty(id: Long, minPower: Double, maxPower: Double, rampRate: Double, rampRateInSeconds: FiniteDuration): PowerPlantState = PowerPlantState(
     id,
     setPoint = minPower,
+    minPower = minPower,
+    maxPower = maxPower,
     // We set the lastRampTime as the time that was now minus rampRateInSeconds
     DateTime.now(DateTimeZone.UTC),
     rampRate,
@@ -60,6 +64,14 @@ object PowerPlantState {
     collectedSignal.nonEmpty && (collectedSignal(activePowerSignalKey).toDouble >= state.setPoint)
   }
 
+  def isReturnedToNormal(state: PowerPlantState): Boolean = {
+    val collectedSignal = state.signals.collect { // to ReturnToNormal, you got to be available
+      case (key, value) if key == activePowerSignalKey => key -> value
+    }
+
+    collectedSignal.nonEmpty && (collectedSignal(activePowerSignalKey).toDouble <= state.minPower)
+  }
+
   def isRampUp(timeSinceLastRamp: DateTime, rampRateInSeconds: FiniteDuration): Boolean = {
     val elapsed = Seconds.secondsBetween(DateTime.now(DateTimeZone.UTC), timeSinceLastRamp).multipliedBy(-1)
     elapsed.getSeconds.seconds >= rampRateInSeconds
@@ -75,7 +87,7 @@ object PowerPlantState {
     )
   }
 
-  def returnToNormal(state: PowerPlantState, minPower: Double): PowerPlantState = {
+  def returnToNormal(state: PowerPlantState): PowerPlantState = {
     if (isRampUp(state.lastRampTime, state.rampRateInSeconds)) {
       val collectedSignal = state.signals.collect { // to rampDown, you got to be in dispatched state
         case (key, value) if key == isDispatchedSignalKey && value.toBoolean => key -> value
@@ -84,7 +96,7 @@ object PowerPlantState {
       val newState = if (collectedSignal.nonEmpty && state.signals.get(activePowerSignalKey).isDefined) {
         val currentActivePower = state.signals(activePowerSignalKey).toDouble
         // check if the newActivePower is lesser than the minPower
-        if (currentActivePower <= minPower) { // if true, this means we have ramped down to the required minPower!
+        if (currentActivePower <= state.minPower) { // if true, this means we have ramped down to the required minPower!
           state.copy(
             signals = Map(
               isDispatchedSignalKey -> false.toString,
