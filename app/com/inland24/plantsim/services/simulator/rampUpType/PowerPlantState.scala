@@ -42,9 +42,9 @@ object PowerPlantState {
     Map.empty[String, String]
   )
 
-  val isAvailableSignalKey = "isAvailable"
+  val isAvailableSignalKey  = "isAvailable"
   val isDispatchedSignalKey = "isDispatched"
-  val activePowerSignalKey = "activePower"
+  val activePowerSignalKey  = "activePower"
 
   val unAvailableSignals = Map(
     activePowerSignalKey  -> 0.1.toString, // the power does not matter when the plant is unavailable for steering
@@ -68,15 +68,17 @@ object PowerPlantState {
   def init(powerPlantState: PowerPlantState, minPower: Double): PowerPlantState = {
     powerPlantState.copy(
       signals = Map(
-        activePowerSignalKey -> minPower.toString, // be default this plant operates at min power
-        isDispatchedSignalKey      -> false.toString,
-        isAvailableSignalKey -> true.toString // indicates if the power plant is available for steering
+        activePowerSignalKey  -> minPower.toString, // be default this plant operates at min power
+        isDispatchedSignalKey -> false.toString,
+        isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
       )
     )
   }
 
   def returnToNormal(state: PowerPlantState, minPower: Double): PowerPlantState = {
-    if (isRampUp(state.lastRampTime, state.rampRateInSeconds)) {
+    val isRampUpp = isRampUp(state.lastRampTime, state.rampRateInSeconds)
+    println(isRampUpp)
+    if (isRampUpp) {
       val collectedSignal = state.signals.collect { // to rampDown, you got to be in dispatched state
         case (key, value) if key == isDispatchedSignalKey && value.toBoolean => key -> value
       }
@@ -89,14 +91,14 @@ object PowerPlantState {
             signals = Map(
               isDispatchedSignalKey -> false.toString,
               activePowerSignalKey  -> state.setPoint.toString,
-              isAvailableSignalKey  -> true.toString // the plant is available
+              isAvailableSignalKey  -> true.toString // the plant is available and not faulty!
             )
           )
         } else {
           state.copy(
             signals = Map(
-              isDispatchedSignalKey -> false.toString,
-              activePowerSignalKey  -> (currentActivePower + state.rampRate).toString,
+              isDispatchedSignalKey -> true.toString,
+              activePowerSignalKey  -> (currentActivePower - state.rampRate).toString,
               isAvailableSignalKey  -> true.toString // the plant is still available and not faulty!
             )
           )

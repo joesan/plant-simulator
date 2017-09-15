@@ -15,8 +15,11 @@
 
 package com.inland24.plantsim.services.simulator.rampUpType
 
+import java.util.concurrent.TimeUnit
+
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantType
+import com.inland24.plantsim.services.simulator.rampUpType.PowerPlantState.{activePowerSignalKey, isAvailableSignalKey, isDispatchedSignalKey}
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.FlatSpec
 
@@ -100,5 +103,47 @@ class PowerPlantStateSimulatorSpec extends FlatSpec {
     // Another 4 seconds elapse, we move to 800, our setPoint
     val dispatchState4 = PowerPlantState.dispatch(dispatchState3.copy(lastRampTime = dispatchState3.lastRampTime.minusSeconds(4)))
     assert(dispatchState4.signals(PowerPlantState.activePowerSignalKey).toDouble === 800)
+  }
+
+  "PowerPlantState#returnToNormal" should "start ramping down the power plant according to its ramp rate" in {
+    // The init state is a dispatched state with maxPower so that we could ReturnToNormal from that
+    val dispatchedState = PowerPlantState(
+      powerPlantId = 1,
+      setPoint = cfg.maxPower,
+      // Here we assume that this PowerPlant was up and running since 20 seconds
+      lastRampTime = DateTime.now(DateTimeZone.UTC).minusSeconds(20),
+      rampRate = cfg.rampPowerRate,
+      rampRateInSeconds = cfg.rampRateInSeconds,
+      signals = Map(
+        activePowerSignalKey  -> cfg.maxPower.toString,
+        isDispatchedSignalKey -> true.toString, // when in dispatched this is true
+        isAvailableSignalKey  -> true.toString // indicates if the power plant is not available for steering
+      )
+    )
+
+    /*
+     * Let's ReturnToNormal this Plant which is returning to its minPower
+     * The plant is currently operating at its maxPower which is 800
+     * and it has a rampRate of 100 in 4 seconds, which means to go down from
+     * 800 to 700 it needs 4 seconds and so on
+     * Let us now test if this happens!
+     * The first ReturnToNormal command should take its activePower to 700
+     */
+    val rtnState1 = PowerPlantState.returnToNormal(dispatchedState, cfg.minPower)
+    assert(rtnState1.signals(PowerPlantState.activePowerSignalKey).toDouble === 700.0)
+    // If we now do yet another ReturnToNormal call, we should still stay at 700.0
+    assert(
+      PowerPlantState.returnToNormal(rtnState1, cfg.minPower).signals(PowerPlantState.activePowerSignalKey).toDouble === 700.0
+    )
+    // we now come back to the current time for the lastRampTime, so that we can do the next tests
+    val reset1 = rtnState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
+
+    /*
+     * On our second ReturnToNormal, we should go from 700.0 to 600.0, but we got to wait 4 seconds
+     * Blocking may be a bad idea, so we simulate time (i.e., subtract 4 seconds to the isRampUp check)
+     */
+    val rtnState2 = PowerPlantState.returnToNormal(reset1.copy(lastRampTime = rtnState1.lastRampTime.minusSeconds(4)), cfg.minPower)
+    assert(rtnState2.signals(PowerPlantState.activePowerSignalKey).toDouble === 600.0)
+    val reset2 = rtnState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
   }
 }
