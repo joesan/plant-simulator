@@ -197,6 +197,7 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       )
 
     case RampCheck =>
+      println("in ReturnToNormal RampCheck ***")
       val isReturnToNormal = PowerPlantState.isReturnedToNormal(state)
       // We first check if we have reached the setPoint, if yes, we switch context
       if (isReturnToNormal) {

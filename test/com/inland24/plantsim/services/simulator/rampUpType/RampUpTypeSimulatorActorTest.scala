@@ -49,6 +49,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
   private val initPowerPlantState = PowerPlantState.init(PowerPlantState.empty(
     id = rampUpTypeCfg.id,
     minPower = rampUpTypeCfg.minPower,
+    maxPower = rampUpTypeCfg.maxPower,
     rampRate = rampUpTypeCfg.rampPowerRate,
     rampRateInSeconds = rampUpTypeCfg.rampRateInSeconds
   ), minPower = rampUpTypeCfg.minPower)

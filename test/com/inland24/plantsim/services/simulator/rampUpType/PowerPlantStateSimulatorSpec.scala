@@ -50,7 +50,7 @@ class PowerPlantStateSimulatorSpec extends FlatSpec {
   "PowerPlantState#init" should "initialize the default signals " +
     "(available = true, activePower = minPower, isDispatched = false)" in {
     val initState = PowerPlantState.init(
-      PowerPlantState.empty(cfg.id, cfg.minPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
+      PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
     )
 
     assert(initState.signals.size === 3) // expecting 3 elements in the signals Map
