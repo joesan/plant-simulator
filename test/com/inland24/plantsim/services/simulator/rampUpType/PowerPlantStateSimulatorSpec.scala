@@ -131,10 +131,6 @@ class PowerPlantStateSimulatorSpec extends FlatSpec {
      */
     val rtnState1 = PowerPlantState.returnToNormal(dispatchedState, cfg.minPower)
     assert(rtnState1.signals(PowerPlantState.activePowerSignalKey).toDouble === 700.0)
-    // If we now do yet another ReturnToNormal call, we should still stay at 700.0
-    assert(
-      PowerPlantState.returnToNormal(rtnState1, cfg.minPower).signals(PowerPlantState.activePowerSignalKey).toDouble === 700.0
-    )
     // we now come back to the current time for the lastRampTime, so that we can do the next tests
     val reset1 = rtnState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
@@ -145,5 +141,17 @@ class PowerPlantStateSimulatorSpec extends FlatSpec {
     val rtnState2 = PowerPlantState.returnToNormal(reset1.copy(lastRampTime = rtnState1.lastRampTime.minusSeconds(4)), cfg.minPower)
     assert(rtnState2.signals(PowerPlantState.activePowerSignalKey).toDouble === 600.0)
     val reset2 = rtnState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
+
+    // Let's try another ReturnToNormal immediately, this should have no effect and we should still stay at 600.0
+    val rtnState2_copy = PowerPlantState.returnToNormal(reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)), cfg.minPower)
+    assert(reset2.signals === rtnState2_copy.signals)
+
+    // Another 4 seconds elapse, we move to 500.0
+    val rtnState3 = PowerPlantState.returnToNormal(rtnState2.copy(lastRampTime = rtnState2.lastRampTime.minusSeconds(4)), cfg.minPower)
+    assert(rtnState3.signals(PowerPlantState.activePowerSignalKey).toDouble === 500)
+
+    // Another 4 seconds elapse, we move to 400.0, our minPower to which we ReturnToNormal to
+    val rtnState4 = PowerPlantState.returnToNormal(rtnState3.copy(lastRampTime = rtnState3.lastRampTime.minusSeconds(4)), cfg.minPower)
+    assert(rtnState4.signals(PowerPlantState.activePowerSignalKey).toDouble === cfg.minPower)
   }
 }

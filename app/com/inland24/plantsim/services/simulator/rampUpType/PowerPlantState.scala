@@ -76,9 +76,7 @@ object PowerPlantState {
   }
 
   def returnToNormal(state: PowerPlantState, minPower: Double): PowerPlantState = {
-    val isRampUpp = isRampUp(state.lastRampTime, state.rampRateInSeconds)
-    println(isRampUpp)
-    if (isRampUpp) {
+    if (isRampUp(state.lastRampTime, state.rampRateInSeconds)) {
       val collectedSignal = state.signals.collect { // to rampDown, you got to be in dispatched state
         case (key, value) if key == isDispatchedSignalKey && value.toBoolean => key -> value
       }
