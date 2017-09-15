@@ -85,7 +85,7 @@ package object models {
           "minPower" -> o.minPower,
           "maxPower" -> o.maxPower,
           "rampPowerRate" -> o.asInstanceOf[RampUpTypeConfig].rampPowerRate,
-          "rampRateInSeconds" -> o.asInstanceOf[RampUpTypeConfig].rampPowerRate,
+          "rampRateInSeconds" -> o.asInstanceOf[RampUpTypeConfig].rampRateInSeconds.toString(),
           "powerPlantType" -> PowerPlantType.toString(o.powerPlantType)
         )
       }

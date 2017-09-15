@@ -70,6 +70,7 @@ class DBService private (dbConfig: DBConfig)
   }
 
   def powerPlantById(id: Int): Future[Option[PowerPlantRow]] = {
+    println(database.run(PowerPlantTable.powerPlantById(id).result.headOption))
     database.run(PowerPlantTable.powerPlantById(id).result.headOption)
   }
 

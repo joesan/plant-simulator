@@ -25,6 +25,7 @@ import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.Observable
+import org.joda.time.{DateTime, DateTimeZone}
 // TODO: use a passed in ExecutionContext
 import monix.execution.Scheduler.Implicits.global
 
@@ -57,9 +58,12 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
 
   private def startSubscription: Future[Unit] = Future {
     def onNext(long: Long): Future[Ack] = {
+      log.info(s"Doing RampCheck ${DateTime.now(DateTimeZone.UTC)}")
       self ! RampCheck
       Continue
     }
+
+    log.info(s"cfg  is ${cfg}")
 
     val obs = Observable.intervalAtFixedRate(cfg.rampRateInSeconds)
     log.info(s"Subscribed to RampUp the PowerPlant with id = ${cfg.id}")
