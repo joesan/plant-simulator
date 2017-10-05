@@ -10,7 +10,7 @@
 ##
 
 # plant-simulator [![Open Source](https://img.shields.io/badge/Open%20Source-100%25-yellowgreen.svg)](https://github.com/ellerbrock/open-source-badges/)
-A simple simulator app that simulates the running of a power producing plant
+A simple simulator application that simulates the running of a power producing plant. The application works by exposing several API's that can be used to get the status of a PowerPlant.
 
 For simplicity, this simulator assumes that there are essentially two types of power producing
 plants:
