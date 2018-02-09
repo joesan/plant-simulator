@@ -33,6 +33,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future, Promise}
 import scala.concurrent.duration._
 import scala.util.Success
+import monix.execution.Scheduler.Implicits.global
 
 
 class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
