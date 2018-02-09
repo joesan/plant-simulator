@@ -30,7 +30,7 @@ import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.observers.Subscriber
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutor, Future, Promise}
+import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration._
 import scala.util.Success
 import monix.execution.Scheduler.Implicits.global
@@ -71,10 +71,10 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
   }
 
   // This will be our ThreadPool
-  implicit val ec: ExecutionContextExecutor = scala.concurrent.ExecutionContext.Implicits.global
+  //implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
 
   // This will be our service instance
-  val dbService = DBService.asTask(config.dbConfig)(ec)
+  val dbService = DBService.asTask(config.dbConfig)
 
   // We want to fetch updates from the database every 2 seconds
   val interval: FiniteDuration = 2.seconds
@@ -144,7 +144,7 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
       }
 
       // we wait for 6 seconds before we check out assertion
-      delayedFuture(interval * 3)(block())(ec)
+      delayedFuture(interval * 3)(block())
     }
   }
 }
