@@ -73,7 +73,7 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
   implicit val ec: ExecutionContextExecutor = scala.concurrent.ExecutionContext.Implicits.global
 
   // This will be our service instance
-  val dbService: DBService = DBService(config.dbConfig)(ec)
+  val dbService = DBService.asTask(config.dbConfig)(ec)
 
   // We want to fetch updates from the database every 2 seconds
   val interval: FiniteDuration = 2.seconds
@@ -84,7 +84,7 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
   "DBObservable" must {
 
     "fetch PowerPlant updates at regular intervals given" in {
-      val dbObservable = DBObservable(interval, dbService.allPowerPlants(fetchOnlyActive = true))
+      val dbObservable = DBObservable(interval, dbService.allPowerPlants(fetchOnlyActive = true).runAsync)
 
       def newPowerPlantRow(powerPlantId: Int) = {
         PowerPlantRow(
