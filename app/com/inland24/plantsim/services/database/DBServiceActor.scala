@@ -48,7 +48,7 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enab
   (implicit ec: Scheduler) extends Actor with ActorLogging {
 
   // This represents the PowerPlantDBService instance
-  val powerPlantDBService = DBService(dbConfig)(ec)
+  val powerPlantDBService = DBService.asTask(dbConfig)(ec)
 
   // This will be our subscription to fetch from the database
   val dbSubscription = SingleAssignmentCancelable()
@@ -90,7 +90,7 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enab
     if (enableSubscription) {
       val obs = DBObservable(
         dbConfig.refreshInterval,
-        powerPlantDBService.allPowerPlants(fetchOnlyActive = true)
+        powerPlantDBService.allPowerPlants(fetchOnlyActive = true).runAsync
       )
 
       log.info("Activating DB lookup subscription")

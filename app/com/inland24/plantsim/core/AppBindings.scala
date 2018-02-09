@@ -21,13 +21,17 @@ import akka.actor.{ActorRef, ActorSystem}
 import akka.stream.Materializer
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.services.database.DBService
+import monix.eval.Task
+
+import scala.language.higherKinds
+
 
 trait AppBindings {
 
   def actorSystem: ActorSystem
   def materializer: Materializer
 
-  def dbService: DBService
+  def dbService: DBService[Task]
   def appConfig: AppConfig
   def supervisorActor: ActorRef
 }
@@ -39,8 +43,8 @@ object AppBindings {
     override val materializer: Materializer = actorMaterializer
 
     override val appConfig: AppConfig = AppConfig.load()
-    // TODO: pass this execution context in
-    override val dbService = DBService(appConfig.dbConfig)(scala.concurrent.ExecutionContext.Implicits.global)
+    // TODO: pass a separate thread pool / execution context in [Avoid using the default for db related operations]
+    override val dbService = DBService.asTask(appConfig.dbConfig)(scala.concurrent.ExecutionContext.Implicits.global)
 
     override val supervisorActor: ActorRef =
       system.actorOf(

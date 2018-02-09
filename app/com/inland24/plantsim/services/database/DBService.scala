@@ -20,12 +20,20 @@ package com.inland24.plantsim.services.database
 import com.inland24.plantsim.config.DBConfig
 import com.inland24.plantsim.models.PowerPlantFilter
 import com.inland24.plantsim.services.database.models.PowerPlantRow
+import monix.eval.Task
+import scala.language.higherKinds
 
-import scala.concurrent.{ExecutionContext, Future}
 
+import scala.concurrent.ExecutionContext
+trait DBService[M[_]] {
+  def allPowerPlants(fetchOnlyActive: Boolean): M[Seq[PowerPlantRow]]
+  def powerPlantsPaginated(filter: PowerPlantFilter): M[Seq[PowerPlantRow]]
+  def allPowerPlantsPaginated(fetchOnlyActive: Boolean, pageNumber: Int): M[Seq[PowerPlantRow]]
+  def powerPlantById(id: Int): M[Option[PowerPlantRow]]
+  def newPowerPlant(powerPlantRow: PowerPlantRow): M[Int]
+}
 
-class DBService private (dbConfig: DBConfig)
-  (implicit ec: ExecutionContext) { self =>
+class DBServiceTask (dbConfig: DBConfig)(implicit ec: ExecutionContext) extends DBService[Task] { self =>
 
   private val schema = DBSchema(dbConfig.slickDriver)
   private val database = dbConfig.database
@@ -35,30 +43,30 @@ class DBService private (dbConfig: DBConfig)
   import schema._
   import schema.driver.api._
 
-  def allPowerPlants(fetchOnlyActive: Boolean = false): Future[Seq[PowerPlantRow]] = {
+  def allPowerPlants(fetchOnlyActive: Boolean = false): Task[Seq[PowerPlantRow]] = {
     val query =
       if (fetchOnlyActive)
         PowerPlantTable.activePowerPlants
       else
         PowerPlantTable.all
 
-    database.run(query.result)
+    Task.deferFuture(database.run(query.result))
   }
 
   def offset(pageNumber: Int): (Int, Int) =
     (pageNumber * recordsPerPage - recordsPerPage, pageNumber * recordsPerPage)
 
   // fetch the PowerPlants based on the Search criteria
-  def powerPlantsPaginated(filter: PowerPlantFilter): Future[Seq[PowerPlantRow]] = {
+  def powerPlantsPaginated(filter: PowerPlantFilter): Task[Seq[PowerPlantRow]] = {
     val (from, to) = offset(filter.pageNumber)
     val query = PowerPlantTable.powerPlantsFor(filter.powerPlantType, filter.orgName, filter.onlyActive)
-    database.run(query.drop(from).take(to).result)
+    Task.deferFuture(database.run(query.drop(from).take(to).result))
   }
 
   def applySchedules = ???
 
   // by default, get the first page!
-  def allPowerPlantsPaginated(fetchOnlyActive: Boolean = false, pageNumber: Int = 1): Future[Seq[PowerPlantRow]] = {
+  def allPowerPlantsPaginated(fetchOnlyActive: Boolean = false, pageNumber: Int = 1): Task[Seq[PowerPlantRow]] = {
     val query =
       if (fetchOnlyActive)
         PowerPlantTable.activePowerPlants
@@ -66,20 +74,20 @@ class DBService private (dbConfig: DBConfig)
         PowerPlantTable.all
 
     val (from, to) = offset(pageNumber)
-    database.run(query.drop(from).take(to).result)
+    Task.deferFuture(database.run(query.drop(from).take(to).result))
   }
 
-  def powerPlantById(id: Int): Future[Option[PowerPlantRow]] = {
+  def powerPlantById(id: Int): Task[Option[PowerPlantRow]] = {
     println(database.run(PowerPlantTable.powerPlantById(id).result.headOption))
-    database.run(PowerPlantTable.powerPlantById(id).result.headOption)
+    Task.deferFuture(database.run(PowerPlantTable.powerPlantById(id).result.headOption))
   }
 
-  def newPowerPlant(powerPlantRow: PowerPlantRow): Future[Int] = {
-    database.run(PowerPlantTable.all += powerPlantRow)
+  def newPowerPlant(powerPlantRow: PowerPlantRow): Task[Int] = {
+    Task.deferFuture(database.run(PowerPlantTable.all += powerPlantRow))
   }
 }
 object DBService {
 
-  def apply(dbCfg: DBConfig)(implicit ec: ExecutionContext) =
-    new DBService(dbCfg)(ec)
+  def asTask(dbCfg: DBConfig)(implicit ec: ExecutionContext) =
+    new DBServiceTask(dbCfg)(ec)
 }

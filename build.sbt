@@ -74,7 +74,8 @@ doc in Compile <<= target.map(_ / "none")
 libraryDependencies ++= Seq(
   ws,
   // Our streaming library
-  "io.monix" %% "monix" % "2.3.0",
+  "io.monix" %% "monix" % "2.3.3",
+  "io.monix" %% "monix-cats" % "2.3.3",
 
   // Dependencies needed for Slick
   "com.typesafe.slick" %% "slick" % "3.2.0",

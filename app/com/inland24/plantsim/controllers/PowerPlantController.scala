@@ -88,7 +88,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
   }
 
   def powerPlantDetails(id: Int) = Action.async {
-    dbService.powerPlantById(id).flatMap {
+    dbService.powerPlantById(id).runAsync.flatMap {
       case None =>
         Future.successful(
           NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
@@ -103,7 +103,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
   }
 
   def powerPlants(onlyActive: Boolean, page: Int) = Action.async {
-    dbService.allPowerPlantsPaginated(onlyActive, page).materialize.map {
+    dbService.allPowerPlantsPaginated(onlyActive, page).runAsync.materialize.map {
       case Success(powerPlantsSeqRow) =>
         val collected = powerPlantsSeqRow.collect {
           case powerPlantRow
@@ -135,7 +135,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
       pageNumber = page
     )
 
-    dbService.powerPlantsPaginated(filter).materialize.map {
+    dbService.powerPlantsPaginated(filter).runAsync.materialize.map {
       case Success(powerPlantsSeqRow) =>
         val collected = powerPlantsSeqRow.collect {
           case powerPlantRow
@@ -164,7 +164,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
             BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig ")).enableCors // TODO: fix errors
           )
           case Some(row) =>
-            dbService.newPowerPlant(row).materialize.map {
+            dbService.newPowerPlant(row).runAsync.materialize.map {
               case Success(insertedRecordId) =>
                 Ok("TODO: Send a Success JSON back with the id of the newly inserted record").enableCors
               case Failure(ex) =>
