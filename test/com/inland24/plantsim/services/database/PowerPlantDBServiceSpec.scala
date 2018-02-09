@@ -21,6 +21,7 @@ import com.inland24.plantsim.models.{PowerPlantFilter, PowerPlantType}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll}
+import monix.execution.Scheduler.Implicits.global
 
 
 final class PowerPlantDBServiceSpec extends AsyncFlatSpec
