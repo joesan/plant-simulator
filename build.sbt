@@ -74,7 +74,7 @@ doc in Compile <<= target.map(_ / "none")
 libraryDependencies ++= Seq(
   ws,
   // Our streaming library
-  "io.monix" %% "monix" % "2.1.0",
+  "io.monix" %% "monix" % "2.3.0",
 
   // Dependencies needed for Slick
   "com.typesafe.slick" %% "slick" % "3.2.0",
@@ -92,6 +92,6 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-testkit" % "2.5.2" % Test,
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
   "com.h2database" % "h2" % "1.4.186" % Test,
-"org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % Test
+  "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % Test
 )
 
