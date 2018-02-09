@@ -39,12 +39,12 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
   }
 
   // This will be our service instance
-  val powerPlantDBService = DBService(config.dbConfig)
+  val powerPlantDBService = DBService.asTask(config.dbConfig)
 
   behavior of "PowerPlantDBService"
 
   "allPowerPlants" should "fetch all PowerPlant's from the database" in {
-    powerPlantDBService.allPowerPlants().map {
+    powerPlantDBService.allPowerPlants().runAsync.map {
       allPowerPlants =>
         assert(allPowerPlants.length === 6)
 
@@ -65,7 +65,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       onlyActive = Some(true),
       powerPlantType = None
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter1).map {
+    powerPlantDBService.powerPlantsPaginated(searchFilter1).runAsync.map {
       filtered =>
         assert(filtered.length === 5)
     }
@@ -74,7 +74,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       onlyActive = Some(true),
       orgName = Some("joesan 1")
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter2).map {
+    powerPlantDBService.powerPlantsPaginated(searchFilter2).runAsync.map {
       filtered =>
         assert(filtered.length === 1)
         assert(filtered.head.id === 1)
@@ -85,7 +85,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       // Notice the capital letter, there is no name with capital letter in the database
       orgName = Some("Joesan 1")
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter3).map {
+    powerPlantDBService.powerPlantsPaginated(searchFilter3).runAsync.map {
       filtered =>
         assert(filtered.length === 0)
     }
@@ -97,7 +97,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       pageNumber = 20,
       orgName = Some("joesan 1")
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter4).map {
+    powerPlantDBService.powerPlantsPaginated(searchFilter4).runAsync.map {
       filtered =>
         assert(filtered.length === 0)
     }
@@ -106,7 +106,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       onlyActive = Some(true),
       orgName = Some("joesan")
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter5).map {
+    powerPlantDBService.powerPlantsPaginated(searchFilter5).runAsync.map {
       filtered =>
         assert(filtered.length === 5)
     }
@@ -115,14 +115,14 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       onlyActive = Some(false),
       orgName = Some("joesan")
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter6).map {
+    powerPlantDBService.powerPlantsPaginated(searchFilter6).runAsync.map {
       filtered =>
         assert(filtered.length === 0)
     }
   }
 
   "allPowerPlantsPaginated" should "fetch all PowerPlant's from the database for the given pageNumber" in {
-    powerPlantDBService.allPowerPlantsPaginated().map { // by default we ask for the first page
+    powerPlantDBService.allPowerPlantsPaginated().runAsync.map { // by default we ask for the first page
       allPowerPlants =>
         assert(allPowerPlants.length === 5)
 
@@ -139,7 +139,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
   }
 
   "powerPlantById" should "fetch the PowerPlant for the given id" in {
-    powerPlantDBService.powerPlantById(105).flatMap {
+    powerPlantDBService.powerPlantById(105).runAsync.flatMap {
       case Some(powerPlant) =>
         assert(powerPlant.id === 105)
         assert(powerPlant.orgName === "joesan 5")
@@ -161,9 +161,9 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       updatedAt = getNowAsDateTime()
     )
 
-    powerPlantDBService.newPowerPlant(newPowerPlantRow).flatMap {
+    powerPlantDBService.newPowerPlant(newPowerPlantRow).runAsync.flatMap {
       _ =>
-        powerPlantDBService.powerPlantById(10000).flatMap {
+        powerPlantDBService.powerPlantById(10000).runAsync.flatMap {
           case Some(powerPlant) =>
             assert(powerPlant.id === 10000)
             assert(powerPlant.isActive)

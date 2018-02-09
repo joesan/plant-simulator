@@ -33,6 +33,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+
 class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
   with ImplicitSender with WordSpecLike with Matchers
   with BeforeAndAfterAll with DBServiceSpec with LazyLogging {
@@ -272,10 +273,10 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
 
     "populate PowerPlantsConfig upon every message it receives" in {
 
-      val dbService = DBService(appConfig.dbConfig)
+      val dbService = DBService.asTask(appConfig.dbConfig)
 
       // Let us start initially with the available PowerPlant entries in the database
-      val allActivePowerPlants = Await.result(dbService.allPowerPlants(fetchOnlyActive = true), 3.seconds)
+      val allActivePowerPlants = Await.result(dbService.allPowerPlants(fetchOnlyActive = true).runAsync, 3.seconds)
 
       // Now send this initial Seq of PowerPlant's to the dbServiceActor (transformed as a PowerPlantConfig type)
       within(2.seconds) {
