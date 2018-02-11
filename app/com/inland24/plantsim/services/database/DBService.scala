@@ -25,6 +25,7 @@ import scala.language.higherKinds
 
 
 import scala.concurrent.ExecutionContext
+// This trait could work on any implementation
 trait DBService[M[_]] {
   def allPowerPlants(fetchOnlyActive: Boolean): M[Seq[PowerPlantRow]]
   def powerPlantsPaginated(filter: PowerPlantFilter): M[Seq[PowerPlantRow]]
