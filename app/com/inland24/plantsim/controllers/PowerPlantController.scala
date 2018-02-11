@@ -17,15 +17,18 @@
 
 package com.inland24.plantsim.controllers
 
-import akka.actor.ActorRef
-import akka.pattern.ask
+import com.inland24.plantsim.services.database.DBService
 import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.PowerPlantType.UnknownType
 import com.inland24.plantsim.models._
-import play.api.mvc.{Action, Controller, Result}
 import monix.execution.FutureUtils.extensions._
+import monix.eval.Task
 import play.api.libs.json.JsError
+import play.api.mvc.{Action, Controller, Result}
+import akka.actor.ActorRef
+import akka.pattern.ask
+
 
 // TODO: pass in this execution context via AppBindings
 import monix.execution.Scheduler.Implicits.global
@@ -50,7 +53,8 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
 
   // Place a reference to the underlying ActorSystem
   private val system = bindings.actorSystem
-  private val dbService = bindings.dbService
+  // By default we use the Task interface for our tagless final!
+  private val dbService = DBService.asTask(bindings.appConfig.dbConfig)
 
   implicit val timeout: akka.util.Timeout = 3.seconds
 
