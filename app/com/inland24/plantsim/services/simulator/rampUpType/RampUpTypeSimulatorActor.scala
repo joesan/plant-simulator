@@ -187,6 +187,7 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       // We first check if we have reached the setPoint, if yes, we switch context
       if (isDispatched) {
         // Cancel the subscription first
+        log.info(s"Cancelling RampUp Subscription for PowerPlant with Id ${state.powerPlantId}")
         RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
 
         /*
@@ -206,6 +207,8 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     // If we need to throw this plant OutOfService, we do it
     case OutOfService =>
       // but as always, cancel the subscription first
+      log.info(s"Cancelling RampUp Subscription for PowerPlant with Id ${state.powerPlantId} " +
+        s"because of PowerPlant being sent to OutOfService")
       RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
@@ -226,6 +229,8 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     // If we need to throw this plant OutOfService, we do it
     case OutOfService =>
       // but as always, cancel the subscription first: just in case!
+      log.info(s"Cancelling RampUp / RampDown Subscription for PowerPlant with Id ${state.powerPlantId} " +
+        s"because of PowerPlant being sent to OutOfService")
       RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
@@ -240,7 +245,7 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       )
   }
 
-  // TODO: Fix compile error and add comments!
+  // TODO: add comments!
   def checkRampDown(state: PowerPlantState, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
@@ -250,6 +255,8 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
 
     // If we need to throw this plant OutOfService, we do it
     case OutOfService =>
+      log.info(s"Cancelling RampDown Subscription for PowerPlant with Id ${state.powerPlantId} " +
+        s"because of PowerPlant being sent to OutOfService")
       // but as always, cancel the subscription first: just in case!
       RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
       context.become(
@@ -260,6 +267,7 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       val isReturnedToNormal = PowerPlantState.isReturnedToNormal(state)
       // We first check if we have reached the setPoint, if yes, we switch context
       if (isReturnedToNormal) {
+        log.info(s"Cancelling RampDown Subscription for PowerPlant with Id ${state.powerPlantId}")
         // we cancel the subscription first
         RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
         // and then we become active
