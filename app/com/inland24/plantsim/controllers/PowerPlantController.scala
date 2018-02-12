@@ -23,7 +23,6 @@ import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.PowerPlantType.UnknownType
 import com.inland24.plantsim.models._
 import monix.execution.FutureUtils.extensions._
-import monix.eval.Task
 import play.api.libs.json.JsError
 import play.api.mvc.{Action, Controller, Result}
 import akka.actor.ActorRef
@@ -53,7 +52,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
 
   // Place a reference to the underlying ActorSystem
   private val system = bindings.actorSystem
-  // By default we use the Task interface for our tagless final!
+  // By default we use the Task interface for our tagless final design pattern
   private val dbService = DBService.asTask(bindings.appConfig.dbConfig)
 
   implicit val timeout: akka.util.Timeout = 3.seconds
