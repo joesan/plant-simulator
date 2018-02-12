@@ -78,11 +78,21 @@ This application is built as a web application using the Play framework. We have
 #### To run as a standalone jar, do the following
 
 ```
+0. We need a database that is up and running. Please have a look at
+   this project that contains the setup script for the database:
+   https://github.com/joesan/database-projects/tree/master/power-plant-simulator
+   
+   Once you have the database up and running, configure the database credentials in the 
+   application.xxx.conf file (xxx stands for test or dev or prod)
+   
 1. Open a terminal and navigate to the project root folder 
    
 2. Issue one of the following commands to run:
    To run against a default (application.conf)
    sbt run
+   
+   To run against the test environment
+   sbt -Denv=test run
    
    To run in production mode (application.prod.conf):
    sbt -Denv=prod -Dlogger.resource=logger-prod.xml run
