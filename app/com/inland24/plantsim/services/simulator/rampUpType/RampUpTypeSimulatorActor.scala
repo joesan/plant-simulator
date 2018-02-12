@@ -15,7 +15,7 @@
 
 package com.inland24.plantsim.services.simulator.rampUpType
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import RampUpTypeSimulatorActor._
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
@@ -23,7 +23,7 @@ import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.ReturnToNormalCommand
 import monix.execution.Ack
 import monix.execution.Ack.Continue
-import monix.execution.cancelables.{BooleanCancelable, CompositeCancelable, SerialCancelable, SingleAssignmentCancelable}
+import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.Observable
 import org.joda.time.{DateTime, DateTimeZone}
 // TODO: use a passed in ExecutionContext
@@ -31,7 +31,11 @@ import monix.execution.Scheduler.Implicits.global
 
 import scala.concurrent.Future
 
-
+/**
+  * This Actor is responsible for the operations of a RampUpType PowerPlant
+  * [[com.inland24.plantsim.models.PowerPlantType.RampUpType]]
+  * @param cfg
+  */
 class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
   extends Actor with ActorLogging {
 
@@ -48,41 +52,11 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     self ! Init
   }
 
-  override def postStop(): Unit = {
-    super.postStop()
-    cancelSubscription("postStop()")
-  }
-
   val subscription = SingleAssignmentCancelable()
   val source = Observable.intervalAtFixedRate(cfg.rampRateInSeconds)
   source.completed
 
   source.sample(cfg.rampRateInSeconds)
-
-  private def startSubscription() = {
-
-    def onNext(long: Long): Future[Ack] = {
-      log.info(s"Doing RampCheck ${DateTime.now(DateTimeZone.UTC)}")
-      self ! RampCheck
-      Continue
-    }
-    subscription := source.subscribe(onNext _)
-  }
-
-
-  private def cancelSubscription(msg: String): Unit = {
-    log.info(s"Cancelling subscription when $msg the PowerPlant with id = ${cfg.id}")
-    subscription.cancel()
-  }
-
-  private def restartSubscription(isRestart: Boolean) = {
-    Observable.suspend {
-      if (isRestart)
-        source
-      else
-        Observable.empty
-    }
-  }
 
   private def startSubscription(msg: String): Future[Unit] = Future {
     def onNext(long: Long): Future[Ack] = {
@@ -97,6 +71,11 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     subscription := obs.subscribe(onNext _)
   }
 
+  /**
+   * This is the starting point where we initialize a RampUpType PowerPlant with
+    * the configuration that we get from this Actor instance. We then do a context become
+    * to the active state!
+   */
   override def receive: Receive = {
     case Init =>
       context.become(
@@ -108,6 +87,15 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       )
   }
 
+  /**
+    * This is the state a normal operational RampUpType PowerPlant should spend most of
+    * its time. This Actor responds to several messages from the outside world. For example.,
+    * when the external world sends a [[com.inland24.plantsim.core.SupervisorActor.TelemetrySignals]],
+    * the actor responds by fetching the signals from the current state
+    *
+    * @param state
+    * @return
+    */
   def active(state: PowerPlantState): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
@@ -117,13 +105,12 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
 
     // TODO: Add unit tests for the case below!
     case DispatchRampUpPowerPlant(_,_,_,dispatchPower) =>
-      // If the dispatch power is equal or less than to its minPower, do nothing
+      // If the dispatch power is equal or less than the minPower, do nothing
       if (dispatchPower <= cfg.minPower) {
         log.info(s"Not dispatching because the current " +
           s"dispatchPower ($dispatchPower) <= minPower (${cfg.minPower}), " +
           s"so ignoring this dispatch signal for PowerPlant ${self.path.name}")
       } else {
-        startSubscription("RampUp")
         val calculatedDispatch =
           if(dispatchPower >= cfg.maxPower) {
             log.warning(s"requested dispatchPower = $dispatchPower is greater " +
@@ -132,9 +119,11 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
             cfg.maxPower
           }
           else dispatchPower
+        log.info(s"Starting Observable sequence for doing RampUpCheck for PowerPlant ${cfg.id}")
         context.become(
           checkRamp(
-            PowerPlantState.dispatch(state.copy(setPoint = calculatedDispatch))
+            PowerPlantState.dispatch(state.copy(setPoint = calculatedDispatch)),
+            RampUpTypeSimulatorActor.startRampCheckSubscription(cfg, self)
           )
         )
       }
@@ -148,13 +137,8 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       context.become(receive)
       self ! Init
   }
-
-  /**
-    * This state happens recursively when the PowerPlant ramps up
-    * The recursivity happens until the PowerPlant is fully ramped
-    * up. The recursivity is governed by the Monix Observable!
-    */
-  def checkRamp(state: PowerPlantState): Receive = {
+  /*
+  def checkRamp1(state: PowerPlantState): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
 
@@ -182,13 +166,57 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
       )
+  } */
+
+  /**
+    * This state happens recursively when the PowerPlant ramps up
+    * The recursivity happens until the PowerPlant is fully ramped
+    * up. The recursivity is governed by the Monix Observable and its
+    * corresponding subscription
+    * TODO: The Monix Observable does not work at th moment! We need to find an alternative solution
+    */
+  def checkRamp(state: PowerPlantState, subscription: SingleAssignmentCancelable): Receive = {
+    case TelemetrySignals =>
+      sender ! state.signals
+
+    case StateRequest =>
+      sender ! state
+
+    case RampCheck =>
+      val isDispatched = PowerPlantState.isDispatched(state)
+      // We first check if we have reached the setPoint, if yes, we switch context
+      if (isDispatched) {
+        // Cancel the subscription first
+        RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
+
+        /*
+         We pass the subscription to the dispatched state, just in case if something
+         went wrong and our RampUpCheck subscriber was still active. Calling cancel
+         on an already cancelled Subscription does not have any side effects as such,
+         so it is safe to pass the subscription around and cancel it on a needed basis
+        */
+        context.become(dispatched(state, subscription))
+      } else {
+        // time for another ramp up!
+        context.become(
+          checkRamp(PowerPlantState.dispatch(state), subscription)
+        )
+      }
+
+    // If we need to throw this plant OutOfService, we do it
+    case OutOfService =>
+      // but as always, cancel the subscription first
+      RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
+      context.become(
+        active(state.copy(signals = PowerPlantState.unAvailableSignals))
+      )
   }
 
   /**
     * This is the state that is transitioned when the PowerPlant
     * is fully dispatched
     */
-  def dispatched(state: PowerPlantState): Receive = {
+  def dispatched(state: PowerPlantState, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
 
@@ -198,21 +226,22 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     // If we need to throw this plant OutOfService, we do it
     case OutOfService =>
       // but as always, cancel the subscription first: just in case!
-      cancelSubscription("Dispatched")
+      RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
       )
 
     case ReturnToNormalCommand(_, _) =>
-      startSubscription("RampDown")
       context.become(
         checkRampDown(
-          PowerPlantState.returnToNormal(state)
+          PowerPlantState.returnToNormal(state),
+          RampUpTypeSimulatorActor.startRampCheckSubscription(cfg, self)
         )
       )
   }
 
-  def checkRampDown(state: PowerPlantState): Receive = {
+  // TODO: Fix compile error and add comments!
+  def checkRampDown(state: PowerPlantState, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
 
@@ -222,27 +251,26 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     // If we need to throw this plant OutOfService, we do it
     case OutOfService =>
       // but as always, cancel the subscription first: just in case!
-      cancelSubscription("RampDown")
+      RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
       context.become(
         active(state.copy(signals = PowerPlantState.unAvailableSignals))
       )
 
     case RampCheck =>
-      println(s"checkRampDown >> is subscription cancelled ${subscription.isCanceled}")
       val isReturnedToNormal = PowerPlantState.isReturnedToNormal(state)
-      println(s"checkRampDown >> is RampDown complete $isReturnedToNormal")
       // We first check if we have reached the setPoint, if yes, we switch context
       if (isReturnedToNormal) {
         // we cancel the subscription first
-        cancelSubscription("RampDown")
+        RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
         // and then we become active
         context.become(active(state))
       } else {
-        val xxxx = PowerPlantState.returnToNormal(state)
-        println(s"state now is $state")
         // time for another ramp up!
         context.become(
-          checkRampDown(xxxx)
+          checkRampDown(
+            PowerPlantState.returnToNormal(state),
+            subscription
+          )
         )
       }
   }
@@ -259,6 +287,22 @@ object RampUpTypeSimulatorActor {
   // These messages are meant for manually faulting and un-faulting the power plant
   case object OutOfService extends Message
   case object ReturnToService extends Message
+
+  private def cancelRampCheckSubscription(subscription: SingleAssignmentCancelable): Unit = {
+    subscription.cancel()
+  }
+
+  private def startRampCheckSubscription(cfg: RampUpTypeConfig, actorRef: ActorRef) = {
+    val source = Observable.intervalAtFixedRate(cfg.rampRateInSeconds)
+
+    def onNext(long: Long): Future[Ack] = {
+      actorRef ! RampCheck
+      Continue
+    }
+    val subscription = SingleAssignmentCancelable()
+    subscription := source.subscribe(onNext _)
+    subscription
+  }
 
   def props(cfg: RampUpTypeConfig): Props =
     Props(new RampUpTypeSimulatorActor(cfg))

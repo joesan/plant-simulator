@@ -18,6 +18,9 @@
 package com.inland24.plantsim.models
 
 
+/**
+  * ADT's defining the available PowerPlant Types
+  */
 sealed trait PowerPlantType
 object PowerPlantType {
 

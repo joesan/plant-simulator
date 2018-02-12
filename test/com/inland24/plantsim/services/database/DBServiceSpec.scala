@@ -63,7 +63,7 @@ trait DBServiceSpec {
   protected def h2SchemaDrop() = {
     val schema = DBIO.seq(
       //(AddressTable.all.schema ++ PowerPlantTable.all.schema).drop
-      (PowerPlantTable.all.schema).drop
+      PowerPlantTable.all.schema.drop
     )
     Await.result(testDatabase.run(schema), 5.seconds)
   }
