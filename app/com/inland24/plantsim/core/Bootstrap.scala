@@ -17,7 +17,7 @@
 
 package com.inland24.plantsim.core
 
-import com.inland24.plantsim.controllers.PowerPlantOperationsController
+import com.inland24.plantsim.controllers.{ApplicationConfigController, PowerPlantController, PowerPlantOperationsController}
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
 import controllers.Assets
@@ -62,10 +62,12 @@ final class Bootstrap extends ApplicationLoader with LazyLogging {
     lazy val appBindings = start
 
     // 2. inject the dependencies into the controllers
-    lazy val applicationController = new PowerPlantOperationsController(appBindings)
+    lazy val applicationController = new ApplicationConfigController(appBindings.appConfig)
+    lazy val powerPlantController = new PowerPlantController(appBindings)
+    lazy val powerPlantOpsController = new PowerPlantOperationsController(appBindings)
     lazy val assets = new Assets(httpErrorHandler)
     override def router: Router = new Routes(
-      httpErrorHandler, applicationController, assets
+      httpErrorHandler, assets, applicationController, powerPlantController, powerPlantOpsController
     )
 
     // 3. add the shutdown hook to properly dispose all connections

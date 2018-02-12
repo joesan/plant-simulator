@@ -30,6 +30,9 @@ import scala.concurrent.duration._
 import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
+// TODO: pass in this execution context via AppBindings
+import monix.execution.Scheduler.Implicits.global
+
 
 class PowerPlantController(bindings: AppBindings) extends Controller {
 
@@ -43,11 +46,8 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
   }
 
   // Place a reference to the underlying ActorSystem
-  private val system = bindings.actorSystem
   // By default we use the Task interface for our tagless final design pattern
   private val dbService = DBService.asTask(bindings.appConfig.dbConfig)
-
-  implicit val timeout: akka.util.Timeout = 3.seconds
 
   def powerPlantDetails(id: Int) = Action.async {
     dbService.powerPlantById(id).runAsync.flatMap {

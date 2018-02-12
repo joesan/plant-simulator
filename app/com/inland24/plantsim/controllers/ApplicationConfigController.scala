@@ -19,6 +19,7 @@ package com.inland24.plantsim.controllers
 
 import com.inland24.plantsim.config.AppConfig
 import play.api.libs.json.Json
+import com.inland24.plantsim.models._
 import play.api.mvc.{Action, Controller, Result}
 
 import scala.concurrent.Future
