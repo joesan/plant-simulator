@@ -17,25 +17,17 @@
 
 package com.inland24.plantsim.controllers
 
-import com.inland24.plantsim.services.database.DBService
 import com.inland24.plantsim.core.AppBindings
-import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.PowerPlantType.UnknownType
+import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantFilter, PowerPlantType, toPowerPlantConfig, toPowerPlantRow}
+import com.inland24.plantsim.services.database.DBService
+import play.api.libs.json.Json
+import play.api.mvc.{Action, Controller, Result}
 import com.inland24.plantsim.models._
 import monix.execution.FutureUtils.extensions._
-import play.api.libs.json.JsError
-import play.api.mvc.{Action, Controller, Result}
-import akka.actor.ActorRef
-import akka.pattern.ask
 
-
-// TODO: pass in this execution context via AppBindings
-import monix.execution.Scheduler.Implicits.global
-
-import play.api.libs.json.{JsObject, JsString, Json}
-
-import scala.concurrent.Future
 import scala.concurrent.duration._
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 
@@ -56,39 +48,6 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
   private val dbService = DBService.asTask(bindings.appConfig.dbConfig)
 
   implicit val timeout: akka.util.Timeout = 3.seconds
-
-  // TODO: This could return a list of supported API's
-  def home = Action { implicit request =>
-    Ok("The API is ready")
-  }
-
-  // Utility to resolve an actor reference
-  def actorFor(powerPlantId: Int): Future[Option[ActorRef]] = {
-    system.actorSelection(s"akka://application/user/*/${bindings.appConfig.appName}-$powerPlantId")
-      .resolveOne(2.seconds)
-      .materialize
-      .map {
-        case Success(actorRef) => Some(actorRef)
-        case Failure(_) => None
-      }
-  }
-
-  def sendCommand(actorRef: ActorRef, id: Int, command: PowerPlantCommand) = {
-    actorRef ! command
-    Future.successful {
-      Accepted(
-        Json.obj("message" -> s"${command.commandName} accepted for PowerPlant with id $id")
-      )
-    }
-  }
-
-  def appConfig = Action.async {
-    Future.successful(
-      Ok(Json.prettyPrint(
-        Json.toJson(bindings.appConfig))
-      )
-    )
-  }
 
   def powerPlantDetails(id: Int) = Action.async {
     dbService.powerPlantById(id).runAsync.flatMap {
@@ -178,73 +137,5 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
         }
       }
     )
-  }
-
-  // TODO: Re-Work for unit testability!
-  def returnToNormalPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
-    request.body.validate[ReturnToNormalCommand].fold(
-      errors => {
-        Future.successful{
-          BadRequest(
-            Json.obj("status" -> "error", "message" -> JsError.toJson(errors))
-          )
-        }
-      },
-      returnToNormalCommand => {
-        actorFor(id) flatMap {
-          case None =>
-            Future.successful {
-              NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
-            }
-          case Some(actorRef) =>
-            sendCommand(actorRef, id, returnToNormalCommand)
-        }
-      }
-    )
-  }
-
-  // TODO: Re-Work for unit testability!
-  def dispatchPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
-    request.body.validate[DispatchCommand].fold(
-      errors => {
-        Future.successful{
-          BadRequest(
-            Json.obj("status" -> "error", "message" -> JsError.toJson(errors))
-          )
-        }
-      },
-      dispatchCommand => {
-        actorFor(id) flatMap {
-          case None =>
-            Future.successful {
-              NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
-            }
-          case Some(actorRef) =>
-            sendCommand(actorRef, id, dispatchCommand)
-        }
-      }
-    )
-  }
-
-  def powerPlantSignals(id: Int) = Action.async {
-    actorFor(id) flatMap {
-      case None =>
-        Future.successful(
-          NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
-        )
-      case Some(actorRef) =>
-        (actorRef ? TelemetrySignals)
-          .mapTo[Map[String, String]]
-          .map(signals =>
-            Ok(Json.prettyPrint(
-                JsObject(
-                  Seq("powerPlantId" -> JsString(id.toString)) ++ signals.map {
-                    case (key, value) => key -> JsString(value)
-                  }
-                )
-              )
-            )
-          )
-    }
   }
 }
