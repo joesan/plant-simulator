@@ -9,14 +9,12 @@ GET			/							 com.inland24.plantsim.controllers.PowerPlantController.home
 GET			/config					     com.inland24.plantsim.controllers.ApplicationConfigController.appConfig
 
 # Endpoints to add / update / read / delete PowerPlant's
-
-# Endpoints to fetch details about the PowerPlant
-GET         /powerPlant/:id/telemetry    com.inland24.plantsim.controllers.PowerPlantOperationsController.powerPlantSignals(id: Int)
 GET         /powerPlant/:id/details      com.inland24.plantsim.controllers.PowerPlantOperationsController.powerPlantDetails(id: Int)
 GET         /powerPlants                 com.inland24.plantsim.controllers.PowerPlantOperationsController.powerPlants(onlyActive: Boolean ?= true, page: Int ?= 1)
 GET         /powerPlantsSearch           com.inland24.plantsim.controllers.PowerPlantOperationsController.searchPowerPlants(onlyActive: Option[Boolean], page: Int ?= 1, powerPlantType: Option[String], powerPlantName: Option[String], orgName: Option[String])
 
 # Endpoints to steer a PowerPlant
+GET         /powerPlant/:id/telemetry    com.inland24.plantsim.controllers.PowerPlantOperationsController.powerPlantSignals(id: Int)
 POST       /powerPlant/:id/dispatch      com.inland24.plantsim.controllers.PowerPlantOperationsController.dispatchPowerPlant(id: Int)
 POST       /powerPlant/:id/release       com.inland24.plantsim.controllers.PowerPlantOperationsController.returnToNormalPowerPlant(id: Int)
 
