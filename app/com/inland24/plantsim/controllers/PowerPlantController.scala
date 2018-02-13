@@ -78,7 +78,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
             // We now take the request and persist this in the database
             toPowerPlantRow(success) match {
               case Some(newPowerPlantRow) =>
-                dbService.update(newPowerPlantRow).runAsync
+                dbService.upd(newPowerPlantRow)
               case None =>
             }
           case Failure(fail) =>
