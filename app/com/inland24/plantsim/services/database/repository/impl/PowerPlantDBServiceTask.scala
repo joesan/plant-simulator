@@ -15,27 +15,23 @@
  *
  */
 
-package com.inland24.plantsim.services.database
+package com.inland24.plantsim.services.database.repository.impl
 
 import com.inland24.plantsim.config.DBConfig
 import com.inland24.plantsim.models.PowerPlantFilter
+import com.inland24.plantsim.services.database.DBSchema
 import com.inland24.plantsim.services.database.models.PowerPlantRow
+import com.inland24.plantsim.services.database.repository.PowerPlantRepository
 import monix.eval.Task
-import scala.language.higherKinds
 
 import scala.concurrent.ExecutionContext
 
-
-// This trait could work on any implementation
-trait DBService[M[_]] {
-  def allPowerPlants(fetchOnlyActive: Boolean): M[Seq[PowerPlantRow]]
-  def powerPlantsPaginated(filter: PowerPlantFilter): M[Seq[PowerPlantRow]]
-  def allPowerPlantsPaginated(fetchOnlyActive: Boolean, pageNumber: Int): M[Seq[PowerPlantRow]]
-  def powerPlantById(id: Int): M[Option[PowerPlantRow]]
-  def newPowerPlant(powerPlantRow: PowerPlantRow): M[Int]
-}
-
-class DBServiceTask (dbConfig: DBConfig)(implicit ec: ExecutionContext) extends DBService[Task] { self =>
+/**
+  * TODO: Write Scala doc comments
+  * @param dbConfig
+  * @param ec
+  */
+class PowerPlantDBServiceTask(dbConfig: DBConfig)(implicit ec: ExecutionContext) extends PowerPlantRepository[Task] { self =>
 
   private val schema = DBSchema(dbConfig.slickDriver)
   private val database = dbConfig.database
@@ -68,7 +64,7 @@ class DBServiceTask (dbConfig: DBConfig)(implicit ec: ExecutionContext) extends 
   def applySchedules = ???
 
   // by default, get the first page!
-  def allPowerPlantsPaginated(fetchOnlyActive: Boolean = false, pageNumber: Int = 1): Task[Seq[PowerPlantRow]] = {
+/*  def allPowerPlantsPaginated(fetchOnlyActive: Boolean = false, pageNumber: Int = 1): Task[Seq[PowerPlantRow]] = {
     val query =
       if (fetchOnlyActive)
         PowerPlantTable.activePowerPlants
@@ -77,7 +73,7 @@ class DBServiceTask (dbConfig: DBConfig)(implicit ec: ExecutionContext) extends 
 
     val (from, to) = offset(pageNumber)
     Task.deferFuture(database.run(query.drop(from).take(to).result))
-  }
+  }*/
 
   def powerPlantById(id: Int): Task[Option[PowerPlantRow]] = {
     println(database.run(PowerPlantTable.powerPlantById(id).result.headOption))
@@ -87,9 +83,6 @@ class DBServiceTask (dbConfig: DBConfig)(implicit ec: ExecutionContext) extends 
   def newPowerPlant(powerPlantRow: PowerPlantRow): Task[Int] = {
     Task.deferFuture(database.run(PowerPlantTable.all += powerPlantRow))
   }
-}
-object DBService {
 
-  def asTask(dbCfg: DBConfig)(implicit ec: ExecutionContext) =
-    new DBServiceTask(dbCfg)(ec)
+  override def updatePowerPlant(powerPlantRow: PowerPlantRow) = ???
 }
