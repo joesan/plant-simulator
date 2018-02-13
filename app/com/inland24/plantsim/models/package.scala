@@ -104,7 +104,7 @@ package object models {
   implicit def toPowerPlantRow(cfg: PowerPlantConfig): Option[PowerPlantRow] = cfg.powerPlantType match {
     case OnOffType =>
       Some(PowerPlantRow(
-        id = cfg.id,
+        id = Some(cfg.id),
         orgName = cfg.name,
         isActive = true,
         minPower = cfg.minPower,
@@ -117,7 +117,7 @@ package object models {
       ))
     case RampUpType =>
       Some(PowerPlantRow(
-        id = cfg.id,
+        id = Some(cfg.id),
         orgName = cfg.name,
         isActive = true,
         minPower = cfg.minPower,
@@ -140,34 +140,47 @@ package object models {
     )
   }
 
-  implicit def toPowerPlantConfig(powerPlantRow: PowerPlantRow): PowerPlantConfig = powerPlantRow.powerPlantTyp match {
-      case OnOffType =>
-        OnOffTypeConfig(
-          id = powerPlantRow.id,
-          name = powerPlantRow.orgName,
-          minPower = powerPlantRow.minPower,
-          maxPower = powerPlantRow.maxPower,
-          powerPlantType = OnOffType
-        )
-      case RampUpType
-        if powerPlantRow.rampRatePower.isDefined && powerPlantRow.rampRateSecs.isDefined =>
-        RampUpTypeConfig(
-          id = powerPlantRow.id,
-          name = powerPlantRow.orgName,
-          minPower = powerPlantRow.minPower,
-          maxPower = powerPlantRow.maxPower,
-          rampPowerRate = powerPlantRow.rampRatePower.get,
-          rampRateInSeconds = FiniteDuration(powerPlantRow.rampRateSecs.get, TimeUnit.SECONDS),
-          powerPlantType = RampUpType
-        )
-      // If it is of RampUpType but rampPowerRate and rampRateInSeconds are not specified, we error
-      case RampUpType =>
+  implicit def toPowerPlantConfig(powerPlantRow: PowerPlantRow): PowerPlantConfig = {
+    powerPlantRow.id match {
+      case Some(powerPlantId) =>
+        powerPlantRow.powerPlantTyp match {
+          case OnOffType =>
+            OnOffTypeConfig(
+              id = powerPlantId,
+              name = powerPlantRow.orgName,
+              minPower = powerPlantRow.minPower,
+              maxPower = powerPlantRow.maxPower,
+              powerPlantType = OnOffType
+            )
+          case RampUpType
+            if powerPlantRow.rampRatePower.isDefined && powerPlantRow.rampRateSecs.isDefined =>
+            RampUpTypeConfig(
+              id = powerPlantId,
+              name = powerPlantRow.orgName,
+              minPower = powerPlantRow.minPower,
+              maxPower = powerPlantRow.maxPower,
+              rampPowerRate = powerPlantRow.rampRatePower.get,
+              rampRateInSeconds = FiniteDuration(powerPlantRow.rampRateSecs.get, TimeUnit.SECONDS),
+              powerPlantType = RampUpType
+            )
+          // If it is of RampUpType but rampPowerRate and rampRateInSeconds are not specified, we error
+          case RampUpType =>
+            UnknownConfig(
+              id = powerPlantId,
+              name = powerPlantRow.orgName,
+              minPower = powerPlantRow.minPower,
+              maxPower = powerPlantRow.maxPower,
+              powerPlantType = UnknownType
+            )
+        }
+
+      case None =>
         UnknownConfig(
-          id = powerPlantRow.id,
           name = powerPlantRow.orgName,
           minPower = powerPlantRow.minPower,
           maxPower = powerPlantRow.maxPower,
           powerPlantType = UnknownType
         )
     }
+  }
 }

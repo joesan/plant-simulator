@@ -50,7 +50,7 @@ object PowerPlantConfig {
   ) extends PowerPlantConfig
 
   case class UnknownConfig(
-    id: Int,
+    id: Int = -1,
     name: String,
     minPower: Double,
     maxPower: Double,

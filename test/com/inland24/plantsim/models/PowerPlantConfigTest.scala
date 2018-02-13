@@ -20,14 +20,8 @@ package com.inland24.plantsim.models
 import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig, UnknownConfig}
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType, UnknownType}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
-import monix.execution.Ack.Continue
-import monix.execution.{Ack, Scheduler}
-import monix.reactive.Observable
-import monix.reactive.observers.Subscriber
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.FlatSpec
-
-import scala.concurrent.Future
 
 
 class PowerPlantConfigTest extends FlatSpec {
@@ -35,7 +29,7 @@ class PowerPlantConfigTest extends FlatSpec {
   behavior of "PowerPlantConfig"
 
   private val testOnOffTypePowerPlantRow = PowerPlantRow(
-    id = 1,
+    id = Some(1),
     orgName = "1",
     minPower = 10.0,
     maxPower = 20.0,
@@ -46,7 +40,7 @@ class PowerPlantConfigTest extends FlatSpec {
   )
 
   private val testRampUpPowerPlantRow = PowerPlantRow(
-    id = 2,
+    id = Some(2),
     orgName = "2",
     minPower = 10.0,
     maxPower = 20.0,
@@ -70,7 +64,7 @@ class PowerPlantConfigTest extends FlatSpec {
     powerPlantCfg.powerPlantConfigSeq.foreach {
       case cfg if cfg.powerPlantType == RampUpType =>
         assert(cfg.isInstanceOf[RampUpTypeConfig])
-        assert(cfg.id === testRampUpPowerPlantRow.id)
+        assert(Some(cfg.id) === testRampUpPowerPlantRow.id)
         assert(cfg.maxPower === testRampUpPowerPlantRow.maxPower)
         assert(cfg.minPower === testRampUpPowerPlantRow.minPower)
         assert(cfg.name === testRampUpPowerPlantRow.orgName)
@@ -83,7 +77,7 @@ class PowerPlantConfigTest extends FlatSpec {
 
       case cfg if cfg.powerPlantType == OnOffType =>
         assert(cfg.isInstanceOf[OnOffTypeConfig])
-        assert(cfg.id === testOnOffTypePowerPlantRow.id)
+        assert(Some(cfg.id) === testOnOffTypePowerPlantRow.id)
         assert(cfg.maxPower === testOnOffTypePowerPlantRow.maxPower)
         assert(cfg.minPower === testOnOffTypePowerPlantRow.minPower)
         assert(cfg.name === testOnOffTypePowerPlantRow.orgName)
@@ -107,7 +101,7 @@ class PowerPlantConfigTest extends FlatSpec {
     powerPlantCfg.powerPlantConfigSeq.head match {
       case cfg if cfg.powerPlantType == UnknownType =>
         assert(cfg.isInstanceOf[UnknownConfig])
-        assert(cfg.id       === testRampUpPowerPlantRow.id)
+        assert(Some(cfg.id) === testRampUpPowerPlantRow.id)
         assert(cfg.maxPower === testRampUpPowerPlantRow.maxPower)
         assert(cfg.minPower === testRampUpPowerPlantRow.minPower)
         assert(cfg.name     === testRampUpPowerPlantRow.orgName)

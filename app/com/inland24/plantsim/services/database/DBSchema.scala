@@ -58,7 +58,7 @@ class DBSchema private (val driver: JdbcProfile) {
     * The PowerPlant details are maintained in the PowerPlant table
     */
   class PowerPlantTable(tag: Tag) extends Table[PowerPlantRow](tag, "powerPlant") {
-    def id            = column[Int]("powerPlantId", O.PrimaryKey)
+    def id            = column[Option[Int]]("powerPlantId", O.PrimaryKey)
     def orgName       = column[String]("orgName")
     def isActive      = column[Boolean]("isActive")
     def minPower      = column[Double]("minPower")

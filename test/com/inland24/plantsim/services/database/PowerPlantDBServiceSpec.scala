@@ -51,7 +51,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
 
         allPowerPlants.headOption match {
           case Some(powerPlant1) =>
-            assert(powerPlant1.id === 101)
+            assert(powerPlant1.id === Some(101))
             assert(powerPlant1.orgName === "joesan 1")
             assert(powerPlant1.isActive)
             assert(powerPlant1.powerPlantTyp === PowerPlantType.RampUpType)
@@ -129,7 +129,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
 
         allPowerPlants.headOption match {
           case Some(powerPlant1) =>
-            assert(powerPlant1.id === 101)
+            assert(powerPlant1.id === Some(101))
             assert(powerPlant1.orgName === "joesan 1")
             assert(powerPlant1.isActive)
             assert(powerPlant1.powerPlantTyp === PowerPlantType.RampUpType)
@@ -142,7 +142,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
   "powerPlantById" should "fetch the PowerPlant for the given id" in {
     powerPlantDBService.powerPlantById(105).runAsync.flatMap {
       case Some(powerPlant) =>
-        assert(powerPlant.id === 105)
+        assert(powerPlant.id === Some(105))
         assert(powerPlant.orgName === "joesan 5")
         assert(powerPlant.isActive)
 
@@ -152,7 +152,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
 
   "newPowerPlant" should "add a new PowerPlant to the PowerPlant table" in {
     val newPowerPlantRow = PowerPlantRow(
-      id = 10000,
+      id = Some(10000),
       orgName = s"joesan_10000",
       isActive = true,
       minPower = 100.0,
@@ -166,7 +166,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       _ =>
         powerPlantDBService.powerPlantById(10000).runAsync.flatMap {
           case Some(powerPlant) =>
-            assert(powerPlant.id === 10000)
+            assert(powerPlant.id === Some(10000))
             assert(powerPlant.isActive)
 
           case _ => fail("expected the powerPlant with id 10000 but was not found in the database")

@@ -27,7 +27,7 @@
 
     <logger name="slick" level="INFO" />
     <!-- We want to print the Slick generated SQL statements -->
-    <logger name="slick.jdbc" level="DEBUG" />
+    <logger name="slick.jdbc" level="INFO" />
     <logger name="play" level="INFO" />
     <!-- logger name="com.zaxxer.hikari" level="INFO"/ -->
     <logger name="application" level="INFO" />

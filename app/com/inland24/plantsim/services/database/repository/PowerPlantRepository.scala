@@ -25,7 +25,6 @@ import scala.language.higherKinds
 trait PowerPlantRepository[M[_]] {
   def allPowerPlants(fetchOnlyActive: Boolean): M[Seq[PowerPlantRow]]
   def powerPlantsPaginated(filter: PowerPlantFilter): M[Seq[PowerPlantRow]]
-  def allPowerPlantsPaginated(fetchOnlyActive: Boolean, pageNumber: Int): M[Seq[PowerPlantRow]]
   def powerPlantById(id: Int): M[Option[PowerPlantRow]]
   def newPowerPlant(powerPlantRow: PowerPlantRow): M[Int]
   def updatePowerPlant(powerPlantRow: PowerPlantRow): M[PowerPlantRow]

@@ -50,6 +50,8 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
   override def afterAll(): Unit = {
     super.h2SchemaDrop()
     actorSystem.terminate()
+    // Just in case, we cancel the subscription upon shutdown!
+    dbSubscription.cancel()
   }
 
   // We use this for testing purposes
@@ -89,7 +91,7 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
 
       def newPowerPlantRow(powerPlantId: Int) = {
         PowerPlantRow(
-          id = powerPlantId,
+          id = Some(powerPlantId),
           orgName = s"joesan$powerPlantId",
           isActive = true,
           minPower = 100.0,
@@ -114,7 +116,7 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
          */
         override def onNext(elem: Seq[PowerPlantRow]): Future[Ack] = {
           // Let us now make a new PowerPlant entry in the database
-          elem.find(row => row.id == 2000) match {
+          elem.find(row => row.id.contains(2000)) match {
             case Some(_) =>
               powerPlantsConfig.copy(
                 powerPlantConfigSeq = com.inland24.plantsim.models.toPowerPlantsConfig(elem).powerPlantConfigSeq

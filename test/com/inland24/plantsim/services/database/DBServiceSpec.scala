@@ -47,7 +47,7 @@ trait DBServiceSpec {
   val powerPlants = (1 to 6) map {
     i =>
       PowerPlantRow(
-        id = 100 + i,
+        id = Some(100 + i),
         orgName = s"joesan $i",
         isActive = true,
         minPower = 100.0 * i,

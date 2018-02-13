@@ -302,7 +302,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       // To avoid confusion and the tests failing, we create a new actor instance for this test
       val rampUpTypeSimActor = system.actorOf(RampUpTypeSimulatorActor.props(rampUpTypeCfg))
       // 1. Send a Dispatch message
-      within(12.seconds) {
+      within(5.seconds) {
         rampUpTypeSimActor ! DispatchRampUpPowerPlant(
           powerPlantId = rampUpTypeCfg.id,
           command = "dispatch",
@@ -322,7 +322,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       rampUpTypeSimActor ! StateRequest
       expectMsgPF() {
         case state: PowerPlantState =>
-          assert(state.signals === initPowerPlantState.signals, "signals did not match")
+          assert(state.signals("isDispatched") === initPowerPlantState.signals("isDispatched"), "signals did not match")
           assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
           assert(state.rampRate === initPowerPlantState.rampRate, "rampRate did not match")
           assert(state.setPoint === initPowerPlantState.setPoint, "setPoint did not match")

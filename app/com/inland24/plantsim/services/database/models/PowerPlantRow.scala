@@ -22,7 +22,7 @@ import org.joda.time.DateTime
 
 
 case class PowerPlantRow(
-  id           : Int,
+  id           : Option[Int],
   orgName      : String,
   isActive     : Boolean,
   minPower     : Double,

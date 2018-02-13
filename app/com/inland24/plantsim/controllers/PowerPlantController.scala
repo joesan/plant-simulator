@@ -63,7 +63,10 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     }
   }
 
+  def updatePowerPlant(id: Int) = ???
+
   // TODO: Under Implementation
+/*
   def updatePowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
     request.body.validate[PowerPlantConfig].fold(
       errors => {
@@ -78,7 +81,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
             // We now take the request and persist this in the database
             toPowerPlantRow(success) match {
               case Some(newPowerPlantRow) =>
-                dbService.upd(newPowerPlantRow)
+                //dbService.upd(newPowerPlantRow)
               case None =>
             }
           case Failure(fail) =>
@@ -101,6 +104,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
       }
     )
   }
+*/
 
   def powerPlants(onlyActive: Boolean, page: Int) = Action.async {
     dbService.allPowerPlantsPaginated(onlyActive, page).runAsync.materialize.map {
