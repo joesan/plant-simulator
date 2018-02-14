@@ -20,9 +20,13 @@ package com.inland24.plantsim.services.database
 import com.inland24.plantsim.models.{PowerPlantFilter, PowerPlantType}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.models.PowerPlantRow
+import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll}
 import monix.execution.Scheduler.Implicits.global
 
+// ***** NOTE: Do not remove this import! It won't compile without this
+import monix.cats._
+// *****
 
 final class PowerPlantDBServiceSpec extends AsyncFlatSpec
   with DBServiceSpec with BeforeAndAfterAll {
@@ -40,12 +44,13 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
   }
 
   // This will be our service instance
-  val powerPlantDBService = DBService.asTask(config.dbConfig)
+  val powerPlantRepo = new PowerPlantRepoAsTask(config.dbConfig)
+  val powerPlantService = new PowerPlantService(powerPlantRepo)
 
   behavior of "PowerPlantDBService"
 
   "allPowerPlants" should "fetch all PowerPlant's from the database" in {
-    powerPlantDBService.allPowerPlants().runAsync.map {
+    powerPlantService.fetchAllPowerPlants().runAsync.map {
       allPowerPlants =>
         assert(allPowerPlants.length === 6)
 
@@ -66,7 +71,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       onlyActive = Some(true),
       powerPlantType = None
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter1).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter1).runAsync.map {
       filtered =>
         assert(filtered.length === 5)
     }
@@ -75,7 +80,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       onlyActive = Some(true),
       orgName = Some("joesan 1")
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter2).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter2).runAsync.map {
       filtered =>
         assert(filtered.length === 1)
         assert(filtered.head.id === 1)
@@ -86,7 +91,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       // Notice the capital letter, there is no name with capital letter in the database
       orgName = Some("Joesan 1")
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter3).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter3).runAsync.map {
       filtered =>
         assert(filtered.length === 0)
     }
@@ -98,7 +103,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       pageNumber = 20,
       orgName = Some("joesan 1")
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter4).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter4).runAsync.map {
       filtered =>
         assert(filtered.length === 0)
     }
@@ -107,7 +112,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       onlyActive = Some(true),
       orgName = Some("joesan")
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter5).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter5).runAsync.map {
       filtered =>
         assert(filtered.length === 5)
     }
@@ -116,14 +121,14 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       onlyActive = Some(false),
       orgName = Some("joesan")
     )
-    powerPlantDBService.powerPlantsPaginated(searchFilter6).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter6).runAsync.map {
       filtered =>
         assert(filtered.length === 0)
     }
   }
 
   "allPowerPlantsPaginated" should "fetch all PowerPlant's from the database for the given pageNumber" in {
-    powerPlantDBService.allPowerPlantsPaginated().runAsync.map { // by default we ask for the first page
+    powerPlantService.searchPowerPlants(PowerPlantFilter()).runAsync.map { // by default we ask for the first page
       allPowerPlants =>
         assert(allPowerPlants.length === 5)
 
@@ -140,7 +145,7 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
   }
 
   "powerPlantById" should "fetch the PowerPlant for the given id" in {
-    powerPlantDBService.powerPlantById(105).runAsync.flatMap {
+    powerPlantService.powerPlantById(105).runAsync.flatMap {
       case Some(powerPlant) =>
         assert(powerPlant.id === Some(105))
         assert(powerPlant.orgName === "joesan 5")
@@ -162,9 +167,9 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
       updatedAt = getNowAsDateTime()
     )
 
-    powerPlantDBService.newPowerPlant(newPowerPlantRow).runAsync.flatMap {
+    powerPlantService.createNewPowerPlant(newPowerPlantRow).runAsync.flatMap {
       _ =>
-        powerPlantDBService.powerPlantById(10000).runAsync.flatMap {
+        powerPlantService.powerPlantById(10000).runAsync.flatMap {
           case Some(powerPlant) =>
             assert(powerPlant.id === Some(10000))
             assert(powerPlant.isActive)

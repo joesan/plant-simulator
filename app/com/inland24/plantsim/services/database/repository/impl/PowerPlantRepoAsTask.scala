@@ -19,9 +19,8 @@ package com.inland24.plantsim.services.database.repository.impl
 
 import com.inland24.plantsim.config.DBConfig
 import com.inland24.plantsim.models.PowerPlantFilter
-import com.inland24.plantsim.services.database.DBSchema
 import com.inland24.plantsim.services.database.models.PowerPlantRow
-import com.inland24.plantsim.services.database.repository.PowerPlantRepository
+import com.inland24.plantsim.services.database.repository.{DBSchema, PowerPlantRepository}
 import monix.eval.Task
 
 import scala.concurrent.ExecutionContext
@@ -31,7 +30,7 @@ import scala.concurrent.ExecutionContext
   * @param dbConfig
   * @param ec
   */
-class PowerPlantDBServiceTask(dbConfig: DBConfig)(implicit ec: ExecutionContext) extends PowerPlantRepository[Task] { self =>
+class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext) extends PowerPlantRepository[Task] { self =>
 
   private val schema = DBSchema(dbConfig.slickDriver)
   private val database = dbConfig.database

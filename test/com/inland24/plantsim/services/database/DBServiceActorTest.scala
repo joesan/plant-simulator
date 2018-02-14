@@ -26,6 +26,7 @@ import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, PowerPlan
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantEvent, PowerPlantType}
+import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import com.typesafe.scalalogging.LazyLogging
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
@@ -33,6 +34,9 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
+// ***** NOTE: This import should be here, otherwise it won't compile
+import monix.cats._
+// *****
 
 class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
   with ImplicitSender with WordSpecLike with Matchers
@@ -225,13 +229,6 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
 
   "DBServiceActor" must {
 
-    /**
-      * We are running against a test configuration (application.test.conf)
-      * see [[DBServiceSpec]] where we set the environment variable to load
-      * the application.test.conf
-      */
-    val appConfig = AppConfig.load()
-
     // This message is used to fetch and check the received events in the TestSupervisorActorRef
     case object GetReceivedEvents
 
@@ -272,11 +269,12 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
     )
 
     "populate PowerPlantsConfig upon every message it receives" in {
-
-      val dbService = DBService.asTask(appConfig.dbConfig)
+      // This will be our service instance
+      val powerPlantRepo = new PowerPlantRepoAsTask(config.dbConfig)
+      val powerPlantService = new PowerPlantService(powerPlantRepo)
 
       // Let us start initially with the available PowerPlant entries in the database
-      val allActivePowerPlants = Await.result(dbService.allPowerPlants(fetchOnlyActive = true).runAsync, 3.seconds)
+      val allActivePowerPlants = Await.result(powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync, 3.seconds)
 
       // Now send this initial Seq of PowerPlant's to the dbServiceActor (transformed as a PowerPlantConfig type)
       within(2.seconds) {

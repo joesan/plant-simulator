@@ -22,7 +22,8 @@ import com.inland24.plantsim.models.PowerPlantConfig
 import com.inland24.plantsim.models.PowerPlantConfig.PowerPlantsConfig
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.models.PowerPlantRow
-import com.inland24.plantsim.services.database.{DBService, DBServiceSpec}
+import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
+import com.inland24.plantsim.services.database.{DBServiceSpec, PowerPlantService}
 import com.typesafe.scalalogging.LazyLogging
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
@@ -34,6 +35,10 @@ import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration._
 import scala.util.Success
 import monix.execution.Scheduler.Implicits.global
+
+// ***** NOTE: Do not remove this import! It won't compile without this
+import monix.cats._
+// *****
 
 
 class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
@@ -72,11 +77,9 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
     promise.future
   }
 
-  // This will be our ThreadPool
-  //implicit val ec = scala.concurrent.ExecutionContext.Implicits.global
-
   // This will be our service instance
-  val dbService = DBService.asTask(config.dbConfig)
+  val powerPlantRepo = new PowerPlantRepoAsTask(config.dbConfig)
+  val powerPlantService = new PowerPlantService(powerPlantRepo)
 
   // We want to fetch updates from the database every 2 seconds
   val interval: FiniteDuration = 2.seconds
@@ -87,7 +90,7 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
   "DBObservable" must {
 
     "fetch PowerPlant updates at regular intervals given" in {
-      val dbObservable = DBObservable(interval, dbService.allPowerPlants(fetchOnlyActive = true).runAsync)
+      val dbObservable = DBObservable(interval, powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync)
 
       def newPowerPlantRow(powerPlantId: Int) = {
         PowerPlantRow(
@@ -123,7 +126,7 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
               )
             case None =>
               // We do not yet have it, so let's add a new entry
-              dbService.newPowerPlant(newPowerPlantRow(2000))
+              powerPlantService.createNewPowerPlant(newPowerPlantRow(2000))
           }
           Continue
         }

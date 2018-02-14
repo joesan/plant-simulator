@@ -20,7 +20,6 @@ package com.inland24.plantsim.controllers
 import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.models.PowerPlantType.UnknownType
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantFilter, PowerPlantType, toPowerPlantConfig, toPowerPlantRow}
-import com.inland24.plantsim.services.database.DBService
 import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller, Result}
 import com.inland24.plantsim.models._
@@ -44,9 +43,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     )
   }
 
-  // Place a reference to the underlying ActorSystem
-  // By default we use the Task interface for our tagless final design pattern
-  private val dbService = DBService.asTask(bindings.appConfig.dbConfig)
+  private val dbService = bindings.dbService
 
   def powerPlantDetails(id: Int) = Action.async {
     dbService.powerPlantById(id).runAsync.flatMap {
@@ -107,7 +104,8 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
 */
 
   def powerPlants(onlyActive: Boolean, page: Int) = Action.async {
-    dbService.allPowerPlantsPaginated(onlyActive, page).runAsync.materialize.map {
+    val filter = PowerPlantFilter(onlyActive = Some(onlyActive), pageNumber = page)
+    dbService.searchPowerPlants(filter).runAsync.materialize.map {
       case Success(powerPlantsSeqRow) =>
         val collected = powerPlantsSeqRow.collect {
           case powerPlantRow
@@ -139,7 +137,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
       pageNumber = page
     )
 
-    dbService.powerPlantsPaginated(filter).runAsync.materialize.map {
+    dbService.searchPowerPlants(filter).runAsync.materialize.map {
       case Success(powerPlantsSeqRow) =>
         val collected = powerPlantsSeqRow.collect {
           case powerPlantRow
@@ -168,7 +166,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
             BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig ")).enableCors // TODO: fix errors
           )
           case Some(row) =>
-            dbService.newPowerPlant(row).runAsync.materialize.map {
+            dbService.createNewPowerPlant(row).runAsync.materialize.map {
               case Success(insertedRecordId) =>
                 Ok("TODO: Send a Success JSON back with the id of the newly inserted record").enableCors
               case Failure(ex) =>

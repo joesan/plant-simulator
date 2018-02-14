@@ -15,7 +15,7 @@
  *
  */
 
-package com.inland24.plantsim.services.database
+package com.inland24.plantsim.services.database.repository
 
 import java.sql.Timestamp
 
@@ -24,6 +24,7 @@ import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
 import slick.jdbc.JdbcProfile
 import slick.lifted.CanBeQueryCondition
+
 import scala.language.higherKinds
 
 

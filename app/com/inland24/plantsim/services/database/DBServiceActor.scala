@@ -24,7 +24,12 @@ import com.inland24.plantsim.models.PowerPlantConfig.PowerPlantsConfig
 import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantEvent}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
+import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import com.inland24.plantsim.streams.DBObservable
+// ******* Note: Both these imports should be here! Do not remove them!
+import monix.cats._
+import monix.eval.Task
+// *******
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
@@ -47,8 +52,10 @@ import scala.concurrent.Future
 class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enableSubscription: Boolean = true)
   (implicit ec: Scheduler) extends Actor with ActorLogging {
 
-  // This represents the PowerPlantDBService instance
-  val powerPlantDBService = DBService.asTask(dbConfig)(ec)
+  // TODO: Should we use the PowerPlantService from the AppBindings instead of using a new instance all together?
+  val powerPlantService: PowerPlantService[Task] = new PowerPlantService(
+    new PowerPlantRepoAsTask(dbConfig)(ec)
+  )
 
   // This will be our subscription to fetch from the database
   val dbSubscription = SingleAssignmentCancelable()
@@ -90,7 +97,7 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enab
     if (enableSubscription) {
       val obs = DBObservable(
         dbConfig.refreshInterval,
-        powerPlantDBService.allPowerPlants(fetchOnlyActive = true).runAsync
+        powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync
       )
 
       log.info("Activating DB lookup subscription")

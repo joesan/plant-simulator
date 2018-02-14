@@ -26,7 +26,7 @@ import com.inland24.plantsim.services.database.repository.PowerPlantRepository
 import scala.language.higherKinds
 
 
-class PowerPlantDBService[M[_]: Monad](powerPlantRepo: PowerPlantRepository[M]) {
+class PowerPlantService[M[_]: Monad](powerPlantRepo: PowerPlantRepository[M]) {
 
   def updatePowerPlant(powerPlantCfg: PowerPlantConfig): M[Either[String, PowerPlantConfig]] = {
     powerPlantRepo.powerPlantById(powerPlantCfg.id).flatMap {
