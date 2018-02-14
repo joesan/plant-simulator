@@ -25,7 +25,6 @@ import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.Observable
-import org.joda.time.{DateTime, DateTimeZone}
 // TODO: use a passed in ExecutionContext
 import monix.execution.Scheduler.Implicits.global
 
@@ -39,10 +38,19 @@ import scala.concurrent.Future
 class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
   extends Actor with ActorLogging {
 
-  val xxx= (b: Boolean) => Observable.suspend {
-    if (b) Observable.raiseError(new RuntimeException("dummy"))
-    else Observable.intervalAtFixedRate(cfg.rampRateInSeconds)
-  }
+  /* This factor determines the randomness for the activePower
+     For example., if the power to be dispatched is 800, then the
+     with the toleranceFactor of 2% would mean that the
+     activePower for the PowerPlant in dispatched state would vary
+     between 800 * 2 / 100 = plus or minus 16
+     So the activePower would vary between 784 and 816
+     This factor is just introduced to show some randomness
+     For simplicity, we hardcode this value here for all RampUpType
+     PowerPlants to have the same toleranceFactor. Ideally, each
+     RampUpType PowerPlant should have its own toleranceFactor configured
+     in the database!
+   */
+  private val toleranceFactorInPercentage = 2
 
   /*
    * Initialize the Actor instance
@@ -50,25 +58,6 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
   override def preStart(): Unit = {
     super.preStart()
     self ! Init
-  }
-
-  val subscription = SingleAssignmentCancelable()
-  val source = Observable.intervalAtFixedRate(cfg.rampRateInSeconds)
-  source.completed
-
-  source.sample(cfg.rampRateInSeconds)
-
-  private def startSubscription(msg: String): Future[Unit] = Future {
-    def onNext(long: Long): Future[Ack] = {
-      log.info(s"Doing RampCheck ${DateTime.now(DateTimeZone.UTC)}")
-      self ! RampCheck
-      Continue
-    }
-
-    println(s"Setting subscription in interval ${cfg.rampRateInSeconds}")
-    val obs = Observable.intervalAtFixedRate(cfg.rampRateInSeconds)
-    log.info(s"Subscribed to $msg the PowerPlant with id = ${cfg.id}")
-    subscription := obs.subscribe(onNext _)
   }
 
   /**
@@ -137,43 +126,12 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
       context.become(receive)
       self ! Init
   }
-  /*
-  def checkRamp1(state: PowerPlantState): Receive = {
-    case TelemetrySignals =>
-      sender ! state.signals
-
-    case StateRequest =>
-      sender ! state
-
-    case RampCheck =>
-      val isDispatched = PowerPlantState.isDispatched(state)
-      // We first check if we have reached the setPoint, if yes, we switch context
-      if (isDispatched) {
-        // we cancel the subscription first
-        cancelSubscription("RampUp")
-        context.become(dispatched(state))
-      } else {
-        // time for another ramp up!
-        context.become(
-          checkRamp(PowerPlantState.dispatch(state))
-        )
-      }
-
-    // If we need to throw this plant OutOfService, we do it
-    case OutOfService =>
-      // but as always, cancel the subscription first
-      cancelSubscription("Dispatch")
-      context.become(
-        active(state.copy(signals = PowerPlantState.unAvailableSignals))
-      )
-  } */
 
   /**
     * This state happens recursively when the PowerPlant ramps up
     * The recursivity happens until the PowerPlant is fully ramped
     * up. The recursivity is governed by the Monix Observable and its
     * corresponding subscription
-    * TODO: The Monix Observable does not work at th moment! We need to find an alternative solution
     */
   def checkRamp(state: PowerPlantState, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignals =>
