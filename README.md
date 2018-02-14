@@ -28,6 +28,10 @@ We also assume that all the units that we deal here are in kw for power and in s
 
 This project is completely OpenSource, so feel free to explore and if you have better ideas, please let me know or even better please contribute!
 
+First some background: Normally in a PowerPlant, there are several power producing units. Each one of these power producing units could be turned on which means or in other words, it can be ramped up. The other way around should also be possible which means I can be a power consuming unit in a PowerPlant and this power consuming unit could be seen as a load to which I can send a singal so that I consume power from the grid.
+
+This simulation does exactly that. I can register either a power producing unit or a power consuming unit with this simulation application. When registering these units, I specify how much power each one has. I then expose an API with which I can communicate with the simulator.
+
 These instructions below will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
 See [deployment](#Deployment) for notes on how to deploy the project on a live system.
