@@ -17,21 +17,21 @@
 
 package com.inland24.plantsim.core
 
-import com.inland24.plantsim.models.PowerPlantEvent
+import com.inland24.plantsim.models.PowerPlantSignal
 import monix.execution.{Ack, Scheduler}
 import monix.reactive.observers.Subscriber
 import monix.reactive.subjects.ConcurrentSubject
 
 
-final class PowerPlantEventObservable private (underlying: ConcurrentSubject[PowerPlantEvent, PowerPlantEvent])
-  extends ConcurrentSubject[PowerPlantEvent, PowerPlantEvent] {
+final class PowerPlantEventObservable private (underlying: ConcurrentSubject[PowerPlantSignal, PowerPlantSignal])
+  extends ConcurrentSubject[PowerPlantSignal, PowerPlantSignal] {
 
-  override def unsafeSubscribeFn(s: Subscriber[PowerPlantEvent]) =
+  override def unsafeSubscribeFn(s: Subscriber[PowerPlantSignal]) =
     underlying.unsafeSubscribeFn(s)
 
   override def size: Int = underlying.size
 
-  override def onNext(elem: PowerPlantEvent): Ack = underlying.onNext(elem)
+  override def onNext(elem: PowerPlantSignal): Ack = underlying.onNext(elem)
 
   override def onError(ex: Throwable): Unit = underlying.onError(ex)
 

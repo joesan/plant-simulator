@@ -18,13 +18,13 @@ package com.inland24.plantsim.models
 
 
 // TODO: Scaladoc!!!!
-sealed trait PowerPlantEvent {
+sealed trait PowerPlantSignal {
   def powerPlantConfig: PowerPlantConfig
 }
-object PowerPlantEvent {
+object PowerPlantSignal {
 
   // **** Events about State transitions that happen in a PowerPlant
-  sealed trait StateTransitionEvent extends PowerPlantEvent {
+  sealed trait StateTransitionEvent extends PowerPlantSignal {
     def newState: PowerPlantRunState
   }
 
@@ -39,4 +39,12 @@ object PowerPlantEvent {
     powerPlantConfig: PowerPlantConfig
   ) extends StateTransitionEvent
   // **** *****
+
+  // **** Alerts that happen in the system when interacting with the PowerPlant
+  sealed trait PowerPlantAlert extends PowerPlantSignal
+
+  case class DispatchAlert(
+    msg: String,
+    powerPlantConfig: PowerPlantConfig
+  ) extends PowerPlantAlert
 }

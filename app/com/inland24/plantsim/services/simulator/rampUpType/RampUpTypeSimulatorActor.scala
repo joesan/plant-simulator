@@ -21,7 +21,7 @@ import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.PowerPlantEvent.{Genesis, Transition}
+import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, InvalidDispatch, Transition}
 import com.inland24.plantsim.models.{PowerPlantRunState, ReturnToNormalCommand}
 import monix.execution.Ack
 import monix.execution.Ack.Continue
@@ -115,12 +115,31 @@ class RampUpTypeSimulatorActor private (config: Config)
     case DispatchRampUpPowerPlant(_,_,_,dispatchPower) =>
       // If the dispatch power is equal or less than the minPower, do nothing
       if (dispatchPower <= cfg.minPower) {
-        log.info(s"Not dispatching because the current " +
+        // Signal the alert to the outside world
+        out.onNext(
+          DispatchAlert(
+            s"dispatchPower ($dispatchPower) <= minPower (${cfg.minPower}) " +
+              s"for PowerPlant with id ${cfg.id}, so ignoring this dispatch " +
+              s"command to RampUp for the PowerPlant ${self.path.name}",
+            cfg
+          )
+        )
+        log.warning(s"Not dispatching because the current " +
           s"dispatchPower ($dispatchPower) <= minPower (${cfg.minPower}), " +
           s"so ignoring this dispatch signal for PowerPlant ${self.path.name}")
       } else {
         val calculatedDispatch =
           if(dispatchPower >= cfg.maxPower) {
+            // Signal the alert of ths Dispatch curtailment to the outside world
+            out.onNext(
+              DispatchAlert(
+                s"requested dispatchPower = $dispatchPower is greater than " +
+                  s"maxPower = ${cfg.maxPower} capacity of the PowerPlant, " +
+                  s"so curtailing at maxPower for PowerPlant ${self.path.name}",
+                cfg
+              )
+            )
+
             log.warning(s"requested dispatchPower = $dispatchPower is greater " +
               s"than maxPower = ${cfg.maxPower} capacity of the PowerPlant, " +
               s"so curtailing at maxPower for PowerPlant ${self.path.name}")
