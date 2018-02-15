@@ -23,7 +23,7 @@ sealed trait PowerPlantEvent {
 }
 object PowerPlantEvent {
 
-  // **** Represents Events that tells us about the State transitions
+  // **** Events about State transitions that happen in a PowerPlant
   sealed trait StateTransitionEvent extends PowerPlantEvent {
     def newState: PowerPlantRunState
   }
@@ -39,6 +39,4 @@ object PowerPlantEvent {
     powerPlantConfig: PowerPlantConfig
   ) extends StateTransitionEvent
   // **** *****
-
-
 }
