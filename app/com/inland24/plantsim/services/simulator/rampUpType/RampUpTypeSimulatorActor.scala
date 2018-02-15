@@ -72,6 +72,13 @@ class RampUpTypeSimulatorActor private (config: Config)
     )
   }
 
+  // TODO: Scaladoc comments
+  def evolve(f: PowerPlantState): PowerPlantState = {
+    val (signals, newState) = PowerPlantState.popEvents(f)
+    for (s <- signals) out.onNext(s)
+    newState
+  }
+
   /**
     * This is the starting point where we initialize a RampUpType PowerPlant with
     * the configuration that we get from this Actor instance. We then do a context become
@@ -144,8 +151,7 @@ class RampUpTypeSimulatorActor private (config: Config)
               s"than maxPower = ${cfg.maxPower} capacity of the PowerPlant, " +
               s"so curtailing at maxPower for PowerPlant ${self.path.name}")
             cfg.maxPower
-          }
-          else dispatchPower
+          } else dispatchPower
         log.info(s"Starting Observable sequence for doing RampUpCheck for PowerPlant ${cfg.id}")
         context.become(
           checkRamp(

@@ -15,7 +15,7 @@
 
 package com.inland24.plantsim.services.simulator.rampUpType
 
-import com.inland24.plantsim.models.PowerPlantRunState
+import com.inland24.plantsim.models.{PowerPlantRunState, PowerPlantSignal}
 import org.joda.time.{DateTime, DateTimeZone, Seconds}
 
 import scala.concurrent.duration._
@@ -29,7 +29,7 @@ case class PowerPlantState(
   lastRampTime: DateTime,
   rampRate: Double,
   rampRateInSeconds: FiniteDuration,
-  powerPlantRunState: PowerPlantRunState,
+  events: Vector[PowerPlantSignal],
   signals: Map[String, String]
 )
 
@@ -37,15 +37,15 @@ case class PowerPlantState(
 object PowerPlantState {
 
   def empty(id: Long, minPower: Double, maxPower: Double, rampRate: Double, rampRateInSeconds: FiniteDuration): PowerPlantState = PowerPlantState(
-    id,
+    powerPlantId = id,
     setPoint = minPower,
     minPower = minPower,
     maxPower = maxPower,
     // We set the lastRampTime as the time that was now minus rampRateInSeconds
-    DateTime.now(DateTimeZone.UTC),
-    rampRate,
-    rampRateInSeconds,
-    PowerPlantRunState.Init,
+    lastRampTime = DateTime.now(DateTimeZone.UTC),
+    rampRate = rampRate,
+    rampRateInSeconds = rampRateInSeconds,
+    events = Vector.empty[PowerPlantSignal],
     Map.empty[String, String]
   )
 
@@ -87,8 +87,11 @@ object PowerPlantState {
         isDispatchedSignalKey -> false.toString,
         isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
       ),
-      powerPlantRunState = PowerPlantRunState.Active
     )
+  }
+
+  def popEvents(state: PowerPlantState): (Seq[PowerPlantSignal], PowerPlantState) = {
+    (state.events, state.copy(events = Vector.empty))
   }
 
   def returnToNormal(state: PowerPlantState): PowerPlantState = {
