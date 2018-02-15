@@ -243,6 +243,8 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
 }
 object RampUpTypeSimulatorActor {
 
+  case class Config()
+
   sealed trait Message
   case object Init extends Message
   case object StateRequest extends Message
