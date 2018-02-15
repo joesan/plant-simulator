@@ -15,13 +15,16 @@
 
 package com.inland24.plantsim.services.simulator.rampUpType
 
-import com.inland24.plantsim.models.{PowerPlantRunState, PowerPlantSignal}
+import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
+import com.inland24.plantsim.models.PowerPlantSignal
+import com.inland24.plantsim.models.PowerPlantSignal.DispatchAlert
 import org.joda.time.{DateTime, DateTimeZone, Seconds}
 
 import scala.concurrent.duration._
 
 
 case class PowerPlantState(
+  cfg: RampUpTypeConfig,
   powerPlantId: Long,
   setPoint: Double,
   minPower: Double,
@@ -36,7 +39,8 @@ case class PowerPlantState(
 // TODO: refactor and rewrite
 object PowerPlantState {
 
-  def empty(id: Long, minPower: Double, maxPower: Double, rampRate: Double, rampRateInSeconds: FiniteDuration): PowerPlantState = PowerPlantState(
+  def empty(id: Long, minPower: Double, maxPower: Double, rampRate: Double, config: RampUpTypeConfig, rampRateInSeconds: FiniteDuration): PowerPlantState = PowerPlantState(
+    cfg = config,
     powerPlantId = id,
     setPoint = minPower,
     minPower = minPower,
@@ -113,6 +117,7 @@ object PowerPlantState {
           )
         } else { // else, we do one RampDown attempt
           state.copy(
+            //
             events = state.events
             signals = Map(
               isDispatchedSignalKey -> true.toString,
@@ -124,6 +129,20 @@ object PowerPlantState {
       } else state
       newState
     } else state
+  }
+
+  def dispatch1(state: PowerPlantState, dispatchPower: Double) = {
+    if (dispatchPower <= state.minPower) {
+      state.copy(
+        events = Vector(DispatchAlert(
+          s"dispatchPower ($dispatchPower) <= minPower (${state.cfg.minPower}) " +
+            s"for PowerPlant with id ${state.cfg.id}, so ignoring this dispatch ",
+            state.cfg
+        )) ++ state.events
+      )
+    } else {
+
+    }
   }
 
   def dispatch(state: PowerPlantState): PowerPlantState = {

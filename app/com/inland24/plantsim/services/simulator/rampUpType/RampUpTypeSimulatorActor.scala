@@ -75,7 +75,7 @@ class RampUpTypeSimulatorActor private (config: Config)
   }
 
   // TODO: Scaladoc comments
-  def evolve(f: PowerPlantState): PowerPlantState = {
+  def pushSignals(f: PowerPlantState): PowerPlantState = {
     val (signals, newState) = PowerPlantState.popEvents(f)
     for (s <- signals) out.onNext(s)
     newState
@@ -91,9 +91,7 @@ class RampUpTypeSimulatorActor private (config: Config)
       val powerPlantState = PowerPlantState.active(
         PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
       )
-      context.become(
-        active(powerPlantState)
-      )
+      context.become(active(powerPlantState))
       // The PowerPlant goes to active state, we signal this to outside world
       out.onNext(
         Transition(
@@ -157,7 +155,7 @@ class RampUpTypeSimulatorActor private (config: Config)
           } else dispatchPower
         log.info(s"Starting Observable sequence for doing RampUpCheck for PowerPlant ${cfg.id}")
         context.become(
-          checkRamp(
+          rampCheck(
             PowerPlantState.dispatch(state.copy(setPoint = calculatedDispatch)),
             RampUpTypeSimulatorActor.startRampCheckSubscription(cfg, self)
           )
@@ -180,7 +178,7 @@ class RampUpTypeSimulatorActor private (config: Config)
     * up. The recursivity is governed by the Monix Observable and its
     * corresponding subscription
     */
-  def checkRamp(state: PowerPlantState, subscription: SingleAssignmentCancelable): Receive = {
+  def rampCheck(state: PowerPlantState, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
 
@@ -205,7 +203,7 @@ class RampUpTypeSimulatorActor private (config: Config)
       } else {
         // time for another ramp up!
         context.become(
-          checkRamp(PowerPlantState.dispatch(state), subscription)
+          rampCheck(PowerPlantState.dispatch(state), subscription)
         )
       }
 
