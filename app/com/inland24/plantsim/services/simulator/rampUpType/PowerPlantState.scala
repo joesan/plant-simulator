@@ -111,8 +111,9 @@ object PowerPlantState {
               isAvailableSignalKey  -> true.toString // the plant is available and not faulty!
             )
           )
-        } else {
+        } else { // else, we do one RampDown attempt
           state.copy(
+            events = state.events
             signals = Map(
               isDispatchedSignalKey -> true.toString,
               activePowerSignalKey  -> (currentActivePower - state.rampRate).toString,
@@ -120,9 +121,9 @@ object PowerPlantState {
             )
           )
         }
-      } else { state }
+      } else state
       newState
-    } else { state }
+    } else state
   }
 
   def dispatch(state: PowerPlantState): PowerPlantState = {
@@ -153,8 +154,8 @@ object PowerPlantState {
             )
           )
         }
-      } else { state }
+      } else state
       newState
-    } else { state }
+    } else state
   }
 }

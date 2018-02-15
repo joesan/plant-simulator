@@ -21,12 +21,13 @@ import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, InvalidDispatch, Transition}
+import com.inland24.plantsim.models.PowerPlantSignal.{ Genesis, Transition}
 import com.inland24.plantsim.models.{PowerPlantRunState, ReturnToNormalCommand}
 import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.Observable
+import org.joda.time.{DateTime, DateTimeZone}
 // TODO: use a passed in ExecutionContext
 import monix.execution.Scheduler.Implicits.global
 
@@ -66,8 +67,9 @@ class RampUpTypeSimulatorActor private (config: Config)
     // Let us signal this Init Event to the outside world
     out.onNext(
       Genesis(
-        PowerPlantRunState.Init,
-        cfg,
+        timeStamp = DateTime.now(DateTimeZone.UTC),
+        newState = PowerPlantRunState.Init,
+        powerPlantConfig = cfg,
       )
     )
   }
@@ -95,9 +97,10 @@ class RampUpTypeSimulatorActor private (config: Config)
       // The PowerPlant goes to active state, we signal this to outside world
       out.onNext(
         Transition(
+          timeStamp = DateTime.now(DateTimeZone.UTC),
           oldState = PowerPlantRunState.Init,
-          newState = powerPlantState.powerPlantRunState,
-          cfg
+          newState = PowerPlantRunState.Active,
+          powerPlantConfig = cfg
         )
       )
   }

@@ -16,10 +16,13 @@
  */
 package com.inland24.plantsim.models
 
+import org.joda.time.DateTime
+
 
 // TODO: Scaladoc!!!!
 sealed trait PowerPlantSignal {
   def powerPlantConfig: PowerPlantConfig
+  def timeStamp: DateTime
 }
 object PowerPlantSignal {
 
@@ -30,12 +33,14 @@ object PowerPlantSignal {
 
   case class Genesis(
     newState: PowerPlantRunState,
+    timeStamp: DateTime,
     powerPlantConfig: PowerPlantConfig,
   ) extends StateTransitionEvent
 
   case class Transition(
     oldState: PowerPlantRunState,
     newState: PowerPlantRunState,
+    timeStamp: DateTime,
     powerPlantConfig: PowerPlantConfig
   ) extends StateTransitionEvent
   // **** *****
@@ -45,6 +50,7 @@ object PowerPlantSignal {
 
   case class DispatchAlert(
     msg: String,
+    timeStamp: DateTime,
     powerPlantConfig: PowerPlantConfig
   ) extends PowerPlantAlert
 }
