@@ -28,18 +28,18 @@ object PowerPlantSignal {
 
   // **** Events about State transitions that happen in a PowerPlant
   sealed trait StateTransitionEvent extends PowerPlantSignal {
-    def newState: PowerPlantRunState
+    def newState: PowerPlantState
   }
 
   case class Genesis(
-    newState: PowerPlantRunState,
+    newState: PowerPlantState,
     powerPlantConfig: PowerPlantConfig,
-    timeStamp: DateTime = DateTime.now(DateTimeZone.UTC),
+    timeStamp: DateTime = DateTime.now(DateTimeZone.UTC)
   ) extends StateTransitionEvent
 
   case class Transition(
-    oldState: PowerPlantRunState,
-    newState: PowerPlantRunState,
+    oldState: PowerPlantState,
+    newState: PowerPlantState,
     powerPlantConfig: PowerPlantConfig,
     timeStamp: DateTime = DateTime.now(DateTimeZone.UTC)
   ) extends StateTransitionEvent
@@ -51,6 +51,6 @@ object PowerPlantSignal {
   case class DispatchAlert(
     msg: String,
     powerPlantConfig: PowerPlantConfig,
-    timeStamp: DateTime = DateTime.now(DateTimeZone.UTC),
+    timeStamp: DateTime = DateTime.now(DateTimeZone.UTC)
   ) extends PowerPlantAlert
 }

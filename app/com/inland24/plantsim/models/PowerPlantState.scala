@@ -17,13 +17,15 @@
 
 package com.inland24.plantsim.models
 
-sealed trait PowerPlantRunState
-object PowerPlantRunState {
-
-  case object Init         extends PowerPlantRunState
-  case object RampUp       extends PowerPlantRunState
-  case object RampDown     extends PowerPlantRunState
-  case object Active       extends PowerPlantRunState
-  case object OutOfService extends PowerPlantRunState
-  case object Dispatched   extends PowerPlantRunState
+sealed trait PowerPlantState
+object PowerPlantState {
+  case object Init            extends PowerPlantState
+  case object RampUp          extends PowerPlantState
+  case object RampDown        extends PowerPlantState
+  case object Active          extends PowerPlantState
+  case object ReturnToNormal  extends PowerPlantState
+  case object OutOfService    extends PowerPlantState
+  case object ReturnToService extends PowerPlantState
+  case object UnAvailable     extends PowerPlantState
+  case object Dispatched      extends PowerPlantState
 }

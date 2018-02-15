@@ -19,17 +19,21 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.inland24.plantsim.core.PowerPlantEventObservable
+import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
+import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.PowerPlantRunState
-import com.inland24.plantsim.models.PowerPlantSignal.{Genesis, Transition}
-import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.{Config, Init}
+import com.inland24.plantsim.models.PowerPlantState.{OutOfService, ReturnToService, _}
+import com.inland24.plantsim.models.ReturnToNormalCommand
+import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.{Init, RampUpMessage, _}
 import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.Observable
-import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
+
+// TODO: Use one supplied from outside
+import monix.execution.Scheduler.Implicits.global
 
 
 class RampUpTypeActor private (config: Config)
@@ -58,14 +62,32 @@ class RampUpTypeActor private (config: Config)
   override def preStart(): Unit = {
     super.preStart()
     self ! Init
-    // Let us signal this Init Event to the outside world
-    out.onNext(
-      Genesis(
-        timeStamp = DateTime.now(DateTimeZone.UTC),
-        newState = PowerPlantRunState.Init,
-        powerPlantConfig = cfg,
-      )
-    )
+  }
+
+  def decideTransition(stm: StateMachine): Receive = stm.newState match {
+    case Dispatched => dispatched(stm)
+    case RampUp  => rampUpCheck(stm, RampUpTypeActor.startRampCheckSubscription(cfg, self))
+    case RampDown => rampDownCheck(stm, RampUpTypeActor.startRampCheckSubscription(cfg, self))
+    case OutOfService => active(stm)
+    case ReturnToService => receive
+    // This should never happen, but just in case if it happens we go to the init state
+    case _ => {
+      receive
+      self ! Init
+      receive
+    }
+  }
+
+  def evolve(stm: StateMachine) = {
+    val (signals, newStm) = StateMachine.popEvents(stm)
+    for (s <- signals) out.onNext(s)
+    context.become(decideTransition(newStm))
+  }
+
+  def popEvents(stm: StateMachine): StateMachine = {
+    val (signals, newStm) = StateMachine.popEvents(stm)
+    for (s <- signals) out.onNext(s)
+    newStm
   }
 
   /**
@@ -75,19 +97,158 @@ class RampUpTypeActor private (config: Config)
     */
   override def receive: Receive = {
     case Init =>
-      val powerPlantState = PowerPlantState.active(
-        PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
-      )
-      context.become(active(powerPlantState))
-      // The PowerPlant goes to active state, we signal this to outside world
-      out.onNext(
-        Transition(
-          timeStamp = DateTime.now(DateTimeZone.UTC),
-          oldState = PowerPlantRunState.Init,
-          newState = PowerPlantRunState.Active,
-          powerPlantConfig = cfg
+      evolve(
+        StateMachine.active(
+          StateMachine.init(cfg)
         )
       )
+  }
+
+  // TODO: Write Scaladoc comments
+  def active(state: StateMachine): Receive = {
+    case TelemetrySignals =>
+      sender ! state.signals
+
+    case StateRequest =>
+      sender ! state
+
+    case DispatchRampUpPowerPlant(_,_,_,setPoint) =>
+      evolve(StateMachine.dispatch(state, setPoint))
+      self ! RampUpMessage
+
+    case OutOfService =>
+      evolve(StateMachine.outOfService(state))
+
+    case ReturnToService =>
+      evolve(StateMachine.returnToService(state))
+      self ! Init
+  }
+
+  /**
+    * This state happens recursively when the PowerPlant ramps up
+    * The recursivity happens until the PowerPlant is fully ramped up. The recursivity is
+    * governed by the Monix Observable and its corresponding subscription
+    *
+    * Possible states that we can transition into are:
+    *
+    * 1. RampCheck - This state happens recursively and it is merely to check at regular
+    *                intervals if the PowerPlant has fully ramped up to the given SetPoint.
+    *                The underlying Observable subscription ensures that the RampCheck Message
+    *                is sent to this actor instance at regular intervals. So for each RampCheck
+    *                message that we get, we check if the PowerPlant is fully dispatched, if yes
+    *                we simply cancel the underlying RampCheck Monix Observable subscription and
+    *                get into a dispatched state
+    */
+  def rampUpCheck(state: StateMachine, subscription: SingleAssignmentCancelable): Receive = {
+    case TelemetrySignals =>
+      sender ! state.signals
+
+    case StateRequest =>
+      sender ! state
+
+    case RampUpMessage =>
+      context.become(
+        rampUpCheck(
+          StateMachine.rampCheck(state),
+          subscription
+        )
+      )
+
+    case RampCheck =>
+      // We first check if we have reached the setPoint, if yes, we switch context
+      if (StateMachine.isDispatched(state)) {
+        // Cancel the subscription first
+        log.info(s"Cancelling RampCheck Subscription for PowerPlant with " +
+          s"Id ${state.cfg.id} because the PowerPlant is fully dispatched")
+        RampUpTypeActor.cancelRampCheckSubscription(subscription)
+
+        /*
+         We pass the subscription to the dispatched state, just in case if something
+         went wrong and our RampUpCheck subscriber was still active. Calling cancel
+         on an already cancelled Subscription does not have any side effects as such,
+         so it is safe to pass the subscription around and cancel it on a needed basis
+        */
+        evolve(state)
+      } else {
+        // time for another ramp up!
+        context.become(
+          rampUpCheck(StateMachine.rampCheck(state), subscription)
+        )
+      }
+
+    // If we need to throw this plant OutOfService, we do it
+    case OutOfService =>
+      // but as always, cancel the subscription first
+      log.info(s"Cancelling RampUp Subscription for PowerPlant with Id ${state.cfg.id} " +
+        s"because of PowerPlant being sent to OutOfService")
+      RampUpTypeActor.cancelRampCheckSubscription(subscription)
+      evolve(StateMachine.outOfService(state))
+  }
+
+  /**
+    * This is the state that is transitioned when the PowerPlant
+    * is fully dispatched. Possible states that we can transition into are:
+    *
+    * 1. OutOfService   - Throws the PowerPlant into OutOfService, scenarios where
+    *                     the PowerPlant has run into some sort of error
+    * 2. ReturnToNormal - When the PowerPlant has satisfied its dispatch and we want
+    *                     to bring it to its active state, we use this ReturnToNormal
+    *                     message
+    *
+    *  Additionally, messages for getting the TelemetrySignals and the StateRequest are
+    *  also served by this function.
+    */
+  def dispatched(state: StateMachine): Receive = {
+    case TelemetrySignals =>
+      sender ! state.signals
+
+    case StateRequest =>
+      sender ! state
+
+    // If we need to throw this plant OutOfService, we do it
+    case OutOfService =>
+      log.info(s"Cancelling RampUp / RampDown Subscription for PowerPlant with Id ${state.cfg.id} " +
+        s"because of PowerPlant being sent to OutOfService")
+      evolve(StateMachine.outOfService(state))
+
+    case ReturnToNormalCommand(_, _) =>
+      evolve(StateMachine.returnToNormal(state))
+      self ! RampDownMessage
+  }
+
+  // TODO: add comments!
+  def rampDownCheck(state: StateMachine, subscription: SingleAssignmentCancelable): Receive = {
+    case TelemetrySignals =>
+      sender ! state.signals
+
+    case StateRequest =>
+      sender ! state
+
+    // If we need to throw this plant OutOfService, we do it
+    case OutOfService =>
+      log.info(s"Cancelling RampDown Subscription for PowerPlant with Id ${state.cfg.id} " +
+        s"because of PowerPlant being sent to OutOfService")
+      // but as always, cancel the subscription first: just in case!
+      RampUpTypeActor.cancelRampCheckSubscription(subscription)
+      evolve(StateMachine.outOfService(state))
+
+    case RampCheck =>
+      // We first check if we have reached the setPoint, if yes, we switch context
+      if (StateMachine.isReturnedToNormal(state)) {
+        log.info(s"Cancelling RampDown Subscription for PowerPlant with Id ${state.cfg.id}")
+        // we cancel the subscription first
+        RampUpTypeActor.cancelRampCheckSubscription(subscription)
+        // and then we become active
+        evolve(state)
+      } else {
+        // time for another ramp down!
+        context.become(
+          rampDownCheck(
+            StateMachine.returnToNormal(state),
+            subscription
+          )
+        )
+      }
   }
 }
 object RampUpTypeActor {
@@ -101,6 +262,8 @@ object RampUpTypeActor {
   case object Init extends Message
   case object StateRequest extends Message
   case object Release extends Message
+  case object RampUpMessage extends Message
+  case object RampDownMessage extends Message
   case object RampCheck extends Message
   case object ReturnToNormal extends Message
 

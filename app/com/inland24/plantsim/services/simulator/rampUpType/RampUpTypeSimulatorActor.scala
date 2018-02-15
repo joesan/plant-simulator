@@ -22,7 +22,7 @@ import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, Transition}
-import com.inland24.plantsim.models.{PowerPlantRunState, ReturnToNormalCommand}
+import com.inland24.plantsim.models.ReturnToNormalCommand
 import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
@@ -68,8 +68,8 @@ class RampUpTypeSimulatorActor private (config: Config)
     out.onNext(
       Genesis(
         timeStamp = DateTime.now(DateTimeZone.UTC),
-        newState = PowerPlantRunState.Init,
-        powerPlantConfig = cfg,
+        newState = com.inland24.plantsim.models.PowerPlantState.Init,
+        powerPlantConfig = cfg
       )
     )
   }
@@ -89,15 +89,15 @@ class RampUpTypeSimulatorActor private (config: Config)
   override def receive: Receive = {
     case Init =>
       val powerPlantState = PowerPlantState.active(
-        PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
+        PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds, cfg), cfg.minPower
       )
       context.become(active(powerPlantState))
       // The PowerPlant goes to active state, we signal this to outside world
       out.onNext(
         Transition(
           timeStamp = DateTime.now(DateTimeZone.UTC),
-          oldState = PowerPlantRunState.Init,
-          newState = PowerPlantRunState.Active,
+          oldState = com.inland24.plantsim.models.PowerPlantState.Init,
+          newState = com.inland24.plantsim.models.PowerPlantState.Active,
           powerPlantConfig = cfg
         )
       )
@@ -297,6 +297,7 @@ object RampUpTypeSimulatorActor {
   case object Init extends Message
   case object StateRequest extends Message
   case object Release extends Message
+  case object RampUp extends Message
   case object RampCheck extends Message
   case object ReturnToNormal extends Message
 

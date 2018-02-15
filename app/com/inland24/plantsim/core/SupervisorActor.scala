@@ -29,12 +29,12 @@ import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
 import com.inland24.plantsim.services.database.DBServiceActor
 import com.inland24.plantsim.services.database.DBServiceActor.PowerPlantEventsSeq
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor
-import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeSimulatorActor
+import com.inland24.plantsim.services.simulator.rampUpType.{RampUpTypeActor, RampUpTypeSimulatorActor}
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
 
-import scala.concurrent.{Future, Promise}
+import scala.concurrent.Future
 import scala.concurrent.duration._
 
 /**
@@ -51,6 +51,9 @@ import scala.concurrent.duration._
   */
 class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
   with ActorLogging with Stash {
+
+  // TODO: Get this GlobalChannel from the EnvironmentBindings
+  val globalChannel = PowerPlantEventObservable(s)
 
   // We would use this to safely dispose any open connections
   val cancelable = SingleAssignmentCancelable()
@@ -101,7 +104,7 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
     case RampUpType =>
       log.info(s"Starting RampUpType PowerPlant with id $id")
       context.actorOf(
-        RampUpTypeSimulatorActor.props(cfg.asInstanceOf[RampUpTypeConfig]),
+        RampUpTypeSimulatorActor.props(RampUpTypeSimulatorActor.Config(cfg.asInstanceOf[RampUpTypeConfig], globalChannel)),
         s"$simulatorActorNamePrefix-$id"
       )
       log.info(s"Successfully started RampUpType PowerPlant with id $id")
@@ -143,7 +146,6 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
   }
 
   /**
-    *
     * Create Event
     * ------------
     * 1. We check if the Actor for the given PowerPlant exists
