@@ -14,8 +14,8 @@
  * limitations under the License.
  *
  */
-
 package com.inland24.plantsim.models
+
 
 // TODO: Scaladoc!!!!
 sealed trait PowerPlantEvent {
