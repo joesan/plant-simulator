@@ -23,9 +23,9 @@ import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
 import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, PowerPlantsConfig, RampUpTypeConfig}
-import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
+import com.inland24.plantsim.models.PowerPlantDBEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
-import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantEvent, PowerPlantType}
+import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantDBEvent, PowerPlantType}
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import com.typesafe.scalalogging.LazyLogging
 import org.joda.time.{DateTime, DateTimeZone}
@@ -96,7 +96,7 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
         )
       )
 
-      val events: Seq[PowerPlantEvent[PowerPlantConfig]] = DBServiceActor.toEvents(oldCfg, newCfg)
+      val events: Seq[PowerPlantDBEvent[PowerPlantConfig]] = DBServiceActor.toEvents(oldCfg, newCfg)
 
       // We expect only one event to happen
       assert(events.size === 1)
@@ -238,7 +238,7 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
       override def preStart(): Unit = {
         super.preStart()
         context.become(
-          active(SupervisorEvents(Seq.empty[PowerPlantEvent[PowerPlantConfig]]))
+          active(SupervisorEvents(Seq.empty[PowerPlantDBEvent[PowerPlantConfig]]))
         )
       }
 

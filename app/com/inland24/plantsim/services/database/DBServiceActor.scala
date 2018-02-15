@@ -21,8 +21,8 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.inland24.plantsim.config.DBConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
 import com.inland24.plantsim.models.PowerPlantConfig.PowerPlantsConfig
-import com.inland24.plantsim.models.PowerPlantEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
-import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantEvent}
+import com.inland24.plantsim.models.PowerPlantDBEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
+import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantDBEvent}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import com.inland24.plantsim.streams.DBObservable
@@ -158,7 +158,7 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enab
 object DBServiceActor {
 
   type PowerPlantConfigMap = Map[Int, PowerPlantConfig]
-  type PowerPlantEventsSeq = Seq[PowerPlantEvent[PowerPlantConfig]]
+  type PowerPlantEventsSeq = Seq[PowerPlantDBEvent[PowerPlantConfig]]
 
   /**
     * Transform a given sequence of old and new state of PowerPlantConfig

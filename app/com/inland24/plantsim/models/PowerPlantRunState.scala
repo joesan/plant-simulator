@@ -17,28 +17,12 @@
 
 package com.inland24.plantsim.models
 
-// TODO: Scaladoc!!!!
-sealed trait PowerPlantEvent {
-  def powerPlantConfig: PowerPlantConfig
-}
-object PowerPlantEvent {
+sealed trait PowerPlantRunState
+object PowerPlantRunState {
 
-  // **** Represents Events that tells us about the State transitions
-  sealed trait StateTransitionEvent extends PowerPlantEvent {
-    def newState: PowerPlantRunState
-  }
-
-  case class Genesis(
-    powerPlantConfig: PowerPlantConfig,
-    newState: PowerPlantRunState
-  ) extends StateTransitionEvent
-
-  case class Transition(
-    oldState: PowerPlantRunState,
-    newState: PowerPlantRunState,
-    powerPlantConfig: PowerPlantConfig
-  ) extends StateTransitionEvent
-  // **** *****
-
-
+  case object RampUp       extends PowerPlantRunState
+  case object RampDown     extends PowerPlantRunState
+  case object Active       extends PowerPlantRunState
+  case object OutOfService extends PowerPlantRunState
+  case object Dispatched   extends PowerPlantRunState
 }

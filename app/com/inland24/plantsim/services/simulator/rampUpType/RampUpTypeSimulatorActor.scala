@@ -61,10 +61,10 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
   }
 
   /**
-   * This is the starting point where we initialize a RampUpType PowerPlant with
+    * This is the starting point where we initialize a RampUpType PowerPlant with
     * the configuration that we get from this Actor instance. We then do a context become
     * to the active state!
-   */
+    */
   override def receive: Receive = {
     case Init =>
       context.become(
