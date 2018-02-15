@@ -21,7 +21,7 @@ import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.PowerPlantSignal.{ Genesis, Transition}
+import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, Transition}
 import com.inland24.plantsim.models.{PowerPlantRunState, ReturnToNormalCommand}
 import monix.execution.Ack
 import monix.execution.Ack.Continue

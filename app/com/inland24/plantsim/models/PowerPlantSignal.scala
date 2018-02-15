@@ -16,7 +16,7 @@
  */
 package com.inland24.plantsim.models
 
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, DateTimeZone}
 
 
 // TODO: Scaladoc!!!!
@@ -33,15 +33,15 @@ object PowerPlantSignal {
 
   case class Genesis(
     newState: PowerPlantRunState,
-    timeStamp: DateTime,
     powerPlantConfig: PowerPlantConfig,
+    timeStamp: DateTime = DateTime.now(DateTimeZone.UTC),
   ) extends StateTransitionEvent
 
   case class Transition(
     oldState: PowerPlantRunState,
     newState: PowerPlantRunState,
-    timeStamp: DateTime,
-    powerPlantConfig: PowerPlantConfig
+    powerPlantConfig: PowerPlantConfig,
+    timeStamp: DateTime = DateTime.now(DateTimeZone.UTC)
   ) extends StateTransitionEvent
   // **** *****
 
@@ -50,7 +50,7 @@ object PowerPlantSignal {
 
   case class DispatchAlert(
     msg: String,
-    timeStamp: DateTime,
-    powerPlantConfig: PowerPlantConfig
+    powerPlantConfig: PowerPlantConfig,
+    timeStamp: DateTime = DateTime.now(DateTimeZone.UTC),
   ) extends PowerPlantAlert
 }
