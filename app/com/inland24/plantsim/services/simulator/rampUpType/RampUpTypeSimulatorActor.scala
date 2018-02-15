@@ -17,10 +17,12 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import RampUpTypeSimulatorActor._
+import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.ReturnToNormalCommand
+import com.inland24.plantsim.models.PowerPlantEvent.{Genesis, Transition}
+import com.inland24.plantsim.models.{PowerPlantRunState, ReturnToNormalCommand}
 import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
@@ -33,10 +35,13 @@ import scala.concurrent.Future
 /**
   * This Actor is responsible for the operations of a RampUpType PowerPlant
   * [[com.inland24.plantsim.models.PowerPlantType.RampUpType]]
-  * @param cfg
+  * @param config
   */
-class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
+class RampUpTypeSimulatorActor private (config: Config)
   extends Actor with ActorLogging {
+
+  val cfg = config.powerPlantCfg
+  val out = config.outChannel
 
   /* This factor determines the randomness for the activePower
      For example., if the power to be dispatched is 800, then the
@@ -58,6 +63,13 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
   override def preStart(): Unit = {
     super.preStart()
     self ! Init
+    // Let us signal this Init Event to the outside world
+    out.onNext(
+      Genesis(
+        PowerPlantRunState.Init,
+        cfg,
+      )
+    )
   }
 
   /**
@@ -67,11 +79,18 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
     */
   override def receive: Receive = {
     case Init =>
+      val powerPlantState = PowerPlantState.active(
+        PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
+      )
       context.become(
-        active(
-          PowerPlantState.init(
-            PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
-          )
+        active(powerPlantState)
+      )
+      // The PowerPlant goes to active state, we signal this to outside world
+      out.onNext(
+        Transition(
+          oldState = PowerPlantRunState.Init,
+          newState = powerPlantState.powerPlantRunState,
+          cfg
         )
       )
   }
@@ -243,7 +262,10 @@ class RampUpTypeSimulatorActor private (cfg: RampUpTypeConfig)
 }
 object RampUpTypeSimulatorActor {
 
-  case class Config()
+  case class Config(
+    powerPlantCfg: RampUpTypeConfig,
+    outChannel: PowerPlantEventObservable
+  )
 
   sealed trait Message
   case object Init extends Message
@@ -272,6 +294,6 @@ object RampUpTypeSimulatorActor {
     subscription
   }
 
-  def props(cfg: RampUpTypeConfig): Props =
+  def props(cfg: Config): Props =
     Props(new RampUpTypeSimulatorActor(cfg))
 }

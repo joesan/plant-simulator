@@ -29,8 +29,8 @@ object PowerPlantEvent {
   }
 
   case class Genesis(
+    newState: PowerPlantRunState,
     powerPlantConfig: PowerPlantConfig,
-    newState: PowerPlantRunState
   ) extends StateTransitionEvent
 
   case class Transition(

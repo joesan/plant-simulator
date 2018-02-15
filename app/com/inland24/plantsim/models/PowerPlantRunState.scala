@@ -20,6 +20,7 @@ package com.inland24.plantsim.models
 sealed trait PowerPlantRunState
 object PowerPlantRunState {
 
+  case object Init         extends PowerPlantRunState
   case object RampUp       extends PowerPlantRunState
   case object RampDown     extends PowerPlantRunState
   case object Active       extends PowerPlantRunState

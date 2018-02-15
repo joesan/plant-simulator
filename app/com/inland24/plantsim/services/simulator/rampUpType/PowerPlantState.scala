@@ -15,6 +15,7 @@
 
 package com.inland24.plantsim.services.simulator.rampUpType
 
+import com.inland24.plantsim.models.PowerPlantRunState
 import org.joda.time.{DateTime, DateTimeZone, Seconds}
 
 import scala.concurrent.duration._
@@ -28,6 +29,7 @@ case class PowerPlantState(
   lastRampTime: DateTime,
   rampRate: Double,
   rampRateInSeconds: FiniteDuration,
+  powerPlantRunState: PowerPlantRunState,
   signals: Map[String, String]
 )
 
@@ -43,6 +45,7 @@ object PowerPlantState {
     DateTime.now(DateTimeZone.UTC),
     rampRate,
     rampRateInSeconds,
+    PowerPlantRunState.Init,
     Map.empty[String, String]
   )
 
@@ -77,13 +80,14 @@ object PowerPlantState {
     elapsed.getSeconds.seconds >= rampRateInSeconds
   }
 
-  def init(powerPlantState: PowerPlantState, minPower: Double): PowerPlantState = {
+  def active(powerPlantState: PowerPlantState, minPower: Double): PowerPlantState = {
     powerPlantState.copy(
       signals = Map(
         activePowerSignalKey  -> minPower.toString, // be default this plant operates at min power
         isDispatchedSignalKey -> false.toString,
         isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
-      )
+      ),
+      powerPlantRunState = PowerPlantRunState.Active
     )
   }
 
