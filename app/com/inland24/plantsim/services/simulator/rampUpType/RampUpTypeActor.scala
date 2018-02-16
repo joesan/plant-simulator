@@ -23,7 +23,7 @@ import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantState.{OutOfService, ReturnToService, _}
-import com.inland24.plantsim.models.PowerPlantState.{ ReturnToNormal => RTN }
+import com.inland24.plantsim.models.PowerPlantState.ReturnToNormal
 import com.inland24.plantsim.models.ReturnToNormalCommand
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.{Init, RampUpMessage, _}
 import monix.execution.Ack
@@ -69,27 +69,17 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     case RampUp  => rampUpCheck(stm, RampUpTypeActor.startRampCheckSubscription(cfg, self))
     case RampDown => rampDownCheck(stm, RampUpTypeActor.startRampCheckSubscription(cfg, self))
     case OutOfService => active(stm)
-    case ReturnToService => receive
-    case RTN => active(stm) // ReturnToNormal
+    case ReturnToService => active(StateMachine.active(stm))
+    case ReturnToNormal => active(stm)
     case Active => active(stm)
-    // This should never happen, but just in case if it happens we go to the init state
-    case _ => {
-      receive
-      self ! Init
-      receive
-    }
+    // This should never happen, but just in case if it happens we go to the active state
+    case _ => active(StateMachine.active(stm))
   }
 
-  def evolve(stm: StateMachine) = {
+  private def evolve(stm: StateMachine) = {
     val (signals, newStm) = StateMachine.popEvents(stm)
     for (s <- signals) out.onNext(s)
     context.become(decideTransition(newStm))
-  }
-
-  def popEvents(stm: StateMachine): StateMachine = {
-    val (signals, newStm) = StateMachine.popEvents(stm)
-    for (s <- signals) out.onNext(s)
-    newStm
   }
 
   /**
@@ -111,7 +101,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     case TelemetrySignals =>
       sender ! state.signals
 
-    case StateRequest =>
+    case StateRequestMessage =>
       sender ! state
 
     case DispatchRampUpPowerPlant(_,_,_,setPoint) =>
@@ -145,7 +135,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     case TelemetrySignals =>
       sender ! state.signals
 
-    case StateRequest =>
+    case StateRequestMessage =>
       sender ! state
 
     case RampUpMessage =>
@@ -156,20 +146,13 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
         )
       )
 
-    case RampCheck =>
+    case RampCheckMessage =>
       // We first check if we have reached the setPoint, if yes, we switch context
       if (StateMachine.isDispatched(state)) {
         // Cancel the subscription first
         log.info(s"Cancelling RampUp Subscription for PowerPlant with " +
           s"Id ${state.cfg.id} because the PowerPlant is fully dispatched")
         RampUpTypeActor.cancelRampCheckSubscription(subscription)
-
-        /*
-         We pass the subscription to the dispatched state, just in case if something
-         went wrong and our RampUpCheck subscriber was still active. Calling cancel
-         on an already cancelled Subscription does not have any side effects as such,
-         so it is safe to pass the subscription around and cancel it on a needed basis
-        */
         evolve(state)
       } else {
         // time for another ramp up!
@@ -204,7 +187,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     case TelemetrySignals =>
       sender ! state.signals
 
-    case StateRequest =>
+    case StateRequestMessage =>
       sender ! state
 
     // If we need to throw this plant OutOfService, we do it
@@ -223,7 +206,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     case TelemetrySignals =>
       sender ! state.signals
 
-    case StateRequest =>
+    case StateRequestMessage =>
       sender ! state
 
     // If we need to throw this plant OutOfService, we do it
@@ -234,7 +217,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       RampUpTypeActor.cancelRampCheckSubscription(subscription)
       evolve(StateMachine.outOfService(state))
 
-    case RampCheck =>
+    case RampCheckMessage =>
       // We first check if we have reached the setPoint, if yes, we switch context
       if (StateMachine.isReturnedToNormal(state)) {
         log.info(s"Cancelling RampDown Subscription for PowerPlant with Id ${state.cfg.id}")
@@ -262,12 +245,10 @@ object RampUpTypeActor {
 
   sealed trait Message
   case object Init extends Message
-  case object StateRequest extends Message
-  case object Release extends Message
+  case object StateRequestMessage extends Message
   case object RampUpMessage extends Message
   case object RampDownMessage extends Message
-  case object RampCheck extends Message
-  case object ReturnToNormal extends Message
+  case object RampCheckMessage extends Message
 
   // These messages are meant for manually faulting and un-faulting the power plant
   case object OutOfService extends Message
@@ -281,7 +262,7 @@ object RampUpTypeActor {
     val source = Observable.intervalAtFixedRate(cfg.rampRateInSeconds)
 
     def onNext(long: Long): Future[Ack] = {
-      actorRef ! RampCheck
+      actorRef ! RampCheckMessage
       Continue
     }
     val subscription = SingleAssignmentCancelable()
