@@ -19,12 +19,14 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
+import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor.StateRequest
+import com.inland24.plantsim.services.simulator.rampUpType
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.{OutOfServiceMessage, ReturnToServiceMessage}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -47,10 +49,15 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
     rampRateInSeconds = 2.seconds,
     powerPlantType = PowerPlantType.OnOffType
   )
+  private val initPowerPlantState = StateMachine.init(rampUpTypeCfg)
+  private val rampUpTypeActorCfg = new rampUpType.RampUpTypeActor.Config(
+    powerPlantCfg = rampUpTypeCfg,
+    outChannel = PowerPlantEventObservable.apply(monix.execution.Scheduler.Implicits.global)
+  )
 
-  "RampUpTypeSimulatorActor" must {
+  "RampUpTypeActor" must {
 
-    val rampUpTypeSimActor = system.actorOf(RampUpTypeActor.props(rampUpTypeCfg))
+    val rampUpTypeSimActor = system.actorOf(RampUpTypeActor.props(rampUpTypeActorCfg))
 
     // PowerPlant # Init / Active tests
     "start with minPower when initialized to Active state" in {
@@ -62,8 +69,8 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
       expectMsgPF(2.seconds) {
         case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
-          assert(state.cfg.id === initPowerPlantState.powerPlantId, "powerPlantId did not match")
-          assert(state.cfg.rampPowerRate === initPowerPlantState.rampRate, "rampRate did not match")
+          assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
+          assert(state.cfg.rampPowerRate === initPowerPlantState.cfg.id, "rampRate did not match")
           assert(state.setPoint === initPowerPlantState.setPoint, "setPoint did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
@@ -106,7 +113,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
             "expected isAvailable signal to be true, but was false instead"
           )
           assert(
-            state.cfg.rampPowerRate === initPowerPlantState.rampRate,
+            state.cfg.rampPowerRate === initPowerPlantState.cfg.rampPowerRate,
             "rampRate did not match"
           )
           assert(
@@ -160,7 +167,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
             "expected isAvailable signal to be true, but was false instead"
           )
           assert(
-            state.cfg.rampPowerRate === initPowerPlantState.rampRate,
+            state.cfg.rampPowerRate === initPowerPlantState.cfg.rampPowerRate,
             "rampRate did not match"
           )
           assert(
@@ -210,7 +217,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
             "expected isAvailable signal to be true, but was false instead"
           )
           assert(
-            state.cfg.rampPowerRate === initPowerPlantState.rampRate,
+            state.cfg.rampPowerRate === initPowerPlantState.cfg.rampPowerRate,
             "rampRate did not match"
           )
           assert(
@@ -282,8 +289,8 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
         expectMsgPF() {
           case state: StateMachine =>
             assert(state.signals === initPowerPlantState.signals, "signals did not match")
-            assert(state.cfg.id === initPowerPlantState.powerPlantId, "powerPlantId did not match")
-            assert(state.cfg.rampPowerRate === initPowerPlantState.rampRate, "rampRate did not match")
+            assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
+            assert(state.cfg.rampPowerRate === initPowerPlantState.cfg.rampPowerRate, "rampRate did not match")
             assert(state.setPoint === initPowerPlantState.setPoint, "setPoint did not match")
           case x: Any =>
             fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
@@ -295,7 +302,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
     // TODO: Re-work on this test to perfection!
     "return the PowerPlant to Normal when ReturnToNormalCommand message is sent in dispatched state" in {
       // To avoid confusion and the tests failing, we create a new actor instance for this test
-      val rampUpTypeSimActor = system.actorOf(RampUpTypeActor.props(rampUpTypeCfg))
+      val rampUpTypeSimActor = system.actorOf(RampUpTypeActor.props(rampUpTypeActorCfg))
       // 1. Send a Dispatch message
       within(5.seconds) {
         rampUpTypeSimActor ! DispatchRampUpPowerPlant(
@@ -318,13 +325,12 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
       expectMsgPF() {
         case state: StateMachine =>
           assert(state.signals("isDispatched") === initPowerPlantState.signals("isDispatched"), "signals did not match")
-          assert(state.cfg.id === initPowerPlantState.powerPlantId, "powerPlantId did not match")
-          assert(state.cfg.rampPowerRate === initPowerPlantState.rampRate, "rampRate did not match")
+          assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
+          assert(state.cfg.rampPowerRate === initPowerPlantState.cfg.rampPowerRate, "rampRate did not match")
         // assert(state.setPoint === initPowerPlantState.setPoint, "setPoint did not match")
         case x: Any =>
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
     }
   }
-
 }
