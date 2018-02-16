@@ -70,7 +70,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
         case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
           assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
-          assert(state.cfg.rampPowerRate === initPowerPlantState.cfg.id, "rampRate did not match")
+          assert(state.cfg.rampPowerRate === initPowerPlantState.cfg.rampPowerRate, "rampRate did not match")
           assert(state.setPoint === initPowerPlantState.setPoint, "setPoint did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
@@ -291,7 +291,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
             assert(state.signals === initPowerPlantState.signals, "signals did not match")
             assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
             assert(state.cfg.rampPowerRate === initPowerPlantState.cfg.rampPowerRate, "rampRate did not match")
-            assert(state.setPoint === initPowerPlantState.setPoint, "setPoint did not match")
+            assert(state.setPoint === initPowerPlantState.cfg.minPower, "setPoint did not match")
           case x: Any =>
             fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
         }
