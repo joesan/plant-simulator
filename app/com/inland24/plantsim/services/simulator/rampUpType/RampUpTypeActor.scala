@@ -36,8 +36,7 @@ import scala.concurrent.Future
 import monix.execution.Scheduler.Implicits.global
 
 
-class RampUpTypeActor private (config: Config)
-  extends Actor with ActorLogging {
+class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
 
   val cfg = config.powerPlantCfg
   val out = config.outChannel
