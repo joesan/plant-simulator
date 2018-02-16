@@ -16,7 +16,6 @@
 package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import RampUpTypeSimulatorActor._
 import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
@@ -38,7 +37,7 @@ import scala.concurrent.Future
   * [[com.inland24.plantsim.models.PowerPlantType.RampUpType]]
   * @param config
   */
-class RampUpTypeSimulatorActor private (config: Config)
+class RampUpTypeSimulatorActor  {/* private (config: Config)
   extends Actor with ActorLogging {
 
   val cfg = config.powerPlantCfg
@@ -322,5 +321,5 @@ object RampUpTypeSimulatorActor {
   }
 
   def props(cfg: Config): Props =
-    Props(new RampUpTypeSimulatorActor(cfg))
+    Props(new RampUpTypeSimulatorActor(cfg)) */
 }

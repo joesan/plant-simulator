@@ -22,13 +22,15 @@ import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Transition}
 import com.inland24.plantsim.models.PowerPlantType
 import com.inland24.plantsim.models.PowerPlantState._
 import org.joda.time.{DateTime, DateTimeZone}
-import org.scalatest.{FlatSpec, Matchers, WordSpecLike}
+import org.scalatest._
+import Matchers._
 
 import scala.concurrent.duration._
 
-class StateMachineSpec extends FlatSpec with WordSpecLike with Matchers {
+class StateMachineTest extends WordSpecLike {
 
   val Zero = 0
+  def now = DateTime.now(DateTimeZone.UTC)
 
   val cfg = RampUpTypeConfig(
     id = 1,
@@ -39,8 +41,6 @@ class StateMachineSpec extends FlatSpec with WordSpecLike with Matchers {
     rampRateInSeconds = 4.seconds,
     powerPlantType = PowerPlantType.RampUpType
   )
-
-  behavior of PowerPlantState1.getClass.getCanonicalName
 
   // PowerPlant init tests
   "PowerPlant ## init" must {
@@ -61,15 +61,15 @@ class StateMachineSpec extends FlatSpec with WordSpecLike with Matchers {
       stm.events.size shouldBe Zero
     }
 
-    "PowerPlantState ## init" should "initialize the default signals " +
+    "initialize the default signals " +
       "(available = true, activePower = minPower, isDispatched = false)" in {
       val stm = StateMachine.init(cfg)
 
       assert(stm.signals.size === 3) // expecting 3 elements in the signals Map
       stm.signals.foreach {
-        case (key1, value1) if key1 == PowerPlantState1.isDispatchedSignalKey => assert(!value1.toBoolean)
-        case (key2, value2) if key2 == PowerPlantState1.isAvailableSignalKey  => assert(value2.toBoolean)
-        case (key3, value3) if key3 == PowerPlantState1.activePowerSignalKey  => assert(value3.toDouble === cfg.minPower)
+        case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey => assert(!value1.toBoolean)
+        case (key2, value2) if key2 == StateMachine.isAvailableSignalKey  => assert(value2.toBoolean)
+        case (key3, value3) if key3 == StateMachine.activePowerSignalKey  => assert(value3.toDouble === cfg.minPower)
       }
 
       assert(stm.setPoint === cfg.minPower)
@@ -80,9 +80,9 @@ class StateMachineSpec extends FlatSpec with WordSpecLike with Matchers {
 
       assert(stm.signals.size === 3) // expecting 3 elements in the signals Map
       stm.signals.foreach {
-        case (key1, value1) if key1 == PowerPlantState1.isDispatchedSignalKey => assert(!value1.toBoolean)
-        case (key2, value2) if key2 == PowerPlantState1.isAvailableSignalKey  => assert(value2.toBoolean)
-        case (key3, value3) if key3 == PowerPlantState1.activePowerSignalKey  => assert(value3.toDouble === cfg.minPower)
+        case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey => assert(!value1.toBoolean)
+        case (key2, value2) if key2 == StateMachine.isAvailableSignalKey  => assert(value2.toBoolean)
+        case (key3, value3) if key3 == StateMachine.activePowerSignalKey  => assert(value3.toDouble === cfg.minPower)
       }
       assert(stm.setPoint === cfg.minPower)
 
@@ -116,7 +116,7 @@ class StateMachineSpec extends FlatSpec with WordSpecLike with Matchers {
       dispatchStm.events.foreach {
         case elem if elem.isInstanceOf[DispatchAlert] =>
           elem.powerPlantConfig shouldBe stm.cfg
-          elem.timeStamp should be < DateTime.now(DateTimeZone.UTC)
+          assert(elem.timeStamp.isBefore(now))
 
         case unexpected =>
           fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
@@ -140,11 +140,11 @@ class StateMachineSpec extends FlatSpec with WordSpecLike with Matchers {
       dispatchStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
           elem.powerPlantConfig shouldBe stm.cfg
-          elem.timeStamp should be < DateTime.now(DateTimeZone.UTC)
+          assert(elem.timeStamp.isBefore(now))
 
         case elem if elem.isInstanceOf[DispatchAlert] =>
           elem.powerPlantConfig shouldBe stm.cfg
-          elem.timeStamp should be < DateTime.now(DateTimeZone.UTC)
+          assert(elem.timeStamp.isBefore(now))
 
         case unexpected =>
           fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
@@ -166,7 +166,75 @@ class StateMachineSpec extends FlatSpec with WordSpecLike with Matchers {
       dispatchStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
           elem.powerPlantConfig shouldBe stm.cfg
-          elem.timeStamp should be < DateTime.now(DateTimeZone.UTC)
+          assert(elem.timeStamp.isBefore(now))
+
+        case unexpected =>
+          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+      }
+    }
+  }
+
+  // PowerPlant out of service tests
+  "PowerPlant ## outOfService" must {
+
+    // We first need an active PowerPlant
+    val stm = StateMachine.active(StateMachine.init(cfg))
+
+    "transition to OutOfService when in Active state" in {
+      val outOfServiceStm = StateMachine.outOfService(stm)
+
+      // Check the PowerPlantState (It should go from Active to OutOfService)
+      outOfServiceStm.oldState shouldBe Active
+      outOfServiceStm.newState shouldBe OutOfService
+
+      // We expect one Transition event
+      outOfServiceStm.events.size shouldBe 1
+
+      outOfServiceStm.events.foreach {
+        case elem if elem.isInstanceOf[Transition] =>
+          elem.powerPlantConfig shouldBe stm.cfg
+          assert(elem.timeStamp.isBefore(now))
+
+        case unexpected =>
+          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+      }
+    }
+
+    "transition to OutOfService when in Init state" in {
+      val initStm = StateMachine.init(cfg)
+
+      // Check the PowerPlantState (It goes from Init to OutOfService)
+      initStm.oldState shouldBe Init
+      initStm.newState shouldBe OutOfService
+
+      // We expect one Transition event and one Alert event
+      initStm.events.size shouldBe 1
+
+      initStm.events.foreach {
+        case elem if elem.isInstanceOf[Transition] =>
+          elem.powerPlantConfig shouldBe stm.cfg
+          assert(elem.timeStamp.isBefore(now))
+
+        case unexpected =>
+          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+      }
+    }
+
+    "transition to OutOfService when in RampUp state" in {
+      val rampUpStm = StateMachine.rampCheck(stm)
+      val outOfServiceStm = StateMachine.outOfService(rampUpStm)
+
+      // Check the PowerPlantState (It goes from RampUp to OutOfService)
+      outOfServiceStm.oldState shouldBe RampUp
+      outOfServiceStm.newState shouldBe OutOfService
+
+      // We expect one Transition event
+      outOfServiceStm.events.size shouldBe 1
+
+      outOfServiceStm.events.foreach {
+        case elem if elem.isInstanceOf[Transition] =>
+          elem.powerPlantConfig shouldBe stm.cfg
+          assert(elem.timeStamp.isBefore(now))
 
         case unexpected =>
           fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
@@ -217,7 +285,7 @@ class StateMachineSpec extends FlatSpec with WordSpecLike with Matchers {
       val dispatchState3 = StateMachine.dispatch(
         dispatchState2.copy(lastRampTime = dispatchState2.lastRampTime.minusSeconds(4)), setPoint
       )
-      assert(dispatchState3.signals(PowerPlantState1.activePowerSignalKey).toDouble === 700)
+      assert(dispatchState3.signals(StateMachine.activePowerSignalKey).toDouble === 700)
 
       // Another 4 seconds elapse, we move to 800, our setPoint
       val dispatchState4 = StateMachine.dispatch(
@@ -227,55 +295,61 @@ class StateMachineSpec extends FlatSpec with WordSpecLike with Matchers {
     }
   }
 
-  "PowerPlantState ## returnToNormal" should "start ramping down the power plant according to its ramp rate" in {
-    // The init state is a dispatched state with maxPower so that we could ReturnToNormal from that
-    val dispatchedState = PowerPlantState(
-      powerPlantId = 1,
-      setPoint = cfg.maxPower,
-      minPower = cfg.minPower,
-      maxPower = cfg.maxPower,
-      // Here we assume that this PowerPlant was up and running since 20 seconds
-      lastRampTime = DateTime.now(DateTimeZone.UTC).minusSeconds(20),
-      rampRate = cfg.rampPowerRate,
-      rampRateInSeconds = cfg.rampRateInSeconds,
-      signals = Map(
-        activePowerSignalKey  -> cfg.maxPower.toString,
-        isDispatchedSignalKey -> true.toString, // when in dispatched this is true
-        isAvailableSignalKey  -> true.toString // indicates if the power plant is not available for steering
+  "PowerPlant ## returnToNormal" must {
+
+    // We first need an active PowerPlant
+    val stm = StateMachine.active(StateMachine.init(cfg))
+    val setPoint = stm.cfg.maxPower
+
+    "start ramping down the power plant according to its ramp rate" in {
+      val dispatchedState = new StateMachine(
+        oldState = RampUp,
+        newState = Dispatched,
+        cfg = cfg,
+        setPoint = cfg.maxPower,
+        // Here we assume that this PowerPlant was up and running since 20 seconds
+        lastRampTime = DateTime.now(DateTimeZone.UTC).minusSeconds(20),
+        events = Vector.empty,
+        lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC).minusSeconds(20),
+        signals = Map(
+          StateMachine.activePowerSignalKey  -> cfg.maxPower.toString,
+          StateMachine.isDispatchedSignalKey -> true.toString, // when in dispatched this is true
+          StateMachine.isAvailableSignalKey  -> true.toString // indicates if the power plant is not available for steering
+        )
       )
-    )
 
-    /*
-     * Let's ReturnToNormal this Plant which is returning to its minPower
-     * The plant is currently operating at its maxPower which is 800
-     * and it has a rampRate of 100 in 4 seconds, which means to go down from
-     * 800 to 700 it needs 4 seconds and so on
-     * Let us now test if this happens!
-     * The first ReturnToNormal command should take its activePower to 700
-     */
-    val rtnState1 = PowerPlantState1.returnToNormal(dispatchedState)
-    assert(rtnState1.signals(PowerPlantState1.activePowerSignalKey).toDouble === 700.0)
-    // we now come back to the current time for the lastRampTime, so that we can do the next tests
-    val reset1 = rtnState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
+      /*
+       * Let's ReturnToNormal this Plant which is returning to its minPower
+       * The plant is currently operating at its maxPower which is 800
+       * and it has a rampRate of 100 in 4 seconds, which means to go down from
+       * 800 to 700 it needs 4 seconds and so on
+       * Let us now test if this happens!
+       * The first ReturnToNormal command should take its activePower from 800 to 700
+       */
+      val rtnState1 = StateMachine.returnToNormal(dispatchedState)
+      assert(rtnState1.signals(StateMachine.activePowerSignalKey).toDouble === 700.0)
+      // we now come back to the current time for the lastRampTime, so that we can do the next tests
+      val reset1 = rtnState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
-    /*
-     * On our second ReturnToNormal, we should go from 700.0 to 600.0, but we got to wait 4 seconds
-     * Blocking may be a bad idea, so we simulate time (i.e., subtract 4 seconds to the isRampUp check)
-     */
-    val rtnState2 = PowerPlantState1.returnToNormal(reset1.copy(lastRampTime = rtnState1.lastRampTime.minusSeconds(4)))
-    assert(rtnState2.signals(PowerPlantState1.activePowerSignalKey).toDouble === 600.0)
-    val reset2 = rtnState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
+      /*
+       * On our second ReturnToNormal, we should go from 700.0 to 600.0, but we got to wait 4 seconds
+       * Blocking may be a bad idea, so we simulate time (i.e., subtract 4 seconds to the isRampUp check)
+       */
+      val rtnState2 = StateMachine.returnToNormal(reset1.copy(lastRampTime = rtnState1.lastRampTime.minusSeconds(4)))
+      assert(rtnState2.signals(StateMachine.activePowerSignalKey).toDouble === 600.0)
+      val reset2 = rtnState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
-    // Let's try another ReturnToNormal immediately, this should have no effect and we should still stay at 600.0
-    val rtnState2_copy = PowerPlantState1.returnToNormal(reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)))
-    assert(reset2.signals === rtnState2_copy.signals)
+      // Let's try another ReturnToNormal immediately, this should have no effect and we should still stay at 600.0
+      val rtnState2_copy = StateMachine.returnToNormal(reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)))
+      assert(reset2.signals === rtnState2_copy.signals)
 
-    // Another 4 seconds elapse, we move to 500.0
-    val rtnState3 = PowerPlantState1.returnToNormal(rtnState2.copy(lastRampTime = rtnState2.lastRampTime.minusSeconds(4)))
-    assert(rtnState3.signals(PowerPlantState1.activePowerSignalKey).toDouble === 500)
+      // Another 4 seconds elapse, we move to 500.0
+      val rtnState3 = StateMachine.returnToNormal(rtnState2.copy(lastRampTime = rtnState2.lastRampTime.minusSeconds(4)))
+      assert(rtnState3.signals(StateMachine.activePowerSignalKey).toDouble === 500)
 
-    // Another 4 seconds elapse, we move to 400.0, our minPower to which we ReturnToNormal to
-    val rtnState4 = PowerPlantState1.returnToNormal(rtnState3.copy(lastRampTime = rtnState3.lastRampTime.minusSeconds(4)))
-    assert(rtnState4.signals(PowerPlantState1.activePowerSignalKey).toDouble === cfg.minPower)
+      // Another 4 seconds elapse, we move to 400.0, our minPower to which we ReturnToNormal to
+      val rtnState4 = StateMachine.returnToNormal(rtnState3.copy(lastRampTime = rtnState3.lastRampTime.minusSeconds(4)))
+      assert(rtnState4.signals(StateMachine.activePowerSignalKey).toDouble === cfg.minPower)
+    }
   }
 }

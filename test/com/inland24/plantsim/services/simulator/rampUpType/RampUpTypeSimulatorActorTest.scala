@@ -17,21 +17,12 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
-import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
-import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeSimulatorActor._
-import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
-import com.inland24.plantsim.models.PowerPlantType.RampUpType
-import com.inland24.plantsim.services.simulator.rampUpType.PowerPlantState1._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
-
-import scala.concurrent.duration._
 
 
 class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimulatorActorTest"))
   with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
-
+/*
   override def afterAll {
     TestKit.shutdownActorSystem(system)
   }
@@ -331,5 +322,5 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
     }
-  }
+  } */
 }
