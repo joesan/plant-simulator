@@ -104,7 +104,7 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
     case RampUpType =>
       log.info(s"Starting RampUpType PowerPlant with id $id")
       context.actorOf(
-        RampUpTypeSimulatorActor.props(RampUpTypeSimulatorActor.Config(cfg.asInstanceOf[RampUpTypeConfig], globalChannel)),
+        RampUpTypeActor.props(RampUpTypeActor.Config(cfg.asInstanceOf[RampUpTypeConfig], globalChannel)),
         s"$simulatorActorNamePrefix-$id"
       )
       log.info(s"Successfully started RampUpType PowerPlant with id $id")

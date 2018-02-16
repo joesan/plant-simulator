@@ -69,6 +69,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     case RampDown => rampDownCheck(stm, RampUpTypeActor.startRampCheckSubscription(cfg, self))
     case OutOfService => active(stm)
     case ReturnToService => receive
+    case Active => active(stm)
     // This should never happen, but just in case if it happens we go to the init state
     case _ => {
       receive
@@ -112,7 +113,11 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       sender ! state
 
     case DispatchRampUpPowerPlant(_,_,_,setPoint) =>
-      evolve(StateMachine.dispatch(state, setPoint))
+      val dispatched = StateMachine.dispatch(state, setPoint)
+      println(StateMachine.toString(dispatched))
+      evolve(dispatched)
+      println("********************** After Evolutiiiioooooonnnnnnn")
+      println(StateMachine.toString(dispatched))
       self ! RampUpMessage
 
     case OutOfService =>
@@ -146,6 +151,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       sender ! state
 
     case RampUpMessage =>
+      println("Got a RampUpMessage ************************** ")
       context.become(
         rampUpCheck(
           StateMachine.rampCheck(state),

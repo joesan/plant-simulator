@@ -47,6 +47,15 @@ object StateMachine {
     isAvailableSignalKey  -> false.toString // indicates if the power plant is not available for steering
   )
 
+  def toString(stm: StateMachine): String = {
+    s"""
+      |id = ${stm.cfg.id}, setPoint = ${stm.setPoint}, lastSetPointReceivedAt = ${stm.lastSetPointReceivedAt}, lastRampTime = ${stm.lastRampTime}
+      |oldState = ${stm.oldState}, newState = ${stm.newState}
+      |events = ${stm.events.mkString(",")}
+      |signals = ${stm.signals.mkString(",")}
+    """.stripMargin
+  }
+
   // Utility method that will clear emit the events to the outside world
   def popEvents(state: StateMachine): (Seq[PowerPlantSignal], StateMachine) = {
     (state.events, state.copy(events = Vector.empty))
@@ -159,6 +168,8 @@ object StateMachine {
       stm.copy(
         setPoint = setPoint,
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
+        oldState = stm.newState,
+        newState = com.inland24.plantsim.models.PowerPlantState.RampUp,
         events = Vector(
           Transition(
             oldState = stm.newState,
@@ -177,6 +188,8 @@ object StateMachine {
       stm.copy(
         setPoint = setPoint,
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
+        oldState = stm.newState,
+        newState = com.inland24.plantsim.models.PowerPlantState.RampUp,
         events = Vector(
           Transition(
             oldState = stm.newState,
