@@ -136,7 +136,8 @@ object StateMachine {
         Transition(
           newState = com.inland24.plantsim.models.PowerPlantState.OutOfService,
           oldState = stm.newState,
-          powerPlantConfig = stm.cfg
+          powerPlantConfig = stm.cfg,
+          timeStamp = DateTime.now(DateTimeZone.UTC)
         )
       ) ++ stm.events
     )
@@ -144,6 +145,7 @@ object StateMachine {
 
   def returnToService(stm: StateMachine): StateMachine = {
     stm.copy(
+      setPoint = stm.cfg.minPower,
       newState = com.inland24.plantsim.models.PowerPlantState.ReturnToService,
       oldState = stm.newState,
       signals = unAvailableSignals,
