@@ -18,7 +18,7 @@
 package com.inland24.plantsim.services.simulator.rampUpType
 
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Transition}
+import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, Transition}
 import com.inland24.plantsim.models.PowerPlantType
 import com.inland24.plantsim.models.PowerPlantState._
 import org.joda.time.{DateTime, DateTimeZone}
@@ -29,7 +29,6 @@ import scala.concurrent.duration._
 
 class StateMachineTest extends WordSpecLike {
 
-  val Zero = 0
   def now = DateTime.now(DateTimeZone.UTC)
 
   val cfg = RampUpTypeConfig(
@@ -51,14 +50,22 @@ class StateMachineTest extends WordSpecLike {
       assert(stm.cfg.rampPowerRate == cfg.rampPowerRate)
       assert(stm.cfg.id == cfg.id)
       assert(stm.lastRampTime.getMillis <= DateTime.now(DateTimeZone.UTC).getMillis)
-      assert(stm.signals.size === 0)
+      assert(stm.signals.size === 3)
 
       // Check the PowerPlantState
       assert(stm.newState === Init)
       assert(stm.oldState === Init)
 
-      // There should be no Events or Alerts yet
-      stm.events.size shouldBe Zero
+      // There should just one Event, the Genesis event
+      stm.events.size shouldBe 1
+      stm.events.foreach {
+        case elem if elem.isInstanceOf[Genesis] =>
+          elem.powerPlantConfig shouldBe stm.cfg
+          assert(elem.timeStamp.isBefore(now))
+
+        case unexpected =>
+          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+      }
     }
 
     "initialize the default signals " +
@@ -71,7 +78,6 @@ class StateMachineTest extends WordSpecLike {
         case (key2, value2) if key2 == StateMachine.isAvailableSignalKey  => assert(value2.toBoolean)
         case (key3, value3) if key3 == StateMachine.activePowerSignalKey  => assert(value3.toDouble === cfg.minPower)
       }
-
       assert(stm.setPoint === cfg.minPower)
     }
 
@@ -101,18 +107,20 @@ class StateMachineTest extends WordSpecLike {
 
     "not transition to RampUp state if setPoint is less than the minPower" in {
       // Let us try to dispatch
-      val dispatchStm = StateMachine.dispatch(stm, stm.cfg.minPower - 10.0) // Notice, our setPoint is less than minPower
+      val dispatchStm = StateMachine.dispatch(
+        stm.copy(events = Vector.empty), // We clear the events that happened when active and in init
+        stm.cfg.minPower - 10.0 // Notice, our setPoint is less than minPower
+      )
 
-      // We expect the setPoint to be curtailed at maxPower
-      dispatchStm.setPoint shouldBe stm.cfg.maxPower
+      // The SetPoint remains at minPower
+      dispatchStm.setPoint shouldBe stm.cfg.minPower
 
       // Check the PowerPlantState (It should stay in Active)
-      dispatchStm.oldState shouldBe Active
+      dispatchStm.oldState shouldBe Init
       dispatchStm.newState shouldBe Active
 
-      // We expect one DispatchAlert event
-      dispatchStm.events.size shouldBe 2
-
+      // We expect two DispatchAlert event
+      dispatchStm.events.size shouldBe 1
       dispatchStm.events.foreach {
         case elem if elem.isInstanceOf[DispatchAlert] =>
           elem.powerPlantConfig shouldBe stm.cfg
@@ -125,7 +133,10 @@ class StateMachineTest extends WordSpecLike {
 
     "curtail the setPoint if the setPoint is greater than the maxPower" in {
       // Let us try to dispatch
-      val dispatchStm = StateMachine.dispatch(stm, setPoint + 200.0) // Notice, our setPoint is greater than maxPower
+      val dispatchStm = StateMachine.dispatch(
+        stm.copy(events = Vector.empty),
+        setPoint + 200.0 // Notice, our setPoint is greater than maxPower
+      )
 
       // We expect the setPoint to be curtailed at maxPower
       dispatchStm.setPoint shouldBe stm.cfg.maxPower
@@ -136,7 +147,6 @@ class StateMachineTest extends WordSpecLike {
 
       // We expect one Transition event and one Alert event
       dispatchStm.events.size shouldBe 2
-
       dispatchStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
           elem.powerPlantConfig shouldBe stm.cfg
@@ -153,7 +163,10 @@ class StateMachineTest extends WordSpecLike {
 
     "use the given SetPoint and start to RampUp" in {
       // Let us try to dispatch
-      val dispatchStm = StateMachine.dispatch(stm, setPoint)
+      val dispatchStm = StateMachine.dispatch(
+        stm.copy(events = Vector.empty),
+        setPoint
+      )
       dispatchStm.setPoint shouldBe stm.cfg.maxPower
 
       // Check the PowerPlantState (It goes from Active to RampUp)
@@ -162,7 +175,6 @@ class StateMachineTest extends WordSpecLike {
 
       // We expect one Transition event
       dispatchStm.events.size shouldBe 1
-
       dispatchStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
           elem.powerPlantConfig shouldBe stm.cfg
@@ -181,7 +193,7 @@ class StateMachineTest extends WordSpecLike {
     val stm = StateMachine.active(StateMachine.init(cfg))
 
     "transition to OutOfService when in Active state" in {
-      val outOfServiceStm = StateMachine.outOfService(stm)
+      val outOfServiceStm = StateMachine.outOfService(stm.copy(events = Vector.empty))
 
       // Check the PowerPlantState (It should go from Active to OutOfService)
       outOfServiceStm.oldState shouldBe Active
@@ -201,16 +213,18 @@ class StateMachineTest extends WordSpecLike {
     }
 
     "transition to OutOfService when in Init state" in {
-      val initStm = StateMachine.init(cfg)
+      val outOfServiceStm = StateMachine.outOfService(
+        StateMachine.init(cfg).copy(events = Vector.empty)
+      )
 
       // Check the PowerPlantState (It goes from Init to OutOfService)
-      initStm.oldState shouldBe Init
-      initStm.newState shouldBe OutOfService
+      outOfServiceStm.oldState shouldBe Init
+      outOfServiceStm.newState shouldBe OutOfService
 
       // We expect one Transition event and one Alert event
-      initStm.events.size shouldBe 1
+      outOfServiceStm.events.size shouldBe 1
 
-      initStm.events.foreach {
+      outOfServiceStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
           elem.powerPlantConfig shouldBe stm.cfg
           assert(elem.timeStamp.isBefore(now))
@@ -221,8 +235,15 @@ class StateMachineTest extends WordSpecLike {
     }
 
     "transition to OutOfService when in RampUp state" in {
-      val rampUpStm = StateMachine.rampCheck(stm)
-      val outOfServiceStm = StateMachine.outOfService(rampUpStm)
+      val rampUpStm = StateMachine.rampCheck(
+        stm.copy(
+          setPoint = stm.cfg.maxPower,
+          lastRampTime = stm.lastRampTime.minusSeconds(4)
+        )
+      )
+      val outOfServiceStm = StateMachine.outOfService(
+        rampUpStm.copy(events = Vector.empty)
+      )
 
       // Check the PowerPlantState (It goes from RampUp to OutOfService)
       outOfServiceStm.oldState shouldBe RampUp

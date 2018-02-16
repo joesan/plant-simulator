@@ -77,7 +77,11 @@ object StateMachine {
           powerPlantConfig = cfg
         )
       ),
-      signals = Map.empty[String, String]
+      signals = Map(
+        activePowerSignalKey  -> cfg.minPower.toString, // be default this plant operates at min power
+        isDispatchedSignalKey -> false.toString,
+        isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
+      )
     )
   }
 
@@ -164,7 +168,7 @@ object StateMachine {
           )
         ) ++ stm.events
       )
-    } else if (setPoint >= stm.cfg.maxPower) { // If SetPoint greater than maxPower, curtail it
+    } else if (setPoint > stm.cfg.maxPower) { // If SetPoint greater than maxPower, curtail it
       stm.copy(
         setPoint = stm.cfg.maxPower, // curtailing the SetPoint to maxPower
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
