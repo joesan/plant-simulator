@@ -319,6 +319,22 @@ class StateMachineTest extends WordSpecLike {
     }
   }
 
+  "PowerPlant ## returnToService" must {
+
+    // We first need an active PowerPlant
+    val stm = StateMachine.active(StateMachine.init(cfg))
+    val setPoint = stm.cfg.maxPower
+
+    "go to active state from OutOfService when ReturnToService is requested" in {
+      val returnToService = StateMachine.returnToService(
+        StateMachine.outOfService(stm)
+      )
+
+      returnToService.oldState shouldBe OutOfService
+      returnToService.newState shouldBe ReturnToService
+    }
+  }
+
   "PowerPlant ## returnToNormal" must {
 
     // We first need an active PowerPlant
