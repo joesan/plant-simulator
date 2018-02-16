@@ -75,8 +75,8 @@ class RampUpTypeSimulatorActor private (config: Config)
   }
 
   // TODO: Scaladoc comments
-  def pushSignals(f: PowerPlantState): PowerPlantState = {
-    val (signals, newState) = PowerPlantState.popEvents(f)
+  def pushSignals(f: PowerPlantState1): PowerPlantState1 = {
+    val (signals, newState) = PowerPlantState1.popEvents(f)
     for (s <- signals) out.onNext(s)
     newState
   }
@@ -88,8 +88,8 @@ class RampUpTypeSimulatorActor private (config: Config)
     */
   override def receive: Receive = {
     case Init =>
-      val powerPlantState = PowerPlantState.active(
-        PowerPlantState.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds, cfg), cfg.minPower
+      val powerPlantState = PowerPlantState1.active(
+        PowerPlantState1.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds, cfg), cfg.minPower
       )
       context.become(active(powerPlantState))
       // The PowerPlant goes to active state, we signal this to outside world
@@ -112,7 +112,7 @@ class RampUpTypeSimulatorActor private (config: Config)
     * @param state
     * @return
     */
-  def active(state: PowerPlantState): Receive = {
+  def active(state: PowerPlantState1): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
 
@@ -156,7 +156,7 @@ class RampUpTypeSimulatorActor private (config: Config)
         log.info(s"Starting Observable sequence for doing RampUpCheck for PowerPlant ${cfg.id}")
         context.become(
           rampCheck(
-            PowerPlantState.dispatch(state.copy(setPoint = calculatedDispatch)),
+            PowerPlantState1.dispatch(state.copy(setPoint = calculatedDispatch)),
             RampUpTypeSimulatorActor.startRampCheckSubscription(cfg, self)
           )
         )
@@ -164,7 +164,7 @@ class RampUpTypeSimulatorActor private (config: Config)
 
     case OutOfService =>
       context.become(
-        active(state.copy(signals = PowerPlantState.unAvailableSignals))
+        active(state.copy(signals = PowerPlantState1.unAvailableSignals))
       )
 
     case ReturnToService =>
@@ -178,7 +178,7 @@ class RampUpTypeSimulatorActor private (config: Config)
     * up. The recursivity is governed by the Monix Observable and its
     * corresponding subscription
     */
-  def rampCheck(state: PowerPlantState, subscription: SingleAssignmentCancelable): Receive = {
+  def rampCheck(state: PowerPlantState1, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
 
@@ -186,7 +186,7 @@ class RampUpTypeSimulatorActor private (config: Config)
       sender ! state
 
     case RampCheck =>
-      val isDispatched = PowerPlantState.isDispatched(state)
+      val isDispatched = PowerPlantState1.isDispatched(state)
       // We first check if we have reached the setPoint, if yes, we switch context
       if (isDispatched) {
         // Cancel the subscription first
@@ -203,7 +203,7 @@ class RampUpTypeSimulatorActor private (config: Config)
       } else {
         // time for another ramp up!
         context.become(
-          rampCheck(PowerPlantState.dispatch(state), subscription)
+          rampCheck(PowerPlantState1.dispatch(state), subscription)
         )
       }
 
@@ -214,7 +214,7 @@ class RampUpTypeSimulatorActor private (config: Config)
         s"because of PowerPlant being sent to OutOfService")
       RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
       context.become(
-        active(state.copy(signals = PowerPlantState.unAvailableSignals))
+        active(state.copy(signals = PowerPlantState1.unAvailableSignals))
       )
   }
 
@@ -222,7 +222,7 @@ class RampUpTypeSimulatorActor private (config: Config)
     * This is the state that is transitioned when the PowerPlant
     * is fully dispatched
     */
-  def dispatched(state: PowerPlantState, subscription: SingleAssignmentCancelable): Receive = {
+  def dispatched(state: PowerPlantState1, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
 
@@ -236,20 +236,20 @@ class RampUpTypeSimulatorActor private (config: Config)
         s"because of PowerPlant being sent to OutOfService")
       RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
       context.become(
-        active(state.copy(signals = PowerPlantState.unAvailableSignals))
+        active(state.copy(signals = PowerPlantState1.unAvailableSignals))
       )
 
     case ReturnToNormalCommand(_, _) =>
       context.become(
         checkRampDown(
-          PowerPlantState.returnToNormal(state),
+          PowerPlantState1.returnToNormal(state),
           RampUpTypeSimulatorActor.startRampCheckSubscription(cfg, self)
         )
       )
   }
 
   // TODO: add comments!
-  def checkRampDown(state: PowerPlantState, subscription: SingleAssignmentCancelable): Receive = {
+  def checkRampDown(state: PowerPlantState1, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
 
@@ -263,11 +263,11 @@ class RampUpTypeSimulatorActor private (config: Config)
       // but as always, cancel the subscription first: just in case!
       RampUpTypeSimulatorActor.cancelRampCheckSubscription(subscription)
       context.become(
-        active(state.copy(signals = PowerPlantState.unAvailableSignals))
+        active(state.copy(signals = PowerPlantState1.unAvailableSignals))
       )
 
     case RampCheck =>
-      val isReturnedToNormal = PowerPlantState.isReturnedToNormal(state)
+      val isReturnedToNormal = PowerPlantState1.isReturnedToNormal(state)
       // We first check if we have reached the setPoint, if yes, we switch context
       if (isReturnedToNormal) {
         log.info(s"Cancelling RampDown Subscription for PowerPlant with Id ${state.powerPlantId}")
@@ -279,7 +279,7 @@ class RampUpTypeSimulatorActor private (config: Config)
         // time for another ramp up!
         context.become(
           checkRampDown(
-            PowerPlantState.returnToNormal(state),
+            PowerPlantState1.returnToNormal(state),
             subscription
           )
         )

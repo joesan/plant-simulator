@@ -23,7 +23,7 @@ import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeSimulatorAc
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
-import com.inland24.plantsim.services.simulator.rampUpType.PowerPlantState._
+import com.inland24.plantsim.services.simulator.rampUpType.PowerPlantState1._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
@@ -46,7 +46,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
     powerPlantType = PowerPlantType.OnOffType
   )
 
-  private val initPowerPlantState = PowerPlantState.init(PowerPlantState.empty(
+  private val initPowerPlantState = PowerPlantState1.init(PowerPlantState1.empty(
     id = rampUpTypeCfg.id,
     minPower = rampUpTypeCfg.minPower,
     maxPower = rampUpTypeCfg.maxPower,
@@ -66,7 +66,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       }
       rampUpTypeSimActor ! StateRequest
       expectMsgPF(2.seconds) {
-        case state: PowerPlantState =>
+        case state: PowerPlantState1 =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
           assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
           assert(state.rampRate === initPowerPlantState.rampRate, "rampRate did not match")
@@ -97,7 +97,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       }
       rampUpTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
+        case state: PowerPlantState1 =>
           // check the signals
           assert(
             state.signals(activePowerSignalKey).toDouble === 800.0,
@@ -151,7 +151,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       }
       rampUpTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
+        case state: PowerPlantState1 =>
           // check the signals
           assert(
             state.signals(activePowerSignalKey).toDouble === 800.0,
@@ -201,7 +201,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       }
       rampUpTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
+        case state: PowerPlantState1 =>
           // check the signals
           assert(
             state.signals(activePowerSignalKey).toDouble === 800.0,
@@ -237,8 +237,8 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
 
       rampUpTypeSimActor ! StateRequest
       expectMsgPF(5.seconds) {
-        case state: PowerPlantState =>
-          assert(state.signals === PowerPlantState.unAvailableSignals)
+        case state: PowerPlantState1 =>
+          assert(state.signals === PowerPlantState1.unAvailableSignals)
         case x: Any =>
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
@@ -262,8 +262,8 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       // 3. Send a StateRequest message
       rampUpTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
-          assert(state.signals === PowerPlantState.unAvailableSignals)
+        case state: PowerPlantState1 =>
+          assert(state.signals === PowerPlantState1.unAvailableSignals)
         case x: Any =>
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
@@ -286,7 +286,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       within(10.seconds) {
         rampUpTypeSimActor ! StateRequest
         expectMsgPF() {
-          case state: PowerPlantState =>
+          case state: PowerPlantState1 =>
             assert(state.signals === initPowerPlantState.signals, "signals did not match")
             assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
             assert(state.rampRate === initPowerPlantState.rampRate, "rampRate did not match")
@@ -322,7 +322,7 @@ class RampUpTypeSimulatorActorTest extends TestKit(ActorSystem("RampUpTypeSimula
       // 3. Send a StateRequest message
       rampUpTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
+        case state: PowerPlantState1 =>
           assert(state.signals("isDispatched") === initPowerPlantState.signals("isDispatched"), "signals did not match")
           assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
           assert(state.rampRate === initPowerPlantState.rampRate, "rampRate did not match")

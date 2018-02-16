@@ -20,7 +20,7 @@ import com.inland24.plantsim.models.PowerPlantType
 import org.scalatest.FlatSpec
 
 
-class PowerPlantStateSimulatorSpec extends FlatSpec {
+class PowerPlantState1SimulatorSpec extends FlatSpec {
 
   behavior of PowerPlantState.getClass.getCanonicalName
 

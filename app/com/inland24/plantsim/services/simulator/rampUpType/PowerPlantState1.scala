@@ -22,7 +22,7 @@ import org.joda.time.{DateTime, DateTimeZone, Seconds}
 import scala.concurrent.duration._
 
 
-case class PowerPlantState(
+case class PowerPlantState1(
   cfg: RampUpTypeConfig,
   powerPlantId: Long,
   setPoint: Double,
@@ -36,9 +36,9 @@ case class PowerPlantState(
 )
 
 // TODO: refactor and rewrite
-object PowerPlantState {
+object PowerPlantState1 {
 
-  def empty(id: Long, minPower: Double, maxPower: Double, rampRate: Double, rampRateInSeconds: FiniteDuration, config: RampUpTypeConfig): PowerPlantState = PowerPlantState(
+  def empty(id: Long, minPower: Double, maxPower: Double, rampRate: Double, rampRateInSeconds: FiniteDuration, config: RampUpTypeConfig): PowerPlantState1 = PowerPlantState1(
     cfg = config,
     powerPlantId = id,
     setPoint = minPower,
@@ -62,7 +62,7 @@ object PowerPlantState {
     isAvailableSignalKey  -> false.toString // indicates if the power plant is not available for steering
   )
 
-  def isDispatched(state: PowerPlantState): Boolean = {
+  def isDispatched(state: PowerPlantState1): Boolean = {
     val collectedSignal = state.signals.collect { // to dispatch, you got to be available
       case (key, value) if key == activePowerSignalKey => key -> value
     }
@@ -70,7 +70,7 @@ object PowerPlantState {
     collectedSignal.nonEmpty && (collectedSignal(activePowerSignalKey).toDouble >= state.setPoint)
   }
 
-  def isReturnedToNormal(state: PowerPlantState): Boolean = {
+  def isReturnedToNormal(state: PowerPlantState1): Boolean = {
     val collectedSignal = state.signals.collect { // to ReturnToNormal, you got to be available
       case (key, value) if key == activePowerSignalKey => key -> value
     }
@@ -83,7 +83,7 @@ object PowerPlantState {
     elapsed.getSeconds.seconds >= rampRateInSeconds
   }
 
-  def active(powerPlantState: PowerPlantState, minPower: Double): PowerPlantState = {
+  def active(powerPlantState: PowerPlantState1, minPower: Double): PowerPlantState1 = {
     powerPlantState.copy(
       signals = Map(
         activePowerSignalKey  -> minPower.toString, // be default this plant operates at min power
@@ -93,11 +93,11 @@ object PowerPlantState {
     )
   }
 
-  def popEvents(state: PowerPlantState): (Seq[PowerPlantSignal], PowerPlantState) = {
+  def popEvents(state: PowerPlantState1): (Seq[PowerPlantSignal], PowerPlantState1) = {
     (state.events, state.copy(events = Vector.empty))
   }
 
-  def returnToNormal(state: PowerPlantState): PowerPlantState = {
+  def returnToNormal(state: PowerPlantState1): PowerPlantState1 = {
     if (isRampUp(state.lastRampTime, state.rampRateInSeconds)) {
       val collectedSignal = state.signals.collect { // to rampDown, you got to be in dispatched state
         case (key, value) if key == isDispatchedSignalKey && value.toBoolean => key -> value
@@ -128,7 +128,7 @@ object PowerPlantState {
     } else state
   }
 
-  def dispatch(state: PowerPlantState): PowerPlantState = {
+  def dispatch(state: PowerPlantState1): PowerPlantState1 = {
 
     if (isRampUp(state.lastRampTime, state.rampRateInSeconds)) {
       val collectedSignal = state.signals.collect { // to dispatch, you got to be available
