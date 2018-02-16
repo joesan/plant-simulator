@@ -70,10 +70,25 @@ class StateMachineSpec extends FlatSpec with Matchers {
     assert(stm.setPoint === cfg.minPower)
   }
 
-  "PowerPlantState#dispatch" should "start dispatching the power plant according to its ramp rate" in {
-    val initState = PowerPlantState1.init(
-      PowerPlantState1.empty(cfg.id, cfg.minPower, cfg.maxPower, cfg.rampPowerRate, cfg.rampRateInSeconds), cfg.minPower
-    )
+  "PowerPlantState ## active" should "set the PowerPlant in an actibe state" in {
+    val stm = StateMachine.active(StateMachine.init(cfg))
+
+    assert(stm.signals.size === 3) // expecting 3 elements in the signals Map
+    stm.signals.foreach {
+      case (key1, value1) if key1 == PowerPlantState1.isDispatchedSignalKey => assert(!value1.toBoolean)
+      case (key2, value2) if key2 == PowerPlantState1.isAvailableSignalKey  => assert(value2.toBoolean)
+      case (key3, value3) if key3 == PowerPlantState1.activePowerSignalKey  => assert(value3.toDouble === cfg.minPower)
+    }
+    assert(stm.setPoint === cfg.minPower)
+
+    // Check the PowerPlantState
+    stm.newState shouldBe PowerPlantState.Active
+    stm.oldState shouldBe PowerPlantState.Init
+  }
+
+  "PowerPlantState ## dispatch" should "dispatch the PowerPlant based on it's ramp rate" in {
+    // We first initialize and set the StateMachine to Active
+    val stm = StateMachine.active(StateMachine.init(cfg))
 
     /*
      * Let's dispatch this Plant to its maxPower which is 800
@@ -83,8 +98,8 @@ class StateMachineSpec extends FlatSpec with Matchers {
      * Let us now test if this happens!
      * The first dispatch command should take its activePower to 500
      */
-    val dispatchState1 = PowerPlantState1.dispatch(initState.copy(setPoint = cfg.maxPower, lastRampTime = initState.lastRampTime.minusSeconds(4)))
-    assert(dispatchState1.signals(PowerPlantState1.activePowerSignalKey).toDouble === 500)
+    val dispatchState1 = StateMachine.dispatch(stm, stm.cfg.maxPower)
+    assert(dispatchState1.signals(StateMachine.activePowerSignalKey).toDouble === 500)
     // we then come back to the current time for the lastRampTime, so that we can do the next tests
     val reset1 = dispatchState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
@@ -92,24 +107,24 @@ class StateMachineSpec extends FlatSpec with Matchers {
      * On our second dispatch, we should go from 500 to 600, but we got to wait 4 seconds
      * Blocking may be a bad idea, so we simulate time (i.e., subtract 4 seconds to the isRampUp check)
      */
-    val dispatchState2 = PowerPlantState1.dispatch(reset1.copy(lastRampTime = dispatchState1.lastRampTime.minusSeconds(4)))
-    assert(dispatchState2.signals(PowerPlantState1.activePowerSignalKey).toDouble === 600)
+    val dispatchState2 = StateMachine.dispatch(reset1.copy(lastRampTime = dispatchState1.lastRampTime.minusSeconds(4)))
+    assert(dispatchState2.signals(StateMachine.activePowerSignalKey).toDouble === 600)
     val reset2 = dispatchState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
     // Let's try another dispatch immediately, this should have no effect and we should still stay at 600
-    val dispatchState2_copy = PowerPlantState1.dispatch(reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)))
+    val dispatchState2_copy = StateMachine.dispatch(reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)))
     assert(reset2.signals === dispatchState2_copy.signals)
 
     // Another 4 seconds elapse, we move to 700
-    val dispatchState3 = PowerPlantState1.dispatch(dispatchState2.copy(lastRampTime = dispatchState2.lastRampTime.minusSeconds(4)))
+    val dispatchState3 = StateMachine.dispatch(dispatchState2.copy(lastRampTime = dispatchState2.lastRampTime.minusSeconds(4)))
     assert(dispatchState3.signals(PowerPlantState1.activePowerSignalKey).toDouble === 700)
 
     // Another 4 seconds elapse, we move to 800, our setPoint
-    val dispatchState4 = PowerPlantState1.dispatch(dispatchState3.copy(lastRampTime = dispatchState3.lastRampTime.minusSeconds(4)))
-    assert(dispatchState4.signals(PowerPlantState1.activePowerSignalKey).toDouble === 800)
+    val dispatchState4 = StateMachine.dispatch(dispatchState3.copy(lastRampTime = dispatchState3.lastRampTime.minusSeconds(4)))
+    assert(dispatchState4.signals(StateMachine.activePowerSignalKey).toDouble === 800)
   }
 
-  "PowerPlantState#returnToNormal" should "start ramping down the power plant according to its ramp rate" in {
+  "PowerPlantState ## returnToNormal" should "start ramping down the power plant according to its ramp rate" in {
     // The init state is a dispatched state with maxPower so that we could ReturnToNormal from that
     val dispatchedState = PowerPlantState(
       powerPlantId = 1,
