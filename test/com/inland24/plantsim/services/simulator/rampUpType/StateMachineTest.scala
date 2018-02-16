@@ -27,9 +27,10 @@ import Matchers._
 
 import scala.concurrent.duration._
 
+
 class StateMachineTest extends WordSpecLike {
 
-  def now = DateTime.now(DateTimeZone.UTC)
+  private def now = DateTime.now(DateTimeZone.UTC)
 
   val cfg = RampUpTypeConfig(
     id = 1,
@@ -266,10 +267,10 @@ class StateMachineTest extends WordSpecLike {
   // PowerPlant rampUp tests
   "PowerPlant ## rampUp" must {
 
-    "dispatch the PowerPlant based on it's ramp rate" in {
-      // We first initialize and set the StateMachine to Active
-      val stm = StateMachine.active(StateMachine.init(cfg))
+    val stm = StateMachine.active(StateMachine.init(cfg))
+    val setPoint = stm.cfg.maxPower
 
+    "dispatch the PowerPlant based on it's ramp rate" in {
       /*
        * Let's dispatch this Plant to its maxPower which is 800
        * The plant is currently operating at its minPower which is 400
@@ -278,11 +279,13 @@ class StateMachineTest extends WordSpecLike {
        * Let us now test if this happens!
        * The first dispatch command should take its activePower to 500
        */
-      val setPoint = stm.cfg.maxPower
-      val dispatchState1 = StateMachine.dispatch(
-        stm.copy(setPoint = cfg.maxPower, lastRampTime = stm.lastRampTime.minusSeconds(4)), setPoint
+      val dispatchState1 = StateMachine.rampCheck(
+        stm.copy(
+          setPoint = setPoint,
+          lastRampTime = stm.lastRampTime.minusSeconds(4)
+        )
       )
-      assert(dispatchState1.signals(StateMachine.activePowerSignalKey).toDouble === 500)
+      assert(dispatchState1.signals(StateMachine.activePowerSignalKey).toDouble === 500.0)
       // we then come back to the current time for the lastRampTime, so that we can do the next tests
       val reset1 = dispatchState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
@@ -290,27 +293,27 @@ class StateMachineTest extends WordSpecLike {
        * On our second dispatch, we should go from 500 to 600, but we got to wait 4 seconds
        * Blocking may be a bad idea, so we simulate time (i.e., subtract 4 seconds to the isRampUp check)
        */
-      val dispatchState2 = StateMachine.dispatch(
-        reset1.copy(lastRampTime = dispatchState1.lastRampTime.minusSeconds(4)), setPoint
+      val dispatchState2 = StateMachine.rampCheck(
+        reset1.copy(lastRampTime = dispatchState1.lastRampTime.minusSeconds(4))
       )
-      assert(dispatchState2.signals(StateMachine.activePowerSignalKey).toDouble === 600)
+      assert(dispatchState2.signals(StateMachine.activePowerSignalKey).toDouble === 600.0)
       val reset2 = dispatchState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
       // Let's try another dispatch immediately, this should have no effect and we should still stay at 600
-      val dispatchState2_copy = StateMachine.dispatch(
-        reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)), setPoint
+      val dispatchState2_copy = StateMachine.rampCheck(
+        reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1))
       )
       assert(reset2.signals === dispatchState2_copy.signals)
 
       // Another 4 seconds elapse, we move to 700
-      val dispatchState3 = StateMachine.dispatch(
-        dispatchState2.copy(lastRampTime = dispatchState2.lastRampTime.minusSeconds(4)), setPoint
+      val dispatchState3 = StateMachine.rampCheck(
+        dispatchState2.copy(lastRampTime = dispatchState2.lastRampTime.minusSeconds(4))
       )
-      assert(dispatchState3.signals(StateMachine.activePowerSignalKey).toDouble === 700)
+      assert(dispatchState3.signals(StateMachine.activePowerSignalKey).toDouble === 700.0)
 
       // Another 4 seconds elapse, we move to 800, our setPoint
-      val dispatchState4 = StateMachine.dispatch(
-        dispatchState3.copy(lastRampTime = dispatchState3.lastRampTime.minusSeconds(4)), setPoint
+      val dispatchState4 = StateMachine.rampCheck(
+        dispatchState3.copy(lastRampTime = dispatchState3.lastRampTime.minusSeconds(4))
       )
       assert(dispatchState4.signals(StateMachine.activePowerSignalKey).toDouble === 800)
     }
