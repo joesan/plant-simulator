@@ -108,10 +108,10 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       evolve(StateMachine.dispatch(state, setPoint))
       self ! RampUpMessage
 
-    case OutOfService =>
+    case OutOfServiceMessage =>
       evolve(StateMachine.outOfService(state))
 
-    case ReturnToService =>
+    case ReturnToServiceMessage =>
       evolve(StateMachine.returnToService(state))
       self ! Init
   }
@@ -162,7 +162,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       }
 
     // If we need to throw this plant OutOfService, we do it
-    case OutOfService =>
+    case OutOfServiceMessage =>
       // but as always, cancel the subscription first
       log.info(s"Cancelling RampUp Subscription for PowerPlant with Id ${state.cfg.id} " +
         s"because of PowerPlant being sent to OutOfService")
@@ -191,7 +191,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       sender ! state
 
     // If we need to throw this plant OutOfService, we do it
-    case OutOfService =>
+    case OutOfServiceMessage =>
       log.info(s"Cancelling RampUp / RampDown Subscription for PowerPlant with Id ${state.cfg.id} " +
         s"because of PowerPlant being sent to OutOfService")
       evolve(StateMachine.outOfService(state))
@@ -210,7 +210,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       sender ! state
 
     // If we need to throw this plant OutOfService, we do it
-    case OutOfService =>
+    case OutOfServiceMessage =>
       log.info(s"Cancelling RampDown Subscription for PowerPlant with Id ${state.cfg.id} " +
         s"because of PowerPlant being sent to OutOfService")
       // but as always, cancel the subscription first: just in case!
@@ -251,8 +251,8 @@ object RampUpTypeActor {
   case object RampCheckMessage extends Message
 
   // These messages are meant for manually faulting and un-faulting the power plant
-  case object OutOfService extends Message
-  case object ReturnToService extends Message
+  case object OutOfServiceMessage extends Message
+  case object ReturnToServiceMessage extends Message
 
   private def cancelRampCheckSubscription(subscription: SingleAssignmentCancelable): Unit = {
     subscription.cancel()
