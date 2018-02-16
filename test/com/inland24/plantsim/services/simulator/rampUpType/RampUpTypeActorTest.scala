@@ -25,7 +25,7 @@ import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
-import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor.StateRequest
+import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.StateRequestMessage
 import com.inland24.plantsim.services.simulator.rampUpType
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.{OutOfServiceMessage, ReturnToServiceMessage}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
@@ -50,7 +50,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
     powerPlantType = PowerPlantType.OnOffType
   )
   private val initPowerPlantState = StateMachine.init(rampUpTypeCfg)
-  private val rampUpTypeActorCfg = new rampUpType.RampUpTypeActor.Config(
+  private val rampUpTypeActorCfg = rampUpType.RampUpTypeActor.Config(
     powerPlantCfg = rampUpTypeCfg,
     outChannel = PowerPlantEventObservable.apply(monix.execution.Scheduler.Implicits.global)
   )
@@ -65,7 +65,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
       within(2.seconds) {
         expectNoMsg()
       }
-      rampUpTypeSimActor ! StateRequest
+      rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF(2.seconds) {
         case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
@@ -96,7 +96,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
         )
         expectNoMsg
       }
-      rampUpTypeSimActor ! StateRequest
+      rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           // check the signals
@@ -150,7 +150,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
           )
         expectNoMsg
       }
-      rampUpTypeSimActor ! StateRequest
+      rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           // check the signals
@@ -200,7 +200,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
           )
         expectNoMsg
       }
-      rampUpTypeSimActor ! StateRequest
+      rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           // check the signals
@@ -236,7 +236,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
         expectNoMsg()
       }
 
-      rampUpTypeSimActor ! StateRequest
+      rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF(5.seconds) {
         case state: StateMachine =>
           assert(state.signals === StateMachine.unAvailableSignals)
@@ -261,7 +261,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
       rampUpTypeSimActor ! OutOfServiceMessage
 
       // 3. Send a StateRequest message
-      rampUpTypeSimActor ! StateRequest
+      rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           assert(state.signals === StateMachine.unAvailableSignals)
@@ -285,7 +285,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
 
       // 3. Send a StateRequest message and check the signals
       within(10.seconds) {
-        rampUpTypeSimActor ! StateRequest
+        rampUpTypeSimActor ! StateRequestMessage
         expectMsgPF() {
           case state: StateMachine =>
             assert(state.signals === initPowerPlantState.signals, "signals did not match")
@@ -321,7 +321,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
       }
 
       // 3. Send a StateRequest message
-      rampUpTypeSimActor ! StateRequest
+      rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           assert(state.signals("isDispatched") === initPowerPlantState.signals("isDispatched"), "signals did not match")
