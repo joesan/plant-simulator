@@ -166,7 +166,7 @@ object StateMachine {
       )
     } else if (setPoint >= stm.cfg.maxPower) { // If SetPoint greater than maxPower, curtail it
       stm.copy(
-        setPoint = setPoint,
+        setPoint = stm.cfg.maxPower, // curtailing the SetPoint to maxPower
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
         oldState = stm.newState,
         newState = com.inland24.plantsim.models.PowerPlantState.RampUp,
@@ -212,6 +212,8 @@ object StateMachine {
         // check if the newActivePower is lesser than the minPower
         if (currentActivePower <= state.cfg.minPower) { // if true, this means we have ramped down to the required minPower!
           state.copy(
+            oldState = state.newState,
+            newState = com.inland24.plantsim.models.PowerPlantState.ReturnToNormal,
             events = Vector(
               Transition(
                 newState = com.inland24.plantsim.models.PowerPlantState.ReturnToNormal,

@@ -23,6 +23,7 @@ import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantState.{OutOfService, ReturnToService, _}
+import com.inland24.plantsim.models.PowerPlantState.{ ReturnToNormal => RTN }
 import com.inland24.plantsim.models.ReturnToNormalCommand
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.{Init, RampUpMessage, _}
 import monix.execution.Ack
@@ -69,6 +70,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     case RampDown => rampDownCheck(stm, RampUpTypeActor.startRampCheckSubscription(cfg, self))
     case OutOfService => active(stm)
     case ReturnToService => receive
+    case RTN => active(stm) // ReturnToNormal
     case Active => active(stm)
     // This should never happen, but just in case if it happens we go to the init state
     case _ => {
@@ -113,11 +115,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       sender ! state
 
     case DispatchRampUpPowerPlant(_,_,_,setPoint) =>
-      val dispatched = StateMachine.dispatch(state, setPoint)
-      println(StateMachine.toString(dispatched))
-      evolve(dispatched)
-      println("********************** After Evolutiiiioooooonnnnnnn")
-      println(StateMachine.toString(dispatched))
+      evolve(StateMachine.dispatch(state, setPoint))
       self ! RampUpMessage
 
     case OutOfService =>
@@ -151,7 +149,6 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       sender ! state
 
     case RampUpMessage =>
-      println("Got a RampUpMessage ************************** ")
       context.become(
         rampUpCheck(
           StateMachine.rampCheck(state),
