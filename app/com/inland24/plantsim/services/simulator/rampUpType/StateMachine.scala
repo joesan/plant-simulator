@@ -34,7 +34,16 @@ case class StateMachine(
   newState: com.inland24.plantsim.models.PowerPlantState,
   events: Vector[PowerPlantSignal],
   signals: Map[String, String]
-)
+) {
+  override def toString: String = {
+    s"""
+       |id = ${cfg.id}, setPoint = $setPoint, lastSetPointReceivedAt = $lastSetPointReceivedAt, lastRampTime = $lastRampTime
+       |oldState = $oldState, newState = $newState
+       |events = $events.mkString(",")
+       |signals = $signals.mkString(",")
+    """.stripMargin
+  }
+}
 object StateMachine {
 
   val isAvailableSignalKey  = "isAvailable"
@@ -46,15 +55,6 @@ object StateMachine {
     isDispatchedSignalKey -> false.toString,
     isAvailableSignalKey  -> false.toString // indicates if the power plant is not available for steering
   )
-
-  def toString(stm: StateMachine): String = {
-    s"""
-      |id = ${stm.cfg.id}, setPoint = ${stm.setPoint}, lastSetPointReceivedAt = ${stm.lastSetPointReceivedAt}, lastRampTime = ${stm.lastRampTime}
-      |oldState = ${stm.oldState}, newState = ${stm.newState}
-      |events = ${stm.events.mkString(",")}
-      |signals = ${stm.signals.mkString(",")}
-    """.stripMargin
-  }
 
   // Utility method that will clear emit the events to the outside world
   def popEvents(state: StateMachine): (Seq[PowerPlantSignal], StateMachine) = {
@@ -207,10 +207,10 @@ object StateMachine {
         case (key, value) if key == isDispatchedSignalKey && value.toBoolean => key -> value
       }
 
-      val newState = if (collectedSignal.nonEmpty && state.signals.get(activePowerSignalKey).isDefined) {
+      if (collectedSignal.nonEmpty && state.signals.get(activePowerSignalKey).isDefined) {
         val currentActivePower = state.signals(activePowerSignalKey).toDouble
         // check if the newActivePower is lesser than the minPower
-        if (currentActivePower <= state.cfg.minPower) { // if true, this means we have ramped down to the required minPower!
+        if (currentActivePower - state.cfg.rampPowerRate <= state.cfg.minPower) { // if true, this means we have ramped down to the required minPower!
           state.copy(
             oldState = state.newState,
             newState = com.inland24.plantsim.models.PowerPlantState.ReturnToNormal,
@@ -223,7 +223,7 @@ object StateMachine {
             ) ++ state.events,
             signals = Map(
               isDispatchedSignalKey -> false.toString,
-              activePowerSignalKey  -> state.setPoint.toString,
+              activePowerSignalKey  -> state.cfg.minPower.toString,
               isAvailableSignalKey  -> true.toString // the plant is available and not faulty!
             )
           )
@@ -240,7 +240,6 @@ object StateMachine {
           )
         }
       } else state
-      newState
     } else state
   }
 

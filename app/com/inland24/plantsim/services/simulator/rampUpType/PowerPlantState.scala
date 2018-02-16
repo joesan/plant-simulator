@@ -17,7 +17,6 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantSignal
-import com.inland24.plantsim.models.PowerPlantSignal.DispatchAlert
 import org.joda.time.{DateTime, DateTimeZone, Seconds}
 
 import scala.concurrent.duration._

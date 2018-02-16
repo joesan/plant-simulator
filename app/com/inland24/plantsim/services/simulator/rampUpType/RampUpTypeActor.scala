@@ -160,7 +160,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       // We first check if we have reached the setPoint, if yes, we switch context
       if (StateMachine.isDispatched(state)) {
         // Cancel the subscription first
-        log.info(s"Cancelling RampCheck Subscription for PowerPlant with " +
+        log.info(s"Cancelling RampUp Subscription for PowerPlant with " +
           s"Id ${state.cfg.id} because the PowerPlant is fully dispatched")
         RampUpTypeActor.cancelRampCheckSubscription(subscription)
 
