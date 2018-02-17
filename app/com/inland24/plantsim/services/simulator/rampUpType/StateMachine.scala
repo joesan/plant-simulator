@@ -167,7 +167,8 @@ object StateMachine {
         events = Vector(
           DispatchAlert(
             msg = "TODO ADD a meaningful message",
-            powerPlantConfig = stm.cfg
+            powerPlantConfig = stm.cfg,
+            timeStamp = DateTime.now(DateTimeZone.UTC)
           )
         ) ++ stm.events
       )
