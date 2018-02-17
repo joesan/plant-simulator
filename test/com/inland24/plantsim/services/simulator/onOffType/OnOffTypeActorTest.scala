@@ -17,6 +17,7 @@ package com.inland24.plantsim.services.simulator.onOffType
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
+import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
@@ -27,8 +28,8 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
 
-// TODO... write tests!
-class OnOffTypeSimulatorActorTest extends TestKit(ActorSystem("OnOffTypeSimulatorActorTest"))
+
+class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
   with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
 
   override def afterAll {
@@ -48,9 +49,14 @@ class OnOffTypeSimulatorActorTest extends TestKit(ActorSystem("OnOffTypeSimulato
     minPower = onOffTypeCfg.minPower
   )
 
-  "OnOffTypeSimulatorActor" must {
+  private val onOfffActorCfg = Config(
+    onOffTypeCfg,
+    PowerPlantEventObservable.apply(monix.execution.Scheduler.Implicits.global)
+  )
 
-    val onOffTypeSimActor = system.actorOf(OnOffTypeActor.props(onOffTypeCfg))
+  "OnOffTypeActor" must {
+
+    val onOffTypeSimActor = system.actorOf(OnOffTypeActor.props(onOfffActorCfg))
 
     // PowerPlant # Init tests
     "start with Active state" in {

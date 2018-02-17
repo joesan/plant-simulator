@@ -26,7 +26,7 @@ import com.inland24.plantsim.models.ReturnToNormalCommand
 
 class OnOffTypeActor private (config: Config)
   extends Actor with ActorLogging {
-  
+
   val cfg = config.cfg
   val out = config.outChannel
 
