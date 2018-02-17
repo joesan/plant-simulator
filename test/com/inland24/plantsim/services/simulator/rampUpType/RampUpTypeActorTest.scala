@@ -301,7 +301,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
     }
 
     // PowerPlant # ReturnToNormal tests
-    // TODO: Re-work on this test to perfection!
+    // TODO: Re-work on this test to perfection! Currently it blocks thread! Try using receiveWhile from the TestKit
     "return the PowerPlant to Normal when ReturnToNormalCommand message is sent in dispatched state" in {
       // To avoid confusion and the tests failing, we create a new actor instance for this test
       val rampUpTypeActor = system.actorOf(RampUpTypeActor.props(rampUpTypeActorCfg))
