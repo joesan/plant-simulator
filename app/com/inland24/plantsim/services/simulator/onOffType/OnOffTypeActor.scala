@@ -21,6 +21,7 @@ import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
+import com.inland24.plantsim.models.PowerPlantState.{ReturnToService, OutOfService}
 import com.inland24.plantsim.models.ReturnToNormalCommand
 
 
@@ -29,6 +30,12 @@ class OnOffTypeActor private (config: Config)
 
   val cfg = config.cfg
   val out = config.outChannel
+
+  private def evolve(stm: StateMachine) = {
+    val (signals, newStm) = StateMachine.popEvents(stm)
+    for (s <- signals) out.onNext(s)
+    context.become(active(newStm))
+  }
 
   /*
    * Initialize the PowerPlant
@@ -40,9 +47,7 @@ class OnOffTypeActor private (config: Config)
 
   override def receive: Receive = {
     case Init =>
-      context.become(
-        active(StateMachine.init(StateMachine.empty(cfg), cfg.minPower))
-      )
+      evolve(StateMachine.init(StateMachine.empty(cfg), cfg.minPower))
   }
 
   def active(state: StateMachine): Receive = {
@@ -54,23 +59,15 @@ class OnOffTypeActor private (config: Config)
 
     case DispatchOnOffPowerPlant(_,_,_,turnOn) =>
       if (turnOn)
-        context.become(
-          active(StateMachine.turnOn(state, maxPower = cfg.maxPower))
-        )
+        evolve(StateMachine.turnOn(state, maxPower = cfg.maxPower))
       else // We could also ReturnToNormal using the DispatchOnOffPowerPlant command
-        context.become(
-          active(StateMachine.turnOff(state, minPower = cfg.minPower))
-        )
+        evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
     case ReturnToNormalCommand => // ReturnToNormal means means returning to min power
-      context.become(
-        active(StateMachine.turnOff(state, minPower = cfg.minPower))
-      )
+      evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
     case OutOfService =>
-      context.become(
-        active(state.copy(signals = StateMachine.unAvailableSignals))
-      )
+      evolve(state.copy(signals = StateMachine.unAvailableSignals))
 
     case ReturnToService =>
       context.become(receive)

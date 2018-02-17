@@ -34,6 +34,11 @@ case class StateMachine(
 )
 object StateMachine {
 
+  // Utility method that will clear emit the events to the outside world
+  def popEvents(state: StateMachine): (Seq[PowerPlantSignal], StateMachine) = {
+    (state.events, state.copy(events = Vector.empty))
+  }
+
   def empty(config: OnOffTypeConfig): StateMachine = StateMachine(
     cfg = config,
     newState = Init,
