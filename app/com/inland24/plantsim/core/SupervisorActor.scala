@@ -29,7 +29,7 @@ import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
 import com.inland24.plantsim.services.database.DBServiceActor
 import com.inland24.plantsim.services.database.DBServiceActor.PowerPlantEventsSeq
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor
-import com.inland24.plantsim.services.simulator.rampUpType.{RampUpTypeActor, RampUpTypeSimulatorActor}
+import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
