@@ -256,7 +256,7 @@ class StateMachineTest extends WordSpecLike {
       outOfServiceStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
           elem.powerPlantConfig shouldBe stm.cfg
-          assert(elem.timeStamp.isBefore(now))
+          assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
         case unexpected =>
           fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
