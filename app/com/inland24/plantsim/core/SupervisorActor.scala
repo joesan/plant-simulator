@@ -28,7 +28,7 @@ import com.inland24.plantsim.models.PowerPlantDBEvent.{PowerPlantCreateEvent, Po
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
 import com.inland24.plantsim.services.database.DBServiceActor
 import com.inland24.plantsim.services.database.DBServiceActor.PowerPlantEventsSeq
-import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor
+import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor
 import com.inland24.plantsim.services.simulator.rampUpType.{RampUpTypeActor, RampUpTypeSimulatorActor}
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
@@ -95,7 +95,7 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
     case OnOffType =>
       log.info(s"Starting OnOffType PowerPlant with id $id")
       context.actorOf(
-        OnOffTypeSimulatorActor.props(cfg.asInstanceOf[OnOffTypeConfig]),
+        OnOffTypeActor.props(OnOffTypeActor.Config(cfg.asInstanceOf[OnOffTypeConfig], globalChannel)),
         s"$simulatorActorNamePrefix-$id"
       )
       log.info(s"Successfully started OnOffType PowerPlant with id $id")

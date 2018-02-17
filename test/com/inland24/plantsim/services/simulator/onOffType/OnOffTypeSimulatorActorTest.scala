@@ -22,7 +22,7 @@ import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.simulator.onOffType.PowerPlantState._
-import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeSimulatorActor._
+import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
@@ -50,7 +50,7 @@ class OnOffTypeSimulatorActorTest extends TestKit(ActorSystem("OnOffTypeSimulato
 
   "OnOffTypeSimulatorActor" must {
 
-    val onOffTypeSimActor = system.actorOf(OnOffTypeSimulatorActor.props(onOffTypeCfg))
+    val onOffTypeSimActor = system.actorOf(OnOffTypeActor.props(onOffTypeCfg))
 
     // PowerPlant # Init tests
     "start with Active state" in {

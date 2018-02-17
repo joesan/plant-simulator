@@ -16,15 +16,19 @@
 package com.inland24.plantsim.services.simulator.onOffType
 
 import akka.actor.{Actor, ActorLogging, Props}
-import OnOffTypeSimulatorActor._
+import OnOffTypeActor._
+import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.ReturnToNormalCommand
 
 
-class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
+class OnOffTypeActor private (config: Config)
   extends Actor with ActorLogging {
+  
+  val cfg = config.cfg
+  val out = config.outChannel
 
   /*
    * Initialize the PowerPlant
@@ -73,7 +77,12 @@ class OnOffTypeSimulatorActor private (cfg: OnOffTypeConfig)
       self ! Init
   }
 }
-object OnOffTypeSimulatorActor {
+object OnOffTypeActor {
+
+  case class Config(
+    cfg: OnOffTypeConfig,
+    outChannel: PowerPlantEventObservable
+  )
 
   sealed trait Message
   case object Init extends Message
@@ -83,6 +92,6 @@ object OnOffTypeSimulatorActor {
   case object OutOfService extends Message
   case object ReturnToService extends Message
 
-  def props(cfg: OnOffTypeConfig): Props =
-    Props(new OnOffTypeSimulatorActor(cfg))
+  def props(cfg: Config): Props =
+    Props(new OnOffTypeActor(cfg))
 }
