@@ -24,7 +24,16 @@ import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.PowerPlantState.{ReturnToService, OutOfService}
 import com.inland24.plantsim.models.ReturnToNormalCommand
 
-
+/**
+  * The Actor instance responsible for [[com.inland24.plantsim.models.PowerPlantType.OnOffType]]
+  * PowerPlant's. The operation of such PowerPlant's are governed by this Actor with all
+  * possible state transitions. Additionally, any events or alerts that arise from the
+  * operations of this PowerPlant is also emitted to the outside world by this Actor. Eventing
+  * or Alerting happens via the outChannel that is configured in the [[Config]] that is
+  * passed during this Actor initialization.
+  *
+  * @param config
+  */
 class OnOffTypeActor private (config: Config)
   extends Actor with ActorLogging {
 
@@ -50,7 +59,25 @@ class OnOffTypeActor private (config: Config)
       evolve(StateMachine.init(StateMachine.empty(cfg), cfg.minPower))
   }
 
-  // TODO: Scaladoc!!!!
+  /**
+    * The PowerPlant is said to be active as soon as it is initialized. The
+    * following state transitions are possible:
+    *
+    * DispatchOnOffPowerPlant - To TurnOn or TurnOff the PowerPlant
+    *
+    * ReturnToNormalCommand - This is yet another possibility to TurnOff this PowerPlant
+    *
+    * OutOfService - If for some reason this PowerPlant should be thrown out of operation
+    *
+    * ReturnToService - To make the PowerPlant operational again
+    *
+    * StateRequest - To get the current actual state of this PowerPlant
+    *
+    * TelemetrySignals - To get only the signals emitted by this PowerPlant
+    *
+    * @param state
+    * @return
+    */
   def active(state: StateMachine): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
