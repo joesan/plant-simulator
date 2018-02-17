@@ -56,7 +56,7 @@ object StateMachine {
   def init(stm: StateMachine, minPower: Double): StateMachine = {
     stm.copy(
       oldState = stm.newState,
-      newState = Init,
+      newState = Active,
       signals = Map(
         activePowerSignalKey -> minPower.toString, // be default this plant operates at min power
         isOnOffSignalKey     -> false.toString,
