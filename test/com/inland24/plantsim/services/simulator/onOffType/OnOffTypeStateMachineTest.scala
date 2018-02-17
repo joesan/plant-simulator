@@ -20,9 +20,9 @@ import com.inland24.plantsim.models.PowerPlantType
 import org.scalatest.FlatSpec
 
 
-class PowerPlantState1SimulatorSpec extends FlatSpec {
+class OnOffTypeStateMachineTest extends FlatSpec {
 
-  behavior of PowerPlantState.getClass.getCanonicalName
+  behavior of StateMachine.getClass.getCanonicalName
 
   val onOffTpeCfg = OnOffTypeConfig(
     id = 1,
@@ -33,22 +33,22 @@ class PowerPlantState1SimulatorSpec extends FlatSpec {
   )
 
   "PowerPlantState#init" should "initialize to a default state (available = true && onOff = false)" in {
-    val initState = PowerPlantState.init(PowerPlantState.empty(onOffTpeCfg.id), onOffTpeCfg.minPower)
+    val initState = StateMachine.init(StateMachine.empty(onOffTpeCfg), onOffTpeCfg.minPower)
     initState.signals.foreach {
-      case (key, value) if key == PowerPlantState.activePowerSignalKey => assert(value === onOffTpeCfg.minPower.toString)
-      case (key, value) if key == PowerPlantState.isAvailableSignalKey => assert(value.toBoolean)
-      case (key, value) if key == PowerPlantState.isOnOffSignalKey     => assert(!value.toBoolean) // should be Off when initializing
+      case (key, value) if key == StateMachine.activePowerSignalKey => assert(value === onOffTpeCfg.minPower.toString)
+      case (key, value) if key == StateMachine.isAvailableSignalKey => assert(value.toBoolean)
+      case (key, value) if key == StateMachine.isOnOffSignalKey     => assert(!value.toBoolean) // should be Off when initializing
     }
   }
 
   "PowerPlantState#turnOn" should "turnOn when in Off state and in available state" in {
-    val turnedOn = PowerPlantState.turnOn(
-      PowerPlantState.init(PowerPlantState.empty(onOffTpeCfg.id), onOffTpeCfg.minPower), onOffTpeCfg.maxPower
+    val turnedOn = StateMachine.turnOn(
+      StateMachine.init(StateMachine.empty(onOffTpeCfg), onOffTpeCfg.minPower), onOffTpeCfg.maxPower
     )
     turnedOn.signals.foreach {
-      case (key, value) if key == PowerPlantState.activePowerSignalKey => assert(value === onOffTpeCfg.maxPower.toString)
-      case (key, value) if key == PowerPlantState.isAvailableSignalKey => assert(value.toBoolean)
-      case (key, value) if key == PowerPlantState.isOnOffSignalKey     => assert(value.toBoolean)
+      case (key, value) if key == StateMachine.activePowerSignalKey => assert(value === onOffTpeCfg.maxPower.toString)
+      case (key, value) if key == StateMachine.isAvailableSignalKey => assert(value.toBoolean)
+      case (key, value) if key == StateMachine.isOnOffSignalKey     => assert(value.toBoolean)
     }
   }
 }

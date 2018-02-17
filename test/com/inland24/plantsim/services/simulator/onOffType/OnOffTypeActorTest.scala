@@ -22,7 +22,7 @@ import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
-import com.inland24.plantsim.services.simulator.onOffType.PowerPlantState._
+import com.inland24.plantsim.services.simulator.onOffType.StateMachine._
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor._
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
@@ -44,8 +44,8 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
     powerPlantType = PowerPlantType.OnOffType
   )
 
-  private val initPowerPlantState = PowerPlantState.init(
-    PowerPlantState.empty(id = onOffTypeCfg.id),
+  private val initPowerPlantState = StateMachine.init(
+    StateMachine.empty(onOffTypeCfg),
     minPower = onOffTypeCfg.minPower
   )
 
@@ -67,9 +67,9 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
 
       onOffTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
+        case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
-          assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
+          assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
@@ -89,11 +89,11 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
 
       onOffTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
+        case state: StateMachine =>
           assert(state.signals(activePowerSignalKey).toDouble === onOffTypeCfg.maxPower,
             s"activePower should be ${onOffTypeCfg.maxPower} but was not"
           )
-          assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
+          assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
@@ -113,9 +113,9 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
 
       onOffTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
+        case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
-          assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
+          assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
@@ -141,9 +141,9 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
 
       onOffTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
+        case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
-          assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
+          assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
@@ -168,8 +168,8 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
 
       onOffTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
-          assert(state.signals === PowerPlantState.unAvailableSignals, "signals did not match")
+        case state: StateMachine =>
+          assert(state.signals === StateMachine.unAvailableSignals, "signals did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
@@ -193,8 +193,8 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
 
       onOffTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
-          assert(state.signals === PowerPlantState.unAvailableSignals, "signals did not match")
+        case state: StateMachine =>
+          assert(state.signals === StateMachine.unAvailableSignals, "signals did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
@@ -214,9 +214,9 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
 
       onOffTypeSimActor ! StateRequest
       expectMsgPF() {
-        case state: PowerPlantState =>
+        case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
-          assert(state.powerPlantId === initPowerPlantState.powerPlantId, "powerPlantId did not match")
+          assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }

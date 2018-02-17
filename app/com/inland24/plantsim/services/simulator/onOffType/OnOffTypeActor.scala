@@ -41,11 +41,11 @@ class OnOffTypeActor private (config: Config)
   override def receive: Receive = {
     case Init =>
       context.become(
-        active(PowerPlantState.init(PowerPlantState.empty(cfg.id), cfg.minPower))
+        active(StateMachine.init(StateMachine.empty(cfg), cfg.minPower))
       )
   }
 
-  def active(state: PowerPlantState): Receive = {
+  def active(state: StateMachine): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
 
@@ -55,21 +55,21 @@ class OnOffTypeActor private (config: Config)
     case DispatchOnOffPowerPlant(_,_,_,turnOn) =>
       if (turnOn)
         context.become(
-          active(PowerPlantState.turnOn(state, maxPower = cfg.maxPower))
+          active(StateMachine.turnOn(state, maxPower = cfg.maxPower))
         )
       else // We could also ReturnToNormal using the DispatchOnOffPowerPlant command
         context.become(
-          active(PowerPlantState.turnOff(state, minPower = cfg.minPower))
+          active(StateMachine.turnOff(state, minPower = cfg.minPower))
         )
 
     case ReturnToNormalCommand => // ReturnToNormal means means returning to min power
       context.become(
-        active(PowerPlantState.turnOff(state, minPower = cfg.minPower))
+        active(StateMachine.turnOff(state, minPower = cfg.minPower))
       )
 
     case OutOfService =>
       context.become(
-        active(state.copy(signals = PowerPlantState.unAvailableSignals))
+        active(state.copy(signals = StateMachine.unAvailableSignals))
       )
 
     case ReturnToService =>
