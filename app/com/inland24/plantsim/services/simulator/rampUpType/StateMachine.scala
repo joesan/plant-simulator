@@ -20,6 +20,7 @@ package com.inland24.plantsim.services.simulator.rampUpType
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantSignal
 import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, Transition}
+import com.inland24.plantsim.models.PowerPlantState._
 import org.joda.time.{DateTime, DateTimeZone, Seconds}
 
 import scala.concurrent.duration._
@@ -65,15 +66,15 @@ object StateMachine {
   def init(cfg: RampUpTypeConfig) = {
     StateMachine(
       cfg = cfg,
-      oldState = com.inland24.plantsim.models.PowerPlantState.Init,
-      newState = com.inland24.plantsim.models.PowerPlantState.Init,
+      oldState = Init,
+      newState = Init,
       setPoint = cfg.minPower, // By default, we start with the minimum power as our setPoint
       lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
       lastRampTime = DateTime.now(DateTimeZone.UTC),
       events = Vector(
         Genesis(
           timeStamp = DateTime.now(DateTimeZone.UTC),
-          newState = com.inland24.plantsim.models.PowerPlantState.Init,
+          newState = Init,
           powerPlantConfig = cfg
         )
       ),
@@ -129,12 +130,12 @@ object StateMachine {
 
   def outOfService(stm: StateMachine): StateMachine = {
     stm.copy(
-      newState = com.inland24.plantsim.models.PowerPlantState.OutOfService,
+      newState = OutOfService,
       oldState = stm.newState,
       signals = unAvailableSignals,
       events = Vector(
         Transition(
-          newState = com.inland24.plantsim.models.PowerPlantState.OutOfService,
+          newState = OutOfService,
           oldState = stm.newState,
           powerPlantConfig = stm.cfg,
           timeStamp = DateTime.now(DateTimeZone.UTC)
@@ -146,12 +147,12 @@ object StateMachine {
   def returnToService(stm: StateMachine): StateMachine = {
     stm.copy(
       setPoint = stm.cfg.minPower,
-      newState = com.inland24.plantsim.models.PowerPlantState.ReturnToService,
+      newState = ReturnToService,
       oldState = stm.newState,
       signals = unAvailableSignals,
       events = Vector(
         Transition(
-          newState = com.inland24.plantsim.models.PowerPlantState.ReturnToService,
+          newState = ReturnToService,
           oldState = stm.newState,
           powerPlantConfig = stm.cfg
         )
@@ -175,11 +176,11 @@ object StateMachine {
         setPoint = stm.cfg.maxPower, // curtailing the SetPoint to maxPower
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
         oldState = stm.newState,
-        newState = com.inland24.plantsim.models.PowerPlantState.RampUp,
+        newState = RampUp,
         events = Vector(
           Transition(
             oldState = stm.newState,
-            newState = com.inland24.plantsim.models.PowerPlantState.RampUp,
+            newState = RampUp,
             powerPlantConfig = stm.cfg
           ),
           DispatchAlert(
@@ -195,11 +196,11 @@ object StateMachine {
         setPoint = setPoint,
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
         oldState = stm.newState,
-        newState = com.inland24.plantsim.models.PowerPlantState.RampUp,
+        newState = RampUp,
         events = Vector(
           Transition(
             oldState = stm.newState,
-            newState = com.inland24.plantsim.models.PowerPlantState.RampUp,
+            newState = RampUp,
             powerPlantConfig = stm.cfg
           )
         ) ++ stm.events
@@ -260,7 +261,7 @@ object StateMachine {
         // check if the newActivePower is greater than setPoint
         if (currentActivePower + stm.cfg.rampPowerRate >= stm.setPoint) { // This means we have fully ramped up to the setPoint
           stm.copy(
-            newState = com.inland24.plantsim.models.PowerPlantState.Dispatched,
+            newState = Dispatched,
             oldState = stm.newState,
             signals = Map(
               isDispatchedSignalKey -> true.toString,
@@ -270,7 +271,7 @@ object StateMachine {
             events = Vector(
               Transition(
                 oldState = stm.newState,
-                newState = com.inland24.plantsim.models.PowerPlantState.Dispatched,
+                newState = Dispatched,
                 powerPlantConfig = stm.cfg
               )
             ) ++ stm.events
@@ -279,7 +280,7 @@ object StateMachine {
         else { // We still have to RampUp
           stm.copy(
             lastRampTime = DateTime.now(DateTimeZone.UTC),
-            newState = com.inland24.plantsim.models.PowerPlantState.RampUp,
+            newState = RampUp,
             oldState = stm.newState,
             signals = Map(
               isDispatchedSignalKey -> false.toString,
