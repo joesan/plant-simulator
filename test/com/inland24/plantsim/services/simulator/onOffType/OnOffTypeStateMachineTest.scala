@@ -16,6 +16,8 @@
 package com.inland24.plantsim.services.simulator.onOffType
 
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
+import com.inland24.plantsim.models.PowerPlantSignal.Transition
+import com.inland24.plantsim.models.PowerPlantState.{Active, Dispatched, Init}
 import com.inland24.plantsim.models.PowerPlantType
 import org.scalatest.FlatSpec
 
@@ -39,6 +41,9 @@ class OnOffTypeStateMachineTest extends FlatSpec {
       case (key, value) if key == StateMachine.isAvailableSignalKey => assert(value.toBoolean)
       case (key, value) if key == StateMachine.isOnOffSignalKey     => assert(!value.toBoolean) // should be Off when initializing
     }
+    assert(initState.events.exists(elem => elem.isInstanceOf[Transition]))
+    assert(initState.newState === Active)
+    assert(initState.oldState === Init)
   }
 
   "PowerPlantState#turnOn" should "turnOn when in Off state and in available state" in {
@@ -50,5 +55,8 @@ class OnOffTypeStateMachineTest extends FlatSpec {
       case (key, value) if key == StateMachine.isAvailableSignalKey => assert(value.toBoolean)
       case (key, value) if key == StateMachine.isOnOffSignalKey     => assert(value.toBoolean)
     }
+    assert(turnedOn.events.exists(elem => elem.isInstanceOf[Transition]))
+    assert(turnedOn.newState === Dispatched)
+    assert(turnedOn.oldState === Active)
   }
 }
