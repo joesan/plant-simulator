@@ -50,6 +50,7 @@ class OnOffTypeActor private (config: Config)
       evolve(StateMachine.init(StateMachine.empty(cfg), cfg.minPower))
   }
 
+  // TODO: Scaladoc!!!!
   def active(state: StateMachine): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
