@@ -18,7 +18,6 @@
 package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.ActorSystem
-import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
@@ -32,6 +31,7 @@ import com.inland24.plantsim.services.simulator.rampUpType
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.{OutOfServiceMessage, ReturnToServiceMessage}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 
@@ -316,50 +316,31 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
         )
         expectNoMsg()
       }
-      // The PowerPlant should have fully dispatched, let's check that
+
+      /*
+       * Very unfortunately, we got to bloddy wait for some time until our Actor changes context!
+       * This happens only for unit testing
+       */
+      Thread.sleep(8000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
+
       within(2.seconds) {
-        rampUpTypeActor ! StateRequestMessage
-        expectMsgPF() {
-          case state: StateMachine =>
-            state.newState shouldBe Dispatched
-            state.oldState shouldBe RampUp
-            state.setPoint shouldBe initPowerPlantState.cfg.maxPower
-            // PowerPlant should be dispatched true
-            state.signals(StateMachine.isDispatchedSignalKey).toBoolean shouldBe true
-            state.signals(StateMachine.isAvailableSignalKey).toBoolean  shouldBe true
-            state.signals(StateMachine.activePowerSignalKey).toDouble   shouldBe initPowerPlantState.cfg.maxPower
-
-          case x: Any =>
-            fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
-        }
-      }
-
-      // 2. Send a ReturnToNormal message, the PowerPlant should start to RampDown, let's check that!
-      within(10.seconds) {
         rampUpTypeActor ! ReturnToNormalCommand(rampUpTypeCfg.id)
-        expectMsgPF() {
-          case state: StateMachine =>
-            state.newState shouldBe RampDown
-            state.oldState shouldBe Dispatched
-            state.setPoint shouldBe initPowerPlantState.cfg.maxPower
-            // PowerPlant should be dispatched false as it comes back to active state
-            state.signals(StateMachine.isDispatchedSignalKey).toBoolean shouldBe true
-            state.signals(StateMachine.isAvailableSignalKey).toBoolean  shouldBe true
-            assert(state.signals(StateMachine.activePowerSignalKey).toDouble < initPowerPlantState.cfg.maxPower)
-
-          case x: Any =>
-            fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
-        }
+        expectNoMsg()
       }
+
+      /*
+       * Very unfortunately, we got to bloddy wait for some time until our Actor changes context!
+       * This happens only for unit testing
+       */
+      Thread.sleep(8000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
 
       // 3. The PowerPlant should have fully returned to normal, let's check that
       within(2.seconds) {
-        rampUpTypeActor ! ReturnToNormalCommand(rampUpTypeCfg.id)
         rampUpTypeActor ! StateRequestMessage
         expectMsgPF() {
           case state: StateMachine =>
             state.newState shouldBe Active
-            state.oldState shouldBe Dispatched
+            state.oldState shouldBe RampDown
             state.setPoint shouldBe initPowerPlantState.cfg.maxPower
             // PowerPlant should be dispatched false as it comes back to active state
             state.signals(StateMachine.isDispatchedSignalKey).toBoolean shouldBe false

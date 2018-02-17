@@ -221,10 +221,10 @@ object StateMachine {
         if (currentActivePower - state.cfg.rampPowerRate <= state.cfg.minPower) { // if true, this means we have ramped down to the required minPower!
           state.copy(
             oldState = state.newState,
-            newState = ReturnToNormal,
+            newState = Active,
             events = Vector(
               Transition(
-                newState = ReturnToNormal,
+                newState = Active,
                 oldState = state.newState,
                 powerPlantConfig = state.cfg
               )
@@ -238,7 +238,7 @@ object StateMachine {
         } else { // else, we do one RampDown attempt
           state.copy(
             lastRampTime = DateTime.now(DateTimeZone.UTC),
-            newState = com.inland24.plantsim.models.PowerPlantState.RampDown,
+            newState = RampDown,
             oldState = state.newState,
             signals = Map(
               isDispatchedSignalKey -> true.toString,

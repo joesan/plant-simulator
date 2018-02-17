@@ -80,7 +80,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     val (signals, newStm) = StateMachine.popEvents(stm)
     for (s <- signals) out.onNext(s)
     val receiveMethod = decideTransition(newStm)
-    log.debug(s"EVOLVED STATE << ${Some(receiveMethod.getClass.getSimpleName.split("\\$")(2)).getOrElse("unknown")} >>")
+    log.info(s"EVOLVED STATE << ${Some(receiveMethod.getClass.getSimpleName.split("\\$")(2)).getOrElse("unknown")} >>")
     context.become(receiveMethod)
   }
 
@@ -139,14 +139,6 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
 
     case StateRequestMessage =>
       sender ! state
-/*
-    case RampUpMessage =>
-      context.become(
-        rampUp(
-          StateMachine.rampUpCheck(state),
-          subscription
-        )
-      ) */
 
     case RampCheckMessage =>
       // We first check if we have reached the setPoint, if yes, we switch context
@@ -229,7 +221,6 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
         evolve(state)
       } else {
         // time for another ramp down!
-        log.info(s"Ramping Down ******* ")
         context.become(
           rampDown(
             StateMachine.rampDownCheck(state),
