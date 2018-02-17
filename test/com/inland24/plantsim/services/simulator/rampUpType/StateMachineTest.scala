@@ -206,7 +206,7 @@ class StateMachineTest extends WordSpecLike {
       outOfServiceStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
           elem.powerPlantConfig shouldBe stm.cfg
-          assert(elem.timeStamp.isBefore(now))
+          assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
         case unexpected =>
           fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
@@ -236,7 +236,7 @@ class StateMachineTest extends WordSpecLike {
     }
 
     "transition to OutOfService when in RampUp state" in {
-      val rampUpStm = StateMachine.rampCheck(
+      val rampUpStm = StateMachine.rampUpCheck(
         stm.copy(
           setPoint = stm.cfg.maxPower,
           lastRampTime = stm.lastRampTime.minusSeconds(4)
@@ -279,7 +279,7 @@ class StateMachineTest extends WordSpecLike {
        * Let us now test if this happens!
        * The first dispatch command should take its activePower to 500
        */
-      val dispatchState1 = StateMachine.rampCheck(
+      val dispatchState1 = StateMachine.rampUpCheck(
         stm.copy(
           setPoint = setPoint,
           lastRampTime = stm.lastRampTime.minusSeconds(4)
@@ -293,26 +293,26 @@ class StateMachineTest extends WordSpecLike {
        * On our second dispatch, we should go from 500 to 600, but we got to wait 4 seconds
        * Blocking may be a bad idea, so we simulate time (i.e., subtract 4 seconds to the isRampUp check)
        */
-      val dispatchState2 = StateMachine.rampCheck(
+      val dispatchState2 = StateMachine.rampUpCheck(
         reset1.copy(lastRampTime = dispatchState1.lastRampTime.minusSeconds(4))
       )
       assert(dispatchState2.signals(StateMachine.activePowerSignalKey).toDouble === 600.0)
       val reset2 = dispatchState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
       // Let's try another dispatch immediately, this should have no effect and we should still stay at 600
-      val dispatchState2_copy = StateMachine.rampCheck(
+      val dispatchState2_copy = StateMachine.rampUpCheck(
         reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1))
       )
       assert(reset2.signals === dispatchState2_copy.signals)
 
       // Another 4 seconds elapse, we move to 700
-      val dispatchState3 = StateMachine.rampCheck(
+      val dispatchState3 = StateMachine.rampUpCheck(
         dispatchState2.copy(lastRampTime = dispatchState2.lastRampTime.minusSeconds(4))
       )
       assert(dispatchState3.signals(StateMachine.activePowerSignalKey).toDouble === 700.0)
 
       // Another 4 seconds elapse, we move to 800, our setPoint
-      val dispatchState4 = StateMachine.rampCheck(
+      val dispatchState4 = StateMachine.rampUpCheck(
         dispatchState3.copy(lastRampTime = dispatchState3.lastRampTime.minusSeconds(4))
       )
       assert(dispatchState4.signals(StateMachine.activePowerSignalKey).toDouble === 800)
@@ -366,7 +366,7 @@ class StateMachineTest extends WordSpecLike {
        * Let us now test if this happens!
        * The first ReturnToNormal command should take its activePower from 800 to 700
        */
-      val rtnState1 = StateMachine.returnToNormal(dispatchedState)
+      val rtnState1 = StateMachine.rampDownCheck(dispatchedState)
       assert(rtnState1.signals(StateMachine.activePowerSignalKey).toDouble === 700.0)
       // we now come back to the current time for the lastRampTime, so that we can do the next tests
       val reset1 = rtnState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
@@ -375,20 +375,20 @@ class StateMachineTest extends WordSpecLike {
        * On our second ReturnToNormal, we should go from 700.0 to 600.0, but we got to wait 4 seconds
        * Blocking may be a bad idea, so we simulate time (i.e., subtract 4 seconds to the isRampUp check)
        */
-      val rtnState2 = StateMachine.returnToNormal(reset1.copy(lastRampTime = rtnState1.lastRampTime.minusSeconds(4)))
+      val rtnState2 = StateMachine.rampDownCheck(reset1.copy(lastRampTime = rtnState1.lastRampTime.minusSeconds(4)))
       assert(rtnState2.signals(StateMachine.activePowerSignalKey).toDouble === 600.0)
       val reset2 = rtnState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
       // Let's try another ReturnToNormal immediately, this should have no effect and we should still stay at 600.0
-      val rtnState2_copy = StateMachine.returnToNormal(reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)))
+      val rtnState2_copy = StateMachine.rampDownCheck(reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)))
       assert(reset2.signals === rtnState2_copy.signals)
 
       // Another 4 seconds elapse, we move to 500.0
-      val rtnState3 = StateMachine.returnToNormal(rtnState2.copy(lastRampTime = rtnState2.lastRampTime.minusSeconds(4)))
+      val rtnState3 = StateMachine.rampDownCheck(rtnState2.copy(lastRampTime = rtnState2.lastRampTime.minusSeconds(4)))
       assert(rtnState3.signals(StateMachine.activePowerSignalKey).toDouble === 500)
 
       // Another 4 seconds elapse, we move to 400.0, our minPower to which we ReturnToNormal to
-      val rtnState4 = StateMachine.returnToNormal(rtnState3.copy(lastRampTime = rtnState3.lastRampTime.minusSeconds(4)))
+      val rtnState4 = StateMachine.rampDownCheck(rtnState3.copy(lastRampTime = rtnState3.lastRampTime.minusSeconds(4)))
       assert(rtnState4.signals(StateMachine.activePowerSignalKey).toDouble === cfg.minPower)
     }
   }

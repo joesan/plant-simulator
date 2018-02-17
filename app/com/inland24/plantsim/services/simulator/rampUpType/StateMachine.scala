@@ -209,7 +209,7 @@ object StateMachine {
     }
   }
 
-  def returnToNormal(state: StateMachine): StateMachine = { // ReturnToNormal means RampDown
+  def rampDownCheck(state: StateMachine): StateMachine = { // ReturnToNormal means RampDown
     if (isTimeForRamp(state.lastRampTime, state.cfg.rampRateInSeconds)) {
       val collectedSignal = state.signals.collect { // to rampDown, you got to be in dispatched state
         case (key, value) if key == isDispatchedSignalKey && value.toBoolean => key -> value
@@ -221,10 +221,10 @@ object StateMachine {
         if (currentActivePower - state.cfg.rampPowerRate <= state.cfg.minPower) { // if true, this means we have ramped down to the required minPower!
           state.copy(
             oldState = state.newState,
-            newState = com.inland24.plantsim.models.PowerPlantState.ReturnToNormal,
+            newState = ReturnToNormal,
             events = Vector(
               Transition(
-                newState = com.inland24.plantsim.models.PowerPlantState.ReturnToNormal,
+                newState = ReturnToNormal,
                 oldState = state.newState,
                 powerPlantConfig = state.cfg
               )
@@ -251,7 +251,7 @@ object StateMachine {
     } else state
   }
 
-  def rampCheck(stm: StateMachine): StateMachine = {
+  def rampUpCheck(stm: StateMachine): StateMachine = {
     if (isTimeForRamp(stm.lastRampTime, stm.cfg.rampRateInSeconds)) {
       val collectedSignal = stm.signals.collect { // to dispatch, you got to be available
         case (key, value) if key == isAvailableSignalKey && value.toBoolean => key -> value

@@ -18,11 +18,13 @@
 package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.ActorSystem
+import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
+import com.inland24.plantsim.models.PowerPlantState.{Active, Dispatched, RampDown, RampUp}
 import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.StateRequestMessage
@@ -47,7 +49,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
     maxPower = 800.0,
     rampPowerRate = 100.0,
     rampRateInSeconds = 2.seconds,
-    powerPlantType = PowerPlantType.OnOffType
+    powerPlantType = PowerPlantType.RampUpType
   )
   private val initPowerPlantState = StateMachine.init(rampUpTypeCfg)
   private val rampUpTypeActorCfg = rampUpType.RampUpTypeActor.Config(
@@ -302,10 +304,11 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
     // TODO: Re-work on this test to perfection!
     "return the PowerPlant to Normal when ReturnToNormalCommand message is sent in dispatched state" in {
       // To avoid confusion and the tests failing, we create a new actor instance for this test
-      val rampUpTypeSimActor = system.actorOf(RampUpTypeActor.props(rampUpTypeActorCfg))
+      val rampUpTypeActor = system.actorOf(RampUpTypeActor.props(rampUpTypeActorCfg))
+
       // 1. Send a Dispatch message
-      within(5.seconds) {
-        rampUpTypeSimActor ! DispatchRampUpPowerPlant(
+      within(10.seconds) {
+        rampUpTypeActor ! DispatchRampUpPowerPlant(
           powerPlantId = rampUpTypeCfg.id,
           command = "dispatch",
           powerPlantType = RampUpType,
@@ -313,23 +316,59 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
         )
         expectNoMsg()
       }
+      // The PowerPlant should have fully dispatched, let's check that
+      within(2.seconds) {
+        rampUpTypeActor ! StateRequestMessage
+        expectMsgPF() {
+          case state: StateMachine =>
+            state.newState shouldBe Dispatched
+            state.oldState shouldBe RampUp
+            state.setPoint shouldBe initPowerPlantState.cfg.maxPower
+            // PowerPlant should be dispatched true
+            state.signals(StateMachine.isDispatchedSignalKey).toBoolean shouldBe true
+            state.signals(StateMachine.isAvailableSignalKey).toBoolean  shouldBe true
+            state.signals(StateMachine.activePowerSignalKey).toDouble   shouldBe initPowerPlantState.cfg.maxPower
 
-      // 2. Send a ReturnToNormal message
-      within(1.seconds) {
-        rampUpTypeSimActor ! ReturnToNormalCommand
-        expectNoMsg()
+          case x: Any =>
+            fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
+        }
       }
 
-      // 3. Send a StateRequest message
-      rampUpTypeSimActor ! StateRequestMessage
-      expectMsgPF() {
-        case state: StateMachine =>
-          assert(state.signals("isDispatched") === initPowerPlantState.signals("isDispatched"), "signals did not match")
-          assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
-          assert(state.cfg.rampPowerRate === initPowerPlantState.cfg.rampPowerRate, "rampRate did not match")
-        // assert(state.setPoint === initPowerPlantState.setPoint, "setPoint did not match")
-        case x: Any =>
-          fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
+      // 2. Send a ReturnToNormal message, the PowerPlant should start to RampDown, let's check that!
+      within(10.seconds) {
+        rampUpTypeActor ! ReturnToNormalCommand(rampUpTypeCfg.id)
+        expectMsgPF() {
+          case state: StateMachine =>
+            state.newState shouldBe RampDown
+            state.oldState shouldBe Dispatched
+            state.setPoint shouldBe initPowerPlantState.cfg.maxPower
+            // PowerPlant should be dispatched false as it comes back to active state
+            state.signals(StateMachine.isDispatchedSignalKey).toBoolean shouldBe true
+            state.signals(StateMachine.isAvailableSignalKey).toBoolean  shouldBe true
+            assert(state.signals(StateMachine.activePowerSignalKey).toDouble < initPowerPlantState.cfg.maxPower)
+
+          case x: Any =>
+            fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
+        }
+      }
+
+      // 3. The PowerPlant should have fully returned to normal, let's check that
+      within(2.seconds) {
+        rampUpTypeActor ! ReturnToNormalCommand(rampUpTypeCfg.id)
+        rampUpTypeActor ! StateRequestMessage
+        expectMsgPF() {
+          case state: StateMachine =>
+            state.newState shouldBe Active
+            state.oldState shouldBe Dispatched
+            state.setPoint shouldBe initPowerPlantState.cfg.maxPower
+            // PowerPlant should be dispatched false as it comes back to active state
+            state.signals(StateMachine.isDispatchedSignalKey).toBoolean shouldBe false
+            state.signals(StateMachine.isAvailableSignalKey).toBoolean  shouldBe true
+            state.signals(StateMachine.activePowerSignalKey).toDouble   shouldBe initPowerPlantState.cfg.minPower
+
+          case x: Any =>
+            fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
+        }
       }
     }
   }
