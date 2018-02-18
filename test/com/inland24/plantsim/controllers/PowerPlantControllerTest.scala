@@ -37,6 +37,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
   with Results with BeforeAndAfterAll with DBServiceSpec {
 
   val bindings = AppBindings.apply(system, ActorMaterializer())
+  val controller = new PowerPlantController(bindings)
 
   override def beforeAll(): Unit = {
     // 1. Set up the Schemas
@@ -52,13 +53,9 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
   }
 
   "PowerPlantController ## powerPlantDetails" should {
-
-    val controller = new PowerPlantController(bindings)
-
     "fetch the details of a PowerPlant" in {
       val result: Future[Result] = controller.powerPlantDetails(101).apply(FakeRequest())
-      val bodyText: String = contentAsString(result)
-      Json.parse(bodyText) mustBe
+      contentAsJson(result) mustBe
         Json.parse("""
           |{
           |  "powerPlantId" : 101,
@@ -76,6 +73,60 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
       val result: Future[Result] = controller.powerPlantDetails(1).apply(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText mustBe "HTTP 404 :: PowerPlant with ID 1 not found"
+    }
+  }
+
+  "PowerPlantController ## searchPowerPlants" should {
+    "search all activePowerPlants" in {
+      val result: Future[Result] =
+        controller.searchPowerPlants(onlyActive = Some(true), page = 1)
+          .apply(FakeRequest())
+      contentAsJson(result) mustBe Json.parse(
+        """
+          |[{
+          |   "powerPlantId":101,
+          |   "powerPlantName":"joesan 1",
+          |   "minPower":100,
+          |   "maxPower":800,
+          |   "rampPowerRate":20,
+          |   "rampRateInSeconds":"2 seconds",
+          |   "powerPlantType":"RampUpType"
+          |},
+          |{
+          |   "powerPlantId":102,
+          |   "powerPlantName":"joesan 2",
+          |   "minPower":200,
+          |   "maxPower":1600,
+          |   "powerPlantType":"OnOffType"
+          |},
+          |{
+          |   "powerPlantId":103,
+          |   "powerPlantName":"joesan 3",
+          |   "minPower":300,
+          |   "maxPower":2400,
+          |   "rampPowerRate":20,
+          |   "rampRateInSeconds":"2 seconds",
+          |   "powerPlantType":"RampUpType"
+          |},
+          |{
+          |   "powerPlantId":104,
+          |   "powerPlantName":"joesan 4",
+          |   "minPower":400,
+          |   "maxPower":3200,
+          |   "powerPlantType":"OnOffType"
+          |},
+          |{
+          |   "powerPlantId":105,
+          |   "powerPlantName":"joesan 5",
+          |   "minPower":500,
+          |   "maxPower":4000,
+          |   "rampPowerRate":20,
+          |   "rampRateInSeconds":"2 seconds",
+          |   "powerPlantType":"RampUpType"
+          |}]
+        """.stripMargin
+      )
+
     }
   }
 }
