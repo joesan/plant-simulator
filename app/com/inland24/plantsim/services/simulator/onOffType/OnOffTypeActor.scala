@@ -51,11 +51,11 @@ class OnOffTypeActor private (config: Config)
    */
   override def preStart(): Unit = {
     super.preStart()
-    self ! Init
+    self ! InitMessage
   }
 
   override def receive: Receive = {
-    case Init =>
+    case InitMessage =>
       evolve(StateMachine.init(StateMachine.empty(cfg), cfg.minPower))
   }
 
@@ -82,7 +82,7 @@ class OnOffTypeActor private (config: Config)
     case TelemetrySignals =>
       sender ! state.signals
 
-    case StateRequest =>
+    case StateRequestMessage =>
       sender ! state
 
     case DispatchOnOffPowerPlant(_,_,_,turnOn) =>
@@ -94,12 +94,12 @@ class OnOffTypeActor private (config: Config)
     case ReturnToNormalCommand => // ReturnToNormal means means returning to min power
       evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
-    case OutOfService =>
+    case OutOfServiceMessage =>
       evolve(state.copy(signals = StateMachine.unAvailableSignals))
 
     case ReturnToService =>
       context.become(receive)
-      self ! Init
+      self ! InitMessage
   }
 }
 object OnOffTypeActor {
@@ -110,12 +110,12 @@ object OnOffTypeActor {
   )
 
   sealed trait Message
-  case object Init extends Message
-  case object StateRequest extends Message
+  case object InitMessage extends Message
+  case object StateRequestMessage extends Message
 
   // These messages are meant for manually faulting and un-faulting the power plant
-  case object OutOfService extends Message
-  case object ReturnToService extends Message
+  case object OutOfServiceMessage extends Message
+  case object ReturnToServiceMessage extends Message
 
   def props(cfg: Config): Props =
     Props(new OnOffTypeActor(cfg))

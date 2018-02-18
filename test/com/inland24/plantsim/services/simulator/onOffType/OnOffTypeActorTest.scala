@@ -65,7 +65,7 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
         expectNoMsg()
       }
 
-      onOffTypeSimActor ! StateRequest
+      onOffTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
@@ -87,7 +87,7 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
         expectNoMsg()
       }
 
-      onOffTypeSimActor ! StateRequest
+      onOffTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           assert(state.signals(activePowerSignalKey).toDouble === onOffTypeCfg.maxPower,
@@ -111,7 +111,7 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
         expectNoMsg()
       }
 
-      onOffTypeSimActor ! StateRequest
+      onOffTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
@@ -139,7 +139,7 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
         expectNoMsg()
       }
 
-      onOffTypeSimActor ! StateRequest
+      onOffTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
@@ -161,12 +161,12 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
         expectNoMsg()
       }
 
-      within(1.seconds) {
-        onOffTypeSimActor ! OutOfService
+      within(4.seconds) {
+        onOffTypeSimActor ! OutOfServiceMessage
         expectNoMsg()
       }
 
-      onOffTypeSimActor ! StateRequest
+      onOffTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           assert(state.signals === StateMachine.unAvailableSignals, "signals did not match")
@@ -187,11 +187,11 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
       }
 
       within(1.seconds) {
-        onOffTypeSimActor ! OutOfService
+        onOffTypeSimActor ! OutOfServiceMessage
         expectNoMsg()
       }
 
-      onOffTypeSimActor ! StateRequest
+      onOffTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           assert(state.signals === StateMachine.unAvailableSignals, "signals did not match")
@@ -203,16 +203,16 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
     // PowerPlant # ReturnToService tests
     "return to service when ReturnToService message is sent during OutOfService state" in {
       within(1.seconds) {
-        onOffTypeSimActor ! OutOfService
+        onOffTypeSimActor ! OutOfServiceMessage
         expectNoMsg()
       }
 
       within(1.seconds) {
-        onOffTypeSimActor ! ReturnToService
+        onOffTypeSimActor ! ReturnToServiceMessage
         expectNoMsg()
       }
 
-      onOffTypeSimActor ! StateRequest
+      onOffTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")

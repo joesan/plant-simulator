@@ -137,12 +137,12 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
       val result: Future[Result] =
         controller.searchPowerPlants(onlyActive = Some(false), page = 1)
           .apply(FakeRequest())
-      contentAsString(result) mustBe "[]" // All the 5 PowerPlant's in the database are active
+      contentAsString(result) mustBe "[ ]" // All the 5 PowerPlant's in the database are active
     }
 
     "search all RampUpType active PowerPlant's" in {
       val result: Future[Result] =
-        controller.searchPowerPlants(onlyActive = Some(true), page = 1)
+        controller.searchPowerPlants(onlyActive = Some(true), page = 1, powerPlantType = Some("RampUpType"))
           .apply(FakeRequest())
       contentAsJson(result) mustBe Json.parse(
         """
@@ -183,20 +183,31 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           .apply(FakeRequest())
       contentAsJson(result) mustBe Json.parse(
         """
-          |[{
-          |   "powerPlantId":102,
-          |   "powerPlantName":"joesan 2",
-          |   "minPower":200,
-          |   "maxPower":1600,
-          |   "powerPlantType":"OnOffType"
-          |},
-          |{
-          |   "powerPlantId":104,
-          |   "powerPlantName":"joesan 4",
-          |   "minPower":400,
-          |   "maxPower":3200,
-          |   "powerPlantType":"OnOffType"
-          |}]
+          |[
+          |   {
+          |      "powerPlantId":102,
+          |      "powerPlantName":"joesan 2",
+          |      "minPower":200,
+          |      "maxPower":1600,
+          |      "powerPlantType":"OnOffType"
+          |   },
+          |   {
+          |      "powerPlantId":104,
+          |      "powerPlantName":"joesan 4",
+          |      "minPower":400,
+          |      "maxPower":3200,
+          |      "powerPlantType":"OnOffType"
+          |   },
+          |   {
+          |      "powerPlantId":106,
+          |      "powerPlantName":"joesan 6",
+          |      "minPower":600,
+          |      "maxPower":4800,
+          |      "powerPlantType":"OnOffType"
+          |   }
+          |]
+          |
+          |
         """.stripMargin
       )
     }
