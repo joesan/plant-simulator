@@ -52,6 +52,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
     TestKit.shutdownActorSystem(system)
   }
 
+  // PowerPlantDetails test
   "PowerPlantController ## powerPlantDetails" should {
 
     "fetch the details of a PowerPlant" in {
@@ -77,6 +78,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
     }
   }
 
+  // SearchPowerPlants test
   "PowerPlantController ## searchPowerPlants" should {
 
     val allActivePowerPlants =
@@ -202,6 +204,13 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
     "search all UnknownType active PowerPlant's" in {
       val result: Future[Result] =
         controller.searchPowerPlants(onlyActive = Some(true), page = 1, powerPlantType = Some("SomeUnknownType"))
+          .apply(FakeRequest())
+      contentAsJson(result) mustBe Json.parse(allActivePowerPlants)
+    }
+
+    "search all active PowerPlant's with powerPlantName joesan" in {
+      val result: Future[Result] =
+        controller.searchPowerPlants(onlyActive = Some(true), page = 1, powerPlantName = Some("joesan"))
           .apply(FakeRequest())
       contentAsJson(result) mustBe Json.parse(allActivePowerPlants)
     }
