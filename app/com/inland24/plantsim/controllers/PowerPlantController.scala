@@ -60,10 +60,6 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     }
   }
 
-  def updatePowerPlant(id: Int) = ???
-
-  // TODO: Under Implementation
-/*
   def updatePowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
     request.body.validate[PowerPlantConfig].fold(
       errors => {
@@ -72,36 +68,20 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
         )
       },
       success => {
-        // 1. Fetch the PowerPlant for the given Id from the database
-        dbService.powerPlantById(success.id).runAsync.materialize.map {
-          case Success(Some(_)) =>
-            // We now take the request and persist this in the database
-            toPowerPlantRow(success) match {
-              case Some(newPowerPlantRow) =>
-                //dbService.upd(newPowerPlantRow)
-              case None =>
-            }
-          case Failure(fail) =>
-            // There was no PowerPlant to be found in the database, so nothing to update
-        }
-        toPowerPlantRow(success) match {
-          case None => Future.successful(
-            BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig ")).enableCors // TODO: fix errors
-          )
-          case Some(row) =>
-            dbService.newPowerPlant(row).runAsync.materialize.map {
-              case Success(insertedRecordId) =>
-                Ok("TODO: Send a Success JSON back with the id of the newly inserted record").enableCors
-              case Failure(ex) =>
-                UnprocessableEntity(
-                  Json.obj("message" -> s"Could not create new PowerPlant because of ${ex.getMessage}")
-                ).enableCors
+        dbService.updatePowerPlant(success).runAsync.materialize.map {
+          case Failure(ex) =>
+            InternalServerError(Json.obj("message" -> s"invalid PowerPlantConfig $ex")).enableCors
+          case Success(result) =>
+            result match {
+              case Left(errorMessage) =>
+                BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig $errorMessage")).enableCors
+              case Right(updatedConfig) =>
+                Ok(Json.toJson(updatedConfig))
             }
         }
       }
     )
   }
-*/
 
   def powerPlants(onlyActive: Boolean, page: Int) = Action.async {
     val filter = PowerPlantFilter(onlyActive = Some(onlyActive), pageNumber = page)
