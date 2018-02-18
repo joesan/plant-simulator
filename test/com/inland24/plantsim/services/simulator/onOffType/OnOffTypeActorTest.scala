@@ -49,14 +49,14 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
     minPower = onOffTypeCfg.minPower
   )
 
-  private val onOfffActorCfg = Config(
+  private val onOffActorCfg = Config(
     onOffTypeCfg,
     PowerPlantEventObservable.apply(monix.execution.Scheduler.Implicits.global)
   )
 
   "OnOffTypeActor" must {
 
-    val onOffTypeSimActor = system.actorOf(OnOffTypeActor.props(onOfffActorCfg))
+    val onOffTypeSimActor = system.actorOf(OnOffTypeActor.props(onOffActorCfg))
 
     // PowerPlant # Init tests
     "start with Active state" in {

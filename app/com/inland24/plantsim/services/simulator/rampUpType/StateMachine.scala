@@ -57,7 +57,7 @@ object StateMachine {
     isAvailableSignalKey  -> false.toString // indicates if the power plant is not available for steering
   )
 
-  // Utility method that will clear emit the events to the outside world
+  // Utility method that will clear and emit the events to the outside world
   def popEvents(state: StateMachine): (Seq[PowerPlantSignal], StateMachine) = {
     (state.events, state.copy(events = Vector.empty))
   }
