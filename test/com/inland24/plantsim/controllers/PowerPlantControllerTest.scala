@@ -21,8 +21,11 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.testkit.TestKit
 import com.inland24.plantsim.core.AppBindings
+import com.inland24.plantsim.models.PowerPlantConfig
 import com.inland24.plantsim.services.database.DBServiceSpec
 import org.scalatest.{BeforeAndAfterAll, MustMatchers, OptionValues, WordSpecLike}
+import monix.execution.FutureUtils.extensions._
+import monix.execution.Scheduler.Implicits.global
 
 import scala.concurrent.Future
 import org.scalatestplus.play._
@@ -30,6 +33,8 @@ import play.api.libs.json._
 import play.api.mvc._
 import play.api.test._
 import play.api.test.Helpers._
+
+import scala.util.{Failure, Success}
 
 
 class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantControllerTest"))
@@ -285,9 +290,35 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           .apply(
             FakeRequest().withBody(Json.parse(jsBody))
           )
-      import scala.concurrent.duration._
-      val xxxx = scala.concurrent.Await.result(result, 2.seconds)
       contentAsJson(result) mustBe Json.parse(jsBody)
+    }
+
+    "not update for an invalid PowerPlantConfig JSON" in {
+      // We are updating the PowerPlant with id = 101, Notice that the powerPlantId is invalid
+      val jsBody =
+        """
+          |{
+          |   "powerPlantId":"invalidId",
+          |   "powerPlantName":"joesan 1",
+          |   "minPower":100,
+          |   "maxPower":800,
+          |   "rampPowerRate":20.0,
+          |   "rampRateInSeconds":"2 seconds",
+          |   "powerPlantType":"RampUpType"
+          |}
+        """.stripMargin
+
+      val result: Future[Result] =
+        controller.updatePowerPlant(101)
+          .apply(
+            FakeRequest().withBody(Json.parse(jsBody))
+          )
+      result.materialize.map {
+        case Success(suck) =>
+          assert(suck.header.status === BAD_REQUEST)
+        case Failure(_) =>
+          fail("Unexpected test failure when Updating a PowerPlant! Please Analyze!")
+      }
     }
   }
 }
