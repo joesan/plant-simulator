@@ -102,7 +102,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
     }
   }
 
-  // SearchPowerPlants test
+  // Search PowerPlants test
   "PowerPlantController ## searchPowerPlants" should {
 
     val allActivePowerPlants =
@@ -261,6 +261,31 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
         controller.searchPowerPlants(onlyActive = Some(true), page = 1, powerPlantName = Some("joesan"))
           .apply(FakeRequest())
       contentAsJson(result) mustBe Json.parse(allActivePowerPlants)
+    }
+  }
+
+  // Update PowerPlants test
+  "PowerPlantController ## updatePowerPlant" should {
+    "update an active PowerPlant successfully" in {
+      // We are updating the PowerPlant with id = 101, We just change its name
+      val jsBody =
+        """
+          |{
+          |   "powerPlantId":101,
+          |   "powerPlantName":"joesan 1 updated",
+          |   "minPower":100,
+          |   "maxPower":800,
+          |   "rampPowerRate":20.0,
+          |   "rampRateInSeconds":2,
+          |   "powerPlantType":"RampUpType"
+          |}
+        """.stripMargin
+      val result: Future[Result] =
+        controller.updatePowerPlant(101)
+          .apply(
+            FakeRequest().withBody(Json.parse(jsBody))
+          )
+      contentAsJson(result) mustBe Json.parse(jsBody)
     }
   }
 }

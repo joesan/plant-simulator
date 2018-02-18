@@ -64,19 +64,22 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
     request.body.validate[PowerPlantConfig].fold(
       errors => {
         Future.successful(
-          BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig $errors")).enableCors
+          BadRequest(
+            Json.obj("message" -> s"invalid PowerPlantConfig ${errors.mkString(",")}")
+          ).enableCors
         )
       },
       success => {
         dbService.updatePowerPlant(success).runAsync.materialize.map {
           case Failure(ex) =>
-            InternalServerError(Json.obj("message" -> s"invalid PowerPlantConfig $ex")).enableCors
+            InternalServerError(s"Error updating PowerPlant " +
+              s"Reason => ${ex.getMessage}").enableCors
           case Success(result) =>
             result match {
               case Left(errorMessage) =>
                 BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig $errorMessage")).enableCors
               case Right(updatedConfig) =>
-                Ok(Json.toJson(updatedConfig))
+                Ok(Json.prettyPrint(Json.toJson(updatedConfig))).enableCors
             }
         }
       }

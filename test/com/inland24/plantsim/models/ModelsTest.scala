@@ -88,7 +88,7 @@ class ModelsTest extends FlatSpec {
     actualOnOffTypeCfg === onOffTypePlantCfg
   }
 
-  "RampUpTypeConfigWrites" should "Serialize and De-Serialize for the given RampUpTypeConfig" in {
+  "RampUpTypeConfigWrites" should "Serialize and DeSerialize for the given RampUpTypeConfig" in {
     val expectedJsonRampUpType =
       """
         |{
@@ -111,8 +111,9 @@ class ModelsTest extends FlatSpec {
       rampRateInSeconds = 2.seconds,
       powerPlantType = PowerPlantType.RampUpType
     )
+    // Check writes
     powerPlantCfgFormat.writes(rampUpTypePlantCfg) === expectedJsonRampUpType
-
+    // Check reads
     val actualRampUpTypeCfg = powerPlantCfgFormat.reads(
       Json.parse(expectedJsonRampUpType)
     ).get
