@@ -53,6 +53,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
   }
 
   "PowerPlantController ## powerPlantDetails" should {
+
     "fetch the details of a PowerPlant" in {
       val result: Future[Result] = controller.powerPlantDetails(101).apply(FakeRequest())
       contentAsJson(result) mustBe
@@ -77,7 +78,67 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
   }
 
   "PowerPlantController ## searchPowerPlants" should {
+
+    val allActivePowerPlants =
+      """
+        |[{
+        |   "powerPlantId":101,
+        |   "powerPlantName":"joesan 1",
+        |   "minPower":100,
+        |   "maxPower":800,
+        |   "rampPowerRate":20,
+        |   "rampRateInSeconds":"2 seconds",
+        |   "powerPlantType":"RampUpType"
+        |},
+        |{
+        |   "powerPlantId":102,
+        |   "powerPlantName":"joesan 2",
+        |   "minPower":200,
+        |   "maxPower":1600,
+        |   "powerPlantType":"OnOffType"
+        |},
+        |{
+        |   "powerPlantId":103,
+        |   "powerPlantName":"joesan 3",
+        |   "minPower":300,
+        |   "maxPower":2400,
+        |   "rampPowerRate":20,
+        |   "rampRateInSeconds":"2 seconds",
+        |   "powerPlantType":"RampUpType"
+        |},
+        |{
+        |   "powerPlantId":104,
+        |   "powerPlantName":"joesan 4",
+        |   "minPower":400,
+        |   "maxPower":3200,
+        |   "powerPlantType":"OnOffType"
+        |},
+        |{
+        |   "powerPlantId":105,
+        |   "powerPlantName":"joesan 5",
+        |   "minPower":500,
+        |   "maxPower":4000,
+        |   "rampPowerRate":20,
+        |   "rampRateInSeconds":"2 seconds",
+        |   "powerPlantType":"RampUpType"
+        |}]
+      """.stripMargin
+
     "search all activePowerPlants" in {
+      val result: Future[Result] =
+        controller.searchPowerPlants(onlyActive = Some(true), page = 1)
+          .apply(FakeRequest())
+      contentAsJson(result) mustBe Json.parse(allActivePowerPlants)
+    }
+
+    "search PowerPlants only non active ones" in {
+      val result: Future[Result] =
+        controller.searchPowerPlants(onlyActive = Some(false), page = 1)
+          .apply(FakeRequest())
+      contentAsString(result) mustBe "[]" // All the 5 PowerPlant's in the database are active
+    }
+
+    "search all RampUpType active PowerPlant's" in {
       val result: Future[Result] =
         controller.searchPowerPlants(onlyActive = Some(true), page = 1)
           .apply(FakeRequest())
@@ -93,13 +154,6 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |   "powerPlantType":"RampUpType"
           |},
           |{
-          |   "powerPlantId":102,
-          |   "powerPlantName":"joesan 2",
-          |   "minPower":200,
-          |   "maxPower":1600,
-          |   "powerPlantType":"OnOffType"
-          |},
-          |{
           |   "powerPlantId":103,
           |   "powerPlantName":"joesan 3",
           |   "minPower":300,
@@ -107,13 +161,6 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |   "rampPowerRate":20,
           |   "rampRateInSeconds":"2 seconds",
           |   "powerPlantType":"RampUpType"
-          |},
-          |{
-          |   "powerPlantId":104,
-          |   "powerPlantName":"joesan 4",
-          |   "minPower":400,
-          |   "maxPower":3200,
-          |   "powerPlantType":"OnOffType"
           |},
           |{
           |   "powerPlantId":105,
@@ -126,7 +173,37 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |}]
         """.stripMargin
       )
+    }
 
+    "search all OnOffType active PowerPlant's" in {
+      val result: Future[Result] =
+        controller.searchPowerPlants(onlyActive = Some(true), page = 1, powerPlantType = Some("OnOffType"))
+          .apply(FakeRequest())
+      contentAsJson(result) mustBe Json.parse(
+        """
+          |[{
+          |   "powerPlantId":102,
+          |   "powerPlantName":"joesan 2",
+          |   "minPower":200,
+          |   "maxPower":1600,
+          |   "powerPlantType":"OnOffType"
+          |},
+          |{
+          |   "powerPlantId":104,
+          |   "powerPlantName":"joesan 4",
+          |   "minPower":400,
+          |   "maxPower":3200,
+          |   "powerPlantType":"OnOffType"
+          |}]
+        """.stripMargin
+      )
+    }
+
+    "search all UnknownType active PowerPlant's" in {
+      val result: Future[Result] =
+        controller.searchPowerPlants(onlyActive = Some(true), page = 1, powerPlantType = Some("SomeUnknownType"))
+          .apply(FakeRequest())
+      contentAsJson(result) mustBe Json.parse(allActivePowerPlants)
     }
   }
 }
