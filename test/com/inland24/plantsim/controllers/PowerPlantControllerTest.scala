@@ -276,7 +276,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |   "minPower":100,
           |   "maxPower":800,
           |   "rampPowerRate":20.0,
-          |   "rampRateInSeconds":2,
+          |   "rampRateInSeconds":"2 seconds",
           |   "powerPlantType":"RampUpType"
           |}
         """.stripMargin
@@ -285,6 +285,8 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           .apply(
             FakeRequest().withBody(Json.parse(jsBody))
           )
+      import scala.concurrent.duration._
+      val xxxx = scala.concurrent.Await.result(result, 2.seconds)
       contentAsJson(result) mustBe Json.parse(jsBody)
     }
   }

@@ -70,7 +70,7 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
         )
       },
       success => {
-        dbService.updatePowerPlant(success).runAsync.materialize.map {
+        dbService.insertOrUpdatePowerPlant(success).runAsync.materialize.map {
           case Failure(ex) =>
             InternalServerError(s"Error updating PowerPlant " +
               s"Reason => ${ex.getMessage}").enableCors

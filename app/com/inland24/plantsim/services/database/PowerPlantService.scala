@@ -28,14 +28,14 @@ import scala.language.higherKinds
 
 class PowerPlantService[M[_]: Monad](powerPlantRepo: PowerPlantRepository[M]) {
 
-  def updatePowerPlant(powerPlantCfg: PowerPlantConfig): M[Either[String, PowerPlantConfig]] = {
+  def insertOrUpdatePowerPlant(powerPlantCfg: PowerPlantConfig): M[Either[String, PowerPlantConfig]] = {
     powerPlantRepo.powerPlantById(powerPlantCfg.id).flatMap {
-      case Some(powerPlantRow) =>
+      case Some(_) =>
         toPowerPlantRow(powerPlantCfg) match {
           case Some(newPowerPlantRow) =>
-            powerPlantRepo.updatePowerPlant(newPowerPlantRow).map(_ => Right(powerPlantCfg))
+            powerPlantRepo.insertOrUpdatePowerPlant(newPowerPlantRow).map(_ => Right(powerPlantCfg))
           case None =>
-            implicitly[Monad[M]].pure(Left(s"Invalid $powerPlantRow"))
+            implicitly[Monad[M]].pure(Left(s"Invalid $powerPlantCfg"))
         }
       case None => implicitly[Monad[M]].pure(Left(s"PowerPlant not found for the given id ${powerPlantCfg.id}"))
     }

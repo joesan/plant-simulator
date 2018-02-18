@@ -26,7 +26,7 @@ import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
 import play.api.libs.json._
 
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.duration.{Duration, FiniteDuration}
 
 package object models {
 
@@ -62,7 +62,7 @@ package object models {
             name = (json \ "powerPlantName").as[String],
             minPower = (json \ "minPower").as[Double],
             rampPowerRate = (json \ "rampPowerRate").as[Double],
-            rampRateInSeconds = FiniteDuration((json \ "rampRateInSeconds").as[Long], TimeUnit.SECONDS),
+            rampRateInSeconds = Duration.apply((json \ "rampRateInSeconds").as[String]).asInstanceOf[FiniteDuration],
             maxPower = (json \ "maxPower").as[Double],
             powerPlantType = powerPlantTyp
           ))

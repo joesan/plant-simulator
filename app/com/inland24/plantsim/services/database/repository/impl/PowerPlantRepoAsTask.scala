@@ -75,7 +75,6 @@ class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext) ex
   }*/
 
   def powerPlantById(id: Int): Task[Option[PowerPlantRow]] = {
-    println(database.run(PowerPlantTable.powerPlantById(id).result.headOption))
     Task.deferFuture(database.run(PowerPlantTable.powerPlantById(id).result.headOption))
   }
 
@@ -83,5 +82,7 @@ class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext) ex
     Task.deferFuture(database.run(PowerPlantTable.all += powerPlantRow))
   }
 
-  override def updatePowerPlant(powerPlantRow: PowerPlantRow) = ???
+  override def insertOrUpdatePowerPlant(powerPlantRow: PowerPlantRow): Task[Int] = {
+    Task.deferFuture(database.run(PowerPlantTable.all.insertOrUpdate(powerPlantRow)))
+  }
 }

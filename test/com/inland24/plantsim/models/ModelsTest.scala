@@ -96,7 +96,7 @@ class ModelsTest extends FlatSpec {
         |   "powerPlantName":"SomeName",
         |   "minPower":10,
         |   "maxPower":20,
-        |   "rampRateInSeconds": 2,
+        |   "rampRateInSeconds": "2 seconds",
         |   "rampPowerRate": 2.0,
         |   "powerPlantType":"RampUpType"
         |}
