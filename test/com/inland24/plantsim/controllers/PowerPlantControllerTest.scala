@@ -52,6 +52,30 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
     TestKit.shutdownActorSystem(system)
   }
 
+  // ApplicationConfigController test
+  "ApplicationConfigController ## appConfig" should {
+    "give the appropriate config back when asked" in {
+      // We are using the application.test.conf (Look in the DBServiceSpec.scala)
+      val result: Future[Result] =
+        new ApplicationConfigController(bindings.appConfig).appConfig.apply(FakeRequest())
+      val bodyText = contentAsJson(result)
+      bodyText mustBe Json.parse(
+        """
+          |{
+          |  "environment" : "test",
+          |  "application" : "plant-simulator",
+          |  "dbConfig" : {
+          |    "databaseDriver" : "org.h2.Driver",
+          |    "databaseUrl" : "jdbc:h2:mem:power-simulator;DATABASE_TO_UPPER=false;DB_CLOSE_DELAY=-1",
+          |    "databaseUser" : "***********",
+          |    "databasePass" : "***********"
+          |  }
+          |}
+        """.stripMargin
+      )
+    }
+  }
+
   // PowerPlantDetails test
   "PowerPlantController ## powerPlantDetails" should {
 

@@ -21,7 +21,6 @@ import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
-import com.inland24.plantsim.models.PowerPlantState.{ReturnToService, OutOfService}
 import com.inland24.plantsim.models.ReturnToNormalCommand
 
 /**
@@ -97,7 +96,7 @@ class OnOffTypeActor private (config: Config)
     case OutOfServiceMessage =>
       evolve(state.copy(signals = StateMachine.unAvailableSignals))
 
-    case ReturnToService =>
+    case ReturnToServiceMessage =>
       context.become(receive)
       self ! InitMessage
   }
