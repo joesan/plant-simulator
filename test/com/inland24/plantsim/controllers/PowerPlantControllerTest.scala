@@ -151,17 +151,30 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
       """.stripMargin
 
     "search all activePowerPlants" in {
-      val result: Future[Result] =
+      val result1: Future[Result] =
+        controller.powerPlants(onlyActive = true, page = 1)
+          .apply(FakeRequest())
+
+      val result2: Future[Result] =
         controller.searchPowerPlants(onlyActive = Some(true), page = 1)
           .apply(FakeRequest())
-      contentAsJson(result) mustBe Json.parse(allActivePowerPlants)
+
+      contentAsJson(result2) mustBe Json.parse(allActivePowerPlants)
+      contentAsJson(result1) mustBe Json.parse(allActivePowerPlants)
     }
 
     "search PowerPlants only non active ones" in {
-      val result: Future[Result] =
+      val result1: Future[Result] =
+        controller.powerPlants(onlyActive = false, page = 1)
+          .apply(FakeRequest())
+      contentAsString(result1) mustBe "[ ]"
+
+      val result2: Future[Result] =
         controller.searchPowerPlants(onlyActive = Some(false), page = 1)
           .apply(FakeRequest())
-      contentAsString(result) mustBe "[ ]" // All the 5 PowerPlant's in the database are active
+
+      contentAsString(result2) mustBe "[ ]" // All the 5 PowerPlant's in the database are active
+      contentAsString(result1) mustBe "[ ]" // All the 5 PowerPlant's in the database are active
     }
 
     "search all RampUpType active PowerPlant's" in {
