@@ -20,7 +20,6 @@ package com.inland24.plantsim.services.database
 import cats.Monad
 import cats.syntax.all._
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantFilter, toPowerPlantRow}
-import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.PowerPlantRepository
 
 import scala.language.higherKinds
@@ -28,6 +27,7 @@ import scala.language.higherKinds
 
 class PowerPlantService[M[_]: Monad](powerPlantRepo: PowerPlantRepository[M]) {
 
+  // TODO: Unify this with the create method!
   def insertOrUpdatePowerPlant(powerPlantCfg: PowerPlantConfig): M[Either[String, PowerPlantConfig]] = {
     powerPlantRepo.powerPlantById(powerPlantCfg.id).flatMap {
       case Some(_) =>
