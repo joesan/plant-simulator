@@ -21,7 +21,6 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.testkit.TestKit
 import com.inland24.plantsim.core.AppBindings
-import com.inland24.plantsim.models.PowerPlantConfig
 import com.inland24.plantsim.services.database.DBServiceSpec
 import org.scalatest.{BeforeAndAfterAll, MustMatchers, OptionValues, WordSpecLike}
 import monix.execution.FutureUtils.extensions._

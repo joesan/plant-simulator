@@ -36,17 +36,8 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 
-class PowerPlantOperationsController(bindings: AppBindings) extends Controller {
-
-  // TODO: This RichResult is duplicated in sereval controllers. How to write it in one place and reuse it everywhere?
-  implicit class RichResult (result: Result) {
-    def enableCors =  result.withHeaders(
-      "Access-Control-Allow-Origin" -> "*"
-      , "Access-Control-Allow-Methods" -> "OPTIONS, GET, POST, PUT, DELETE, HEAD"   // OPTIONS for pre-flight
-      , "Access-Control-Allow-Headers" -> "Accept, Content-Type, Origin, X-Json, X-Prototype-Version, X-Requested-With" //, "X-My-NonStd-Option"
-      , "Access-Control-Allow-Credentials" -> "true"
-    )
-  }
+class PowerPlantOperationsController(bindings: AppBindings)
+  extends Controller with ControllerBase {
 
   // Place a reference to the underlying ActorSystem
   private val system = bindings.actorSystem
@@ -73,7 +64,7 @@ class PowerPlantOperationsController(bindings: AppBindings) extends Controller {
     Future.successful {
       Accepted(
         Json.obj("message" -> s"${command.commandName} accepted for PowerPlant with id $id")
-      )
+      ).enableCors
     }
   }
 
@@ -84,14 +75,14 @@ class PowerPlantOperationsController(bindings: AppBindings) extends Controller {
         Future.successful{
           BadRequest(
             Json.obj("status" -> "error", "message" -> JsError.toJson(errors))
-          )
+          ).enableCors
         }
       },
       returnToNormalCommand => {
         actorFor(id) flatMap {
           case None =>
             Future.successful {
-              NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
+              NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
             }
           case Some(actorRef) =>
             sendCommand(actorRef, id, returnToNormalCommand)
@@ -107,14 +98,14 @@ class PowerPlantOperationsController(bindings: AppBindings) extends Controller {
         Future.successful{
           BadRequest(
             Json.obj("status" -> "error", "message" -> JsError.toJson(errors))
-          )
+          ).enableCors
         }
       },
       dispatchCommand => {
         actorFor(id) flatMap {
           case None =>
             Future.successful {
-              NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
+              NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
             }
           case Some(actorRef) =>
             sendCommand(actorRef, id, dispatchCommand)
@@ -127,7 +118,7 @@ class PowerPlantOperationsController(bindings: AppBindings) extends Controller {
     actorFor(id) flatMap {
       case None =>
         Future.successful(
-          NotFound(s"HTTP 404 :: PowerPlant with ID $id not found")
+          NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
         )
       case Some(actorRef) =>
         (actorRef ? TelemetrySignals)
@@ -140,7 +131,7 @@ class PowerPlantOperationsController(bindings: AppBindings) extends Controller {
                   }
                 )
               )
-            )
+            ).enableCors
           )
     }
   }
