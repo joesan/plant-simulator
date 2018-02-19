@@ -43,6 +43,35 @@ package object models {
     )
   }
 
+  import play.api.libs.functional.syntax._
+  implicit val rampUpTypeConfigFormat: Format[RampUpTypeConfig] =
+    ((__ \ "powerPlantId").format[Int] and
+      (__ \ "powerPlantName").format[String] and
+      (__ \ "minPower").format[Double] and
+      (__ \ "maxPower").format[Double] and
+      (__ \ "rampPowerRate").format[Double] and
+      (__ \ "rampRateInSeconds").format[FiniteDuration] and
+      (__ \ "powerPlantType").format(implicitly[Format[PowerPlantType]])
+      )(RampUpTypeConfig.apply, unlift(RampUpTypeConfig.unapply))
+
+  implicit val onOffTypeConfigFormat: Format[OnOffTypeConfig] =
+    ((__ \ "powerPlantId").format[Int] and
+      (__ \ "powerPlantName").format[String] and
+      (__ \ "minPower").format[Double] and
+      (__ \ "maxPower").format[Double] and
+      (__ \ "powerPlantType").format(implicitly[Format[PowerPlantType]])
+      )(OnOffTypeConfig.apply, unlift(OnOffTypeConfig.unapply))
+
+  implicit val powerPlantTypeFormat: Format[PowerPlantType] = new Format[PowerPlantType] {
+    def reads(json: JsValue) = {
+      json.validate[String].map(uid => PowerPlantType.fromString(uid))
+    }
+
+    def writes(o: PowerPlantType) = {
+      JsString(PowerPlantType.toString(o))
+    }
+  }
+
   // Json serialization and de-serialization TODO: Re-Work on this!
   implicit val powerPlantCfgFormat: Format[PowerPlantConfig] = new Format[PowerPlantConfig] {
     def reads(json: JsValue): JsResult[PowerPlantConfig] = {

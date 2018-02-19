@@ -61,6 +61,32 @@ class PowerPlantController(bindings: AppBindings) extends Controller {
   }
 
   def updatePowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
+    request.body.validate[PowerPlantConfig].fold (
+      errors => {
+        Future.successful(
+          BadRequest(
+            Json.obj("message" -> s"invalid PowerPlantConfig ${errors.mkString(",")}")
+          ).enableCors
+        )
+      },
+      success => {
+        dbService.insertOrUpdatePowerPlant(success).runAsync.materialize.map {
+          case Failure(ex) =>
+            InternalServerError(s"Error updating PowerPlant " +
+              s"Reason => ${ex.getMessage}").enableCors
+          case Success(result) =>
+            result match {
+              case Left(errorMessage) =>
+                BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig $errorMessage")).enableCors
+              case Right(updatedConfig) =>
+                Ok(Json.prettyPrint(Json.toJson(updatedConfig))).enableCors
+            }
+        }
+      }
+    )
+  }
+
+  def updatePowerPlant1(id: Int) = Action.async(parse.tolerantJson) { request =>
     scala.util.Try(request.body.validate[PowerPlantConfig]) match {
       case Failure(fail) =>
         Future.successful(InternalServerError(s"Error updating PowerPlant " +

@@ -309,7 +309,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
         """.stripMargin
 
       val result: Future[Result] =
-        controller.updatePowerPlant(101)
+        controller.updatePowerPlant1(101)
           .apply(
             FakeRequest().withBody(Json.parse(jsBody))
           )
