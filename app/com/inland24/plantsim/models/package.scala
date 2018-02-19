@@ -24,9 +24,13 @@ import com.inland24.plantsim.models.PowerPlantConfig._
 import com.inland24.plantsim.models.PowerPlantType._
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
+import play.api.data.validation.ValidationError
 import play.api.libs.json._
+import play.api.libs.json.Reads._
 
-import scala.concurrent.duration.{Duration, FiniteDuration}
+import scala.concurrent.duration._
+import scala.concurrent.duration.FiniteDuration
+
 
 package object models {
 
@@ -43,66 +47,56 @@ package object models {
     )
   }
 
-  import play.api.libs.functional.syntax._
-  implicit val rampUpTypeConfigFormat: Format[RampUpTypeConfig] =
-    ((__ \ "powerPlantId").format[Int] and
-      (__ \ "powerPlantName").format[String] and
-      (__ \ "minPower").format[Double] and
-      (__ \ "maxPower").format[Double] and
-      (__ \ "rampPowerRate").format[Double] and
-      (__ \ "rampRateInSeconds").format[FiniteDuration] and
-      (__ \ "powerPlantType").format(implicitly[Format[PowerPlantType]])
-      )(RampUpTypeConfig.apply, unlift(RampUpTypeConfig.unapply))
-
-  implicit val onOffTypeConfigFormat: Format[OnOffTypeConfig] =
-    ((__ \ "powerPlantId").format[Int] and
-      (__ \ "powerPlantName").format[String] and
-      (__ \ "minPower").format[Double] and
-      (__ \ "maxPower").format[Double] and
-      (__ \ "powerPlantType").format(implicitly[Format[PowerPlantType]])
-      )(OnOffTypeConfig.apply, unlift(OnOffTypeConfig.unapply))
-
-  implicit val powerPlantTypeFormat: Format[PowerPlantType] = new Format[PowerPlantType] {
-    def reads(json: JsValue) = {
-      json.validate[String].map(uid => PowerPlantType.fromString(uid))
+  implicit val finiteDurationFormat: Format[FiniteDuration] = new Format[FiniteDuration] {
+    def reads(json: JsValue): JsResult[FiniteDuration] = {
+      LongReads.reads(json).map(_.seconds)
     }
 
-    def writes(o: PowerPlantType) = {
-      JsString(PowerPlantType.toString(o))
+    def writes(f: FiniteDuration): JsValue = {
+      JsString(f.toString())
     }
   }
 
-  // Json serialization and de-serialization TODO: Re-Work on this!
   implicit val powerPlantCfgFormat: Format[PowerPlantConfig] = new Format[PowerPlantConfig] {
     def reads(json: JsValue): JsResult[PowerPlantConfig] = {
       val powerPlantTyp = PowerPlantType.fromString((json \ "powerPlantType").as[String])
       powerPlantTyp match {
         case PowerPlantType.OnOffType =>
-         JsSuccess(OnOffTypeConfig(
-            id = (json \ "powerPlantId").as[Int],
-            name = (json \ "powerPlantName").as[String],
-            minPower = (json \ "minPower").as[Double],
-            maxPower = (json \ "maxPower").as[Double],
-            powerPlantType = powerPlantTyp
-          ))
+          for {
+            powerPlantId <- (json \ "powerPlantId").validate[Int]
+            name <- (json \ "powerPlantName").validate[String]
+            minPower <- (json \ "minPower").validate[Double]
+            maxPower <- (json \ "maxPower").validate[Double]
+          } yield {
+            OnOffTypeConfig(
+              id = powerPlantId,
+              name = name,
+              minPower = minPower,
+              maxPower = maxPower,
+              powerPlantType = powerPlantTyp
+            )
+          }
         case PowerPlantType.RampUpType =>
-          JsSuccess(RampUpTypeConfig(
-            id = (json \ "powerPlantId").as[Int],
-            name = (json \ "powerPlantName").as[String],
-            minPower = (json \ "minPower").as[Double],
-            rampPowerRate = (json \ "rampPowerRate").as[Double],
-            rampRateInSeconds = Duration.apply((json \ "rampRateInSeconds").as[String]).asInstanceOf[FiniteDuration],
-            maxPower = (json \ "maxPower").as[Double],
-            powerPlantType = powerPlantTyp
-          ))
+          for {
+            powerPlantId <- (json \ "powerPlantId").validate[Int]
+            name <- (json \ "powerPlantName").validate[String]
+            minPower <- (json \ "minPower").validate[Double]
+            maxPower <- (json \ "maxPower").validate[Double]
+            rampPowerRate <- (json \ "rampPowerRate").validate[Double]
+            rampRateInSeconds <- (json \ "rampRateInSeconds").validate[FiniteDuration]
+          } yield {
+            RampUpTypeConfig(
+              id = powerPlantId,
+              name = name,
+              minPower = minPower,
+              rampPowerRate = rampPowerRate,
+              rampRateInSeconds = rampRateInSeconds,
+              maxPower = maxPower,
+              powerPlantType = powerPlantTyp
+            )
+          }
         case _ =>
-          JsSuccess(UnknownConfig(
-            id = (json \ "powerPlantId").as[Int],
-            name = (json \ "powerPlantName").as[String],
-            minPower = (json \ "minPower").as[Double],
-            maxPower = (json \ "maxPower").as[Double],
-            powerPlantType = powerPlantTyp
-          ))
+          JsError(__ \ "powerPlantType", ValidationError("Invalid PowerPlantConfig", "powerPlantType"))
       }
     }
 
@@ -114,7 +108,7 @@ package object models {
           "minPower" -> o.minPower,
           "maxPower" -> o.maxPower,
           "rampPowerRate" -> o.asInstanceOf[RampUpTypeConfig].rampPowerRate,
-          "rampRateInSeconds" -> o.asInstanceOf[RampUpTypeConfig].rampRateInSeconds.toString(),
+          "rampRateInSeconds" -> o.asInstanceOf[RampUpTypeConfig].rampRateInSeconds.length,
           "powerPlantType" -> PowerPlantType.toString(o.powerPlantType)
         )
       }

@@ -20,7 +20,7 @@ package com.inland24.plantsim.models
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig, UnknownConfig}
 import org.scalatest.FlatSpec
-import play.api.libs.json.Json
+import play.api.libs.json.{JsError, Json}
 
 import scala.concurrent.duration._
 
@@ -96,7 +96,7 @@ class ModelsTest extends FlatSpec {
         |   "powerPlantName":"SomeName",
         |   "minPower":10,
         |   "maxPower":20,
-        |   "rampRateInSeconds": "2 seconds",
+        |   "rampRateInSeconds": 2,
         |   "rampPowerRate": 2.0,
         |   "powerPlantType":"RampUpType"
         |}
@@ -120,8 +120,8 @@ class ModelsTest extends FlatSpec {
     actualRampUpTypeCfg === rampUpTypePlantCfg
   }
 
-  "UnknownConfigTypeConfigWrites" should "Serialize and De-Serialize for the given UnknownConfigTypeConfig" in {
-    val expectedJsonUnknownType =
+  "UnknownConfigTypeConfigWrites" should "result in a JsError" in {
+    val unknownTypeJson =
       """
         |{
         |   "powerPlantId":1,
@@ -139,12 +139,11 @@ class ModelsTest extends FlatSpec {
       minPower = 10.0,
       powerPlantType = PowerPlantType.UnknownType
     )
-    powerPlantCfgFormat.writes(unknownPlantCfg) === expectedJsonUnknownType
+    // assert the writes
+    powerPlantCfgFormat.writes(unknownPlantCfg) === unknownTypeJson
 
-    val actualRampUpTypeCfg = powerPlantCfgFormat.reads(
-      Json.parse(expectedJsonUnknownType)
-    ).get
-    actualRampUpTypeCfg === unknownPlantCfg
+    // assert the reads
+    assert(powerPlantCfgFormat.reads(Json.parse(unknownTypeJson)).isInstanceOf[JsError])
   }
 
   behavior of "toPowerPlantRow"

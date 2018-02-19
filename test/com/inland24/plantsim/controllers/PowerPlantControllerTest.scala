@@ -83,7 +83,6 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
 
   // PowerPlantDetails test
   "PowerPlantController ## powerPlantDetails" should {
-
     "fetch the details of a PowerPlant" in {
       val result: Future[Result] = controller.powerPlantDetails(101).apply(FakeRequest())
       contentAsJson(result) mustBe
@@ -94,7 +93,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |  "minPower" : 100,
           |  "maxPower" : 800,
           |  "rampPowerRate" : 20,
-          |  "rampRateInSeconds" : "2 seconds",
+          |  "rampRateInSeconds" : 2,
           |  "powerPlantType" : "RampUpType"
           |}
         """.stripMargin)
@@ -109,7 +108,6 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
 
   // Search PowerPlants test
   "PowerPlantController ## searchPowerPlants" should {
-
     val allActivePowerPlants =
       """
         |[{
@@ -118,7 +116,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
         |   "minPower":100,
         |   "maxPower":800,
         |   "rampPowerRate":20,
-        |   "rampRateInSeconds":"2 seconds",
+        |   "rampRateInSeconds":2,
         |   "powerPlantType":"RampUpType"
         |},
         |{
@@ -134,7 +132,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
         |   "minPower":300,
         |   "maxPower":2400,
         |   "rampPowerRate":20,
-        |   "rampRateInSeconds":"2 seconds",
+        |   "rampRateInSeconds":2,
         |   "powerPlantType":"RampUpType"
         |},
         |{
@@ -150,7 +148,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
         |   "minPower":500,
         |   "maxPower":4000,
         |   "rampPowerRate":20,
-        |   "rampRateInSeconds":"2 seconds",
+        |   "rampRateInSeconds":2,
         |   "powerPlantType":"RampUpType"
         |}]
       """.stripMargin
@@ -194,7 +192,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |   "minPower":100,
           |   "maxPower":800,
           |   "rampPowerRate":20,
-          |   "rampRateInSeconds":"2 seconds",
+          |   "rampRateInSeconds":2,
           |   "powerPlantType":"RampUpType"
           |},
           |{
@@ -203,7 +201,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |   "minPower":300,
           |   "maxPower":2400,
           |   "rampPowerRate":20,
-          |   "rampRateInSeconds":"2 seconds",
+          |   "rampRateInSeconds":2,
           |   "powerPlantType":"RampUpType"
           |},
           |{
@@ -212,7 +210,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |   "minPower":500,
           |   "maxPower":4000,
           |   "rampPowerRate":20,
-          |   "rampRateInSeconds":"2 seconds",
+          |   "rampRateInSeconds":2,
           |   "powerPlantType":"RampUpType"
           |}]
         """.stripMargin
@@ -281,7 +279,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |   "minPower":100,
           |   "maxPower":800,
           |   "rampPowerRate":20.0,
-          |   "rampRateInSeconds":"2 seconds",
+          |   "rampRateInSeconds":2,
           |   "powerPlantType":"RampUpType"
           |}
         """.stripMargin
@@ -303,13 +301,13 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |   "minPower":100,
           |   "maxPower":800,
           |   "rampPowerRate":20.0,
-          |   "rampRateInSeconds":"2 seconds",
+          |   "rampRateInSeconds": 2,
           |   "powerPlantType":"RampUpType"
           |}
         """.stripMargin
 
       val result: Future[Result] =
-        controller.updatePowerPlant1(101)
+        controller.updatePowerPlant(101)
           .apply(
             FakeRequest().withBody(Json.parse(jsBody))
           )
