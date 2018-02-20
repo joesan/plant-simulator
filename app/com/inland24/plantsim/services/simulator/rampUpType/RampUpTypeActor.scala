@@ -80,7 +80,9 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     val (signals, newStm) = StateMachine.popEvents(stm)
     for (s <- signals) out.onNext(s)
     val receiveMethod = decideTransition(newStm)
-    log.info(s"EVOLVED STATE << ${Some(receiveMethod.getClass.getSimpleName.split("\\$")(2)).getOrElse("unknown")} >>")
+    log.info(s"RampUpType PowerPlant with id = ${cfg.id} has " +
+      s"EVOLVED STATE << " +
+      s"${Some(receiveMethod.getClass.getSimpleName.split("\\$")(2)).getOrElse("unknown")} >>")
     context.become(receiveMethod)
   }
 

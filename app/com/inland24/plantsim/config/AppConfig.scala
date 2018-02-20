@@ -40,6 +40,7 @@ final case class DBConfig(
   password: Option[String],
   driver: String,
   recordCountPerPage: Int,
+  enableSubscription: Boolean,
   refreshInterval: FiniteDuration) {
 
   lazy val slickDriver: JdbcProfile = driver match {
@@ -68,6 +69,7 @@ object AppConfig {
         user = Try(config.getString("db.username")).toOption.filterNot(_.isEmpty),
         password = Try(config.getString("db.password")).toOption.filterNot(_.isEmpty),
         driver = config.getString("db.driver"),
+        enableSubscription = Try(config.getBoolean("db.enableSubscription")).toOption.getOrElse(true),
         recordCountPerPage = config.getInt("db.recordsPerPage"),
         refreshInterval = config.getDuration("db.refreshInterval", TimeUnit.MILLISECONDS).millis
       )

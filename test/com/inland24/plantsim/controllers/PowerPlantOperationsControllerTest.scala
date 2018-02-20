@@ -100,4 +100,63 @@ class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlant
       }
     }
   }
+
+  "PowerPlantOperationsController ## dispatchPowerPlant" should {
+
+    "return with a HTTP NotFound for a PowerPlant that does not exist" in {
+      val rtnCommand =
+        """
+          | {
+          |   "powerPlantId" : -200
+          | }
+        """.stripMargin
+
+      val result: Future[Result] =
+        controller.returnToNormalPowerPlant(-200)
+          .apply(
+            FakeRequest().withBody(Json.parse(rtnCommand))
+          )
+      result.materialize.map {
+        case Success(succ) =>
+          assert(succ.header.status === NotFound)
+        case Failure(ex) =>
+          fail(s"Unexpected server error ${ex.getMessage}")
+      }
+    }
+
+    "return with a HTTP BadRequest for an invalid JSON payload" in {
+      val rtnCommand =
+        """
+          | {
+          |   "invalid" : 2
+          | }
+        """.stripMargin
+
+      val result: Future[Result] =
+        controller.dispatchPowerPlant(2)
+          .apply(
+            FakeRequest().withBody(Json.parse(rtnCommand))
+          )
+      result.materialize.map {
+        case Success(succ) =>
+          assert(succ.header.status === BadRequest)
+        case Failure(ex) =>
+          fail(s"Unexpected server error ${ex.getMessage}")
+      }
+    }
+  }
+
+  "PowerPlantOperationsController ## powerPlantSignals" should {
+
+    "return with a HTTP NotFound for a PowerPlant that does not exist" in {
+      val result: Future[Result] =
+        controller.powerPlantSignals(-200).apply(FakeRequest())
+      result.materialize.map {
+        case Success(succ) =>
+          assert(succ.header.status === NotFound)
+        case Failure(ex) =>
+          fail(s"Unexpected server error ${ex.getMessage}")
+      }
+    }
+  }
 }

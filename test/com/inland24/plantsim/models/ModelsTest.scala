@@ -195,7 +195,7 @@ class ModelsTest extends FlatSpec {
 
   behavior of "DispatchCommand"
 
-  "DispatchCommand#reads" should "fail parsing for a DispatchCommand invalid PowerPlantType" in {
+  "DispatchCommand # reads" should "fail parsing for a DispatchCommand invalid PowerPlantType" in {
     val invalidPowerPlantType =
       """
         |{
@@ -217,7 +217,7 @@ class ModelsTest extends FlatSpec {
     )
   }
 
-  "DispatchCommand#reads" should "read the Json and parse a valid DispatchCommand for OnOffType" in {
+  "DispatchCommand # reads" should "read the Json and parse a valid DispatchCommand for OnOffType" in {
     val dispatchOnOffType =
       """
         |{
@@ -231,7 +231,7 @@ class ModelsTest extends FlatSpec {
     Json.parse(dispatchOnOffType).validate[DispatchCommand].fold(
       errors => {
         fail(s"valid DispatchCommand should have successfully parsed, " +
-          s"but failed unexpectedly with errors $errors")
+          s"but failed unexpectedly with errors >> $errors")
       },
       dispatchCommand => {
         dispatchCommand.powerPlantId == 2

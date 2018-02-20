@@ -263,8 +263,7 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
     val dbServiceActor = system.actorOf(
       DBServiceActor.props(
         AppConfig.load().dbConfig,
-        testSupervisorActorRef,
-        enableSubscription = false
+        testSupervisorActorRef
       )
     )
 

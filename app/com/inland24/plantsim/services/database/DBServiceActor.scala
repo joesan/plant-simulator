@@ -49,7 +49,7 @@ import scala.concurrent.Future
   * TODO: If the database is down the stream should not throw an error!!!
   * TODO: but rather it should just continue processing as usual!!
   */
-class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enableSubscription: Boolean = true)
+class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef)
   (implicit ec: Scheduler) extends Actor with ActorLogging {
 
   // TODO: Should we use the PowerPlantService from the AppBindings instead of using a new instance all together?
@@ -62,7 +62,7 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enab
 
   override def preStart(): Unit = {
     super.preStart()
-    log.info("Pre-start DBServiceActor")
+    log.info("Pre Start DBServiceActor")
 
     /**
       * We stream events only when this flag is set to true and by default it is
@@ -70,7 +70,7 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enab
       * we can control the sending of events to this actor instead of having
       * this Observable inside this actor sending messages!
       */
-    if (enableSubscription) {
+    if (dbConfig.enableSubscription) {
       val obs = DBObservable(
         dbConfig.refreshInterval,
         powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync
@@ -86,9 +86,9 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enab
           Continue
         }
 
-        override def onError(ex: Throwable): Unit = log.error(s"error ${ex.getMessage}")
+        override def onError(ex: Throwable): Unit = log.error(s"Error ${ex.getMessage}")
 
-        override def onComplete(): Unit = log.info("complete")
+        override def onComplete(): Unit = log.info("Complete")
       })
     }
   }
@@ -169,6 +169,6 @@ object DBServiceActor {
     deletedEvents(oldMap, newMap) ++ updatedEvents(oldMap, newMap) ++ createdEvents(oldMap, newMap)
   }
 
-  def props(dbConfig: DBConfig, supervisorActorRef: ActorRef, enableSubscription: Boolean = true)(implicit ec: Scheduler): Props =
-    Props(new DBServiceActor(dbConfig, supervisorActorRef, enableSubscription)(ec))
+  def props(dbConfig: DBConfig, supervisorActorRef: ActorRef)(implicit ec: Scheduler): Props =
+    Props(new DBServiceActor(dbConfig, supervisorActorRef)(ec))
 }

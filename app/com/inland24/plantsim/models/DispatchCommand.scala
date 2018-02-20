@@ -61,39 +61,46 @@ object DispatchCommand {
     def reads(json: JsValue): JsResult[DispatchCommand] = {
       if((json \ "powerPlantType").asOpt[String].isEmpty ||
         (json \ "powerPlantId").asOpt[Int].isEmpty ||
-        (json \ "command").asOpt[String].isEmpty ||
-        (json \ "value").asOpt[String].isEmpty
+        (json \ "command").asOpt[String].isEmpty
       ) {
         JsError(
           JsPath \ "DispatchCommand is missing one of required keys",
-          "powerPlantType, powerPlantId, command, value"
+          "powerPlantType, powerPlantId, command, value ****"
         )
-      }
-
-      PowerPlantType.fromString((json \ "powerPlantType").as[String]) match {
-        case OnOffType if isTurnOnOffValid(json) =>
-          JsSuccess(
-            DispatchOnOffPowerPlant(
-              powerPlantType = OnOffType,
-              powerPlantId = (json \ "powerPlantId").as[Int],
-              command = (json \ "command").as[String],
-              value = (json \ "value").as[Boolean]
+      } else {
+        PowerPlantType.fromString((json \ "powerPlantType").as[String]) match {
+          case OnOffType if isTurnOnOffValid(json) =>
+            for {
+              powerPlantId <- (json \ "powerPlantId").validate[Int]
+              command <- (json \ "command").validate[String]
+              value <- (json \ "value").validate[Boolean]
+            } yield {
+              DispatchOnOffPowerPlant(
+                powerPlantType = OnOffType,
+                powerPlantId = powerPlantId,
+                command = command,
+                value = value
+              )
+            }
+          case RampUpType if isRampUpValid(json) =>
+            for {
+              powerPlantId <- (json \ "powerPlantId").validate[Int]
+              command <- (json \ "command").validate[String]
+              value <- (json \ "value").validate[Double]
+            } yield {
+              DispatchRampUpPowerPlant(
+                powerPlantType = RampUpType,
+                powerPlantId = powerPlantId,
+                command = command,
+                value = value
+              )
+            }
+          case _ =>
+            JsError(
+              JsPath \ "DispatchCommand is missing one of required keys",
+              "powerPlantType, powerPlantId, command, value"
             )
-          )
-        case RampUpType if isRampUpValid(json) =>
-          JsSuccess(
-            DispatchRampUpPowerPlant(
-              powerPlantType = OnOffType,
-              powerPlantId = (json \ "powerPlantId").as[Int],
-              command = (json \ "command").as[String],
-              value = (json \ "value").as[Double]
-            )
-          )
-        case _ =>
-          JsError(
-            JsPath \ "DispatchCommand is missing one of required keys",
-            "powerPlantType, powerPlantId, command, value"
-          )
+        }
       }
     }
   }

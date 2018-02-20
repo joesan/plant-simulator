@@ -62,8 +62,7 @@ final class DBObservable[T] private (period: FiniteDuration, f: => Future[Seq[T]
   }
 }
 
-object
-DBObservable {
+object DBObservable {
   /**
     * Builder for [[DBObservable]].
     */

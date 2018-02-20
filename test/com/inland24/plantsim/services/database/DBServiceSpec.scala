@@ -35,11 +35,11 @@ trait DBServiceSpec {
   // let's use test configurations
   System.setProperty("ENV", "test")
 
-  val config = AppConfig.load()
+  val config: AppConfig = AppConfig.load()
   val testDatabase = config.dbConfig.database
 
   // initialize the db service
-  val dbSchema = DBSchema(config.dbConfig.slickDriver)
+  val dbSchema: DBSchema = DBSchema(config.dbConfig.slickDriver)
 
   /* This shitty import should be here - Do not remove */
   import dbSchema._
@@ -61,7 +61,7 @@ trait DBServiceSpec {
       )
   }
 
-  protected def h2SchemaDrop() = {
+  protected def h2SchemaDrop(): Unit = {
     val schema = DBIO.seq(
       //(AddressTable.all.schema ++ PowerPlantTable.all.schema).drop
       PowerPlantTable.all.schema.drop
@@ -69,7 +69,7 @@ trait DBServiceSpec {
     Await.result(testDatabase.run(schema), 5.seconds)
   }
 
-  protected def h2SchemaSetup() = {
+  protected def h2SchemaSetup(): Unit = {
     val schema = DBIO.seq(
       //(AddressTable.all.schema ++ PowerPlantTable.all.schema).create
       PowerPlantTable.all.schema.create
@@ -77,7 +77,7 @@ trait DBServiceSpec {
     Await.result(testDatabase.run(schema), 5.seconds)
   }
 
-  protected def populateTables() = {
+  protected def populateTables(): Unit = {
     val setup = DBIO.seq(
       // Insert some addresses
       //AddressTable.all ++= addresses,
