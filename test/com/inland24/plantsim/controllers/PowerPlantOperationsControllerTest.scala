@@ -56,9 +56,9 @@ class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlant
     TestKit.shutdownActorSystem(system)
   }
 
-  "PowerPlantOperationsController" should {
+  "PowerPlantOperationsController ## returnToNormal" should {
 
-    "return with a HTTP 404 for a PowerPlant that does not exist" in {
+    "return with a HTTP NotFound for a PowerPlant that does not exist" in {
       val rtnCommand =
         """
           | {
@@ -94,7 +94,7 @@ class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlant
           )
       result.materialize.map {
         case Success(succ) =>
-          assert(succ.header.status === NotFound)
+          assert(succ.header.status === BadRequest)
         case Failure(ex) =>
           fail(s"Unexpected server error ${ex.getMessage}")
       }
