@@ -48,9 +48,9 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
      For example., if the power to be dispatched is 800, then the
      with the toleranceFactor of 2% would mean that the
      activePower for the PowerPlant in dispatched state would vary
-     between 800 * 2 / 100 = plus or minus 16
+     between 800 * 2 / 100 = 16
      So the activePower would vary between 784 and 816
-     This factor is just introduced to show some randomness
+     This factor is just introduced to show some randomness.
      For simplicity, we hardcode this value here for all RampUpType
      PowerPlants to have the same toleranceFactor. Ideally, each
      RampUpType PowerPlant should have its own toleranceFactor configured
@@ -125,13 +125,17 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     *
     * Possible states that we can transition into are:
     *
-    * 1. RampCheck - This state happens recursively and it is merely to check at regular
-    *                intervals if the PowerPlant has fully ramped up to the given SetPoint.
-    *                The underlying Observable subscription ensures that the RampCheck Message
-    *                is sent to this actor instance at regular intervals. So for each RampCheck
-    *                message that we get, we check if the PowerPlant is fully dispatched, if yes
-    *                we simply cancel the underlying RampCheck Monix Observable subscription and
-    *                get into a dispatched state
+    * 1. RampCheck - Requires a RampCheckMessage
+    *    This state happens recursively and it is merely to check at regular
+    *    intervals if the PowerPlant has fully ramped up to the given SetPoint.
+    *    The underlying Observable subscription ensures that the RampCheck Message
+    *    is sent to this actor instance at regular intervals. So for each RampCheck
+    *    message that we get, we check if the PowerPlant is fully dispatched, if yes
+    *    we simply cancel the underlying RampCheck Monix Observable subscription and
+    *    get into a dispatched state
+    * 2. OutOfService - Requires a OutOfServiceMessage
+    *    This state sends the PowerPlant into out of service, meaning that this PowerPlant
+    *    is not operational anymore.
     */
   def rampUp(state: StateMachine, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignals =>
@@ -195,7 +199,25 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       self ! RampCheckMessage
   }
 
-  // TODO: add comments!
+  /**
+    * This state happens recursively when the PowerPlant ramps down
+    * The recursivity happens until the PowerPlant is fully ramped down. The recursivity is
+    * governed by the Monix Observable and its corresponding subscription
+    *
+    * Possible states that we can transition into are:
+    *
+    * 1. RampCheck - Requires a RampCheckMessage
+    *    This state happens recursively and it is merely to check at regular
+    *    intervals if the PowerPlant has fully ramped down to its minPower.
+    *    The underlying Observable subscription ensures that the RampCheck Message
+    *    is sent to this actor instance at regular intervals. So for each RampCheck
+    *    message that we get, we check if the PowerPlant is fully ReturnedToNormal, if yes
+    *    we simply cancel the underlying RampCheck Monix Observable subscription and
+    *    get into a dispatched state
+    * 2. OutOfService - Requires a OutOfServiceMessage
+    *    This state sends the PowerPlant into out of service, meaning that this PowerPlant
+    *    is not operational anymore.
+    */
   def rampDown(state: StateMachine, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignals =>
       sender ! state.signals
