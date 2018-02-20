@@ -41,7 +41,7 @@ import scala.concurrent.Future
 /**
   * This Actor is responsible for reacting to updates on a PowerPlant
   * in the database. So whenever a PowerPlant is updated, the update
-  * is pushed into this actor via the underlying DBServiceObservable
+  * is pushed into this actor via the underlying [[DBObservable]]
   * and this update is then interpreted accordingly if it is a create
   * update or a delete of a PowerPlant. The subsequent events are then
   * emitted when asked for the events.
@@ -63,30 +63,6 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef, enab
   override def preStart(): Unit = {
     super.preStart()
     log.info("Pre-start DBServiceActor")
-
-    /*
-    // TODO: Test this later - This is not working
-    // This will be our Observable that will stream events from the database
-    val obs =
-      DBServiceObservable.powerPlantDBServiceObservable(
-        dbConfig.refreshInterval,
-        powerPlantDBService.allPowerPlants(fetchOnlyActive = true)
-      )(com.inland24.plantsim.models.toPowerPlantsConfig)
-
-    dbSubscription := obs.unsafeSubscribeFn (new Subscriber[PowerPlantsConfig] {
-      override implicit def scheduler: Scheduler = s
-
-      override def onNext(elem: PowerPlantsConfig): Future[Ack] = {
-        self ! elem
-        Continue
-      }
-
-      override def onError(ex: Throwable): Unit = log.error("error")
-
-      override def onComplete(): Unit = log.info("complete")
-    })
-
-     */
 
     /**
       * We stream events only when this flag is set to true and by default it is

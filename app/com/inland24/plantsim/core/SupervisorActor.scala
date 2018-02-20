@@ -79,7 +79,6 @@ class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
 
   override def preStart(): Unit = {
     super.preStart()
-
     log.info(s"initialized db service actor $dbServiceActor")
   }
 

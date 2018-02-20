@@ -25,6 +25,15 @@ import com.inland24.plantsim.services.database.DBServiceSpec
 import org.scalatest.{BeforeAndAfterAll, MustMatchers, OptionValues, WordSpecLike}
 import org.scalatestplus.play.WsScalaTestClient
 import play.api.mvc.Results
+import monix.execution.Scheduler.Implicits.global
+import monix.execution.FutureUtils.extensions._
+import play.api.libs.json.Json
+
+import scala.concurrent.Future
+import play.api.mvc._
+import play.api.test._
+
+import scala.util.{Failure, Success}
 
 
 class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlantOperationsControllerTest"))
@@ -48,8 +57,47 @@ class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlant
   }
 
   "PowerPlantOperationsController" should {
-    "" in {
 
+    "return with a HTTP 404 for a PowerPlant that does not exist" in {
+      val rtnCommand =
+        """
+          | {
+          |   "powerPlantId" : -200
+          | }
+        """.stripMargin
+
+      val result: Future[Result] =
+        controller.returnToNormalPowerPlant(-200)
+          .apply(
+            FakeRequest().withBody(Json.parse(rtnCommand))
+          )
+      result.materialize.map {
+        case Success(succ) =>
+          assert(succ.header.status === NotFound)
+        case Failure(ex) =>
+          fail(s"Unexpected server error ${ex.getMessage}")
+      }
+    }
+
+    "return with a HTTP BadRequest for an invalid JSON payload" in {
+      val rtnCommand =
+        """
+          | {
+          |   "invalid" : -200
+          | }
+        """.stripMargin
+
+      val result: Future[Result] =
+        controller.returnToNormalPowerPlant(-200)
+          .apply(
+            FakeRequest().withBody(Json.parse(rtnCommand))
+          )
+      result.materialize.map {
+        case Success(succ) =>
+          assert(succ.header.status === NotFound)
+        case Failure(ex) =>
+          fail(s"Unexpected server error ${ex.getMessage}")
+      }
     }
   }
 }

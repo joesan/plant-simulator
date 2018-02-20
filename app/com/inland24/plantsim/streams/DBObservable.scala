@@ -17,7 +17,6 @@
 
 package com.inland24.plantsim.streams
 
-import com.inland24.plantsim.services.database.models.PowerPlantRow
 import monix.execution.Cancelable
 import monix.reactive.Observable
 import monix.reactive.observers.Subscriber
@@ -29,11 +28,17 @@ import scala.util.{Failure, Success}
 
 import play.api.Logger
 
+/**
+  * This Observable instance can be used to stream a sequence of distinct events that
+  * is wrapped in a Future.
+  * @param period The frequency at which events will be streamed
+  * @param f The thunk that contains the events that need to be emitted at regular intervals
+  * @tparam T The type of event that needs to be emitted
+  */
+final class DBObservable[T] private (period: FiniteDuration, f: => Future[Seq[T]])
+  extends Observable[Seq[T]] {
 
-final class DBObservable private (period: FiniteDuration, f: => Future[Seq[PowerPlantRow]])
-  extends Observable[Seq[PowerPlantRow]] {
-
-  def unsafeSubscribeFn(subscriber: Subscriber[Seq[PowerPlantRow]]): Cancelable = {
+  def unsafeSubscribeFn(subscriber: Subscriber[Seq[T]]): Cancelable = {
     implicit val s = subscriber.scheduler
 
     def request() = {
@@ -62,7 +67,7 @@ DBObservable {
   /**
     * Builder for [[DBObservable]].
     */
-  def apply(period: FiniteDuration, f: => Future[Seq[PowerPlantRow]]): DBObservable = {
+  def apply[T](period: FiniteDuration, f: => Future[Seq[T]]): DBObservable[T] = {
     new DBObservable(period, f)
   }
 }

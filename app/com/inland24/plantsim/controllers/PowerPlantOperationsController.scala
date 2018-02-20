@@ -22,7 +22,7 @@ import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models._
 import monix.execution.FutureUtils.extensions._
 import play.api.libs.json.JsError
-import play.api.mvc.{Action, Controller, Result}
+import play.api.mvc.{Action, Controller}
 import akka.actor.ActorRef
 import akka.pattern.ask
 
@@ -49,7 +49,7 @@ class PowerPlantOperationsController(bindings: AppBindings)
   }
 
   // Utility to resolve an actor reference
-  def actorFor(powerPlantId: Int): Future[Option[ActorRef]] = {
+  private def actorFor(powerPlantId: Int): Future[Option[ActorRef]] = {
     system.actorSelection(s"akka://application/user/*/${bindings.appConfig.appName}-$powerPlantId")
       .resolveOne(2.seconds)
       .materialize
@@ -59,7 +59,7 @@ class PowerPlantOperationsController(bindings: AppBindings)
       }
   }
 
-  def sendCommand(actorRef: ActorRef, id: Int, command: PowerPlantCommand) = {
+  private def sendCommand(actorRef: ActorRef, id: Int, command: PowerPlantCommand) = {
     actorRef ! command
     Future.successful {
       Accepted(
@@ -72,7 +72,7 @@ class PowerPlantOperationsController(bindings: AppBindings)
   def returnToNormalPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
     request.body.validate[ReturnToNormalCommand].fold(
       errors => {
-        Future.successful{
+        Future.successful {
           BadRequest(
             Json.obj("status" -> "error", "message" -> JsError.toJson(errors))
           ).enableCors
