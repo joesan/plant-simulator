@@ -17,7 +17,7 @@
 
 package com.inland24.plantsim.controllers
 
-import com.inland24.plantsim.core.{AppBindings, EventsActor}
+import com.inland24.plantsim.core.{AppBindings, EventsActor, PowerPlantEventObservable}
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models._
 import monix.execution.FutureUtils.extensions._
@@ -138,13 +138,10 @@ class PowerPlantOperationsController(bindings: AppBindings)
     }
   }
 
-  def events(id: Option[Int]) = WebSocket.accept[String, String] { request =>
-    val queryString = request.rawQueryString
-    println(s"********************** ")
-    println(s"$queryString")
-    println(s"********************** ")
+  // TODO: Under implementation.....
+  def events(someId: Option[Int]) = WebSocket.accept[String, String] { request =>
     ActorFlow.actorRef { out =>
-      EventsActor.props(out)
+      EventsActor.props(bindings.globalChannel, out, someId)
     }
   }
 }

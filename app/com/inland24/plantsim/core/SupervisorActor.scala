@@ -49,11 +49,8 @@ import scala.concurrent.duration._
   * 3. Starts the child actors and watches them
   * 4. Re-starts the child actors when needed (in case of failures)
   */
-class SupervisorActor(config: AppConfig)(implicit s: Scheduler) extends Actor
-  with ActorLogging with Stash {
-
-  // TODO: Get this GlobalChannel from the EnvironmentBindings
-  val globalChannel = PowerPlantEventObservable(s)
+class SupervisorActor(config: AppConfig, globalChannel: PowerPlantEventObservable)
+  (implicit s: Scheduler) extends Actor with ActorLogging with Stash {
 
   // We would use this to safely dispose any open connections
   val cancelable = SingleAssignmentCancelable()
@@ -220,6 +217,6 @@ object SupervisorActor {
   case object TelemetrySignals
   case class SupervisorEvents(events: PowerPlantEventsSeq)
 
-  def props(cfg: AppConfig)(implicit s: Scheduler) =
-    Props(new SupervisorActor(cfg)(s))
+  def props(cfg: AppConfig, globalChannel: PowerPlantEventObservable)(implicit s: Scheduler) =
+    Props(new SupervisorActor(cfg, globalChannel)(s))
 }

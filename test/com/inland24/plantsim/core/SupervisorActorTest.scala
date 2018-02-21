@@ -48,7 +48,7 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
 
   // Let us create our SupervisorActor instance
   val supervisorActor = system.actorOf(
-    SupervisorActor.props(appCfg)
+    SupervisorActor.props(appCfg, PowerPlantEventObservable(ec))
   )
 
   def powerPlantCfg(powerPlantId: Int, powerPlantType: PowerPlantType): PowerPlantConfig = powerPlantType match {
