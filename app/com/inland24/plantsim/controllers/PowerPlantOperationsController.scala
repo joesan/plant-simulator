@@ -17,14 +17,15 @@
 
 package com.inland24.plantsim.controllers
 
-import com.inland24.plantsim.core.AppBindings
+import com.inland24.plantsim.core.{AppBindings, EventsActor}
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models._
 import monix.execution.FutureUtils.extensions._
 import play.api.libs.json.JsError
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.{Action, Controller, WebSocket}
 import akka.actor.ActorRef
 import akka.pattern.ask
+import play.api.libs.streams.ActorFlow
 
 // TODO: pass in this execution context via AppBindings
 import monix.execution.Scheduler.Implicits.global
@@ -40,8 +41,9 @@ class PowerPlantOperationsController(bindings: AppBindings)
   extends Controller with ControllerBase {
 
   // Place a reference to the underlying ActorSystem
-  private val system = bindings.actorSystem
-  implicit val timeout: akka.util.Timeout = 3.seconds
+  private implicit val system = bindings.actorSystem
+  private implicit val timeout: akka.util.Timeout = 3.seconds
+  private implicit val materializer = bindings.materializer
 
   // TODO: This could return a list of supported API's
   def home = Action { implicit request =>
@@ -133,6 +135,16 @@ class PowerPlantOperationsController(bindings: AppBindings)
               )
             ).enableCors
           )
+    }
+  }
+
+  def events(id: Option[Int]) = WebSocket.accept[String, String] { request =>
+    val queryString = request.rawQueryString
+    println(s"********************** ")
+    println(s"$queryString")
+    println(s"********************** ")
+    ActorFlow.actorRef { out =>
+      EventsActor.props(out)
     }
   }
 }

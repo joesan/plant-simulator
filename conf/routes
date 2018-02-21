@@ -19,5 +19,8 @@ GET         /powerPlant/:id/telemetry    com.inland24.plantsim.controllers.Power
 POST        /powerPlant/:id/dispatch     com.inland24.plantsim.controllers.PowerPlantOperationsController.dispatchPowerPlant(id: Int)
 POST        /powerPlant/:id/release      com.inland24.plantsim.controllers.PowerPlantOperationsController.returnToNormalPowerPlant(id: Int)
 
+# Endpoints to tap into Alerts and Events
+GET         /powerPlant/events          com.inland24.plantsim.controllers.PowerPlantOperationsController.events(id: Option[Int] = None)
+
 # Map static resources from the /public folder to the /assets URL path
 GET			/assets/*file				 controllers.Assets.versioned(path="/public", file: Asset)
