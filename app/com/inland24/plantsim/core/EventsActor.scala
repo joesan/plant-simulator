@@ -19,16 +19,23 @@ package com.inland24.plantsim.core
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.libs.json.{JsValue, Json}
-
+import play.api.libs.json.{JsNumber, JsValue, Json}
 import monix.execution.rstreams.SingleAssignmentSubscription
 import org.reactivestreams.{Subscriber, Subscription}
+import monix.execution.Scheduler.Implicits.global
+
+import scala.util.Try
 
 
 class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option[Int])
   extends Actor with ActorLogging {
 
   private[this] val subscription = SingleAssignmentSubscription()
+
+  override def postStop(): Unit = {
+    subscription.cancel()
+    super.postStop()
+  }
 
   override def preStart = {
     super.preStart()
@@ -40,6 +47,7 @@ class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option
       }
 
       def onNext(json: JsValue): Unit = {
+        log.info(s"Got a new message **** $json")
         sink ! json
       }
 
@@ -62,8 +70,9 @@ class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option
   }
 
   def receive = {
-    case msg: String =>
-      sink ! ("I received your message: " + msg)
+    case JsNumber(nr) if nr > 0 =>
+      println(s"nr is ********* $nr")
+      Try(nr.toLongExact).foreach(subscription.request)
   }
 }
 object EventsActor {

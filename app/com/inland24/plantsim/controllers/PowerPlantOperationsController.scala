@@ -139,7 +139,7 @@ class PowerPlantOperationsController(bindings: AppBindings)
   }
 
   // TODO: Under implementation.....
-  def events(someId: Option[Int]) = WebSocket.accept[String, String] { request =>
+  def events(someId: Option[Int]) = WebSocket.accept[String, String] { _ =>
     ActorFlow.actorRef { out =>
       EventsActor.props(bindings.globalChannel, out, someId)
     }

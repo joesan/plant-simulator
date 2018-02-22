@@ -26,16 +26,24 @@ import monix.reactive.subjects.ConcurrentSubject
 final class PowerPlantEventObservable private (underlying: ConcurrentSubject[PowerPlantSignal, PowerPlantSignal])
   extends ConcurrentSubject[PowerPlantSignal, PowerPlantSignal] {
 
-  override def unsafeSubscribeFn(s: Subscriber[PowerPlantSignal]) =
+  override def unsafeSubscribeFn(s: Subscriber[PowerPlantSignal]) = {
+    println(s"Subscriber ***************** is successfully subscribed ******************* ${s}")
     underlying.unsafeSubscribeFn(s)
+  }
 
   override def size: Int = underlying.size
 
-  override def onNext(elem: PowerPlantSignal): Ack = underlying.onNext(elem)
+  override def onNext(elem: PowerPlantSignal): Ack = {
+    println(s"onNext Element received is ************** $elem")
+    underlying.onNext(elem)
+  }
 
   override def onError(ex: Throwable): Unit = underlying.onError(ex)
 
-  override def onComplete(): Unit = underlying.onComplete()
+  override def onComplete(): Unit = {
+    println(s"subscription completed ****** ")
+    underlying.onComplete()
+  }
 }
 object PowerPlantEventObservable {
 

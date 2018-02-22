@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit
 
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.models.PowerPlantConfig._
+import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, Transition}
 import com.inland24.plantsim.models.PowerPlantType._
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
@@ -204,6 +205,27 @@ package object models {
           maxPower = powerPlantRow.maxPower,
           powerPlantType = UnknownType
         )
+    }
+  }
+
+  implicit val powerPlantSignalWrites = new Writes[PowerPlantSignal] {
+    def writes(powerPlantSignal: PowerPlantSignal) = powerPlantSignal match {
+      case Genesis(newState, powerPlantCfg, timeStamp) => Json.obj(
+        "newState" -> newState.toString,
+        "powerPlantCfg" -> powerPlantCfg,
+        "timeStamp" -> timeStamp
+      )
+      case Transition(oldState, newState, powerPlantCfg, timeStamp) => Json.obj(
+        "newState" -> newState.toString,
+        "oldState" -> oldState.toString,
+        "powerPlantCfg" -> powerPlantCfg,
+        "timeStamp" -> timeStamp
+      )
+      case DispatchAlert(msg, powerPlantCfg, timeStamp) => Json.obj(
+        "message" -> msg,
+        "powerPlantCfg" -> powerPlantCfg,
+        "timeStamp" -> timeStamp
+      )
     }
   }
 }
