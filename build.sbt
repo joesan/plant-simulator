@@ -88,11 +88,11 @@ libraryDependencies ++= Seq(
 
   // JDBC driver for MySQL
   "mysql" % "mysql-connector-java" % "5.1.26",
+  "com.h2database" % "h2" % "1.4.186",
 
   // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % "2.5.2" % Test,
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
-  "com.h2database" % "h2" % "1.4.186" % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "1.5.0" % Test
 )
 

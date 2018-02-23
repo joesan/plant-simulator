@@ -1,0 +1,354 @@
+02-23 20:31:08 database: CREATE CACHED TABLE PUBLIC.POWERPLANT(
+    POWERPLANTID INT NOT NULL,
+    ORGNAME VARCHAR(25) NOT NULL,
+    ISACTIVE BOOL NOT NULL,
+    MINPOWER INT NOT NULL,
+    MAXPOWER INT NOT NULL,
+    RAMPRATE INT,
+    RAMPRATESECS INT,
+    POWERPLANTTYPE ENUM('OnOffType','RampUpType'),
+    CREATEDAT TIMESTAMP NOT NULL,
+    UPDATEDAT TIMESTAMP NOT NULL
+)
+org.h2.jdbc.JdbcSQLException: Unknown data type: "ENUM"; SQL statement:
+CREATE CACHED TABLE PUBLIC.POWERPLANT(
+    POWERPLANTID INT NOT NULL,
+    ORGNAME VARCHAR(25) NOT NULL,
+    ISACTIVE BOOL NOT NULL,
+    MINPOWER INT NOT NULL,
+    MAXPOWER INT NOT NULL,
+    RAMPRATE INT,
+    RAMPRATESECS INT,
+    POWERPLANTTYPE ENUM('OnOffType','RampUpType'),
+    CREATEDAT TIMESTAMP NOT NULL,
+    UPDATEDAT TIMESTAMP NOT NULL
+) [50004-186]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.command.Parser.parseColumnWithType(Parser.java:3990)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:3853)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:5761)
+	at org.h2.command.Parser.parseCreate(Parser.java:4149)
+	at org.h2.command.Parser.parsePrepared(Parser.java:350)
+	at org.h2.command.Parser.parse(Parser.java:305)
+	at org.h2.command.Parser.parse(Parser.java:277)
+	at org.h2.command.Parser.prepare(Parser.java:226)
+	at org.h2.engine.Session.prepare(Session.java:412)
+	at org.h2.engine.Session.prepare(Session.java:399)
+	at org.h2.engine.MetaRecord.execute(MetaRecord.java:56)
+	at org.h2.engine.Database.open(Database.java:732)
+	at org.h2.engine.Database.openDatabase(Database.java:266)
+	at org.h2.engine.Database.<init>(Database.java:260)
+	at org.h2.engine.Engine.openSession(Engine.java:60)
+	at org.h2.engine.Engine.openSession(Engine.java:167)
+	at org.h2.engine.Engine.createSessionAndValidate(Engine.java:145)
+	at org.h2.engine.Engine.createSession(Engine.java:128)
+	at org.h2.engine.Engine.createSession(Engine.java:26)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:347)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:108)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:92)
+	at org.h2.Driver.connect(Driver.java:72)
+	at slick.jdbc.DriverDataSource.getConnection(DriverDataSource.scala:101)
+	at slick.jdbc.DataSourceJdbcDataSource.createConnection(JdbcDataSource.scala:72)
+	at slick.jdbc.JdbcBackend$BaseSession.<init>(JdbcBackend.scala:439)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:47)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$class.acquireSession(BasicBackend.scala:218)
+	at slick.jdbc.JdbcBackend$DatabaseDef.acquireSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$$anon$2.run(BasicBackend.scala:239)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+02-23 20:33:08 database: CREATE CACHED TABLE PUBLIC.POWERPLANT(
+    POWERPLANTID INT NOT NULL,
+    ORGNAME VARCHAR(25) NOT NULL,
+    ISACTIVE BOOL NOT NULL,
+    MINPOWER INT NOT NULL,
+    MAXPOWER INT NOT NULL,
+    RAMPRATE INT,
+    RAMPRATESECS INT,
+    POWERPLANTTYPE ENUM('OnOffType','RampUpType'),
+    CREATEDAT TIMESTAMP NOT NULL,
+    UPDATEDAT TIMESTAMP NOT NULL
+)
+org.h2.jdbc.JdbcSQLException: Unknown data type: "ENUM"; SQL statement:
+CREATE CACHED TABLE PUBLIC.POWERPLANT(
+    POWERPLANTID INT NOT NULL,
+    ORGNAME VARCHAR(25) NOT NULL,
+    ISACTIVE BOOL NOT NULL,
+    MINPOWER INT NOT NULL,
+    MAXPOWER INT NOT NULL,
+    RAMPRATE INT,
+    RAMPRATESECS INT,
+    POWERPLANTTYPE ENUM('OnOffType','RampUpType'),
+    CREATEDAT TIMESTAMP NOT NULL,
+    UPDATEDAT TIMESTAMP NOT NULL
+) [50004-186]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.command.Parser.parseColumnWithType(Parser.java:3990)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:3853)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:5761)
+	at org.h2.command.Parser.parseCreate(Parser.java:4149)
+	at org.h2.command.Parser.parsePrepared(Parser.java:350)
+	at org.h2.command.Parser.parse(Parser.java:305)
+	at org.h2.command.Parser.parse(Parser.java:277)
+	at org.h2.command.Parser.prepare(Parser.java:226)
+	at org.h2.engine.Session.prepare(Session.java:412)
+	at org.h2.engine.Session.prepare(Session.java:399)
+	at org.h2.engine.MetaRecord.execute(MetaRecord.java:56)
+	at org.h2.engine.Database.open(Database.java:732)
+	at org.h2.engine.Database.openDatabase(Database.java:266)
+	at org.h2.engine.Database.<init>(Database.java:260)
+	at org.h2.engine.Engine.openSession(Engine.java:60)
+	at org.h2.engine.Engine.openSession(Engine.java:167)
+	at org.h2.engine.Engine.createSessionAndValidate(Engine.java:145)
+	at org.h2.engine.Engine.createSession(Engine.java:128)
+	at org.h2.engine.Engine.createSession(Engine.java:26)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:347)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:108)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:92)
+	at org.h2.Driver.connect(Driver.java:72)
+	at slick.jdbc.DriverDataSource.getConnection(DriverDataSource.scala:101)
+	at slick.jdbc.DataSourceJdbcDataSource.createConnection(JdbcDataSource.scala:72)
+	at slick.jdbc.JdbcBackend$BaseSession.<init>(JdbcBackend.scala:439)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:47)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$class.acquireSession(BasicBackend.scala:218)
+	at slick.jdbc.JdbcBackend$DatabaseDef.acquireSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$$anon$2.run(BasicBackend.scala:239)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+02-23 20:35:08 database: CREATE CACHED TABLE PUBLIC.POWERPLANT(
+    POWERPLANTID INT NOT NULL,
+    ORGNAME VARCHAR(25) NOT NULL,
+    ISACTIVE BOOL NOT NULL,
+    MINPOWER INT NOT NULL,
+    MAXPOWER INT NOT NULL,
+    RAMPRATE INT,
+    RAMPRATESECS INT,
+    POWERPLANTTYPE ENUM('OnOffType','RampUpType'),
+    CREATEDAT TIMESTAMP NOT NULL,
+    UPDATEDAT TIMESTAMP NOT NULL
+)
+org.h2.jdbc.JdbcSQLException: Unknown data type: "ENUM"; SQL statement:
+CREATE CACHED TABLE PUBLIC.POWERPLANT(
+    POWERPLANTID INT NOT NULL,
+    ORGNAME VARCHAR(25) NOT NULL,
+    ISACTIVE BOOL NOT NULL,
+    MINPOWER INT NOT NULL,
+    MAXPOWER INT NOT NULL,
+    RAMPRATE INT,
+    RAMPRATESECS INT,
+    POWERPLANTTYPE ENUM('OnOffType','RampUpType'),
+    CREATEDAT TIMESTAMP NOT NULL,
+    UPDATEDAT TIMESTAMP NOT NULL
+) [50004-186]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.command.Parser.parseColumnWithType(Parser.java:3990)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:3853)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:5761)
+	at org.h2.command.Parser.parseCreate(Parser.java:4149)
+	at org.h2.command.Parser.parsePrepared(Parser.java:350)
+	at org.h2.command.Parser.parse(Parser.java:305)
+	at org.h2.command.Parser.parse(Parser.java:277)
+	at org.h2.command.Parser.prepare(Parser.java:226)
+	at org.h2.engine.Session.prepare(Session.java:412)
+	at org.h2.engine.Session.prepare(Session.java:399)
+	at org.h2.engine.MetaRecord.execute(MetaRecord.java:56)
+	at org.h2.engine.Database.open(Database.java:732)
+	at org.h2.engine.Database.openDatabase(Database.java:266)
+	at org.h2.engine.Database.<init>(Database.java:260)
+	at org.h2.engine.Engine.openSession(Engine.java:60)
+	at org.h2.engine.Engine.openSession(Engine.java:167)
+	at org.h2.engine.Engine.createSessionAndValidate(Engine.java:145)
+	at org.h2.engine.Engine.createSession(Engine.java:128)
+	at org.h2.engine.Engine.createSession(Engine.java:26)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:347)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:108)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:92)
+	at org.h2.Driver.connect(Driver.java:72)
+	at slick.jdbc.DriverDataSource.getConnection(DriverDataSource.scala:101)
+	at slick.jdbc.DataSourceJdbcDataSource.createConnection(JdbcDataSource.scala:72)
+	at slick.jdbc.JdbcBackend$BaseSession.<init>(JdbcBackend.scala:439)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:47)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$class.acquireSession(BasicBackend.scala:218)
+	at slick.jdbc.JdbcBackend$DatabaseDef.acquireSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$$anon$2.run(BasicBackend.scala:239)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+02-23 20:36:25 database: CREATE CACHED TABLE PUBLIC.POWERPLANT(
+    POWERPLANTID INT NOT NULL,
+    ORGNAME VARCHAR(25) NOT NULL,
+    ISACTIVE BOOL NOT NULL,
+    MINPOWER INT NOT NULL,
+    MAXPOWER INT NOT NULL,
+    RAMPRATE INT,
+    RAMPRATESECS INT,
+    POWERPLANTTYPE ENUM('OnOffType','RampUpType'),
+    CREATEDAT TIMESTAMP NOT NULL,
+    UPDATEDAT TIMESTAMP NOT NULL
+)
+org.h2.jdbc.JdbcSQLException: Unknown data type: "ENUM"; SQL statement:
+CREATE CACHED TABLE PUBLIC.POWERPLANT(
+    POWERPLANTID INT NOT NULL,
+    ORGNAME VARCHAR(25) NOT NULL,
+    ISACTIVE BOOL NOT NULL,
+    MINPOWER INT NOT NULL,
+    MAXPOWER INT NOT NULL,
+    RAMPRATE INT,
+    RAMPRATESECS INT,
+    POWERPLANTTYPE ENUM('OnOffType','RampUpType'),
+    CREATEDAT TIMESTAMP NOT NULL,
+    UPDATEDAT TIMESTAMP NOT NULL
+) [50004-186]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.command.Parser.parseColumnWithType(Parser.java:3990)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:3853)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:5761)
+	at org.h2.command.Parser.parseCreate(Parser.java:4149)
+	at org.h2.command.Parser.parsePrepared(Parser.java:350)
+	at org.h2.command.Parser.parse(Parser.java:305)
+	at org.h2.command.Parser.parse(Parser.java:277)
+	at org.h2.command.Parser.prepare(Parser.java:226)
+	at org.h2.engine.Session.prepare(Session.java:412)
+	at org.h2.engine.Session.prepare(Session.java:399)
+	at org.h2.engine.MetaRecord.execute(MetaRecord.java:56)
+	at org.h2.engine.Database.open(Database.java:732)
+	at org.h2.engine.Database.openDatabase(Database.java:266)
+	at org.h2.engine.Database.<init>(Database.java:260)
+	at org.h2.engine.Engine.openSession(Engine.java:60)
+	at org.h2.engine.Engine.openSession(Engine.java:167)
+	at org.h2.engine.Engine.createSessionAndValidate(Engine.java:145)
+	at org.h2.engine.Engine.createSession(Engine.java:128)
+	at org.h2.engine.Engine.createSession(Engine.java:26)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:347)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:108)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:92)
+	at org.h2.Driver.connect(Driver.java:72)
+	at slick.jdbc.DriverDataSource.getConnection(DriverDataSource.scala:101)
+	at slick.jdbc.DataSourceJdbcDataSource.createConnection(JdbcDataSource.scala:72)
+	at slick.jdbc.JdbcBackend$BaseSession.<init>(JdbcBackend.scala:439)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:47)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$class.acquireSession(BasicBackend.scala:218)
+	at slick.jdbc.JdbcBackend$DatabaseDef.acquireSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$$anon$2.run(BasicBackend.scala:239)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+02-23 20:39:12 database: CREATE CACHED TABLE PUBLIC.POWERPLANT(
+    POWERPLANTID INT NOT NULL,
+    ORGNAME VARCHAR(25) NOT NULL,
+    ISACTIVE BOOL NOT NULL,
+    MINPOWER INT NOT NULL,
+    MAXPOWER INT NOT NULL,
+    RAMPRATE INT,
+    RAMPRATESECS INT,
+    POWERPLANTTYPE ENUM('OnOffType','RampUpType'),
+    CREATEDAT TIMESTAMP NOT NULL,
+    UPDATEDAT TIMESTAMP NOT NULL
+)
+org.h2.jdbc.JdbcSQLException: Unknown data type: "ENUM"; SQL statement:
+CREATE CACHED TABLE PUBLIC.POWERPLANT(
+    POWERPLANTID INT NOT NULL,
+    ORGNAME VARCHAR(25) NOT NULL,
+    ISACTIVE BOOL NOT NULL,
+    MINPOWER INT NOT NULL,
+    MAXPOWER INT NOT NULL,
+    RAMPRATE INT,
+    RAMPRATESECS INT,
+    POWERPLANTTYPE ENUM('OnOffType','RampUpType'),
+    CREATEDAT TIMESTAMP NOT NULL,
+    UPDATEDAT TIMESTAMP NOT NULL
+) [50004-186]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.command.Parser.parseColumnWithType(Parser.java:3990)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:3853)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:5761)
+	at org.h2.command.Parser.parseCreate(Parser.java:4149)
+	at org.h2.command.Parser.parsePrepared(Parser.java:350)
+	at org.h2.command.Parser.parse(Parser.java:305)
+	at org.h2.command.Parser.parse(Parser.java:277)
+	at org.h2.command.Parser.prepare(Parser.java:226)
+	at org.h2.engine.Session.prepare(Session.java:412)
+	at org.h2.engine.Session.prepare(Session.java:399)
+	at org.h2.engine.MetaRecord.execute(MetaRecord.java:56)
+	at org.h2.engine.Database.open(Database.java:732)
+	at org.h2.engine.Database.openDatabase(Database.java:266)
+	at org.h2.engine.Database.<init>(Database.java:260)
+	at org.h2.engine.Engine.openSession(Engine.java:60)
+	at org.h2.engine.Engine.openSession(Engine.java:167)
+	at org.h2.engine.Engine.createSessionAndValidate(Engine.java:145)
+	at org.h2.engine.Engine.createSession(Engine.java:128)
+	at org.h2.engine.Engine.createSession(Engine.java:26)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:347)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:108)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:92)
+	at org.h2.Driver.connect(Driver.java:72)
+	at slick.jdbc.DriverDataSource.getConnection(DriverDataSource.scala:101)
+	at slick.jdbc.DataSourceJdbcDataSource.createConnection(JdbcDataSource.scala:72)
+	at slick.jdbc.JdbcBackend$BaseSession.<init>(JdbcBackend.scala:439)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:47)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$class.acquireSession(BasicBackend.scala:218)
+	at slick.jdbc.JdbcBackend$DatabaseDef.acquireSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$$anon$2.run(BasicBackend.scala:239)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+2018-02-23 20:49:22 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Unknown data type: "VRCHAR"; SQL statement:
+CREATE TABLE powerPlant (
+    powerPlantId     INT         NOT NULL,
+    orgName          VARCHAR(25) NOT NULL,
+    isActive         BOOL        NOT NULL,
+    minPower         INT         NOT NULL,
+    maxPower         INT         NOT NULL,
+    rampRate         INT,
+    rampRateSecs     INT,
+    powerPlantType   VRCHAR(25) check (powerPlantType in ('OnOffType', 'RampUpType')),
+    createdAt        TIMESTAMP   NOT NULL,
+    updatedAt        TIMESTAMP   NOT NULL,
+    PRIMARY KEY (powerPlantId),
+    FOREIGN KEY (orgName) REFERENCES organization (orgName) ON DELETE CASCADE
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 [50004-196]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.command.Parser.parseColumnWithType(Parser.java:4169)
+	at org.h2.command.Parser.parseColumnForTable(Parser.java:4012)
+	at org.h2.command.Parser.parseCreateTable(Parser.java:6155)
+	at org.h2.command.Parser.parseCreate(Parser.java:4351)
+	at org.h2.command.Parser.parsePrepared(Parser.java:366)
+	at org.h2.command.Parser.parse(Parser.java:321)
+	at org.h2.command.Parser.parse(Parser.java:293)
+	at org.h2.command.Parser.prepareCommand(Parser.java:258)
+	at org.h2.engine.Session.prepareLocal(Session.java:578)
+	at org.h2.engine.Session.prepareCommand(Session.java:519)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1204)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:176)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:164)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1380)
+	at org.h2.server.web.WebApp.query(WebApp.java:1053)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1015)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1002)
+	at org.h2.server.web.WebThread.process(WebThread.java:164)
+	at org.h2.server.web.WebThread.run(WebThread.java:89)
+	at java.lang.Thread.run(Thread.java:745)
+2018-02-23 20:50:14 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "(1[*], 'Organization-001', 'user', 'joe', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()),
+(2, 'Organization-002', 'user', 'san', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP())"; expected "(, WITH, SELECT, FROM"; SQL statement:
+(1, 'Organization-001', 'user', 'joe', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()),
+(2, 'Organization-002', 'user', 'san', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()) [42001-196]
