@@ -24,7 +24,7 @@ import monix.execution.rstreams.SingleAssignmentSubscription
 import org.reactivestreams.{Subscriber, Subscription}
 import monix.execution.Scheduler.Implicits.global
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 
 class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option[Int])
@@ -40,8 +40,7 @@ class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option
   override def preStart = {
     super.preStart()
 
-    val source = obs.map(elem => Json.toJson(elem)).whileBusyDropEvents
-    source.toReactivePublisher.subscribe(new Subscriber[JsValue] {
+    val subscriberSS = new Subscriber[JsValue] {
       def onSubscribe(s: Subscription): Unit = {
         subscription := s
       }
@@ -66,16 +65,53 @@ class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option
         sink ! Json.obj("event" -> "complete", "timestamp" -> DateTime.now(DateTimeZone.UTC))
         context.stop(self)
       }
+    }
+
+    val source = obs.map(elem => {
+      val json = Json.toJson(elem)
+      println(json)
+      println("JSON is ***********")
+      json
     })
+    source.toReactivePublisher.subscribe(subscriberSS)
   }
 
   def receive = {
+    case msg: String =>
+      sink ! s"message received is $msg"
     case JsNumber(nr) if nr > 0 =>
       println(s"nr is ********* $nr")
       Try(nr.toLongExact).foreach(subscription.request)
   }
 }
 object EventsActor {
+
+  /**
+    * For pattern matching request events.
+    */
+  object Request {
+    def unapply(value: Any): Option[Long] =
+      value match {
+        case str: String =>
+          str.trim match {
+            case IsInteger(integer) =>
+              try Some(integer.toLong).filter(_ > 0) catch {
+                case _: NumberFormatException =>
+                  None
+              }
+            case _ =>
+              None
+          }
+        case number: Int =>
+          Some(number.toLong)
+        case number: Long =>
+          Some(number)
+        case _ =>
+          None
+      }
+
+    val IsInteger = """^([-+]?\d+)$""".r
+  }
 
   def props(source: PowerPlantEventObservable, out: ActorRef, someId: Option[Int]) =
     Props(new EventsActor(source, out, someId))

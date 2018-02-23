@@ -41,7 +41,10 @@ class OnOffTypeActor private (config: Config)
 
   private def evolve(stm: StateMachine) = {
     val (signals, newStm) = StateMachine.popEvents(stm)
-    for (s <- signals) out.onNext(s)
+    for (s <- signals) {
+      println(s"OnOffTypeActor # Push >>>>>>> $s")
+      out.onNext(s)
+    }
     context.become(active(newStm))
   }
 

@@ -78,7 +78,10 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
 
   private def evolve(stm: StateMachine) = {
     val (signals, newStm) = StateMachine.popEvents(stm)
-    for (s <- signals) out.onNext(s)
+    for (s <- signals) {
+      println(s"RampUpTypeActor # Push >>>>>>>>>> $s")
+      out.onNext(s)
+    }
     val receiveMethod = decideTransition(newStm)
     log.info(s"RampUpType PowerPlant with id = ${cfg.id} has " +
       s"EVOLVED STATE << " +

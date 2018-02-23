@@ -46,7 +46,7 @@ final class Bootstrap extends ApplicationLoader with LazyLogging {
 
     def stop(bindings: AppBindings) = {
       logger.info("Stopping application :: plant-simulator")
-      //bindings.globalChannel.publishChannel.onComplete()
+      bindings.globalChannel.onComplete()
     }
 
     def start = {

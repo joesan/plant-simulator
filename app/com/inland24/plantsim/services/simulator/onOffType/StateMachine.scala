@@ -18,7 +18,7 @@
 package com.inland24.plantsim.services.simulator.onOffType
 
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
-import com.inland24.plantsim.models.PowerPlantSignal.Transition
+import com.inland24.plantsim.models.PowerPlantSignal.{Genesis, Transition}
 import com.inland24.plantsim.models.{PowerPlantSignal, PowerPlantState}
 import com.inland24.plantsim.models.PowerPlantState.{Active, Dispatched, Init, ReturnToNormal}
 import org.joda.time.{DateTime, DateTimeZone}
@@ -45,7 +45,13 @@ object StateMachine {
     oldState = Init,
     lastTurnOnOffReceivedAt = DateTime.now(DateTimeZone.UTC),
     signals = Map.empty[String, String],
-    events = Vector.empty
+    events = Vector(
+      Genesis(
+        timeStamp = DateTime.now(DateTimeZone.UTC),
+        newState = Init,
+        powerPlantConfig = config
+      )
+    )
   )
 
   val isAvailableSignalKey = "isAvailable"
