@@ -95,7 +95,7 @@ class SupervisorActor(config: AppConfig, globalChannel: PowerPlantEventObservabl
     case OnOffType =>
       log.info(s"Starting OnOffType PowerPlant with id $id")
       context.actorOf(
-        OnOffTypeActor.props(OnOffTypeActor.Config(cfg.asInstanceOf[OnOffTypeConfig], eventsStream)),
+        OnOffTypeActor.props(OnOffTypeActor.Config(cfg.asInstanceOf[OnOffTypeConfig], Some(eventsStream))),
         s"$simulatorActorNamePrefix-$id"
       )
       log.info(s"Successfully started OnOffType PowerPlant with id $id")
@@ -104,7 +104,7 @@ class SupervisorActor(config: AppConfig, globalChannel: PowerPlantEventObservabl
     case RampUpType =>
       log.info(s"Starting RampUpType PowerPlant with id $id")
       context.actorOf(
-        RampUpTypeActor.props(RampUpTypeActor.Config(cfg.asInstanceOf[RampUpTypeConfig], eventsStream)),
+        RampUpTypeActor.props(RampUpTypeActor.Config(cfg.asInstanceOf[RampUpTypeConfig], Some(eventsStream))),
         s"$simulatorActorNamePrefix-$id"
       )
       log.info(s"Successfully started RampUpType PowerPlant with id $id")

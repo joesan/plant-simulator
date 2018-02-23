@@ -18,6 +18,7 @@
 package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
@@ -77,7 +78,9 @@ class RampUpTypeActor private (config: Config)
 
   private def evolve(stm: StateMachine) = {
     val (signals, newStm) = StateMachine.popEvents(stm)
-    for (s <- signals) eventsStream ! s
+    for (s <- signals) {
+      eventsStream.foreach(actorRef => actorRef ! s)
+    }
     val receiveMethod = decideTransition(newStm)
     log.info(s"RampUpType PowerPlant with id = ${cfg.id} has " +
       s"EVOLVED STATE << " +
@@ -257,7 +260,7 @@ object RampUpTypeActor {
 
   case class Config(
     powerPlantCfg: RampUpTypeConfig,
-    eventsStream: ActorRef
+    eventsStream: Option[ActorRef] = None
   )
 
   sealed trait Message

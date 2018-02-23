@@ -36,11 +36,13 @@ class OnOffTypeActor private (config: Config)
   extends Actor with ActorLogging {
 
   val cfg = config.cfg
-  val eventsStream = config.eventsStream
+  val eventStream = config.eventsStream
 
   private def evolve(stm: StateMachine) = {
     val (signals, newStm) = StateMachine.popEvents(stm)
-    for (s <- signals) eventsStream ! s
+    for (s <- signals) {
+      eventStream.foreach(elem => elem ! s)
+    }
     context.become(active(newStm))
   }
 
@@ -104,7 +106,7 @@ object OnOffTypeActor {
 
   case class Config(
     cfg: OnOffTypeConfig,
-    eventsStream: ActorRef
+    eventsStream: Option[ActorRef] = None
   )
 
   sealed trait Message

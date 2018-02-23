@@ -17,7 +17,6 @@ package com.inland24.plantsim.services.simulator.onOffType
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
@@ -49,10 +48,7 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
     minPower = onOffTypeCfg.minPower
   )
 
-  private val onOffActorCfg = Config(
-    onOffTypeCfg,
-    PowerPlantEventObservable.apply(monix.execution.Scheduler.Implicits.global)
-  )
+  private val onOffActorCfg = Config(onOffTypeCfg)
 
   "OnOffTypeActor" must {
 

@@ -52,10 +52,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
     powerPlantType = PowerPlantType.RampUpType
   )
   private val initPowerPlantState = StateMachine.init(rampUpTypeCfg)
-  private val rampUpTypeActorCfg = rampUpType.RampUpTypeActor.Config(
-    powerPlantCfg = rampUpTypeCfg,
-    outChannel = PowerPlantEventObservable.apply(monix.execution.Scheduler.Implicits.global)
-  )
+  private val rampUpTypeActorCfg = rampUpType.RampUpTypeActor.Config(powerPlantCfg = rampUpTypeCfg)
 
   "RampUpTypeActor" must {
 
