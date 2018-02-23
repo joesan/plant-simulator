@@ -34,15 +34,13 @@ final class PowerPlantEventObservable private (underlying: ConcurrentSubject[Pow
   override def size: Int = underlying.size
 
   override def onNext(elem: PowerPlantSignal): Ack = {
-    println(s" >>>>> Got the next element $elem")
-    underlying.doAfterSubscribe(() => println("Successfully subscribed"))
+    (s"Total Subscribers is ${underlying.size}")
     underlying.onNext(elem)
   }
 
   override def onError(ex: Throwable): Unit = underlying.onError(ex)
 
   override def onComplete(): Unit = {
-    println(s"OnComplete called ****** So Shutting down ***** ")
     underlying.onComplete()
   }
 }

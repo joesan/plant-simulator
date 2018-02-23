@@ -30,6 +30,7 @@ import com.inland24.plantsim.services.database.DBServiceActor
 import com.inland24.plantsim.services.database.DBServiceActor.PowerPlantEventsSeq
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor
+import com.inland24.plantsim.streams.EventsStream
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
@@ -61,8 +62,11 @@ class SupervisorActor(config: AppConfig, globalChannel: PowerPlantEventObservabl
   // The default timeout for all Ask's the Actor makes
   implicit val timeout = Timeout(5.seconds)
 
-  // Our DBServiceActor instance that is responsible for tracking changes to the PowerPlant table
+  // The DBServiceActor instance that is responsible for tracking changes to the PowerPlant table
   val dbServiceActor = context.actorOf(DBServiceActor.props(config.dbConfig, self), "plant-simulator-dbService")
+
+  // The EventsStream Actor to which all our PowerPlant's will send Events and Alerts
+  val eventsStream = context.actorOf(EventsStream.props(globalChannel))
 
   override val supervisorStrategy: OneForOneStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 5.seconds) {
@@ -91,7 +95,7 @@ class SupervisorActor(config: AppConfig, globalChannel: PowerPlantEventObservabl
     case OnOffType =>
       log.info(s"Starting OnOffType PowerPlant with id $id")
       context.actorOf(
-        OnOffTypeActor.props(OnOffTypeActor.Config(cfg.asInstanceOf[OnOffTypeConfig], globalChannel)),
+        OnOffTypeActor.props(OnOffTypeActor.Config(cfg.asInstanceOf[OnOffTypeConfig], eventsStream)),
         s"$simulatorActorNamePrefix-$id"
       )
       log.info(s"Successfully started OnOffType PowerPlant with id $id")
@@ -100,7 +104,7 @@ class SupervisorActor(config: AppConfig, globalChannel: PowerPlantEventObservabl
     case RampUpType =>
       log.info(s"Starting RampUpType PowerPlant with id $id")
       context.actorOf(
-        RampUpTypeActor.props(RampUpTypeActor.Config(cfg.asInstanceOf[RampUpTypeConfig], globalChannel)),
+        RampUpTypeActor.props(RampUpTypeActor.Config(cfg.asInstanceOf[RampUpTypeConfig], eventsStream)),
         s"$simulatorActorNamePrefix-$id"
       )
       log.info(s"Successfully started RampUpType PowerPlant with id $id")

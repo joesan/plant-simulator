@@ -17,31 +17,64 @@
 
 package com.inland24.plantsim.core
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import org.joda.time.{DateTime, DateTimeZone}
-import play.api.libs.json.{JsNumber, JsValue, Json}
-import monix.execution.rstreams.SingleAssignmentSubscription
-import org.reactivestreams.{Subscriber, Subscription}
-import monix.execution.Scheduler.Implicits.global
+import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
+import org.joda.time.DateTime
+import play.api.libs.json.{JsValue, Json}
+import monix.execution.Ack.Continue
+import monix.execution.cancelables.SingleAssignmentCancelable
+import monix.execution.{Ack, Scheduler}
+import monix.reactive.observers.Subscriber
 
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.Future
 
 
 class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option[Int])
   extends Actor with ActorLogging {
 
-  private[this] val subscription = SingleAssignmentSubscription()
+  private[this] val subscription = SingleAssignmentCancelable()
 
   override def postStop(): Unit = {
     subscription.cancel()
+    println(s"WebSocket Closed ************** ")
     super.postStop()
   }
 
   override def preStart = {
     super.preStart()
 
+    // 1. Our Observable
+    val source = obs.map(elem => Json.toJson(elem))
+
+    // 2. This will be our Subscriber
+    val subscriber = new Subscriber[JsValue] {
+      override implicit def scheduler: Scheduler = monix.execution.Scheduler.Implicits.global
+
+      override def onError(ex: Throwable): Unit = {
+        log.warning(s"Error while serving a web-socket stream", ex)
+        sink ! Json.obj(
+          "event" -> "error",
+          "type" -> ex.getClass.getName,
+          "message" -> ex.getMessage,
+          "timestamp" -> DateTime.now()
+        )
+
+        self ! PoisonPill
+      }
+
+      override def onComplete(): Unit = {
+        sink ! Json.obj("event" -> "complete", "timestamp" -> DateTime.now())
+        self ! PoisonPill
+      }
+
+      override def onNext(elem: JsValue): Future[Ack] = {
+        self ! Json.prettyPrint(elem)
+        Continue
+      }
+    }
+/*
     val subscriberSS = new Subscriber[JsValue] {
       def onSubscribe(s: Subscription): Unit = {
+        println(s"WebSocket Opened ************** ")
         subscription := s
       }
 
@@ -65,53 +98,18 @@ class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option
         sink ! Json.obj("event" -> "complete", "timestamp" -> DateTime.now(DateTimeZone.UTC))
         context.stop(self)
       }
-    }
+    } */
 
-    val source = obs.map(elem => {
-      val json = Json.toJson(elem)
-      println(json)
-      println("JSON is ***********")
-      json
-    })
-    source.toReactivePublisher.subscribe(subscriberSS)
+    // 3. The Subscription that is going to push our events outside
+    subscription := source.subscribe(subscriber)
   }
 
   def receive = {
-    case msg: String =>
-      sink ! s"message received is $msg"
-    case JsNumber(nr) if nr > 0 =>
-      println(s"nr is ********* $nr")
-      Try(nr.toLongExact).foreach(subscription.request)
+    case e: String =>
+      sink ! e
   }
 }
 object EventsActor {
-
-  /**
-    * For pattern matching request events.
-    */
-  object Request {
-    def unapply(value: Any): Option[Long] =
-      value match {
-        case str: String =>
-          str.trim match {
-            case IsInteger(integer) =>
-              try Some(integer.toLong).filter(_ > 0) catch {
-                case _: NumberFormatException =>
-                  None
-              }
-            case _ =>
-              None
-          }
-        case number: Int =>
-          Some(number.toLong)
-        case number: Long =>
-          Some(number)
-        case _ =>
-          None
-      }
-
-    val IsInteger = """^([-+]?\d+)$""".r
-  }
 
   def props(source: PowerPlantEventObservable, out: ActorRef, someId: Option[Int]) =
     Props(new EventsActor(source, out, someId))

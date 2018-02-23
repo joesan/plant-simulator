@@ -18,7 +18,6 @@
 package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
@@ -27,7 +26,6 @@ import com.inland24.plantsim.models.PowerPlantState.ReturnToNormal
 import com.inland24.plantsim.models.ReturnToNormalCommand
 import com.inland24.plantsim.models.PowerPlantState.{Init => InitState}
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.{Init, _}
-
 import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
@@ -39,10 +37,11 @@ import scala.concurrent.Future
 import monix.execution.Scheduler.Implicits.global
 
 
-class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
+class RampUpTypeActor private (config: Config)
+  extends Actor with ActorLogging {
 
   private val cfg = config.powerPlantCfg
-  private val out = config.outChannel
+  private val eventsStream = config.eventsStream
 
   /* This factor determines the randomness for the activePower
      For example., if the power to be dispatched is 800, then the
@@ -78,10 +77,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
 
   private def evolve(stm: StateMachine) = {
     val (signals, newStm) = StateMachine.popEvents(stm)
-    for (s <- signals) {
-      println(s"RampUpTypeActor # Push >>>>>>>>>> $s")
-      out.onNext(s)
-    }
+    for (s <- signals) eventsStream ! s
     val receiveMethod = decideTransition(newStm)
     log.info(s"RampUpType PowerPlant with id = ${cfg.id} has " +
       s"EVOLVED STATE << " +
@@ -261,7 +257,7 @@ object RampUpTypeActor {
 
   case class Config(
     powerPlantCfg: RampUpTypeConfig,
-    outChannel: PowerPlantEventObservable
+    eventsStream: ActorRef
   )
 
   sealed trait Message

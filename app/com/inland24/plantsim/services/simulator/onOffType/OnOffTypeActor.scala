@@ -15,9 +15,8 @@
 
 package com.inland24.plantsim.services.simulator.onOffType
 
-import akka.actor.{Actor, ActorLogging, Props}
+import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import OnOffTypeActor._
-import com.inland24.plantsim.core.PowerPlantEventObservable
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
@@ -37,14 +36,11 @@ class OnOffTypeActor private (config: Config)
   extends Actor with ActorLogging {
 
   val cfg = config.cfg
-  val out = config.outChannel
+  val eventsStream = config.eventsStream
 
   private def evolve(stm: StateMachine) = {
     val (signals, newStm) = StateMachine.popEvents(stm)
-    for (s <- signals) {
-      println(s"OnOffTypeActor # Push >>>>>>> $s")
-      out.onNext(s)
-    }
+    for (s <- signals) eventsStream ! s
     context.become(active(newStm))
   }
 
@@ -108,7 +104,7 @@ object OnOffTypeActor {
 
   case class Config(
     cfg: OnOffTypeConfig,
-    outChannel: PowerPlantEventObservable
+    eventsStream: ActorRef
   )
 
   sealed trait Message
