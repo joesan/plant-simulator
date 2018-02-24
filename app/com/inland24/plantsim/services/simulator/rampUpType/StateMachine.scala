@@ -118,13 +118,11 @@ object StateMachine {
         isDispatchedSignalKey -> false.toString,
         isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
       ),
-      events = Vector(
-        Transition(
+      events = stm.events :+ Transition(
           newState = com.inland24.plantsim.models.PowerPlantState.Active,
           oldState = stm.newState,
           powerPlantConfig = stm.cfg
         )
-      ) ++ stm.events
     )
   }
 
@@ -133,14 +131,12 @@ object StateMachine {
       newState = OutOfService,
       oldState = stm.newState,
       signals = unAvailableSignals,
-      events = Vector(
-        Transition(
+      events = stm.events :+ Transition(
           newState = OutOfService,
           oldState = stm.newState,
           powerPlantConfig = stm.cfg,
           timeStamp = DateTime.now(DateTimeZone.UTC)
         )
-      ) ++ stm.events
     )
   }
 
@@ -150,13 +146,11 @@ object StateMachine {
       newState = ReturnToService,
       oldState = stm.newState,
       signals = unAvailableSignals,
-      events = Vector(
-        Transition(
+      events = stm.events :+ Transition(
           newState = ReturnToService,
           oldState = stm.newState,
           powerPlantConfig = stm.cfg
         )
-      ) ++ stm.events
     )
   }
 
@@ -178,19 +172,17 @@ object StateMachine {
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
         oldState = stm.newState,
         newState = RampUp,
-        events = Vector(
-          Transition(
+        events = stm.events :+ Transition(
             oldState = stm.newState,
             newState = RampUp,
             powerPlantConfig = stm.cfg
-          ),
+          ) :+
           DispatchAlert(
             s"requested dispatchPower = $setPoint is greater than " +
               s"maxPower = ${stm.cfg.maxPower} capacity of the PowerPlant, " +
               s"so curtailing at maxPower for PowerPlant ${stm.cfg.id}",
             stm.cfg
           )
-        ) ++ stm.events
       )
     } else {
       stm.copy(
@@ -198,13 +190,11 @@ object StateMachine {
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
         oldState = stm.newState,
         newState = RampUp,
-        events = Vector(
-          Transition(
+        events = stm.events :+ Transition(
             oldState = stm.newState,
             newState = RampUp,
             powerPlantConfig = stm.cfg
           )
-        ) ++ stm.events
       )
     }
   }
@@ -222,13 +212,11 @@ object StateMachine {
           state.copy(
             oldState = state.newState,
             newState = Active,
-            events = Vector(
-              Transition(
+            events = state.events :+ Transition(
                 newState = Active,
                 oldState = state.newState,
                 powerPlantConfig = state.cfg
-              )
-            ) ++ state.events,
+              ),
             signals = Map(
               isDispatchedSignalKey -> false.toString,
               activePowerSignalKey  -> state.cfg.minPower.toString,
@@ -269,13 +257,11 @@ object StateMachine {
               activePowerSignalKey  -> stm.setPoint.toString,
               isAvailableSignalKey  -> true.toString // the plant is still available and not faulty!
             ),
-            events = Vector(
-              Transition(
+            events = stm.events :+ Transition(
                 oldState = stm.newState,
                 newState = Dispatched,
                 powerPlantConfig = stm.cfg
               )
-            ) ++ stm.events
           )
         }
         else { // We still have to RampUp

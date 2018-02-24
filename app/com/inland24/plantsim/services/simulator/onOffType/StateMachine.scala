@@ -73,14 +73,12 @@ object StateMachine {
         isOnOffSignalKey     -> false.toString,
         isAvailableSignalKey -> true.toString // indicates if the power plant is available for steering
       ),
-      events = Vector(
-        Transition(
+      events = stm.events :+ Transition(
           oldState = stm.newState,
           newState = Active,
           powerPlantConfig = stm.cfg,
           timeStamp = DateTime.now(DateTimeZone.UTC)
         )
-      ) ++ stm.events
     )
   }
 
@@ -97,14 +95,12 @@ object StateMachine {
           isOnOffSignalKey     -> false.toString,
           isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
         ),
-        events = Vector(
-          Transition(
+        events = stm.events :+ Transition(
             oldState = stm.newState,
             newState = ReturnToNormal,
             powerPlantConfig = stm.cfg,
             timeStamp = DateTime.now(DateTimeZone.UTC)
           )
-        ) ++ stm.events
       )
     } else stm
   }
@@ -122,14 +118,12 @@ object StateMachine {
           isOnOffSignalKey     -> true.toString,
           isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
         ),
-        events = Vector(
-          Transition(
+        events =stm.events :+ Transition(
             oldState = stm.newState,
             newState = Dispatched,
             powerPlantConfig = stm.cfg,
             timeStamp = DateTime.now(DateTimeZone.UTC)
           )
-        ) ++ stm.events
       )
     } else stm
   }
