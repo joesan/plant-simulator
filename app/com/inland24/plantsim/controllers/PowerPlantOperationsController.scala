@@ -17,7 +17,7 @@
 
 package com.inland24.plantsim.controllers
 
-import com.inland24.plantsim.core.{AppBindings, EventsActor, PowerPlantEventObservable}
+import com.inland24.plantsim.core.{AppBindings, EventsWebSocketActor, PowerPlantEventObservable}
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models._
 import monix.execution.FutureUtils.extensions._
@@ -141,7 +141,7 @@ class PowerPlantOperationsController(bindings: AppBindings)
   // TODO: Under implementation.....
   def events(someId: Option[Int]) = WebSocket.accept[String, String] { _ =>
     ActorFlow.actorRef { out =>
-      EventsActor.props(bindings.globalChannel, out, someId)
+      EventsWebSocketActor.props(bindings.globalChannel, out, someId)
     }
   }
 }

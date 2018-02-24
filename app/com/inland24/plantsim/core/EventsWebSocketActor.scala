@@ -28,7 +28,7 @@ import monix.reactive.observers.Subscriber
 import scala.concurrent.Future
 
 
-class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option[Int])
+class EventsWebSocketActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option[Int])
   extends Actor with ActorLogging {
 
   private[this] val subscription = SingleAssignmentCancelable()
@@ -113,8 +113,8 @@ class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option
       sink ! e
   }
 }
-object EventsActor {
+object EventsWebSocketActor {
 
   def props(source: PowerPlantEventObservable, out: ActorRef, someId: Option[Int]) =
-    Props(new EventsActor(source, out, someId))
+    Props(new EventsWebSocketActor(source, out, someId))
 }
