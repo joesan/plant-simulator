@@ -621,3 +621,39 @@ SELECT 'LOADING powerPlant' as 'INFO' [42001-196]
 2018-02-23 20:16:04 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLException: Table "POWER" not found; SQL statement:
 select * from power plant [42102-196]
+02-23 21:00:50 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = true [42102-186]
+2018-02-23 21:02:33 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = tru [42102-196]
+2018-02-23 21:02:44 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = true [42102-196]
+2018-02-23 21:02:52 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerplant" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerplant" where "isActive" = true [42102-196]
+2018-02-23 21:03:21 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Column "powerPlantId" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from powerplant where "isActive" = true [42122-196]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	at org.h2.message.DbException.get(DbException.java:179)
+	at org.h2.message.DbException.get(DbException.java:155)
+	at org.h2.expression.ExpressionColumn.optimize(ExpressionColumn.java:147)
+	at org.h2.command.dml.Select.prepare(Select.java:839)
+	at org.h2.command.Parser.prepareCommand(Parser.java:263)
+	at org.h2.engine.Session.prepareLocal(Session.java:578)
+	at org.h2.engine.Session.prepareCommand(Session.java:519)
+	at org.h2.jdbc.JdbcConnection.prepareCommand(JdbcConnection.java:1204)
+	at org.h2.jdbc.JdbcStatement.executeInternal(JdbcStatement.java:176)
+	at org.h2.jdbc.JdbcStatement.execute(JdbcStatement.java:164)
+	at org.h2.server.web.WebApp.getResult(WebApp.java:1380)
+	at org.h2.server.web.WebApp.query(WebApp.java:1053)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1015)
+	at org.h2.server.web.WebApp$1.next(WebApp.java:1002)
+	at org.h2.server.web.WebThread.process(WebThread.java:164)
+	at org.h2.server.web.WebThread.run(WebThread.java:89)
+	at java.lang.Thread.run(Thread.java:745)
+2018-02-23 21:04:03 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = true [42102-196]
