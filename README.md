@@ -28,9 +28,12 @@ We also assume that all the units that we deal here are in kw for power and in s
 
 This project is completely OpenSource, so feel free to explore and if you have better ideas, please let me know or even better please contribute!
 
-First some background: Normally in a PowerPlant, there are several power producing units. Each one of these power producing units could be turned on which means or in other words, it can be ramped up. The other way around should also be possible which means I can be a power consuming unit in a PowerPlant and this power consuming unit could be seen as a load to which I can send a singal so that I consume power from the grid.
+First some background: 
+Normally in a PowerPlant, there are several power producing units. Each one of these power producing units could be turned on which means or in other words, it can be ramped up. The other way around should also be possible which means I can be a power consuming unit in a PowerPlant and this power consuming unit could be seen as a load to which I can send a singal so that I consume power from the grid.
 
-This simulation does exactly that. I can register either a power producing unit or a power consuming unit with this simulation application. When registering these units, I specify how much power each one has. I then expose an API with which I can communicate with the simulator.
+This simulation does exactly that. I can register either a power producing unit or a power consuming unit with this simulation application. When registering these units, I specify how much power each one has and how much power I can ramp up or ramp down. I then expose an API with which I can communicate with the simulator. 
+
+The API documentation can be found [here](https://github.com/joesan/plant-simulator/wiki)
 
 These instructions below will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
@@ -101,16 +104,20 @@ This application is built as a web application using the Play framework. We have
    To run in production mode (application.prod.conf):
    sbt -Denv=prod -Dlogger.resource=logger-prod.xml run
    
+   NOTE: For simplicity, there is local H2 database setup (plant-simulator.mv.db). The connection details 
+   are to be found under conf/application.dev.conf
+   
+   You can comfortably run the application using the following command (No WiFi, no Network required)
+   sbt -Denv=dev run
+   
 3. Navigate to the following url on your favorite browser:
    http://localhost:9000
    
-   [TODO] Add the Swagger API Docs and put the URL here
+4. To do something meaningful with the application, have a look at the [documentation](https://github.com/joesan/plant-  simulator/wiki) for more information on how to call the API's!
    
-```
+``` 
 
-To do something meaningful with the application, have a look at the [documentation](https://github.com/joesan/plant-simulator/wiki) for more information on how to call the API's! 
-
-To visualize the application and to do some real work with it, have a look [here](https://github.com/joesan/plant-simulator-ui)
+To visualize the application and to do some real work with it, have a look [here](https://github.com/joesan/plant-simulator-ui) - Currently under development
 
 #### To run as a Docker container
 
