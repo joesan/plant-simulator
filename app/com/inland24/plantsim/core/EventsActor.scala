@@ -34,8 +34,9 @@ class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option
   private[this] val subscription = SingleAssignmentCancelable()
 
   override def postStop(): Unit = {
+    log.info("Cancelling Event WebSocket Actor")
     subscription.cancel()
-    println(s"WebSocket Closed ************** ")
+    log.info("Cancelling Event WebSocket Subscription")
     super.postStop()
   }
 
@@ -43,7 +44,10 @@ class EventsActor(obs: PowerPlantEventObservable, sink: ActorRef, someId: Option
     super.preStart()
 
     // 1. Our Observable
-    val source = obs.map(elem => Json.toJson(elem))
+    val source = someId match {
+      case Some(id) => obs.collect { case elem if elem.powerPlantConfig.id == id => Json.toJson(elem) }
+      case None => obs.map(elem => Json.toJson(elem))
+    }
 
     // 2. This will be our Subscriber
     val subscriber = new Subscriber[JsValue] {
