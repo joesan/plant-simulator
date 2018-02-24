@@ -36,7 +36,7 @@ class EventsWebSocketActor(obs: PowerPlantEventObservable, sink: ActorRef, someI
   override def postStop(): Unit = {
     log.info("Cancelling Event WebSocket Actor **** ")
     subscription.cancel()
-    log.info("Cancelling Event WebSocket Subscription")
+    log.info("Cancelling Event WebSocket Subscription ****")
     super.postStop()
   }
 
