@@ -92,10 +92,14 @@ You can comfortably run the application using the following command (No WiFi, no
 sbt -Denv=dev run
 ```
 
+If you want to run the application against a MySQL database, follow the instructione below:
+
 ```
-0. We need a database that is up and running. Please have a look at
-   this project that contains the setup script for the database:
+0. First, we need a database that is up and running. Please have a look at
+   this project that contains the setup script for the database (Supported databases are MySQL and H2):
    https://github.com/joesan/database-projects/tree/master/power-plant-simulator
+   
+   Make sure to have a running instance of your database server and to run the setup scripts.
    
    Once you have the database up and running, configure the database credentials in the 
    application.xxx.conf file (xxx stands for test or dev or prod)
