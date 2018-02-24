@@ -657,3 +657,45 @@ select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate"
 2018-02-23 21:04:03 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
 select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = true [42102-196]
+02-24 08:21:45 database: flush
+org.h2.message.DbException: General error: "java.lang.IllegalStateException: The file is locked: nio:/Users/jothi/Projects/Private/scala-projects/plant-simulator/plant-simulator.mv.db [1.4.186/7]" [50000-186]
+	at org.h2.message.DbException.get(DbException.java:168)
+	at org.h2.message.DbException.convert(DbException.java:295)
+	at org.h2.mvstore.db.MVTableEngine$1.uncaughtException(MVTableEngine.java:93)
+	at org.h2.mvstore.MVStore.panic(MVStore.java:371)
+	at org.h2.mvstore.MVStore.<init>(MVStore.java:354)
+	at org.h2.mvstore.MVStore$Builder.open(MVStore.java:2785)
+	at org.h2.mvstore.db.MVTableEngine$Store.<init>(MVTableEngine.java:162)
+	at org.h2.mvstore.db.MVTableEngine.init(MVTableEngine.java:98)
+	at org.h2.engine.Database.getPageStore(Database.java:2386)
+	at org.h2.engine.Database.open(Database.java:666)
+	at org.h2.engine.Database.openDatabase(Database.java:266)
+	at org.h2.engine.Database.<init>(Database.java:260)
+	at org.h2.engine.Engine.openSession(Engine.java:60)
+	at org.h2.engine.Engine.openSession(Engine.java:167)
+	at org.h2.engine.Engine.createSessionAndValidate(Engine.java:145)
+	at org.h2.engine.Engine.createSession(Engine.java:128)
+	at org.h2.engine.Engine.createSession(Engine.java:26)
+	at org.h2.engine.SessionRemote.connectEmbeddedOrServer(SessionRemote.java:347)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:108)
+	at org.h2.jdbc.JdbcConnection.<init>(JdbcConnection.java:92)
+	at org.h2.Driver.connect(Driver.java:72)
+	at slick.jdbc.DriverDataSource.getConnection(DriverDataSource.scala:101)
+	at slick.jdbc.DataSourceJdbcDataSource.createConnection(JdbcDataSource.scala:72)
+	at slick.jdbc.JdbcBackend$BaseSession.<init>(JdbcBackend.scala:439)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:47)
+	at slick.jdbc.JdbcBackend$DatabaseDef.createSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$class.acquireSession(BasicBackend.scala:218)
+	at slick.jdbc.JdbcBackend$DatabaseDef.acquireSession(JdbcBackend.scala:38)
+	at slick.basic.BasicBackend$DatabaseDef$$anon$2.run(BasicBackend.scala:239)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:745)
+Caused by: org.h2.jdbc.JdbcSQLException: General error: "java.lang.IllegalStateException: The file is locked: nio:/Users/jothi/Projects/Private/scala-projects/plant-simulator/plant-simulator.mv.db [1.4.186/7]" [50000-186]
+	at org.h2.message.DbException.getJdbcSQLException(DbException.java:345)
+	... 32 more
+Caused by: java.lang.IllegalStateException: The file is locked: nio:/Users/jothi/Projects/Private/scala-projects/plant-simulator/plant-simulator.mv.db [1.4.186/7]
+	at org.h2.mvstore.DataUtils.newIllegalStateException(DataUtils.java:773)
+	at org.h2.mvstore.FileStore.open(FileStore.java:170)
+	at org.h2.mvstore.MVStore.<init>(MVStore.java:340)
+	... 27 more
