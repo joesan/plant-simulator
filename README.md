@@ -114,7 +114,7 @@ If you want to run the application against a MySQL database, follow the instruct
 3. Navigate to the following url on your favorite browser:
    http://localhost:9000
    
-4. To do something meaningful with the application, have a look at the [documentation](https://github.com/joesan/plant-  simulator/wiki) for more information on how to call the API's!
+4. To do something meaningful with the application, have a look at the [documentation](https://github.com/joesan/plant-simulator/wiki/API-Documentation) for more information on how to call the API's!
    
 ``` 
 
