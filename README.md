@@ -84,13 +84,13 @@ This application is built as a web application using the Play framework. We have
 
 #### To run as a standalone jar, do the following
 
-   ```diff
-   NOTE: For simplicity, there is local H2 database setup (plant-simulator.mv.db). The connection details 
-   are to be found under conf/application.dev.conf
+```diff
+NOTE: For simplicity, there is local H2 database setup (plant-simulator.mv.db). The connection details 
+are to be found under conf/application.dev.conf
    
-   You can comfortably run the application using the following command (No WiFi, no Network required)
-   sbt -Denv=dev run
-   ```
+You can comfortably run the application using the following command (No WiFi, no Network required)
+sbt -Denv=dev run
+```
 
 ```
 0. We need a database that is up and running. Please have a look at
