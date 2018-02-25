@@ -32,7 +32,7 @@ class AppConfigTest extends FlatSpec {
     System.setProperty(key, value)
   }
 
-  val environments = Seq("default", "test", "prod")
+  val environments = Seq("default", "dev", "test")
 
   environments foreach { env =>
     "AppConfig # load" should s"load the configuration for $env environment" in {
@@ -46,10 +46,10 @@ class AppConfigTest extends FlatSpec {
 
       // test expectations
       env match {
+        case "dev" =>
+          appConfig.dbConfig.slickDriver.toString() === "slick.jdbc.H2Profile$"
         case "test" =>
-          appConfig.dbConfig.slickDriver.toString() === "slick.jdbc.MySQLProfile$"
-        case "prod" =>
-          appConfig.dbConfig.slickDriver.toString() === "slick.jdbc.MySQLProfile$"
+          appConfig.dbConfig.slickDriver.toString() === "slick.jdbc.H2Profile$"
         case _ =>
           appConfig.dbConfig.slickDriver.toString() === "slick.jdbc.H2Profile$"
       }
