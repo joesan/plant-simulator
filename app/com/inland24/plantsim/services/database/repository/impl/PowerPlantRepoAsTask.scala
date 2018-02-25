@@ -30,7 +30,8 @@ import scala.concurrent.ExecutionContext
   * @param dbConfig
   * @param ec
   */
-class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext) extends PowerPlantRepository[Task] { self =>
+class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext)
+  extends PowerPlantRepository[Task] { self =>
 
   private val schema = DBSchema(dbConfig.slickDriver)
   private val database = dbConfig.database

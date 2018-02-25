@@ -17,9 +17,12 @@
 
 package com.inland24.plantsim.services.database.repository
 
+import com.inland24.plantsim.core.AppMetrics
 import com.inland24.plantsim.models.PowerPlantFilter
 import com.inland24.plantsim.services.database.models.PowerPlantRow
+
 import scala.language.higherKinds
+import scala.util.Try
 
 
 trait PowerPlantRepository[M[_]] {
