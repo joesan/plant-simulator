@@ -22,7 +22,6 @@ import com.inland24.plantsim.models.PowerPlantFilter
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 
 import scala.language.higherKinds
-import scala.util.Try
 
 
 trait PowerPlantRepository[M[_]] {
@@ -31,4 +30,13 @@ trait PowerPlantRepository[M[_]] {
   def powerPlantById(id: Int): M[Option[PowerPlantRow]]
   def newPowerPlant(powerPlantRow: PowerPlantRow): M[Int]
   def insertOrUpdatePowerPlant(powerPlantRow: PowerPlantRow): M[Int]
+
+  def withTimerMetrics[T](fn: => T): T = {
+    val context = AppMetrics.timer.time()
+    try {
+      fn
+    } finally {
+      context.close()
+    }
+  }
 }

@@ -34,16 +34,12 @@ class ApplicationController(appCfg: AppConfig)
   )
 
   def metrics = Action.async {
-    val jvmMetrics = AppMetrics.jvmMetrics.map({
-      metricGroup => Json.obj(
-        s"${metricGroup.metricGroupName}" -> metricGroup.metrics.map({
-          metric => Json.obj(metric.metricName -> metric.metricValue)
-        })
-      )
-    })
+    val allMetrics = AppMetrics.metricsAsJsValueSeq(
+      AppMetrics.jvmMetrics ++ AppMetrics.dbTimerMetrics
+    )
     Future.successful(
       Ok(
-        Json.prettyPrint(jvmMetrics.foldLeft(host) {
+        Json.prettyPrint(allMetrics.foldLeft(host) {
           (acc, elem) => acc ++ elem
         })
       )

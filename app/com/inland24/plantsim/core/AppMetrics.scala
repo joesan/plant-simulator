@@ -21,6 +21,8 @@ import java.lang.management.ManagementFactory
 
 import com.codahale.metrics.{MetricRegistry, MetricSet}
 import com.codahale.metrics.jvm._
+import play.api.libs.json.Json
+
 import scala.collection.JavaConverters._
 
 
@@ -35,6 +37,9 @@ object AppMetrics {
   registerMetrics("memory",  new MemoryUsageGaugeSet(), registry)
   registerMetrics("threads", new ThreadStatesGaugeSet(), registry)
 
+  // register timers
+  val timer = registry.timer("power-plant-repo-as-task")
+
   private def registerMetrics(metricName: String, metricSet: MetricSet, registry: MetricRegistry) = {
     for ((key, value) <- metricSet.getMetrics.asScala)
       registry.register(s"$metricName.$key", value)
@@ -43,11 +48,31 @@ object AppMetrics {
   case class MetricGroup(metricGroupName: String, metrics: Seq[Metric])
   case class Metric(metricName: String, metricValue: String)
 
-  // meter to measure the rate of OpenTSDB writes!
-  val openTSDBWriteMeter = registry.meter("openTSDB.write")
+  def metricsAsJsValueSeq(metricGroup: Seq[MetricGroup]) = metricGroup.map {
+    metricGroup => Json.obj(
+      s"${metricGroup.metricGroupName}" -> metricGroup.metrics.map({
+        metric => Json.obj(metric.metricName -> metric.metricValue)
+      })
+    )
+  }
+
+  def dbTimerMetrics: Seq[MetricGroup] = {
+    registry.getTimers.asScala.toSeq.map {
+      case (key, timer) =>
+        MetricGroup(
+          key,
+          Seq(
+            Metric("fifteenMinuteRate", timer.getFifteenMinuteRate.toString),
+            Metric("fiveMinuteRate",    timer.getFiveMinuteRate.toString),
+            Metric("oneMinuteRate",     timer.getOneMinuteRate.toString),
+            Metric("meanRate",          timer.getMeanRate.toString),
+            Metric("count",             timer.getCount.toString)
+          )
+        )
+    }
+  }
 
   def jvmMetrics: Seq[MetricGroup] = {
-
     val splitFn: String => Seq[String] =
       str => str.split("[.]").toSeq
 

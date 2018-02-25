@@ -48,7 +48,9 @@ class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext)
       else
         PowerPlantTable.all
 
-    Task.deferFuture(database.run(query.result))
+    withTimerMetrics(
+      Task.deferFuture(database.run(query.result))
+    )
   }
 
   def offset(pageNumber: Int): (Int, Int) =
@@ -58,7 +60,9 @@ class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext)
   def powerPlantsPaginated(filter: PowerPlantFilter): Task[Seq[PowerPlantRow]] = {
     val (from, to) = offset(filter.pageNumber)
     val query = PowerPlantTable.powerPlantsFor(filter.powerPlantType, filter.orgName, filter.onlyActive)
-    Task.deferFuture(database.run(query.drop(from).take(to).result))
+    withTimerMetrics(
+      Task.deferFuture(database.run(query.drop(from).take(to).result))
+    )
   }
 
   def applySchedules = ???
@@ -76,14 +80,20 @@ class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext)
   }*/
 
   def powerPlantById(id: Int): Task[Option[PowerPlantRow]] = {
-    Task.deferFuture(database.run(PowerPlantTable.powerPlantById(id).result.headOption))
+    withTimerMetrics(
+      Task.deferFuture(database.run(PowerPlantTable.powerPlantById(id).result.headOption))
+    )
   }
 
   def newPowerPlant(powerPlantRow: PowerPlantRow): Task[Int] = {
-    Task.deferFuture(database.run(PowerPlantTable.all += powerPlantRow))
+    withTimerMetrics(
+      Task.deferFuture(database.run(PowerPlantTable.all += powerPlantRow))
+    )
   }
 
   override def insertOrUpdatePowerPlant(powerPlantRow: PowerPlantRow): Task[Int] = {
-    Task.deferFuture(database.run(PowerPlantTable.all.insertOrUpdate(powerPlantRow)))
+    withTimerMetrics(
+      Task.deferFuture(database.run(PowerPlantTable.all.insertOrUpdate(powerPlantRow)))
+    )
   }
 }
