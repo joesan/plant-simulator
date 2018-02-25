@@ -61,7 +61,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
     "give the appropriate config back when asked" in {
       // We are using the application.test.conf (Look in the DBServiceSpec.scala)
       val result: Future[Result] =
-        new ApplicationConfigController(bindings.appConfig).appConfig.apply(FakeRequest())
+        new ApplicationController(bindings.appConfig).appConfig.apply(FakeRequest())
       val bodyText = contentAsJson(result)
       bodyText mustBe Json.parse(
         """

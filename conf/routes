@@ -5,8 +5,9 @@
 # Root PAGE
 GET			/							 controllers.Assets.at(path="https://github.com/joesan/plant-simulator/blob/master/README.md", file)
 
-# Endpoints to get the actual Configuration details for the application
-GET			/config					     com.inland24.plantsim.controllers.ApplicationConfigController.appConfig
+# Endpoints for Configuration, Metrics
+GET			/config					     com.inland24.plantsim.controllers.ApplicationController.appConfig
+GET         /powerPlant/metrics          com.inland24.plantsim.controllers.ApplicationController.metrics
 
 # Endpoints to add / update / read / delete PowerPlant's
 GET         /powerPlant/:id/details      com.inland24.plantsim.controllers.PowerPlantController.powerPlantDetails(id: Int)
@@ -28,14 +29,14 @@ GET         /powerPlant/signals          com.inland24.plantsim.controllers.Power
 # Map static resources from the /public folder to the /assets URL path
 GET			/assets/*file				 controllers.Assets.versioned(path="/public", file: Asset)
 
-### Swagger API Docs ###
-#GET         /docs/                       com.inland24.plantsim.controllers.ApplicationConfigController.redirectDocs
+# Swagger API Docs ###
+#GET         /docs/                       com.inland24.plantsim.controllers.ApplicationController.redirectDocs
 #GET         /swagger.json                controllers.ApiHelpController.getResources
 #GET         /docs/                       controllers.Assets.at(path="/public/swagger-ui",file="index.html")
 #GET         /docs/*file                  controllers.Assets.at(path="/public/swagger-ui",file)
 
 GET    /swagger.json            controllers.ApiHelpController.getResources
-GET    /docs/                   com.inland24.plantsim.controllers.ApplicationConfigController.redirectDocs
+GET    /docs/                   com.inland24.plantsim.controllers.ApplicationController.redirectDocs
 #GET   /docs/*file              controllers.Assets.at(path="/public/swagger-ui",file)
 
 GET    /webjars/*file           controllers.WebJarAssets.at(file)

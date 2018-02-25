@@ -18,14 +18,38 @@
 package com.inland24.plantsim.controllers
 
 import com.inland24.plantsim.config.AppConfig
-import play.api.libs.json.Json
+import com.inland24.plantsim.core.AppMetrics
+import play.api.libs.json.{JsArray, JsObject, JsString, Json}
 import com.inland24.plantsim.models._
-import play.api.mvc.{Action, Controller, Result}
+import play.api.mvc.{Action, Controller}
 
 import scala.concurrent.Future
+import scala.collection.JavaConverters._
 
 
-class ApplicationConfigController(appCfg: AppConfig) extends Controller {
+class ApplicationController(appCfg: AppConfig)
+  extends Controller {
+
+  def metrics = Action.async {
+
+    val json = AppMetrics.registry.getMeters.asScala.toSeq.map {
+      case (key, value) => Json.obj(
+        "key"  -> key,
+        "type" -> "meter",
+        "count" -> value.getCount,
+        "rate_15_mins" -> value.getFifteenMinuteRate,
+        "rate_5_mins" -> value.getFiveMinuteRate,
+        "rate_1_min" -> value.getOneMinuteRate,
+        "mean" -> value.getMeanRate
+      )
+    }
+
+    Future.successful(
+      Ok(
+        json.foldLeft(JsArray())((acc, x) => acc ++ Json.arr(x))
+      )
+    )
+  }
 
   def redirectDocs = Action {
     Redirect(url = "/assets/lib/swagger-ui/index.html", queryString = Map("url" -> Seq("/swagger.json")))

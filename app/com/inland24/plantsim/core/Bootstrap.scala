@@ -17,7 +17,7 @@
 
 package com.inland24.plantsim.core
 
-import com.inland24.plantsim.controllers.{ApplicationConfigController, PowerPlantController, PowerPlantOperationsController}
+import com.inland24.plantsim.controllers.{ApplicationController, PowerPlantController, PowerPlantOperationsController}
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
 import controllers.ApiHelpController
@@ -66,7 +66,7 @@ final class Bootstrap extends ApplicationLoader with LazyLogging {
     // 2. inject the dependencies into the controllers
     lazy val apiHelpController = new ApiHelpController
     lazy val webJarAssets = new WebJarAssets(httpErrorHandler, configuration, environment)
-    lazy val applicationController = new ApplicationConfigController(appBindings.appConfig)
+    lazy val applicationController = new ApplicationController(appBindings.appConfig)
     lazy val powerPlantController = new PowerPlantController(appBindings)
     lazy val powerPlantOpsController = new PowerPlantOperationsController(appBindings)
     lazy val assets = new Assets(httpErrorHandler)

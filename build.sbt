@@ -79,8 +79,11 @@ libraryDependencies ++= Seq(
 
   // Dependencies needed for Slick
   "com.typesafe.slick" %% "slick" % "3.2.0",
-  //"org.slf4j" % "slf4j-nop" % "1.6.4",
   "com.typesafe.slick" %% "slick-hikaricp" % "3.2.0",
+
+  // For application Metrics
+  "io.dropwizard.metrics" % "metrics-core" % "4.0.0",
+  "io.dropwizard.metrics" % "metrics-jvm" % "4.0.0",
 
   "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.6",
