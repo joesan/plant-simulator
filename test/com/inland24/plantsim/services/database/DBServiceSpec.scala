@@ -32,8 +32,8 @@ trait DBServiceSpec {
     DateTime.now(DateTimeZone.UTC)
   }
 
-  // let's use default configurations (should use the application.conf settings)
-  System.setProperty("ENV", "default")
+  // let's use test configurations (should use the application.test.conf settings)
+  System.setProperty("ENV", "test")
 
   val config: AppConfig = AppConfig.load()
   val testDatabase = config.dbConfig.database

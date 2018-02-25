@@ -699,3 +699,18 @@ Caused by: java.lang.IllegalStateException: The file is locked: nio:/Users/jothi
 	at org.h2.mvstore.FileStore.open(FileStore.java:170)
 	at org.h2.mvstore.MVStore.<init>(MVStore.java:340)
 	... 27 more
+02-25 11:54:09 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" already exists; SQL statement:
+create table "powerPlant" ("powerPlantId" INTEGER PRIMARY KEY,"orgName" VARCHAR NOT NULL,"isActive" BOOLEAN NOT NULL,"minPower" DOUBLE NOT NULL,"maxPower" DOUBLE NOT NULL,"rampRate" DOUBLE,"rampRateSecs" BIGINT,"powerPlantType" VARCHAR NOT NULL,"createdAt" TIMESTAMP NOT NULL,"updatedAt" TIMESTAMP NOT NULL) [42101-186]
+02-25 11:54:29 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = true [42102-186]
+02-25 11:54:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = true [42102-186]
+02-25 11:54:30 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = true [42102-186]
+02-25 11:55:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = true [42102-186]
