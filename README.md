@@ -64,7 +64,7 @@ To run tests from the command line, do the following:
 ```
 1. Open a terminal and navigate to the project root folder 
    
-2. Issue the following command:
+2. Issue the following command: [Tests are run against an in memory H2 database]
    sbt clean test
 ```
 To run any specific tests from within IntelliJ, simply right click the test that you wish you
@@ -77,13 +77,17 @@ This application is built as a web application using the Play framework. We have
 * Run as a standalone jar
 * Run as a Docker container
 
+### Database Support
+
+Though th application is multi database compliant, currently only MySQL and H2 databases are supported, the reason being that the set up scripts are only avaiable for MySQL and H2. The scripts can be found [here](https://github.com/joesan/database-projects/tree/master/power-plant-simulator)
+
 #### To run as a standalone jar, do the following
 
 ```diff
-NOTE: For simplicity, there is local H2 database setup (plant-simulator.mv.db). The connection details 
++For simplicity, there is local H2 database setup (plant-simulator.mv.db). The connection details 
 are to be found under conf/application.dev.conf
    
-You can comfortably run the application using the following command (No WiFi, no Network required)
++You can comfortably run the application using the following command (No WiFi, no Network required)
 sbt -Denv=dev run
 ```
 
