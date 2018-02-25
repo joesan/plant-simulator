@@ -68,7 +68,7 @@ To run tests from the command line, do the following:
 ```
 1. Open a terminal and navigate to the project root folder 
    
-2. Issue the following command: [Tests are run against an in memory H2 database]
+2. Issue the following command: [Tests are run against an in memory H2 database and uses the application.test.conf]
    sbt clean test
 ```
 To run any specific tests from within IntelliJ, simply right click the test that you wish you
