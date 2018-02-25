@@ -22,17 +22,15 @@ import org.scalatest.{BeforeAndAfterAll, FlatSpec}
 
 class ConfigUtilTest extends FlatSpec with BeforeAndAfterAll {
 
-  override def beforeAll() = {
+  private def clearAll() = {
     System.clearProperty("config.file")
     System.clearProperty("env")
     System.clearProperty("ENV")
   }
 
-  override def afterAll() = {
-    System.clearProperty("config.file")
-    System.clearProperty("env")
-    System.clearProperty("ENV")
-  }
+  override def beforeAll() = clearAll()
+
+  override def afterAll() = clearAll()
 
   "loadFromEnv" should "load the default config when nothing is specified from the environment" in {
     val config = ConfigUtil.loadFromEnv()
@@ -43,13 +41,13 @@ class ConfigUtilTest extends FlatSpec with BeforeAndAfterAll {
     System.setProperty("config.file", "conf/application.test.conf")
     val config = ConfigUtil.loadFromEnv()
     assert(config.getString("environment") === "test")
-    assert(config.getString("db.driver") === "org.h2.Driver")
+    assert(config.getString("db.driver") === "com.mysql.jdbc.Driver")
   }
 
   "loadFromEnv" should "load the test config when set as a environment system property" in {
     System.setProperty("env", "test")
     val config = ConfigUtil.loadFromEnv()
     assert(config.getString("environment") === "test")
-    assert(config.getString("db.driver") === "org.h2.Driver")
+    assert(config.getString("db.driver") === "com.mysql.jdbc.Driver")
   }
 }

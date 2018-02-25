@@ -37,9 +37,8 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
   private[this] val subscription = SingleAssignmentCancelable()
 
   override def postStop(): Unit = {
-    log.info("Cancelling Event WebSocket Actor **** ")
     subscription.cancel()
-    log.info("Cancelling Event WebSocket Subscription ****")
+    log.info("Cancelled EventsWebSocketActor Subscription ****")
     super.postStop()
   }
 
@@ -68,7 +67,7 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
       }
 
       override def onNext(elem: JsValue): Future[Ack] = {
-        self ! Json.prettyPrint(elem)
+        self ! elem
         Continue
       }
     }
