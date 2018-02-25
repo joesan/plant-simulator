@@ -85,10 +85,10 @@ This application is built as a web application using the Play framework. We have
 
 ```diff
 +For simplicity, there is local H2 database setup (plant-simulator.mv.db). The connection details 
-+are to be found under conf/application.test.conf
++are to be found under conf/application.dev.conf
    
 +You can comfortably run the application using the following command (No WiFi, no Network required)
--sbt -Denv=test run
+-sbt -Denv=dev run
 ```
 
 If you want to run the application against a MySQL database, follow the instructione below:
@@ -101,7 +101,7 @@ If you want to run the application against a MySQL database, follow the instruct
    Make sure to have a running instance of your database server and to run the setup scripts.
    
    Once you have the database up and running, configure the database credentials in the 
-   application.xxxx.conf file (xxxx stands for test or qa or prod)
+   application.xxxx.conf file (xxxx stands for test or prod)
    
 1. Open a terminal and navigate to the project root folder 
    
