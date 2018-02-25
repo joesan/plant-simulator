@@ -67,7 +67,7 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
       }
 
       override def onNext(elem: JsValue): Future[Ack] = {
-        self ! elem
+        self ! elem.toString
         Continue
       }
     }
