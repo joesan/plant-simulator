@@ -17,9 +17,10 @@
 
 package com.inland24.plantsim.controllers
 
+import com.codahale.metrics.{Meter, Timer}
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.AppMetrics
-import play.api.libs.json.{JsArray, JsObject, JsString, Json}
+import play.api.libs.json.{JsObject, Json}
 import com.inland24.plantsim.models._
 import play.api.mvc.{Action, Controller}
 
@@ -30,10 +31,14 @@ import scala.collection.JavaConverters._
 class ApplicationController(appCfg: AppConfig)
   extends Controller {
 
-  def metrics = Action.async {
-
-    val json = AppMetrics.registry.getMeters.asScala.toSeq.map {
-      case (key, value) => Json.obj(
+  val json = Json.obj(
+    "hostname" -> java.net.InetAddress.getLocalHost.getHostName
+  )
+  
+  private def timers(json: JsObject, seq: Seq[(String, Timer)]) = {
+    seq.foldLeft(json) { (acc, elem) =>
+      val (key, value) = elem
+      Json.obj(
         "key"  -> key,
         "type" -> "meter",
         "count" -> value.getCount,
@@ -43,10 +48,12 @@ class ApplicationController(appCfg: AppConfig)
         "mean" -> value.getMeanRate
       )
     }
+  }
 
+  def metrics = Action.async {
     Future.successful(
       Ok(
-        json.foldLeft(JsArray())((acc, x) => acc ++ Json.arr(x))
+        timers(json, AppMetrics.registry.getTimers.asScala.toSeq)
       )
     )
   }
