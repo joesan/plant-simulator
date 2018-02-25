@@ -41,13 +41,13 @@ class ConfigUtilTest extends FlatSpec with BeforeAndAfterAll {
     System.setProperty("config.file", "conf/application.test.conf")
     val config = ConfigUtil.loadFromEnv()
     assert(config.getString("environment") === "test")
-    assert(config.getString("db.driver") === "com.mysql.jdbc.Driver")
+    assert(config.getString("db.driver") === "org.h2.Driver")
   }
 
   "loadFromEnv" should "load the test config when set as a environment system property" in {
     System.setProperty("env", "test")
     val config = ConfigUtil.loadFromEnv()
     assert(config.getString("environment") === "test")
-    assert(config.getString("db.driver") === "com.mysql.jdbc.Driver")
+    assert(config.getString("db.driver") === "org.h2.Driver")
   }
 }

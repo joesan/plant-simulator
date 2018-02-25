@@ -722,3 +722,6 @@ org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "('7'[*], 'Organizat
 ('8', 'Organization-004', FALSE, 100, 900, NULL, NULL, 'OnOffType',  CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()) "; expected "(, WITH, SELECT, FROM"; SQL statement:
 ('7', 'Organization-004', true,  100, 800, 100,  4,    'RampUpType', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()),
 ('8', 'Organization-004', false, 100, 900, NULL, NULL, 'OnOffType',  CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP()) [42001-196]
+02-25 13:04:26 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" already exists; SQL statement:
+create table "powerPlant" ("powerPlantId" INTEGER PRIMARY KEY,"orgName" VARCHAR NOT NULL,"isActive" BOOLEAN NOT NULL,"minPower" DOUBLE NOT NULL,"maxPower" DOUBLE NOT NULL,"rampRate" DOUBLE,"rampRateSecs" BIGINT,"powerPlantType" VARCHAR NOT NULL,"createdAt" TIMESTAMP NOT NULL,"updatedAt" TIMESTAMP NOT NULL) [42101-186]
