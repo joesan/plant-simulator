@@ -37,9 +37,10 @@ class OnOffTypeStateMachineTest extends FlatSpec {
   "PowerPlantState#init" should "initialize to a default state (available = true && onOff = false)" in {
     val initState = StateMachine.init(StateMachine.empty(onOffTpeCfg), onOffTpeCfg.minPower)
     initState.signals.foreach {
-      case (key, value) if key == StateMachine.activePowerSignalKey => assert(value === onOffTpeCfg.minPower.toString)
-      case (key, value) if key == StateMachine.isAvailableSignalKey => assert(value.toBoolean)
-      case (key, value) if key == StateMachine.isOnOffSignalKey     => assert(!value.toBoolean) // should be Off when initializing
+      case (key, value) if key == StateMachine.powerPlantIdSignalKey => assert(value === onOffTpeCfg.id.toString)
+      case (key, value) if key == StateMachine.activePowerSignalKey  => assert(value === onOffTpeCfg.minPower.toString)
+      case (key, value) if key == StateMachine.isAvailableSignalKey  => assert(value.toBoolean)
+      case (key, value) if key == StateMachine.isOnOffSignalKey      => assert(!value.toBoolean) // should be Off when initializing
     }
     assert(initState.events.exists(elem => elem.isInstanceOf[Transition]))
     assert(initState.newState === Active)
@@ -51,9 +52,10 @@ class OnOffTypeStateMachineTest extends FlatSpec {
       StateMachine.init(StateMachine.empty(onOffTpeCfg), onOffTpeCfg.minPower), onOffTpeCfg.maxPower
     )
     turnedOn.signals.foreach {
-      case (key, value) if key == StateMachine.activePowerSignalKey => assert(value === onOffTpeCfg.maxPower.toString)
-      case (key, value) if key == StateMachine.isAvailableSignalKey => assert(value.toBoolean)
-      case (key, value) if key == StateMachine.isOnOffSignalKey     => assert(value.toBoolean)
+      case (key, value) if key == StateMachine.powerPlantIdSignalKey => assert(value === onOffTpeCfg.id.toString)
+      case (key, value) if key == StateMachine.activePowerSignalKey  => assert(value === onOffTpeCfg.maxPower.toString)
+      case (key, value) if key == StateMachine.isAvailableSignalKey  => assert(value.toBoolean)
+      case (key, value) if key == StateMachine.isOnOffSignalKey      => assert(value.toBoolean)
     }
     assert(turnedOn.events.exists(elem => elem.isInstanceOf[Transition]))
     assert(turnedOn.newState === Dispatched)
