@@ -101,7 +101,7 @@ If you want to run the application against a MySQL database, follow the instruct
    Make sure to have a running instance of your database server and to run the setup scripts.
    
    Once you have the database up and running, configure the database credentials in the 
-   application.xxx.conf file (xxx stands for test or dev or prod)
+   application.xxxx.conf file (xxxx stands for test or qa or prod)
    
 1. Open a terminal and navigate to the project root folder 
    
@@ -109,8 +109,8 @@ If you want to run the application against a MySQL database, follow the instruct
    To run against a default (application.conf)
    sbt run
    
-   To run against the test environment
-   sbt -Denv=test run
+   To run against the qa environment
+   sbt -Denv=qa run
    
    To run in production mode (application.prod.conf):
    sbt -Denv=prod -Dlogger.resource=logger-prod.xml run
