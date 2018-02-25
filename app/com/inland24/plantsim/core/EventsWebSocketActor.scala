@@ -23,6 +23,7 @@ import play.api.libs.json.{JsValue, Json}
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.execution.{Ack, Scheduler}
+import monix.reactive.Observable
 import monix.reactive.observers.Subscriber
 
 import scala.concurrent.Future
