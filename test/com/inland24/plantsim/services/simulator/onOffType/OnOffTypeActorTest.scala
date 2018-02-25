@@ -18,6 +18,7 @@ package com.inland24.plantsim.services.simulator.onOffType
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
+import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType

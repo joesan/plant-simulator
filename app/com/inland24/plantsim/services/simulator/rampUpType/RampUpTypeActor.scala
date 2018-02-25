@@ -18,7 +18,6 @@
 package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
-import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
@@ -104,7 +103,7 @@ class RampUpTypeActor private (config: Config)
 
   // TODO: Write Scaladoc comments
   def active(state: StateMachine): Receive = {
-    case TelemetrySignals =>
+    case TelemetrySignalsMessage =>
       sender ! state.signals
 
     case StateRequestMessage =>
@@ -142,7 +141,7 @@ class RampUpTypeActor private (config: Config)
     *    is not operational anymore.
     */
   def rampUp(state: StateMachine, subscription: SingleAssignmentCancelable): Receive = {
-    case TelemetrySignals =>
+    case TelemetrySignalsMessage =>
       sender ! state.signals
 
     case StateRequestMessage =>
@@ -186,7 +185,7 @@ class RampUpTypeActor private (config: Config)
     *  also served by this function.
     */
   def dispatched(state: StateMachine): Receive = {
-    case TelemetrySignals =>
+    case TelemetrySignalsMessage =>
       sender ! state.signals
 
     case StateRequestMessage =>
@@ -223,7 +222,7 @@ class RampUpTypeActor private (config: Config)
     *    is not operational anymore.
     */
   def rampDown(state: StateMachine, subscription: SingleAssignmentCancelable): Receive = {
-    case TelemetrySignals =>
+    case TelemetrySignalsMessage =>
       sender ! state.signals
 
     case StateRequestMessage =>

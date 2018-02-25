@@ -218,7 +218,6 @@ object SupervisorActor {
 
   sealed trait Message
   case object Init extends Message
-  case object TelemetrySignals
   case class SupervisorEvents(events: PowerPlantEventsSeq)
 
   def props(cfg: AppConfig, globalChannel: PowerPlantEventObservable)(implicit s: Scheduler) =

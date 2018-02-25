@@ -17,14 +17,14 @@
 
 package com.inland24.plantsim.controllers
 
-import com.inland24.plantsim.core.{AppBindings, EventsWebSocketActor, PowerPlantEventObservable}
-import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
+import com.inland24.plantsim.core.{AppBindings, EventsWebSocketActor}
 import com.inland24.plantsim.models._
 import monix.execution.FutureUtils.extensions._
 import play.api.libs.json.JsError
 import play.api.mvc.{Action, Controller, WebSocket}
 import akka.actor.ActorRef
 import akka.pattern.ask
+import com.inland24.plantsim.models.PowerPlantActorMessage.TelemetrySignalsMessage
 import play.api.libs.streams.ActorFlow
 
 // TODO: pass in this execution context via AppBindings
@@ -123,7 +123,7 @@ class PowerPlantOperationsController(bindings: AppBindings)
           NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
         )
       case Some(actorRef) =>
-        (actorRef ? TelemetrySignals)
+        (actorRef ? TelemetrySignalsMessage)
           .mapTo[Map[String, String]]
           .map(signals =>
             Ok(Json.prettyPrint(
@@ -140,18 +140,22 @@ class PowerPlantOperationsController(bindings: AppBindings)
 
   def events(someId: Option[Int]) = WebSocket.accept[String, String] { _ =>
     ActorFlow.actorRef { out =>
-      EventsWebSocketActor.props(bindings.globalChannel, out, someId)
+      EventsWebSocketActor.props(
+        EventsWebSocketActor.eventsAndAlerts(someId, bindings.globalChannel), out
+      )
     }
   }
 
-  def signals(id: Int) = WebSocket.accept[String, String] { _ =>
-    actorFor(id) flatMap {
+  def signals(id: Int) = WebSocket.acceptOrResult[String, String] { _ =>
+    actorFor(id).map {
       case None =>
-
-      case Some(actorRef) =>
-        ActorFlow.actorRef { out =>
-          //EventsWebSocketActor.props(bindings.globalChannel, out, id)
-        }
+        Left(Forbidden)
+      case Some(powerPlantActorRef) =>
+        Right(ActorFlow.actorRef { out =>
+          EventsWebSocketActor.props(
+            EventsWebSocketActor.telemetrySignals(id, powerPlantActorRef), out
+          )
+        })
     }
   }
 }

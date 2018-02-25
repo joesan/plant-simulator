@@ -17,9 +17,8 @@ package com.inland24.plantsim.services.simulator.onOffType
 
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import OnOffTypeActor._
-import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
-import com.inland24.plantsim.models.PowerPlantActorMessage.{InitMessage, OutOfServiceMessage, ReturnToServiceMessage, StateRequestMessage}
+import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.ReturnToNormalCommand
 
@@ -80,7 +79,7 @@ class OnOffTypeActor private (config: Config)
     * @return
     */
   def active(state: StateMachine): Receive = {
-    case TelemetrySignals =>
+    case TelemetrySignalsMessage =>
       sender ! state.signals
 
     case StateRequestMessage =>

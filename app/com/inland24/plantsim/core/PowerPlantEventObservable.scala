@@ -34,7 +34,6 @@ final class PowerPlantEventObservable private (underlying: ConcurrentSubject[Pow
   override def size: Int = underlying.size
 
   override def onNext(elem: PowerPlantSignal): Ack = {
-    (s"Total Subscribers is ${underlying.size}")
     underlying.onNext(elem)
   }
 

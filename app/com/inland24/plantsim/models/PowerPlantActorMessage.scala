@@ -21,6 +21,8 @@ sealed trait PowerPlantActorMessage
 object PowerPlantActorMessage {
 
   case object InitMessage extends PowerPlantActorMessage
+
+  case object TelemetrySignalsMessage extends PowerPlantActorMessage
   case object StateRequestMessage extends PowerPlantActorMessage
 
   case object RampCheckMessage extends PowerPlantActorMessage

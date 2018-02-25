@@ -19,19 +19,15 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}
-import com.inland24.plantsim.core.PowerPlantEventObservable
-import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
+import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.PowerPlantState.{Active, Dispatched, RampDown, RampUp}
+import com.inland24.plantsim.models.PowerPlantState.{Active, RampDown}
 import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
-import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.StateRequestMessage
 import com.inland24.plantsim.services.simulator.rampUpType
-import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.{OutOfServiceMessage, ReturnToServiceMessage}
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
-import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 
 
@@ -75,7 +71,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
 
-      rampUpTypeSimActor ! TelemetrySignals
+      rampUpTypeSimActor ! TelemetrySignalsMessage
       expectMsgPF(2.seconds) {
         case signals: Map[_, _] =>
           assert(signals === initPowerPlantState.signals, "signals did not match")
