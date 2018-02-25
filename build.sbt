@@ -86,9 +86,14 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.6",
   "com.typesafe" % "config" % "1.3.1",
 
-  // JDBC driver for MySQL
+  // JDBC driver for MySQL & H2
   "mysql" % "mysql-connector-java" % "5.1.26",
   "com.h2database" % "h2" % "1.4.186",
+
+  // Swagger UI API Docs
+  "io.swagger" %% "swagger-play2" % "1.5.3",
+  "org.webjars" %% "webjars-play" % "2.5.0-4",
+  "org.webjars" % "swagger-ui" % "2.2.0",
 
   // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % "2.5.2" % Test,

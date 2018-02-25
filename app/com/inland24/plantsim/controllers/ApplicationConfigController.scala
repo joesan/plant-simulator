@@ -27,6 +27,10 @@ import scala.concurrent.Future
 
 class ApplicationConfigController(appCfg: AppConfig) extends Controller {
 
+  def redirectDocs = Action {
+    Redirect(url = "/assets/lib/swagger-ui/index.html", queryString = Map("url" -> Seq("/swagger.json")))
+  }
+
   def appConfig = Action.async {
     Future.successful(
       Ok(Json.prettyPrint(

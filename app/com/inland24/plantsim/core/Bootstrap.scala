@@ -20,10 +20,13 @@ package com.inland24.plantsim.core
 import com.inland24.plantsim.controllers.{ApplicationConfigController, PowerPlantController, PowerPlantOperationsController}
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
+import controllers.ApiHelpController
 import controllers.Assets
+import controllers.WebJarAssets
 import play.api.{Application, BuiltInComponentsFromContext, Configuration, _}
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.ApplicationLoader.Context
+import play.api.http.HttpErrorHandler
 
 // these two imports below are needed for the routes resolution
 import play.api.routing.Router
