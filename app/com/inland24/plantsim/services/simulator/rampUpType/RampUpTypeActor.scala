@@ -20,12 +20,13 @@ package com.inland24.plantsim.services.simulator.rampUpType
 import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
+import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantState.{OutOfService, ReturnToService, _}
 import com.inland24.plantsim.models.PowerPlantState.ReturnToNormal
 import com.inland24.plantsim.models.ReturnToNormalCommand
 import com.inland24.plantsim.models.PowerPlantState.{Init => InitState}
-import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.{Init, _}
+import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.Config
 import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
@@ -93,7 +94,7 @@ class RampUpTypeActor private (config: Config)
     * to the active state!
     */
   override def receive: Receive = {
-    case Init =>
+    case InitMessage =>
       evolve(
         StateMachine.active(
           StateMachine.init(cfg)
@@ -261,15 +262,6 @@ object RampUpTypeActor {
     powerPlantCfg: RampUpTypeConfig,
     eventsStream: Option[ActorRef] = None
   )
-
-  sealed trait Message
-  case object Init extends Message
-  case object StateRequestMessage extends Message
-  case object RampCheckMessage extends Message
-
-  // These messages are meant for manually faulting and un-faulting the power plant
-  case object OutOfServiceMessage extends Message
-  case object ReturnToServiceMessage extends Message
 
   private def cancelRampCheckSubscription(subscription: SingleAssignmentCancelable): Unit = {
     subscription.cancel()

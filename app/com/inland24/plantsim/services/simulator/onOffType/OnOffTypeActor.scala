@@ -19,6 +19,7 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import OnOffTypeActor._
 import com.inland24.plantsim.core.SupervisorActor.TelemetrySignals
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
+import com.inland24.plantsim.models.PowerPlantActorMessage.{InitMessage, OutOfServiceMessage, ReturnToServiceMessage, StateRequestMessage}
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.ReturnToNormalCommand
 
@@ -108,14 +109,6 @@ object OnOffTypeActor {
     cfg: OnOffTypeConfig,
     eventsStream: Option[ActorRef] = None
   )
-
-  sealed trait Message
-  case object InitMessage extends Message
-  case object StateRequestMessage extends Message
-
-  // These messages are meant for manually faulting and un-faulting the power plant
-  case object OutOfServiceMessage extends Message
-  case object ReturnToServiceMessage extends Message
 
   def props(cfg: Config): Props =
     Props(new OnOffTypeActor(cfg))

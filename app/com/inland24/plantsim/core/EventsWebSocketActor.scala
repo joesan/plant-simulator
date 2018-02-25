@@ -116,6 +116,21 @@ class EventsWebSocketActor(obs: PowerPlantEventObservable, sink: ActorRef, someI
 }
 object EventsWebSocketActor {
 
+  def fn1(someId: Option[Int], source: PowerPlantEventObservable) = {
+    someId match {
+      case Some(id) => source.collect { case elem if elem.powerPlantConfig.id == id => Json.toJson(elem) }
+      case None => source.map(elem => Json.toJson(elem))
+    }
+  }
+
+  def fn2(id: Int, powerPlantActorRef: ActorRef, out: ActorRef) = {
+    import scala.concurrent.duration._
+    // Every 4 seconds, we ask the Actor for the signals
+    Observable.interval(4.seconds).map(_ => powerPlantActorRef ? )
+  }
+
+  def props(sink: ActorRef) = ???
+
   def props(source: PowerPlantEventObservable, out: ActorRef, someId: Option[Int]) =
     Props(new EventsWebSocketActor(source, out, someId))
 }

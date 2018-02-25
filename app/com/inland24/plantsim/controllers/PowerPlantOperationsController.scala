@@ -145,8 +145,13 @@ class PowerPlantOperationsController(bindings: AppBindings)
   }
 
   def signals(id: Int) = WebSocket.accept[String, String] { _ =>
-    ActorFlow.actorRef { out =>
-      //EventsWebSocketActor.props(bindings.globalChannel, out, someId)
+    actorFor(id) flatMap {
+      case None =>
+
+      case Some(actorRef) =>
+        ActorFlow.actorRef { out =>
+          //EventsWebSocketActor.props(bindings.globalChannel, out, id)
+        }
     }
   }
 }
