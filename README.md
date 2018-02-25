@@ -44,7 +44,9 @@ Follow the steps below to import the project into IntelliJ
 
 ### Database Support
 
-Though th application is multi database compliant, currently only MySQL and H2 databases are supported, the reason being that the set up scripts are only avaiable for MySQL and H2. The scripts can be found [here](https://github.com/joesan/database-projects/tree/master/power-plant-simulator). You have to make sure to set up your database and configure the database credentials and url in one of the applicatiox.xxxx.conf files (where xxxx stands for either test or prod)
+Though th application is multi database compliant, currently only MySQL and H2 databases are supported, the reason being that the [set up scripts](https://github.com/joesan/database-projects/tree/master/power-plant-simulator) are only avaiable for MySQL and H2. 
+
+You have to make sure to set up your database and configure the database credentials and url in one of the applicatiox.xxxx.conf files (where xxxx stands for either test or prod)
 
 ### Running tests
 
