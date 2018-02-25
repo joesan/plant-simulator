@@ -17,43 +17,35 @@
 
 package com.inland24.plantsim.controllers
 
-import com.codahale.metrics.{Meter, Timer}
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.AppMetrics
-import play.api.libs.json.{JsObject, Json}
+import play.api.libs.json.Json
 import com.inland24.plantsim.models._
 import play.api.mvc.{Action, Controller}
 
 import scala.concurrent.Future
-import scala.collection.JavaConverters._
 
 
 class ApplicationController(appCfg: AppConfig)
   extends Controller {
 
-  val json = Json.obj(
+  val host = Json.obj(
     "hostname" -> java.net.InetAddress.getLocalHost.getHostName
   )
-  
-  private def timers(json: JsObject, seq: Seq[(String, Timer)]) = {
-    seq.foldLeft(json) { (acc, elem) =>
-      val (key, value) = elem
-      Json.obj(
-        "key"  -> key,
-        "type" -> "meter",
-        "count" -> value.getCount,
-        "rate_15_mins" -> value.getFifteenMinuteRate,
-        "rate_5_mins" -> value.getFiveMinuteRate,
-        "rate_1_min" -> value.getOneMinuteRate,
-        "mean" -> value.getMeanRate
-      )
-    }
-  }
 
   def metrics = Action.async {
+    val jvmMetrics = AppMetrics.jvmMetrics.map({
+      metricGroup => Json.obj(
+        s"${metricGroup.metricGroupName}" -> metricGroup.metrics.map({
+          metric => Json.obj(metric.metricName -> metric.metricValue)
+        })
+      )
+    })
     Future.successful(
       Ok(
-        timers(json, AppMetrics.registry.getTimers.asScala.toSeq)
+        Json.prettyPrint(jvmMetrics.foldLeft(host) {
+          (acc, elem) => acc ++ elem
+        })
       )
     )
   }

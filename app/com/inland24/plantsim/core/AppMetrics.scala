@@ -17,18 +17,52 @@
 
 package com.inland24.plantsim.core
 
-import com.codahale.metrics.MetricRegistry
-import com.codahale.metrics.jvm.CachedThreadStatesGaugeSet
-import com.codahale.metrics.jvm.GarbageCollectorMetricSet
-import com.codahale.metrics.jvm.MemoryUsageGaugeSet
-import java.util.concurrent.TimeUnit
+import java.lang.management.ManagementFactory
+
+import com.codahale.metrics.{MetricRegistry, MetricSet}
+import com.codahale.metrics.jvm._
+import scala.collection.JavaConverters._
 
 
 object AppMetrics {
 
+  // the registry
   val registry = new MetricRegistry()
 
-  registry.register("gc", new GarbageCollectorMetricSet)
-  registry.register("threads", new CachedThreadStatesGaugeSet(10, TimeUnit.SECONDS))
-  registry.register("memory", new MemoryUsageGaugeSet)
+  // the registration
+  registerMetrics("gc",      new GarbageCollectorMetricSet(), registry)
+  registerMetrics("buffers", new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer), registry)
+  registerMetrics("memory",  new MemoryUsageGaugeSet(), registry)
+  registerMetrics("threads", new ThreadStatesGaugeSet(), registry)
+
+  private def registerMetrics(metricName: String, metricSet: MetricSet, registry: MetricRegistry) = {
+    for ((key, value) <- metricSet.getMetrics.asScala)
+      registry.register(s"$metricName.$key", value)
+  }
+
+  case class MetricGroup(metricGroupName: String, metrics: Seq[Metric])
+  case class Metric(metricName: String, metricValue: String)
+
+  // meter to measure the rate of OpenTSDB writes!
+  val openTSDBWriteMeter = registry.meter("openTSDB.write")
+
+  def jvmMetrics: Seq[MetricGroup] = {
+
+    val splitFn: String => Seq[String] =
+      str => str.split("[.]").toSeq
+
+    registry.getGauges.asScala.toSeq.groupBy {
+      case (key, _) => s"${splitFn(key).head}"
+    }.map {
+      case (metricGroupKey, metricGauge) =>
+        val metrics = metricGauge.map {
+          case (metricName, gauge) =>
+            Metric(
+              splitFn(metricName).tail.mkString("_").toLowerCase.replace("-", "_"),
+              gauge.getValue.toString
+            )
+        }
+        MetricGroup(metricGroupKey, metrics)
+    }.toSeq
+  }
 }
