@@ -736,3 +736,6 @@ org.h2.jdbc.JdbcSQLException: Syntax error in SQL statement "('7'[*], 'Organizat
 02-25 13:27:20 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLException: Table "powerPlant" already exists; SQL statement:
 create table "powerPlant" ("powerPlantId" INTEGER PRIMARY KEY,"orgName" VARCHAR NOT NULL,"isActive" BOOLEAN NOT NULL,"minPower" DOUBLE NOT NULL,"maxPower" DOUBLE NOT NULL,"rampRate" DOUBLE,"rampRateSecs" BIGINT,"powerPlantType" VARCHAR NOT NULL,"createdAt" TIMESTAMP NOT NULL,"updatedAt" TIMESTAMP NOT NULL) [42101-186]
+2018-02-25 13:31:05 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "POWERPLANT" not found; SQL statement:
+select * from powerPlant [42102-196]
