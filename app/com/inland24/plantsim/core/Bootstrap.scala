@@ -26,7 +26,6 @@ import controllers.WebJarAssets
 import play.api.{Application, BuiltInComponentsFromContext, Configuration, _}
 import play.api.libs.ws.ahc.AhcWSComponents
 import play.api.ApplicationLoader.Context
-import play.api.http.HttpErrorHandler
 
 // these two imports below are needed for the routes resolution
 import play.api.routing.Router
@@ -65,12 +64,20 @@ final class Bootstrap extends ApplicationLoader with LazyLogging {
     lazy val appBindings = start
 
     // 2. inject the dependencies into the controllers
+    lazy val apiHelpController = new ApiHelpController
+    lazy val webJarAssets = new WebJarAssets(httpErrorHandler, configuration, environment)
     lazy val applicationController = new ApplicationConfigController(appBindings.appConfig)
     lazy val powerPlantController = new PowerPlantController(appBindings)
     lazy val powerPlantOpsController = new PowerPlantOperationsController(appBindings)
     lazy val assets = new Assets(httpErrorHandler)
     override def router: Router = new Routes(
-      httpErrorHandler, assets, applicationController, powerPlantController, powerPlantOpsController
+      httpErrorHandler,
+      assets,
+      applicationController,
+      powerPlantController,
+      powerPlantOpsController,
+      apiHelpController,
+      webJarAssets
     )
 
     // 3. add the shutdown hook to properly dispose all connections

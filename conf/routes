@@ -29,7 +29,13 @@ GET         /powerPlant/signals          com.inland24.plantsim.controllers.Power
 GET			/assets/*file				 controllers.Assets.versioned(path="/public", file: Asset)
 
 ### Swagger API Docs ###
-GET         /docs/                       com.inland24.plantsim.controllers.ApplicationConfigController.redirectDocs
+#GET         /docs/                       com.inland24.plantsim.controllers.ApplicationConfigController.redirectDocs
 #GET         /swagger.json                controllers.ApiHelpController.getResources
-GET         /docs/                       controllers.Assets.at(path="/public/swagger-ui",file="index.html")
-GET         /docs/*file                  controllers.Assets.at(path="/public/swagger-ui",file)
+#GET         /docs/                       controllers.Assets.at(path="/public/swagger-ui",file="index.html")
+#GET         /docs/*file                  controllers.Assets.at(path="/public/swagger-ui",file)
+
+GET    /swagger.json            controllers.ApiHelpController.getResources
+GET    /docs/                   com.inland24.plantsim.controllers.ApplicationConfigController.redirectDocs
+#GET   /docs/*file              controllers.Assets.at(path="/public/swagger-ui",file)
+
+GET    /webjars/*file           controllers.WebJarAssets.at(file)

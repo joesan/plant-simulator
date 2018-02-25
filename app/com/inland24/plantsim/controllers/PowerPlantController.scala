@@ -23,6 +23,7 @@ import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantFilter, PowerPl
 import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller, Result}
 import com.inland24.plantsim.models._
+import io.swagger.annotations.Api
 import monix.execution.FutureUtils.extensions._
 
 import scala.concurrent.Future
@@ -32,6 +33,7 @@ import scala.util.{Failure, Success}
 import monix.execution.Scheduler.Implicits.global
 
 
+@Api
 class PowerPlantController(bindings: AppBindings)
   extends Controller with ControllerBase {
 
