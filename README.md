@@ -10,19 +10,6 @@
 ##
 
 # plant-simulator [![Open Source](https://img.shields.io/badge/Open%20Source-100%25-yellowgreen.svg)](https://github.com/ellerbrock/open-source-badges/)
-A simple simulator application that simulates the running of a power producing plant. The application works by exposing several API's that can be used to get the status of a PowerPlant.
-
-For simplicity, this simulator assumes that there are essentially two types of power producing
-plants:
-
-1. A PowerPlant that is steerable by turning it on or off (ex., battery)
-2. A PowerPlant that is steerable by ramping it up (ex., generators, gas turbines, CHP units)
-
-We also assume that all the units that we deal here are in kw for power and in seconds for time.
-
-```diff
--ALERT: We do not steer Nuclear Power Plants - We stay away from them!
-```
 
 ## Getting Started 
 
