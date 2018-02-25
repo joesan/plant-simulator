@@ -51,7 +51,7 @@ class StateMachineTest extends WordSpecLike {
       assert(stm.cfg.rampPowerRate == cfg.rampPowerRate)
       assert(stm.cfg.id == cfg.id)
       assert(stm.lastRampTime.getMillis <= DateTime.now(DateTimeZone.UTC).getMillis)
-      assert(stm.signals.size === 3)
+      assert(stm.signals.size === 4)
 
       // Check the PowerPlantState
       assert(stm.newState === Init)
@@ -73,11 +73,12 @@ class StateMachineTest extends WordSpecLike {
       "(available = true, activePower = minPower, isDispatched = false)" in {
       val stm = StateMachine.init(cfg)
 
-      assert(stm.signals.size === 3) // expecting 3 elements in the signals Map
+      assert(stm.signals.size === 4)
       stm.signals.foreach {
         case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey => assert(!value1.toBoolean)
         case (key2, value2) if key2 == StateMachine.isAvailableSignalKey  => assert(value2.toBoolean)
         case (key3, value3) if key3 == StateMachine.activePowerSignalKey  => assert(value3.toDouble === cfg.minPower)
+        case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey => assert(value4 === cfg.id.toString)
       }
       assert(stm.setPoint === cfg.minPower)
     }
@@ -85,11 +86,12 @@ class StateMachineTest extends WordSpecLike {
     "set the PowerPlant in an active state" in {
       val stm = StateMachine.active(StateMachine.init(cfg))
 
-      assert(stm.signals.size === 3) // expecting 3 elements in the signals Map
+      assert(stm.signals.size === 4)
       stm.signals.foreach {
         case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey => assert(!value1.toBoolean)
         case (key2, value2) if key2 == StateMachine.isAvailableSignalKey  => assert(value2.toBoolean)
         case (key3, value3) if key3 == StateMachine.activePowerSignalKey  => assert(value3.toDouble === cfg.minPower)
+        case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey => assert(value4 === cfg.id.toString)
       }
       assert(stm.setPoint === cfg.minPower)
 

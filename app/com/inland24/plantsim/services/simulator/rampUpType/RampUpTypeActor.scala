@@ -23,7 +23,7 @@ import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantState.{OutOfService, ReturnToService, _}
 import com.inland24.plantsim.models.PowerPlantState.ReturnToNormal
-import com.inland24.plantsim.models.ReturnToNormalCommand
+import com.inland24.plantsim.models.{PowerPlantActorMessage, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantState.{Init => InitState}
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.Config
 import monix.execution.Ack
@@ -62,7 +62,7 @@ class RampUpTypeActor private (config: Config)
  */
   override def preStart(): Unit = {
     super.preStart()
-    self ! Init
+    self ! InitMessage
   }
 
   private def decideTransition(stm: StateMachine): Receive = stm.newState match {
@@ -106,7 +106,7 @@ class RampUpTypeActor private (config: Config)
     case TelemetrySignalsMessage =>
       sender ! state.signals
 
-    case StateRequestMessage =>
+    case PowerPlantActorMessage.StateRequestMessage =>
       sender ! state
 
     case DispatchRampUpPowerPlant(_,_,_,setPoint) =>

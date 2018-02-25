@@ -23,7 +23,7 @@ import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantState.{Active, RampDown}
-import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
+import com.inland24.plantsim.models.{PowerPlantActorMessage, PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
 import com.inland24.plantsim.services.simulator.rampUpType
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
@@ -60,7 +60,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
       within(2.seconds) {
         expectNoMsg()
       }
-      rampUpTypeSimActor ! StateRequestMessage
+      rampUpTypeSimActor ! PowerPlantActorMessage.StateRequestMessage
       expectMsgPF(2.seconds) {
         case state: StateMachine =>
           assert(state.signals === initPowerPlantState.signals, "signals did not match")
@@ -234,7 +234,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
       rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF(5.seconds) {
         case state: StateMachine =>
-          assert(state.signals === StateMachine.unAvailableSignals)
+          assert(state.signals === StateMachine.unAvailableSignals + (StateMachine.powerPlantIdSignalKey -> state.cfg.id.toString))
         case x: Any =>
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
@@ -259,7 +259,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
       rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
-          assert(state.signals === StateMachine.unAvailableSignals)
+          assert(state.signals === StateMachine.unAvailableSignals + (StateMachine.powerPlantIdSignalKey -> state.cfg.id.toString))
         case x: Any =>
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
