@@ -21,6 +21,7 @@ import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.ReturnToNormalCommand
+import com.inland24.plantsim.services.simulator.rampUpType.StateMachine.powerPlantIdSignalKey
 
 /**
   * The Actor instance responsible for [[com.inland24.plantsim.models.PowerPlantType.OnOffType]]
@@ -95,7 +96,7 @@ class OnOffTypeActor private (config: Config)
       evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
     case OutOfServiceMessage =>
-      evolve(state.copy(signals = StateMachine.unAvailableSignals))
+      evolve(state.copy(signals = StateMachine.unAvailableSignals + (powerPlantIdSignalKey -> state.cfg.id.toString)))
 
     case ReturnToServiceMessage =>
       context.become(receive)

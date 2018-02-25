@@ -54,9 +54,10 @@ object StateMachine {
     )
   )
 
-  val isAvailableSignalKey = "isAvailable"
-  val isOnOffSignalKey = "isOnOff"
-  val activePowerSignalKey = "activePower"
+  val isAvailableSignalKey  = "isAvailable"
+  val isOnOffSignalKey      = "isOnOff"
+  val activePowerSignalKey  = "activePower"
+  val powerPlantIdSignalKey = "powerPlantId"
 
   val unAvailableSignals = Map(
     activePowerSignalKey -> 0.1.toString, // the power does not matter when the plant is unavailable for steering
@@ -69,6 +70,7 @@ object StateMachine {
       oldState = stm.newState,
       newState = Active,
       signals = Map(
+        powerPlantIdSignalKey -> stm.cfg.id.toString,
         activePowerSignalKey -> minPower.toString, // be default this plant operates at min power
         isOnOffSignalKey     -> false.toString,
         isAvailableSignalKey -> true.toString // indicates if the power plant is available for steering
@@ -91,6 +93,7 @@ object StateMachine {
         oldState = stm.newState,
         newState = ReturnToNormal,
         signals = Map(
+          powerPlantIdSignalKey -> stm.cfg.id.toString,
           activePowerSignalKey -> minPower.toString, // we turn it off to min power
           isOnOffSignalKey     -> false.toString,
           isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
@@ -114,6 +117,7 @@ object StateMachine {
         oldState = stm.newState,
         newState = Dispatched,
         signals = Map(
+          powerPlantIdSignalKey -> stm.cfg.id.toString,
           activePowerSignalKey -> maxPower.toString, // we turn it on to max power
           isOnOffSignalKey     -> true.toString,
           isAvailableSignalKey -> true.toString // the plant is still available and not faulty!

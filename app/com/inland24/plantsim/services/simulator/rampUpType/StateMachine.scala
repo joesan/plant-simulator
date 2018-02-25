@@ -18,7 +18,7 @@
 package com.inland24.plantsim.services.simulator.rampUpType
 
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.PowerPlantSignal
+import com.inland24.plantsim.models.{PowerPlantSignal, PowerPlantState}
 import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, Transition}
 import com.inland24.plantsim.models.PowerPlantState._
 import org.joda.time.{DateTime, DateTimeZone, Seconds}
@@ -31,8 +31,8 @@ case class StateMachine(
   setPoint: Double,
   lastSetPointReceivedAt: DateTime,
   lastRampTime: DateTime,
-  oldState: com.inland24.plantsim.models.PowerPlantState,
-  newState: com.inland24.plantsim.models.PowerPlantState,
+  oldState: PowerPlantState,
+  newState: PowerPlantState,
   events: Vector[PowerPlantSignal],
   signals: Map[String, String]
 ) {
@@ -47,9 +47,10 @@ case class StateMachine(
 }
 object StateMachine {
 
-  val isAvailableSignalKey  = "isAvailable"
-  val isDispatchedSignalKey = "isDispatched"
-  val activePowerSignalKey  = "activePower"
+  val isAvailableSignalKey   = "isAvailable"
+  val isDispatchedSignalKey  = "isDispatched"
+  val activePowerSignalKey   = "activePower"
+  val powerPlantIdSignalKey  = "powerPlantId"
 
   val unAvailableSignals = Map(
     activePowerSignalKey  -> 0.1.toString, // the power does not matter when the plant is unavailable for steering
@@ -79,6 +80,7 @@ object StateMachine {
         )
       ),
       signals = Map(
+        powerPlantIdSignalKey -> cfg.id.toString,
         activePowerSignalKey  -> cfg.minPower.toString, // be default this plant operates at min power
         isDispatchedSignalKey -> false.toString,
         isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
@@ -114,6 +116,7 @@ object StateMachine {
       newState = com.inland24.plantsim.models.PowerPlantState.Active,
       oldState = stm.newState,
       signals = Map(
+        powerPlantIdSignalKey -> stm.cfg.id.toString,
         activePowerSignalKey  -> stm.cfg.minPower.toString, // be default this plant operates at min power
         isDispatchedSignalKey -> false.toString,
         isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
@@ -130,7 +133,7 @@ object StateMachine {
     stm.copy(
       newState = OutOfService,
       oldState = stm.newState,
-      signals = unAvailableSignals,
+      signals = unAvailableSignals + (powerPlantIdSignalKey -> stm.cfg.id.toString),
       events = stm.events :+ Transition(
           newState = OutOfService,
           oldState = stm.newState,
@@ -145,7 +148,7 @@ object StateMachine {
       setPoint = stm.cfg.minPower,
       newState = ReturnToService,
       oldState = stm.newState,
-      signals = unAvailableSignals,
+      signals = unAvailableSignals + (powerPlantIdSignalKey -> stm.cfg.id.toString),
       events = stm.events :+ Transition(
           newState = ReturnToService,
           oldState = stm.newState,
@@ -160,7 +163,9 @@ object StateMachine {
       stm.copy(
         events = Vector(
           DispatchAlert(
-            msg = "TODO ADD a meaningful message",
+            msg = s"requested dispatchPower = $setPoint is lesser than " +
+              s"minPower = ${stm.cfg.minPower} capacity of the PowerPlant, " +
+              s"so curtailing at maxPower for PowerPlant ${stm.cfg.id}",
             powerPlantConfig = stm.cfg,
             timeStamp = DateTime.now(DateTimeZone.UTC)
           )
@@ -218,6 +223,7 @@ object StateMachine {
                 powerPlantConfig = state.cfg
               ),
             signals = Map(
+              powerPlantIdSignalKey -> state.cfg.id.toString,
               isDispatchedSignalKey -> false.toString,
               activePowerSignalKey  -> state.cfg.minPower.toString,
               isAvailableSignalKey  -> true.toString // the plant is available and not faulty!
@@ -229,6 +235,7 @@ object StateMachine {
             newState = RampDown,
             oldState = state.newState,
             signals = Map(
+              powerPlantIdSignalKey -> state.cfg.id.toString,
               isDispatchedSignalKey -> true.toString,
               activePowerSignalKey  -> (currentActivePower - state.cfg.rampPowerRate).toString,
               isAvailableSignalKey  -> true.toString // the plant is still available and not faulty!
@@ -253,6 +260,7 @@ object StateMachine {
             newState = Dispatched,
             oldState = stm.newState,
             signals = Map(
+              powerPlantIdSignalKey -> stm.cfg.id.toString,
               isDispatchedSignalKey -> true.toString,
               activePowerSignalKey  -> stm.setPoint.toString,
               isAvailableSignalKey  -> true.toString // the plant is still available and not faulty!
@@ -270,6 +278,7 @@ object StateMachine {
             newState = RampUp,
             oldState = stm.newState,
             signals = Map(
+              powerPlantIdSignalKey -> stm.cfg.id.toString,
               isDispatchedSignalKey -> false.toString,
               activePowerSignalKey  -> (currentActivePower + stm.cfg.rampPowerRate).toString,
               isAvailableSignalKey  -> true.toString // the plant is still available and not faulty!

@@ -126,14 +126,7 @@ class PowerPlantOperationsController(bindings: AppBindings)
         (actorRef ? TelemetrySignalsMessage)
           .mapTo[Map[String, String]]
           .map(signals =>
-            Ok(Json.prettyPrint(
-                JsObject(
-                  Seq("powerPlantId" -> JsString(id.toString)) ++ signals.map {
-                    case (key, value) => key -> JsString(value)
-                  }
-                )
-              )
-            ).enableCors
+            Ok(Json.prettyPrint(Json.toJson(signals))).enableCors
           )
     }
   }
