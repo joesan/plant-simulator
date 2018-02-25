@@ -55,6 +55,10 @@ Follow the steps below to import the project into IntelliJ
 3. If you are opening IntelliJ for the first time, set up the Scala library in IntelliJ
 ```
 
+### Database Support
+
+Though th application is multi database compliant, currently only MySQL and H2 databases are supported, the reason being that the set up scripts are only avaiable for MySQL and H2. The scripts can be found [here](https://github.com/joesan/database-projects/tree/master/power-plant-simulator). You have to make sure to set up your database and configure the database credentials and url in one of the applicatiox.xxxx.conf files (where xxxx stands for either dev, test, qa or prod)
+
 ### Running tests
 
 You have the option here to either run tests from IntelliJ or from the command line
@@ -76,10 +80,6 @@ This application is built as a web application using the Play framework. We have
 
 * Run as a standalone jar
 * Run as a Docker container
-
-### Database Support
-
-Though th application is multi database compliant, currently only MySQL and H2 databases are supported, the reason being that the set up scripts are only avaiable for MySQL and H2. The scripts can be found [here](https://github.com/joesan/database-projects/tree/master/power-plant-simulator)
 
 #### To run as a standalone jar, do the following
 
