@@ -57,7 +57,7 @@ Follow the steps below to import the project into IntelliJ
 
 ### Database Support
 
-Though th application is multi database compliant, currently only MySQL and H2 databases are supported, the reason being that the set up scripts are only avaiable for MySQL and H2. The scripts can be found [here](https://github.com/joesan/database-projects/tree/master/power-plant-simulator). You have to make sure to set up your database and configure the database credentials and url in one of the applicatiox.xxxx.conf files (where xxxx stands for either dev, test, qa or prod)
+Though th application is multi database compliant, currently only MySQL and H2 databases are supported, the reason being that the set up scripts are only avaiable for MySQL and H2. The scripts can be found [here](https://github.com/joesan/database-projects/tree/master/power-plant-simulator). You have to make sure to set up your database and configure the database credentials and url in one of the applicatiox.xxxx.conf files (where xxxx stands for either test or prod)
 
 ### Running tests
 
@@ -85,10 +85,10 @@ This application is built as a web application using the Play framework. We have
 
 ```diff
 +For simplicity, there is local H2 database setup (plant-simulator.mv.db). The connection details 
-+are to be found under conf/application.dev.conf
++are to be found under conf/application.test.conf
    
 +You can comfortably run the application using the following command (No WiFi, no Network required)
--sbt -Denv=dev run
+-sbt -Denv=test run
 ```
 
 If you want to run the application against a MySQL database, follow the instructione below:
