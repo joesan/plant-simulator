@@ -70,7 +70,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |  "application" : "plant-simulator",
           |  "dbConfig" : {
           |    "databaseDriver" : "org.h2.Driver",
-          |    "databaseUrl" : "jdbc:h2:./plant-simulator;MODE=MySQL;DATABASE_TO_UPPER=false;IFEXISTS=TRUE",
+          |    "databaseUrl" : "jdbc:h2:mem:plant-simulator;DB_CLOSE_DELAY=-1;MODE=MySQL;DATABASE_TO_UPPER=false",
           |    "databaseUser" : "***********",
           |    "databasePass" : "***********"
           |  }
