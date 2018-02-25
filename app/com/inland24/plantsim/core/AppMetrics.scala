@@ -58,15 +58,15 @@ object AppMetrics {
 
   def dbTimerMetrics: Seq[MetricGroup] = {
     registry.getTimers.asScala.toSeq.map {
-      case (key, timer) =>
+      case (key, timerVal) =>
         MetricGroup(
           key,
           Seq(
-            Metric("fifteenMinuteRate", timer.getFifteenMinuteRate.toString),
-            Metric("fiveMinuteRate",    timer.getFiveMinuteRate.toString),
-            Metric("oneMinuteRate",     timer.getOneMinuteRate.toString),
-            Metric("meanRate",          timer.getMeanRate.toString),
-            Metric("count",             timer.getCount.toString)
+            Metric("fifteenMinuteRate", timerVal.getFifteenMinuteRate.toString),
+            Metric("fiveMinuteRate",    timerVal.getFiveMinuteRate.toString),
+            Metric("oneMinuteRate",     timerVal.getOneMinuteRate.toString),
+            Metric("meanRate",          timerVal.getMeanRate.toString),
+            Metric("count",             timerVal.getCount.toString)
           )
         )
     }
