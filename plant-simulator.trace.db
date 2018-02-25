@@ -714,3 +714,6 @@ select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate"
 02-25 11:55:00 jdbc[3]: exception
 org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
 select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = true [42102-186]
+02-25 12:07:47 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLException: Table "powerPlant" not found; SQL statement:
+select "powerPlantId", "orgName", "isActive", "minPower", "maxPower", "rampRate", "rampRateSecs", "powerPlantType", "createdAt", "updatedAt" from "powerPlant" where "isActive" = true [42102-186]
