@@ -47,6 +47,20 @@ case class StateMachine(
 }
 object StateMachine {
 
+  /* This factor determines the randomness for the activePower
+   For example., if the power to be dispatched is 800, then the
+   with the toleranceFactor of 2% would mean that the
+   activePower for the PowerPlant in dispatched state would vary
+   between 800 * 2 / 100 = 16
+   So the activePower would vary between 784 and 816
+   This factor is just introduced to show some randomness.
+   For simplicity, we hardcode this value here for all RampUpType
+   PowerPlants to have the same toleranceFactor. Ideally, each
+   RampUpType PowerPlant should have its own toleranceFactor configured
+   in the database!
+ */
+  private val toleranceFactorInPercentage = 2
+
   val isAvailableSignalKey   = "isAvailable"
   val isDispatchedSignalKey  = "isDispatched"
   val activePowerSignalKey   = "activePower"
@@ -63,29 +77,12 @@ object StateMachine {
     (state.events, state.copy(events = Vector.empty))
   }
 
-  // The starting state of our StateMachine
-  def init(cfg: RampUpTypeConfig) = {
-    StateMachine(
-      cfg = cfg,
-      oldState = Init,
-      newState = Init,
-      setPoint = cfg.minPower, // By default, we start with the minimum power as our setPoint
-      lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
-      lastRampTime = DateTime.now(DateTimeZone.UTC),
-      events = Vector(
-        Genesis(
-          timeStamp = DateTime.now(DateTimeZone.UTC),
-          newState = Init,
-          powerPlantConfig = cfg
-        )
-      ),
-      signals = Map(
-        powerPlantIdSignalKey -> cfg.id.toString,
-        activePowerSignalKey  -> cfg.minPower.toString, // be default this plant operates at min power
-        isDispatchedSignalKey -> false.toString,
-        isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
-      )
-    )
+  def random(power: Double) =  {
+    val range = power * toleranceFactorInPercentage / 100
+    val rnd = new scala.util.Random
+    val lower = power - range
+    val upper = power + range
+    lower + rnd.nextInt( (upper.toInt - lower.toInt) + 1 )
   }
 
   // Utility methods to check state transition timeouts
@@ -110,6 +107,31 @@ object StateMachine {
     elapsed.getSeconds.seconds >= rampRateInSeconds
   }
 
+  // The starting state of our StateMachine
+  def init(cfg: RampUpTypeConfig) = {
+    StateMachine(
+      cfg = cfg,
+      oldState = Init,
+      newState = Init,
+      setPoint = cfg.minPower, // By default, we start with the minimum power as our setPoint
+      lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
+      lastRampTime = DateTime.now(DateTimeZone.UTC),
+      events = Vector(
+        Genesis(
+          timeStamp = DateTime.now(DateTimeZone.UTC),
+          newState = Init,
+          powerPlantConfig = cfg
+        )
+      ),
+      signals = Map(
+        powerPlantIdSignalKey -> cfg.id.toString,
+        activePowerSignalKey  -> random(cfg.minPower).toString, // by default this plant operates at min power
+        isDispatchedSignalKey -> false.toString,
+        isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
+      )
+    )
+  }
+
   // State transition methods
   def active(stm: StateMachine): StateMachine = {
     stm.copy(
@@ -117,7 +139,7 @@ object StateMachine {
       oldState = stm.newState,
       signals = Map(
         powerPlantIdSignalKey -> stm.cfg.id.toString,
-        activePowerSignalKey  -> stm.cfg.minPower.toString, // be default this plant operates at min power
+        activePowerSignalKey  -> random(stm.cfg.minPower).toString, // be default this plant operates at min power
         isDispatchedSignalKey -> false.toString,
         isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
       ),
@@ -225,7 +247,7 @@ object StateMachine {
             signals = Map(
               powerPlantIdSignalKey -> state.cfg.id.toString,
               isDispatchedSignalKey -> false.toString,
-              activePowerSignalKey  -> state.cfg.minPower.toString,
+              activePowerSignalKey  -> random(state.cfg.minPower).toString,
               isAvailableSignalKey  -> true.toString // the plant is available and not faulty!
             )
           )
@@ -237,7 +259,7 @@ object StateMachine {
             signals = Map(
               powerPlantIdSignalKey -> state.cfg.id.toString,
               isDispatchedSignalKey -> true.toString,
-              activePowerSignalKey  -> (currentActivePower - state.cfg.rampPowerRate).toString,
+              activePowerSignalKey  -> random(currentActivePower - state.cfg.rampPowerRate).toString,
               isAvailableSignalKey  -> true.toString // the plant is still available and not faulty!
             )
           )
@@ -262,7 +284,7 @@ object StateMachine {
             signals = Map(
               powerPlantIdSignalKey -> stm.cfg.id.toString,
               isDispatchedSignalKey -> true.toString,
-              activePowerSignalKey  -> stm.setPoint.toString,
+              activePowerSignalKey  -> random(stm.setPoint).toString,
               isAvailableSignalKey  -> true.toString // the plant is still available and not faulty!
             ),
             events = stm.events :+ Transition(
@@ -280,7 +302,7 @@ object StateMachine {
             signals = Map(
               powerPlantIdSignalKey -> stm.cfg.id.toString,
               isDispatchedSignalKey -> false.toString,
-              activePowerSignalKey  -> (currentActivePower + stm.cfg.rampPowerRate).toString,
+              activePowerSignalKey  -> random(currentActivePower + stm.cfg.rampPowerRate).toString,
               isAvailableSignalKey  -> true.toString // the plant is still available and not faulty!
             )
           )

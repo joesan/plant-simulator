@@ -43,20 +43,6 @@ class RampUpTypeActor private (config: Config)
   private val cfg = config.powerPlantCfg
   private val eventsStream = config.eventsStream
 
-  /* This factor determines the randomness for the activePower
-     For example., if the power to be dispatched is 800, then the
-     with the toleranceFactor of 2% would mean that the
-     activePower for the PowerPlant in dispatched state would vary
-     between 800 * 2 / 100 = 16
-     So the activePower would vary between 784 and 816
-     This factor is just introduced to show some randomness.
-     For simplicity, we hardcode this value here for all RampUpType
-     PowerPlants to have the same toleranceFactor. Ideally, each
-     RampUpType PowerPlant should have its own toleranceFactor configured
-     in the database!
-   */
-  private val toleranceFactorInPercentage = 2
-
   /*
  * Initialize the Actor instance
  */
