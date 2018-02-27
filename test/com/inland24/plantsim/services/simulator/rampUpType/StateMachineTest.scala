@@ -32,6 +32,7 @@ class StateMachineTest extends WordSpecLike {
 
   private def now = DateTime.now(DateTimeZone.UTC)
 
+  // TODO: This could be moved to a common place, this is duplicated in RampUpTypeActorTest as well!
   def activePowerSignalRange(power: Double) = power * StateMachine.toleranceFactorInPercentage / 100
 
   val cfg = RampUpTypeConfig(
