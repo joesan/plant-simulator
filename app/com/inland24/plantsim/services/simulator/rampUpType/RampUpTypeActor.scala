@@ -62,8 +62,8 @@ class RampUpTypeActor private (config: Config)
   }
 
   private def evolve(stm: StateMachine) = {
-    val (signals, newStm) = StateMachine.popEvents(stm)
-    for (s <- signals) {
+    val (events, newStm) = StateMachine.popEvents(stm)
+    for (s <- events) {
       eventsStream.foreach(actorRef => actorRef ! s)
     }
     val receiveMethod = decideTransition(newStm)
@@ -90,7 +90,8 @@ class RampUpTypeActor private (config: Config)
   // TODO: Write Scaladoc comments
   def active(state: StateMachine): Receive = {
     case TelemetrySignalsMessage =>
-      sender ! state.signals
+      //sender ! StateMachine.randomPower(state.signals)
+      sender ! state.signals // The Power values are randomized here for simulating reality
 
     case PowerPlantActorMessage.StateRequestMessage =>
       sender ! state
@@ -128,6 +129,7 @@ class RampUpTypeActor private (config: Config)
     */
   def rampUp(state: StateMachine, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignalsMessage =>
+      //sender ! StateMachine.randomPower(state.signals)
       sender ! state.signals
 
     case StateRequestMessage =>
@@ -172,6 +174,7 @@ class RampUpTypeActor private (config: Config)
     */
   def dispatched(state: StateMachine): Receive = {
     case TelemetrySignalsMessage =>
+      //sender ! StateMachine.randomPower(state.signals)
       sender ! state.signals
 
     case StateRequestMessage =>
@@ -209,6 +212,7 @@ class RampUpTypeActor private (config: Config)
     */
   def rampDown(state: StateMachine, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignalsMessage =>
+      //sender ! StateMachine.randomPower(state.signals)
       sender ! state.signals
 
     case StateRequestMessage =>
