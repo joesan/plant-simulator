@@ -26,7 +26,6 @@ import com.inland24.plantsim.models.PowerPlantState.{Active, RampDown}
 import com.inland24.plantsim.models.{PowerPlantActorMessage, PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
 import com.inland24.plantsim.services.simulator.rampUpType
-import org.scalatest.Matchers.be
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.duration._
