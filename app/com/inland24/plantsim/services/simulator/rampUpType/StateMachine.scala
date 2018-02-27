@@ -59,7 +59,7 @@ object StateMachine {
    RampUpType PowerPlant should have its own toleranceFactor configured
    in the database!
  */
-  private val toleranceFactorInPercentage = 2
+  val toleranceFactorInPercentage = 2
 
   val isAvailableSignalKey   = "isAvailable"
   val isDispatchedSignalKey  = "isDispatched"
@@ -87,11 +87,10 @@ object StateMachine {
       lower + rnd.nextInt( (upper.toInt - lower.toInt) + 1 )
     }
 
-    val signalsNew = signals.map {
+    signals.map {
       case (key, value) if key == activePowerSignalKey => key -> random(value.toDouble).toString
+      case (key, value) => key -> value
     }
-    println(s"newSignals ************ is $signalsNew")
-    signalsNew
   }
 
   // Utility methods to check state transition timeouts

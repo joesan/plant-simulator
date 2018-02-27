@@ -90,8 +90,7 @@ class RampUpTypeActor private (config: Config)
   // TODO: Write Scaladoc comments
   def active(state: StateMachine): Receive = {
     case TelemetrySignalsMessage =>
-      //sender ! StateMachine.randomPower(state.signals)
-      sender ! state.signals // The Power values are randomized here for simulating reality
+      sender ! StateMachine.randomPower(state.signals) // The Power values are randomized here for simulating reality
 
     case PowerPlantActorMessage.StateRequestMessage =>
       sender ! state
@@ -129,8 +128,7 @@ class RampUpTypeActor private (config: Config)
     */
   def rampUp(state: StateMachine, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignalsMessage =>
-      //sender ! StateMachine.randomPower(state.signals)
-      sender ! state.signals
+      sender ! StateMachine.randomPower(state.signals) // The Power values are randomized here for simulating reality
 
     case StateRequestMessage =>
       sender ! state
@@ -174,8 +172,7 @@ class RampUpTypeActor private (config: Config)
     */
   def dispatched(state: StateMachine): Receive = {
     case TelemetrySignalsMessage =>
-      //sender ! StateMachine.randomPower(state.signals)
-      sender ! state.signals
+      sender ! StateMachine.randomPower(state.signals) // The Power values are randomized here for simulating reality
 
     case StateRequestMessage =>
       sender ! state
@@ -212,8 +209,7 @@ class RampUpTypeActor private (config: Config)
     */
   def rampDown(state: StateMachine, subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignalsMessage =>
-      //sender ! StateMachine.randomPower(state.signals)
-      sender ! state.signals
+      sender ! StateMachine.randomPower(state.signals) // The Power values are randomized here for simulating reality
 
     case StateRequestMessage =>
       sender ! state

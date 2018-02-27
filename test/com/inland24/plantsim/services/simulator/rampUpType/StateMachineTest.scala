@@ -32,6 +32,8 @@ class StateMachineTest extends WordSpecLike {
 
   private def now = DateTime.now(DateTimeZone.UTC)
 
+  def activePowerSignalRange(power: Double) = power * StateMachine.toleranceFactorInPercentage / 100
+
   val cfg = RampUpTypeConfig(
     id = 1,
     name = "RampUpType",
@@ -41,6 +43,25 @@ class StateMachineTest extends WordSpecLike {
     rampRateInSeconds = 4.seconds,
     powerPlantType = PowerPlantType.RampUpType
   )
+
+  "StateMachine ## Utility" must {
+    "generate a randomPower within a given tolerance" in {
+      val activeStm = StateMachine.active(StateMachine.init(cfg))
+      val newSignals = StateMachine.randomPower(activeStm.signals)
+
+      // out activePower signal should be within the tolerance range
+      val beWithinTolerance =
+        be >= (cfg.minPower - activePowerSignalRange(cfg.minPower)) and be <= (cfg.minPower + activePowerSignalRange(cfg.minPower))
+
+      assert(newSignals.size === 4)
+      newSignals.foreach {
+        case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey => assert(!value1.toBoolean)
+        case (key2, value2) if key2 == StateMachine.isAvailableSignalKey  => assert(value2.toBoolean)
+        case (key3, value3) if key3 == StateMachine.activePowerSignalKey  => value3.toDouble should beWithinTolerance
+        case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey => assert(value4 === cfg.id.toString)
+      }
+    }
+  }
 
   // PowerPlant init tests
   "PowerPlant ## init" must {
