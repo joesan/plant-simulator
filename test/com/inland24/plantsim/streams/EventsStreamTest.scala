@@ -19,8 +19,8 @@ package com.inland24.plantsim.streams
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
+import akka.testkit.TestActor.Ignore
 import akka.testkit.{ImplicitSender, TestKit}
-import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
 import com.inland24.plantsim.core.{AppBindings, PowerPlantEventObservable, SupervisorActor}
 import com.inland24.plantsim.models.PowerPlantActorMessage.{OutOfServiceMessage, ReturnToServiceMessage}
@@ -43,7 +43,7 @@ import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-
+@Ignore
 class EventsStreamTest extends TestKit(ActorSystem("EventsStreamTest"))
   with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
 
@@ -91,7 +91,6 @@ class EventsStreamTest extends TestKit(ActorSystem("EventsStreamTest"))
     PowerPlantCreateEvent[OnOffTypeConfig](2, onOffTypeCfg)
   ).asInstanceOf[PowerPlantEventsSeq]
 
-  ignore
   "EventsStream" must {
     "push events and alerts from PowerPlant into it's out channel" in {
 
