@@ -33,7 +33,6 @@ final class EventsStream(channel: ConcurrentSubject[PowerPlantSignal, PowerPlant
 
   override def receive = {
     case t: Transition =>
-      println(s"**** Event Received $t")
       channel.onNext(t)
 
     case g: Genesis =>

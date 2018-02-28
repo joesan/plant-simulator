@@ -31,7 +31,7 @@ import play.api.libs.streams.ActorFlow
 // TODO: pass in this execution context via AppBindings
 import monix.execution.Scheduler.Implicits.global
 
-import play.api.libs.json.{JsObject, JsString, Json}
+import play.api.libs.json.Json
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -104,8 +104,6 @@ class PowerPlantOperationsController(bindings: AppBindings)
               NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
             }
           case Some(actorRef) =>
-            println(s"ReturnToNormal valid for PowerPlant with id $id actorRef is $actorRef")
-            println(s"********************** DispatchCommand is $returnToNormalCommand")
             sendCommand(actorRef, id, returnToNormalCommand)
         }
       }

@@ -100,12 +100,6 @@ class OnOffTypeActor private (config: Config)
 
     case ReturnToServiceMessage => // ReturnToService means bringing the PowerPlant back to service from a fault
       evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
-
-    // This is a crazy test, but this never happens in Production!
-    case DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes =>
-      eventStream.foreach(
-        actorRef => actorRef ! DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
-      )
   }
 }
 object OnOffTypeActor {
