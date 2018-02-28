@@ -118,27 +118,23 @@ object StateMachine {
   }
 
   def turnOff(stm: StateMachine, minPower: Double): StateMachine = {
-    // To TurnOff, both the signals got to be true
-    if(stm.signals.exists(_ == isAvailableSignalKey -> "true") &&
-      stm.signals.exists(_ == isOnOffSignalKey -> "true")) {
-      stm.copy(
-        lastTurnOnOffReceivedAt = DateTime.now(DateTimeZone.UTC),
-        oldState = stm.newState,
-        newState = ReturnToNormal,
-        signals = Map(
-          powerPlantIdSignalKey -> stm.cfg.id.toString,
-          activePowerSignalKey -> minPower.toString, // we turn it off to min power
-          isOnOffSignalKey     -> false.toString,
-          isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
-        ),
-        events = stm.events :+ Transition(
-            oldState = stm.newState,
-            newState = ReturnToNormal,
-            powerPlantConfig = stm.cfg,
-            timeStamp = DateTime.now(DateTimeZone.UTC)
-          )
-      )
-    } else stm
+    stm.copy(
+      lastTurnOnOffReceivedAt = DateTime.now(DateTimeZone.UTC),
+      oldState = stm.newState,
+      newState = ReturnToNormal,
+      signals = Map(
+        powerPlantIdSignalKey -> stm.cfg.id.toString,
+        activePowerSignalKey -> minPower.toString, // we turn it off to min power
+        isOnOffSignalKey     -> false.toString,
+        isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
+      ),
+      events = stm.events :+ Transition(
+          oldState = stm.newState,
+          newState = ReturnToNormal,
+          powerPlantConfig = stm.cfg,
+          timeStamp = DateTime.now(DateTimeZone.UTC)
+        )
+    )
   }
 
   def turnOn(stm: StateMachine, maxPower: Double): StateMachine = {

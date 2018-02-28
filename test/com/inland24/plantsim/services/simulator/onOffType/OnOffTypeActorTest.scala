@@ -131,7 +131,7 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
       }
 
       // Now turin it off
-      within(1.seconds) {
+      within(4.seconds) {
         onOffTypeSimActor ! ReturnToNormalCommand
         expectNoMsg()
       }

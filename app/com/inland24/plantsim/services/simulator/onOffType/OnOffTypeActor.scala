@@ -93,7 +93,7 @@ class OnOffTypeActor private (config: Config)
       else // We could also ReturnToNormal using the DispatchOnOffPowerPlant command
         evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
-    case t: ReturnToNormalCommand => // ReturnToNormal means means returning to min power
+    case ReturnToNormalCommand => // ReturnToNormal means means returning to min power
       println(s"")
       evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
