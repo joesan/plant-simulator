@@ -91,7 +91,7 @@ class EventsStreamTest extends TestKit(ActorSystem("EventsStreamTest"))
     PowerPlantCreateEvent[OnOffTypeConfig](2, onOffTypeCfg)
   ).asInstanceOf[PowerPlantEventsSeq]
 
-  pending
+  ignore
   "EventsStream" must {
     "push events and alerts from PowerPlant into it's out channel" in {
 
