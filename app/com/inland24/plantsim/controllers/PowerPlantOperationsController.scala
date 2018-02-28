@@ -25,6 +25,7 @@ import play.api.mvc.{Action, Controller, WebSocket}
 import akka.actor.ActorRef
 import akka.pattern.ask
 import com.inland24.plantsim.models.PowerPlantActorMessage.TelemetrySignalsMessage
+import com.inland24.plantsim.streams.EventsStream.DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
 import play.api.libs.streams.ActorFlow
 
 // TODO: pass in this execution context via AppBindings
@@ -70,6 +71,22 @@ class PowerPlantOperationsController(bindings: AppBindings)
     }
   }
 
+  /**
+    * THIS IS A SPECIAL ENDPOINT WHERE THE ONLY PURPOSE IS TO TEST
+    * THE RE-ACTIVATION OF EVENT STREAMS IN CASE OF ABRUPT FAILURES
+    *
+    * BEWARE WHEN USING THIS ENDPOINT! ALTHOUGH IT DOES NOT HURT CALLING IT
+    * THIS IS JUST TO DEMONSTRATE THE RESILIENCE TO FAILURES
+    *
+    * @param id The id of the PowerPlant that mimics an error scenario
+    * @return   Always a HTTP 200
+    */
+  def kill(id: Int) = Action.async { _ =>
+    val actorRef = scala.concurrent.Await.result(actorFor(id), 5.seconds).get
+    actorRef ! DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
+    Future.successful(Ok("*** ###### Fnickug ---- YOU WANTED TO SPOIL MY PARTY *******......."))
+  }
+
   // TODO: Re-Work for unit testability!
   def returnToNormalPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
     request.body.validate[ReturnToNormalCommand].fold(
@@ -87,6 +104,8 @@ class PowerPlantOperationsController(bindings: AppBindings)
               NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
             }
           case Some(actorRef) =>
+            println(s"ReturnToNormal valid for PowerPlant with id $id actorRef is $actorRef")
+            println(s"********************** DispatchCommand is $returnToNormalCommand")
             sendCommand(actorRef, id, returnToNormalCommand)
         }
       }
@@ -110,6 +129,8 @@ class PowerPlantOperationsController(bindings: AppBindings)
               NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
             }
           case Some(actorRef) =>
+            println(s"DispatchCommand valid for PowerPlant with id $id actorRef is $actorRef")
+            println(s"********************** DispatchCommand is $dispatchCommand")
             sendCommand(actorRef, id, dispatchCommand)
         }
       }

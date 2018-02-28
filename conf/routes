@@ -40,3 +40,6 @@ GET    /docs/                   com.inland24.plantsim.controllers.ApplicationCon
 #GET   /docs/*file              controllers.Assets.at(path="/public/swagger-ui",file)
 
 GET    /webjars/*file           controllers.WebJarAssets.at(file)
+
+###### Test Endpoint [ALERT: Use this not! This is only for demonstration purposes!!!!] ######
+GET   /powerPlant/:id/killEventStream     com.inland24.plantsim.controllers.PowerPlantOperationsController.kill(id: Int)

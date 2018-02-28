@@ -65,8 +65,6 @@ class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext)
     )
   }
 
-  def applySchedules = ???
-
   // by default, get the first page!
 /*  def allPowerPlantsPaginated(fetchOnlyActive: Boolean = false, pageNumber: Int = 1): Task[Seq[PowerPlantRow]] = {
     val query =

@@ -183,7 +183,7 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
         expectNoMsg()
       }
 
-      within(1.seconds) {
+      within(5.seconds) {
         onOffTypeSimActor ! OutOfServiceMessage
         expectNoMsg()
       }
@@ -216,6 +216,15 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
           assert(state.cfg.id === initPowerPlantState.cfg.id, "powerPlantId did not match")
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
+      }
+    }
+
+    "throw this away after getting what I want" in {
+      import scala.io.Source
+
+      val filename = "/Users/jothi/Desktop/sample.json"
+      for (line <- Source.fromFile(filename).getLines) {
+        println(line)
       }
     }
   }

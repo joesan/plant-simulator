@@ -26,6 +26,7 @@ import com.inland24.plantsim.models.PowerPlantState.ReturnToNormal
 import com.inland24.plantsim.models.{PowerPlantActorMessage, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantState.{Init => InitState}
 import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.Config
+import com.inland24.plantsim.streams.EventsStream.DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
 import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
@@ -105,6 +106,12 @@ class RampUpTypeActor private (config: Config)
     case ReturnToServiceMessage =>
       evolve(StateMachine.returnToService(state))
       self ! Init
+
+    // This is a crazy test, but this never happens in Production!
+    case DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes =>
+      eventsStream.foreach(
+        actorRef => actorRef ! DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
+      )
   }
 
   /**

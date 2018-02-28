@@ -21,7 +21,7 @@ import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.ReturnToNormalCommand
-import com.inland24.plantsim.services.simulator.rampUpType.StateMachine.powerPlantIdSignalKey
+import com.inland24.plantsim.streams.EventsStream.DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
 
 /**
   * The Actor instance responsible for [[com.inland24.plantsim.models.PowerPlantType.OnOffType]]
@@ -42,6 +42,7 @@ class OnOffTypeActor private (config: Config)
   private def evolve(stm: StateMachine) = {
     val (signals, newStm) = StateMachine.popEvents(stm)
     for (s <- signals) {
+      println(s"event stream is $eventStream event is $s")
       eventStream.foreach(elem => elem ! s)
     }
     context.become(active(newStm))
@@ -68,13 +69,13 @@ class OnOffTypeActor private (config: Config)
     *
     * ReturnToNormalCommand - This is yet another possibility to TurnOff this PowerPlant
     *
-    * OutOfService - If for some reason this PowerPlant should be thrown out of operation
+    * OutOfServiceMessage - If for some reason this PowerPlant should be thrown out of operation
     *
-    * ReturnToService - To make the PowerPlant operational again
+    * ReturnToServiceMessage - To make the PowerPlant operational again
     *
-    * StateRequest - To get the current actual state of this PowerPlant
+    * StateRequestMessage - To get the current actual state of this PowerPlant
     *
-    * TelemetrySignals - To get only the signals emitted by this PowerPlant
+    * TelemetrySignalsMessage - To get only the signals emitted by this PowerPlant
     *
     * @param state
     * @return
@@ -92,15 +93,21 @@ class OnOffTypeActor private (config: Config)
       else // We could also ReturnToNormal using the DispatchOnOffPowerPlant command
         evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
-    case ReturnToNormalCommand => // ReturnToNormal means means returning to min power
+    case t: ReturnToNormalCommand => // ReturnToNormal means means returning to min power
+      println(s"")
       evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
     case OutOfServiceMessage =>
-      evolve(state.copy(signals = StateMachine.unAvailableSignals + (powerPlantIdSignalKey -> state.cfg.id.toString)))
+      evolve(StateMachine.outOfService(state))
 
-    case ReturnToServiceMessage =>
-      context.become(receive)
-      self ! InitMessage
+    case ReturnToServiceMessage => // ReturnToService means bringing the PowerPlant back to service from a fault
+      evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
+
+    // This is a crazy test, but this never happens in Production!
+    case DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes =>
+      eventStream.foreach(
+        actorRef => actorRef ! DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
+      )
   }
 }
 object OnOffTypeActor {

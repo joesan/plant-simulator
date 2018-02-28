@@ -133,8 +133,8 @@ object StateMachine {
       ),
       signals = Map(
         powerPlantIdSignalKey -> cfg.id.toString,
-        activePowerSignalKey  -> cfg.minPower.toString, // by default this plant operates at min power
         isDispatchedSignalKey -> false.toString,
+        activePowerSignalKey  -> cfg.minPower.toString, // by default this plant operates at min power
         isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
       )
     )
@@ -147,8 +147,8 @@ object StateMachine {
       oldState = stm.newState,
       signals = Map(
         powerPlantIdSignalKey -> stm.cfg.id.toString,
-        activePowerSignalKey  -> stm.cfg.minPower.toString, // be default this plant operates at min power
         isDispatchedSignalKey -> false.toString,
+        activePowerSignalKey  -> stm.cfg.minPower.toString, // be default this plant operates at min power
         isAvailableSignalKey  -> true.toString // indicates if the power plant is available for steering
       ),
       events = stm.events :+ Transition(

@@ -28,7 +28,7 @@ import Matchers._
 import scala.concurrent.duration._
 
 
-class StateMachineTest extends WordSpecLike {
+class RampUpTypeStateMachineTest extends WordSpecLike {
 
   private def now = DateTime.now(DateTimeZone.UTC)
 

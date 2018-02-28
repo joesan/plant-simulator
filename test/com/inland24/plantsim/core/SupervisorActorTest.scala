@@ -31,7 +31,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success}
 
 
 class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
@@ -43,7 +43,6 @@ class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))
 
   // Use a default AppConfig
   val appCfg = AppConfig.load()
-
   implicit val ec = monix.execution.Scheduler.Implicits.global
 
   // Let us create our SupervisorActor instance

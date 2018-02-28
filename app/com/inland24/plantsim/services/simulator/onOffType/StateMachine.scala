@@ -20,7 +20,7 @@ package com.inland24.plantsim.services.simulator.onOffType
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.PowerPlantSignal.{Genesis, Transition}
 import com.inland24.plantsim.models.{PowerPlantSignal, PowerPlantState}
-import com.inland24.plantsim.models.PowerPlantState.{Active, Dispatched, Init, ReturnToNormal}
+import com.inland24.plantsim.models.PowerPlantState._
 import org.joda.time.{DateTime, DateTimeZone}
 
 
@@ -81,6 +81,39 @@ object StateMachine {
           powerPlantConfig = stm.cfg,
           timeStamp = DateTime.now(DateTimeZone.UTC)
         )
+    )
+  }
+
+  def outOfService(stm: StateMachine): StateMachine = {
+    stm.copy(
+      oldState = stm.newState,
+      newState = OutOfService,
+      signals = unAvailableSignals + (powerPlantIdSignalKey -> stm.cfg.id.toString),
+      events = stm.events :+ Transition(
+        oldState = stm.newState,
+        newState = OutOfService,
+        powerPlantConfig = stm.cfg,
+        timeStamp = DateTime.now(DateTimeZone.UTC)
+      )
+    )
+  }
+
+  def returnToService(stm: StateMachine): StateMachine = {
+    stm.copy(
+      oldState = stm.newState,
+      newState = ReturnToService,
+      signals = Map(
+        powerPlantIdSignalKey -> stm.cfg.id.toString,
+        activePowerSignalKey -> stm.cfg.minPower.toString,
+        isOnOffSignalKey     -> false.toString,
+        isAvailableSignalKey -> true.toString
+      ),
+      events = stm.events :+ Transition(
+        oldState = stm.newState,
+        newState = ReturnToService,
+        powerPlantConfig = stm.cfg,
+        timeStamp = DateTime.now(DateTimeZone.UTC)
+      )
     )
   }
 
