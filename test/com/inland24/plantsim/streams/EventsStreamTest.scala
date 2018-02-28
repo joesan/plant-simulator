@@ -19,7 +19,6 @@ package com.inland24.plantsim.streams
 
 import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
-import akka.testkit.TestActor.Ignore
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
 import com.inland24.plantsim.core.{AppBindings, PowerPlantEventObservable, SupervisorActor}
@@ -34,7 +33,7 @@ import com.inland24.plantsim.services.database.DBServiceActor.PowerPlantEventsSe
 import com.inland24.plantsim.streams.EventsStream.DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
 import monix.execution.Ack.Continue
 import monix.execution.{Ack, Scheduler}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.{BeforeAndAfterAll, Ignore, Matchers, WordSpecLike}
 import monix.execution.FutureUtils.extensions._
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.observers.Subscriber

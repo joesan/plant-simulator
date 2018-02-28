@@ -191,7 +191,10 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
       onOffTypeSimActor ! StateRequestMessage
       expectMsgPF() {
         case state: StateMachine =>
-          assert(state.signals === StateMachine.unAvailableSignals + (powerPlantIdSignalKey -> onOffTypeCfg.id.toString), "signals did not match")
+          assert(
+            state.signals === StateMachine.unAvailableSignals + (powerPlantIdSignalKey -> onOffTypeCfg.id.toString),
+            "signals did not match"
+          )
         case x: Any => // If I get any other message, I fail
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }

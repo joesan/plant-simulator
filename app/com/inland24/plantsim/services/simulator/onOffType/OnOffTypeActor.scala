@@ -42,7 +42,6 @@ class OnOffTypeActor private (config: Config)
   private def evolve(stm: StateMachine) = {
     val (signals, newStm) = StateMachine.popEvents(stm)
     for (s <- signals) {
-      println(s"event stream is $eventStream event is $s")
       eventStream.foreach(elem => elem ! s)
     }
     context.become(active(newStm))
@@ -93,8 +92,7 @@ class OnOffTypeActor private (config: Config)
       else // We could also ReturnToNormal using the DispatchOnOffPowerPlant command
         evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
-    case ReturnToNormalCommand => // ReturnToNormal means means returning to min power
-      println(s"")
+    case ReturnToNormalCommand(_, _) => // ReturnToNormal means means returning to min power
       evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
     case OutOfServiceMessage =>
