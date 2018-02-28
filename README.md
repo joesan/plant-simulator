@@ -13,13 +13,9 @@
 
 ## Getting Started 
 
-This project is completely OpenSource, so feel free to explore and if you have better ideas, please let me know or even better please contribute! 
-
-For some background information on the project, have a look [here](https://github.com/joesan/plant-simulator/wiki)
+This project is completely OpenSource, so feel free to explore and if you have better ideas, please let me know or even better please contribute! For some background information on the project, have a look [here](https://github.com/joesan/plant-simulator/wiki)
 
 These instructions below will get you a copy of the project up and running on your local machine for development and testing purposes. 
-
-See [deployment](#Deployment) for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
@@ -137,6 +133,8 @@ To visualize the application and to do some real work with it, have a look [here
 ## Deployment
 
 [[TODO]] Add additional notes about how to deploy this on a live system
+
+[[TODO]] See [deployment](#Deployment) for notes on how to deploy the project on a live system.
 
 ## Tools Used
 
