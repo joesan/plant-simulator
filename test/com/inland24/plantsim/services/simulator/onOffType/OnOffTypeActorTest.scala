@@ -218,14 +218,5 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
           fail(s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
     }
-
-    "throw this away after getting what I want" in {
-      import scala.io.Source
-
-      val filename = "/Users/jothi/Desktop/sample.json"
-      for (line <- Source.fromFile(filename).getLines) {
-        println(line)
-      }
-    }
   }
 }
