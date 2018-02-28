@@ -132,7 +132,7 @@ class OnOffTypeActorTest extends TestKit(ActorSystem("OnOffTypeActorTest"))
 
       // Now turin it off
       within(4.seconds) {
-        onOffTypeSimActor ! ReturnToNormalCommand
+        onOffTypeSimActor ! ReturnToNormalCommand(initPowerPlantState.cfg.id)
         expectNoMsg()
       }
 

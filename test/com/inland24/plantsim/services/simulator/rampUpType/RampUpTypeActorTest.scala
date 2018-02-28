@@ -327,7 +327,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
        * Very unfortunately, we got to bloddy wait for some time until our Actor changes context!
        * This happens only for unit testing as there is no Akka Testkit support for this behavior
        */
-      Thread.sleep(8000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
+      Thread.sleep(8000) // We sleep for 8 seconds, to give some time for our Actor to change context!!!
 
       within(2.seconds) {
         rampUpTypeActor ! ReturnToNormalCommand(rampUpTypeCfg.id)
@@ -338,7 +338,7 @@ class RampUpTypeActorTest extends TestKit(ActorSystem("RampUpTypeActorTest"))
        * Very unfortunately, we got to bloddy wait for some time until our Actor changes context!
        * This happens only for unit testing as there is no Akka Testkit support for this behavior
        */
-      Thread.sleep(8000) // We sleep for 10 seconds, give some time for our Actor to change context!!!
+      Thread.sleep(8000) // We sleep for 8 seconds, give some time for our Actor to change context!!!
 
       // 3. The PowerPlant should have fully returned to normal, let's check that
       within(2.seconds) {
