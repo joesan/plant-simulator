@@ -78,6 +78,14 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
         """.stripMargin
       )
     }
+
+    "fetch the JVM metrics" in {
+      val result: Future[Result] =
+        new ApplicationController(bindings.appConfig).metrics.apply(FakeRequest())
+      val bodyText = contentAsString(result)
+
+      assert(bodyText.contains(""""hostname" : """))
+    }
   }
 
   // PowerPlantDetails test
