@@ -31,7 +31,7 @@ import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
-import scala.util.{Failure, Success}
+import scala.util.{Failure, Success, Try}
 
 
 class SupervisorActorTest extends TestKit(ActorSystem("SupervisorActorTest"))

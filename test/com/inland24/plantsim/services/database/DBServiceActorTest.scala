@@ -54,6 +54,7 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
   }
 
   override def afterAll(): Unit = {
+    System.clearProperty("ENV")
     super.h2SchemaDrop()
     TestKit.shutdownActorSystem(system)
   }
