@@ -127,8 +127,6 @@ class PowerPlantOperationsController(bindings: AppBindings)
               NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
             }
           case Some(actorRef) =>
-            println(s"DispatchCommand valid for PowerPlant with id $id actorRef is $actorRef")
-            println(s"********************** DispatchCommand is $dispatchCommand")
             sendCommand(actorRef, id, dispatchCommand)
         }
       }
