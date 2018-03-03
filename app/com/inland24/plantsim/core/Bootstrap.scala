@@ -19,7 +19,7 @@ package com.inland24.plantsim.core
 
 import com.inland24.plantsim.controllers.{ApplicationController, PowerPlantController, PowerPlantOperationsController}
 import com.typesafe.config.ConfigFactory
-import com.typesafe.scalalogging.{LazyLogging, StrictLogging}
+import com.typesafe.scalalogging.LazyLogging
 import play.api.{Application, BuiltInComponentsFromContext, Configuration, _}
 import play.api.ApplicationLoader.Context
 
@@ -37,7 +37,7 @@ final class Bootstrap extends ApplicationLoader with LazyLogging {
 
   private[this] class App(context: Context)
     extends BuiltInComponentsFromContext(context)
-      with StrictLogging with _root_.controllers.AssetsComponents {
+      with _root_.controllers.AssetsComponents {
 
     // We use the Monix Scheduler
     implicit val s = monix.execution.Scheduler.Implicits.global

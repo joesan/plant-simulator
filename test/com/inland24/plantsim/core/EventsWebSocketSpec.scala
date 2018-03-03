@@ -19,17 +19,17 @@ package com.inland24.plantsim.core
 
 import org.scalatestplus.play._
 import play.api.test.Helpers._
-import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.{FakeRequest, WsTestClient}
+import play.api.test.FakeRequest
+import com.inland24.plantsim.controllers.ApplicationTestFactory
+import org.scalatest.{Ignore, WordSpecLike}
+import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 
-import com.github.andyglow.websocket._
-import org.scalatest.WordSpecLike
-import org.scalatestplus.play.guice.GuiceOneServerPerSuite
-import play.api.Logger
 
 // Test adapted from https://github.com/playframework/play-scala-websocket-example.git
+@Ignore
 class EventsWebSocketSpec extends PlaySpec with WordSpecLike
-  with GuiceOneServerPerSuite {
+  with BaseOneServerPerSuite with ApplicationTestFactory
+  with ScalaFutures with IntegrationPatience {
 
   private implicit val httpPort = new play.api.http.Port(9000)
 
@@ -44,7 +44,7 @@ class EventsWebSocketSpec extends PlaySpec with WordSpecLike
     }
 
   }
-
+/*
   "PowerPlantOperationController" should {
     "reject a WebSocket flow if the origin is set incorrectly" in WsTestClient.withClient { client =>
 
@@ -62,7 +62,7 @@ class EventsWebSocketSpec extends PlaySpec with WordSpecLike
       ws ! "hello"
       ws ! "world"
 
-      val app = new GuiceApplicationBuilder().configure()build()
+      //val app = new GuiceApplicationBuilder().configure()build()
 
       // Pick a non standard port that will fail the (somewhat contrived) origin check...
 
@@ -96,5 +96,5 @@ class EventsWebSocketSpec extends PlaySpec with WordSpecLike
         }
       } */
     }
-  }
+  } */
 }
