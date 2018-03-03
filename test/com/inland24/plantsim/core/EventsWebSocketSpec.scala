@@ -17,21 +17,24 @@
 
 package com.inland24.plantsim.core
 
+import java.util.concurrent.{ArrayBlockingQueue, Callable}
 import java.util.function.Consumer
 
+import scala.compat.java8.FutureConverters
+import scala.concurrent.duration._
 import com.github.andyglow.websocket.WebsocketClient
 import org.scalatestplus.play._
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers, TestServer, WsTestClient}
 import com.inland24.plantsim.controllers.ApplicationTestFactory
 import com.inland24.plantsim.services.database.DBServiceSpec
-import org.scalatest.{BeforeAndAfterAll, WordSpecLike}
+import org.scalatest.concurrent.PatienceConfiguration.Timeout
+import org.scalatest.{BeforeAndAfterAll, Ignore, WordSpecLike}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Logger
+import play.api.libs.json.{JsValue, Json}
+import org.awaitility.Awaitility.{await => awaitWithTimeOut}
 import play.shaded.ahc.org.asynchttpclient.AsyncHttpClient
-
-import scala.compat.java8.FutureConverters
-import scala.concurrent.duration._
 
 
 class EventsWebSocketSpec
@@ -71,10 +74,43 @@ class EventsWebSocketSpec
     }
   }
 
-  // Test adapted from
-  // https://github.com/playframework/play-scala-websocket-example/blob/2.6.x/test/controllers/FunctionalSpec.scala
+  /**
+    * Test adapted from
+    * https://github.com/playframework/play-scala-websocket-example/blob/2.6.x/test/controllers/FunctionalSpec.scala
+    */
   "PowerPlantOperationController" should {
+
     "reject a WebSocket flow if the origin is set incorrectly" in WsTestClient.withClient { client =>
+      val app = fakeApplication
+      // Pick a non standard port that will fail the (somewhat contrived) origin check...
+      lazy val port: Int = 31337
+      Helpers.running(TestServer(port, app)) {
+        val myPublicAddress = s"localhost:$port"
+        val serverURL = s"ws://$myPublicAddress/events"
+
+        val asyncHttpClient: AsyncHttpClient = client.underlying[AsyncHttpClient]
+        val webSocketClient = new WebSocketClient(asyncHttpClient)
+        try {
+          val origin = "ws://example.com/ws"
+          val consumer: Consumer[String] = (message: String) => println(message)
+          val listener = new WebSocketClient.LoggingListener(consumer)
+          val completionStage = webSocketClient.call(serverURL, origin, listener)
+          val f = FutureConverters.toScala(completionStage)
+          scala.concurrent.Await.result(f, atMost = 1000.millis)
+          listener.getThrowable mustBe a[IllegalStateException]
+        } catch {
+          case e: IllegalStateException =>
+            e mustBe an [IllegalStateException]
+
+          case e: java.util.concurrent.ExecutionException =>
+            val foo = e.getCause
+            foo mustBe an [IllegalStateException]
+        }
+      }
+    }
+
+    pending
+    "accept a WebSocket flow if the origin is set correctly" in WsTestClient.withClient { client =>
 
       // 1. prepare ws-client
       // 2. define message handler
@@ -90,37 +126,30 @@ class EventsWebSocketSpec
       ws ! "hello"
       ws ! "world"
 
-      val app = fakeApplication //new GuiceApplicationBuilder().configure().build()
 
-      // Pick a non standard port that will fail the (somewhat contrived) origin check...
-
-
-      lazy val port: Int = 31337
-
-      //val app = new GuiceApplicationBuilder().build()
+      lazy val port: Int = 9000
+      val app = fakeApplication
       Helpers.running(TestServer(port, app)) {
         val myPublicAddress = s"localhost:$port"
-        val serverURL = s"ws://$myPublicAddress/events"
+        val serverURL = s"ws://$myPublicAddress/powerPlant/events"
 
         val asyncHttpClient: AsyncHttpClient = client.underlying[AsyncHttpClient]
         val webSocketClient = new WebSocketClient(asyncHttpClient)
-        try {
-          val origin = "ws://example.com/ws"
-          val consumer: Consumer[String] = new Consumer[String] {
-            override def accept(message: String): Unit = println(message)
-          }
-          val listener = new WebSocketClient.LoggingListener(consumer)
-          val completionStage = webSocketClient.call(serverURL, origin, listener)
-          val f = FutureConverters.toScala(completionStage)
-          scala.concurrent.Await.result(f, atMost = 1000.millis)
-          listener.getThrowable mustBe a[IllegalStateException]
-        } catch {
-          case e: IllegalStateException =>
-            e mustBe an [IllegalStateException]
+        val queue = new ArrayBlockingQueue[String](10)
+        val origin = serverURL
+        val consumer: Consumer[String] = (message: String) => queue.put(message)
+        val listener = new WebSocketClient.LoggingListener(consumer)
+        val completionStage = webSocketClient.call(serverURL, origin, listener)
+        val f = FutureConverters.toScala(completionStage)
 
-          case e: java.util.concurrent.ExecutionException =>
-            val foo = e.getCause
-            foo mustBe an [IllegalStateException]
+        // Test we can get good output from the WebSocket
+        whenReady(f, timeout = Timeout(1.second)) { webSocket =>
+          val condition: Callable[java.lang.Boolean] = () => webSocket.isOpen && queue.peek() != null
+          awaitWithTimeOut().until(condition)
+          val input: String = queue.take()
+          val json: JsValue = Json.parse(input)
+          val symbol = (json \ "symbol").as[String]
+          List(symbol) must contain oneOf("AAPL", "GOOG", "ORCL")
         }
       }
     }
