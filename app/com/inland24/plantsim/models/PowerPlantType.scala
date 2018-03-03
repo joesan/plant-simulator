@@ -17,15 +17,14 @@
 
 package com.inland24.plantsim.models
 
-
 /**
   * ADT's defining the available PowerPlant Types
   */
 sealed trait PowerPlantType
 object PowerPlantType {
 
-  case object OnOffType   extends PowerPlantType
-  case object RampUpType  extends PowerPlantType
+  case object OnOffType extends PowerPlantType
+  case object RampUpType extends PowerPlantType
   case object UnknownType extends PowerPlantType
 
   def toString(powerPlantType: PowerPlantType): String = powerPlantType match {
@@ -34,9 +33,10 @@ object PowerPlantType {
     case _          => "UnknownType"
   }
 
-  def fromString(powerPlantTypeStr: String): PowerPlantType = powerPlantTypeStr match {
-    case "OnOffType"  => OnOffType
-    case "RampUpType" => RampUpType
-    case _            => UnknownType
-  }
+  def fromString(powerPlantTypeStr: String): PowerPlantType =
+    powerPlantTypeStr match {
+      case "OnOffType"  => OnOffType
+      case "RampUpType" => RampUpType
+      case _            => UnknownType
+    }
 }

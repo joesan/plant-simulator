@@ -17,11 +17,11 @@
 
 package com.inland24.plantsim.services.database.models
 
-case class AddressRow (
-  id        : Int,
-  streetNum : Int,
-  street    : String,
-  city      : String,
-  plz       : Int,
-  country   : String
+case class AddressRow(
+    id: Int,
+    streetNum: Int,
+    street: String,
+    city: String,
+    plz: Int,
+    country: String
 )

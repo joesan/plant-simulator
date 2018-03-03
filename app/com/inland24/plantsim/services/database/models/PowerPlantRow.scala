@@ -20,16 +20,15 @@ package com.inland24.plantsim.services.database.models
 import com.inland24.plantsim.models.PowerPlantType
 import org.joda.time.DateTime
 
-
 case class PowerPlantRow(
-  id           : Option[Int],
-  orgName      : String,
-  isActive     : Boolean,
-  minPower     : Double,
-  maxPower     : Double,
-  rampRatePower: Option[Double] = None,
-  rampRateSecs : Option[Long] = None,
-  powerPlantTyp: PowerPlantType,
-  createdAt    : DateTime,
-  updatedAt    : DateTime
+    id: Option[Int],
+    orgName: String,
+    isActive: Boolean,
+    minPower: Double,
+    maxPower: Double,
+    rampRatePower: Option[Double] = None,
+    rampRateSecs: Option[Long] = None,
+    powerPlantTyp: PowerPlantType,
+    createdAt: DateTime,
+    updatedAt: DateTime
 )

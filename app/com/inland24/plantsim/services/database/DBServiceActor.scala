@@ -21,7 +21,11 @@ import akka.actor.{Actor, ActorLogging, ActorRef, Props}
 import com.inland24.plantsim.config.DBConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
 import com.inland24.plantsim.models.PowerPlantConfig.PowerPlantsConfig
-import com.inland24.plantsim.models.PowerPlantDBEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
+import com.inland24.plantsim.models.PowerPlantDBEvent.{
+  PowerPlantCreateEvent,
+  PowerPlantDeleteEvent,
+  PowerPlantUpdateEvent
+}
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantDBEvent}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
@@ -49,8 +53,10 @@ import scala.concurrent.Future
   * TODO: If the database is down the stream should not throw an error!!!
   * TODO: but rather it should just continue processing as usual!!
   */
-class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef)
-  (implicit ec: Scheduler) extends Actor with ActorLogging {
+class DBServiceActor private (dbConfig: DBConfig, supervisorActor: ActorRef)(
+    implicit ec: Scheduler)
+    extends Actor
+    with ActorLogging {
 
   // TODO: Should we use the PowerPlantService from the AppBindings instead of using a new instance all together?
   val powerPlantService: PowerPlantService[Task] = new PowerPlantService(
@@ -78,18 +84,20 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef)
 
       log.info("Activating DB lookup subscription")
 
-      dbSubscription := obs.unsafeSubscribeFn (new Subscriber[Seq[PowerPlantRow]] {
-        override implicit def scheduler: Scheduler = ec
+      dbSubscription := obs.unsafeSubscribeFn(
+        new Subscriber[Seq[PowerPlantRow]] {
+          override implicit def scheduler: Scheduler = ec
 
-        override def onNext(elem: Seq[PowerPlantRow]): Future[Ack] = {
-          self ! com.inland24.plantsim.models.toPowerPlantsConfig(elem)
-          Continue
-        }
+          override def onNext(elem: Seq[PowerPlantRow]): Future[Ack] = {
+            self ! com.inland24.plantsim.models.toPowerPlantsConfig(elem)
+            Continue
+          }
 
-        override def onError(ex: Throwable): Unit = log.error(s"Error ${ex.getMessage}")
+          override def onError(ex: Throwable): Unit =
+            log.error(s"Error ${ex.getMessage}")
 
-        override def onComplete(): Unit = log.info("Complete")
-      })
+          override def onComplete(): Unit = log.info("Complete")
+        })
     }
   }
 
@@ -103,7 +111,8 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef)
   override def receive: Receive = {
     case powerPlantsConfig: PowerPlantsConfig =>
       val newEvents = DBServiceActor.toEvents(
-        PowerPlantsConfig(DateTime.now(DateTimeZone.UTC), Seq.empty[PowerPlantConfig]),
+        PowerPlantsConfig(DateTime.now(DateTimeZone.UTC),
+                          Seq.empty[PowerPlantConfig]),
         powerPlantsConfig
       )
       // Signal these events to SupervisorActor
@@ -119,7 +128,8 @@ class DBServiceActor private(dbConfig: DBConfig, supervisorActor: ActorRef)
 
   def active(oldPowerPlantsConfig: PowerPlantsConfig): Receive = {
     case newPowerPlantsConfig: PowerPlantsConfig =>
-      val newEvents = DBServiceActor.toEvents(oldPowerPlantsConfig, newPowerPlantsConfig)
+      val newEvents =
+        DBServiceActor.toEvents(oldPowerPlantsConfig, newPowerPlantsConfig)
       if (newEvents.nonEmpty) {
         // Signal these events to SupervisorActor
         supervisorActor ! SupervisorEvents(newEvents)
@@ -142,33 +152,44 @@ object DBServiceActor {
     * representing the PowerPlant might be stopped, started or re-started
     * depending on whether the PowerPlant is deleted, created or updated.
     */
-  def toEvents(oldCfg: PowerPlantsConfig, newCfg: PowerPlantsConfig): PowerPlantEventsSeq = {
+  def toEvents(oldCfg: PowerPlantsConfig,
+               newCfg: PowerPlantsConfig): PowerPlantEventsSeq = {
     val oldMap = oldCfg.powerPlantConfigSeq.map(elem => elem.id -> elem).toMap
     val newMap = newCfg.powerPlantConfigSeq.map(elem => elem.id -> elem).toMap
 
-    def deletedEvents(oldMap: PowerPlantConfigMap, newMap: PowerPlantConfigMap): PowerPlantEventsSeq = {
-      oldMap.keySet.filterNot(newMap.keySet)
+    def deletedEvents(oldMap: PowerPlantConfigMap,
+                      newMap: PowerPlantConfigMap): PowerPlantEventsSeq = {
+      oldMap.keySet
+        .filterNot(newMap.keySet)
         .map(id => PowerPlantDeleteEvent(id, oldMap(id))) // No way this is going to throw element not found exception
         .toSeq
     }
 
-    def updatedEvents(oldMap: PowerPlantConfigMap, newMap: PowerPlantConfigMap): PowerPlantEventsSeq = {
-      oldMap.keySet.intersect(newMap.keySet)
+    def updatedEvents(oldMap: PowerPlantConfigMap,
+                      newMap: PowerPlantConfigMap): PowerPlantEventsSeq = {
+      oldMap.keySet
+        .intersect(newMap.keySet)
         .collect {
-          case id if !oldMap(id).equals(newMap(id)) => PowerPlantUpdateEvent(id, newMap(id))
+          case id if !oldMap(id).equals(newMap(id)) =>
+            PowerPlantUpdateEvent(id, newMap(id))
         }
         .toSeq
     }
 
-    def createdEvents(oldMap: PowerPlantConfigMap, newMap: PowerPlantConfigMap): PowerPlantEventsSeq = {
-      newMap.keySet.filterNot(oldMap.keySet)
+    def createdEvents(oldMap: PowerPlantConfigMap,
+                      newMap: PowerPlantConfigMap): PowerPlantEventsSeq = {
+      newMap.keySet
+        .filterNot(oldMap.keySet)
         .map(id => PowerPlantCreateEvent(id, newMap(id))) // No way this is going to throw element not found exception
         .toSeq
     }
 
-    deletedEvents(oldMap, newMap) ++ updatedEvents(oldMap, newMap) ++ createdEvents(oldMap, newMap)
+    deletedEvents(oldMap, newMap) ++ updatedEvents(oldMap, newMap) ++ createdEvents(
+      oldMap,
+      newMap)
   }
 
-  def props(dbConfig: DBConfig, supervisorActorRef: ActorRef)(implicit ec: Scheduler): Props =
+  def props(dbConfig: DBConfig, supervisorActorRef: ActorRef)(
+      implicit ec: Scheduler): Props =
     Props(new DBServiceActor(dbConfig, supervisorActorRef)(ec))
 }

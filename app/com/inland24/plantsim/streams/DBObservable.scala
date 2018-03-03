@@ -35,8 +35,9 @@ import play.api.Logger
   * @param f The thunk that contains the events that need to be emitted at regular intervals
   * @tparam T The type of event that needs to be emitted
   */
-final class DBObservable[T] private (period: FiniteDuration, f: => Future[Seq[T]])
-  extends Observable[Seq[T]] {
+final class DBObservable[T] private (period: FiniteDuration,
+                                     f: => Future[Seq[T]])
+    extends Observable[Seq[T]] {
 
   def unsafeSubscribeFn(subscriber: Subscriber[Seq[T]]): Cancelable = {
     implicit val s = subscriber.scheduler
@@ -54,7 +55,8 @@ final class DBObservable[T] private (period: FiniteDuration, f: => Future[Seq[T]
       Observable.fromFuture(safe)
     }
 
-    Observable.intervalWithFixedDelay(period)
+    Observable
+      .intervalWithFixedDelay(period)
       .flatMap(_ => request())
       .collect { case Some(r) => r }
       .distinctUntilChanged
@@ -63,10 +65,12 @@ final class DBObservable[T] private (period: FiniteDuration, f: => Future[Seq[T]
 }
 
 object DBObservable {
+
   /**
     * Builder for [[DBObservable]].
     */
-  def apply[T](period: FiniteDuration, f: => Future[Seq[T]]): DBObservable[T] = {
+  def apply[T](period: FiniteDuration,
+               f: => Future[Seq[T]]): DBObservable[T] = {
     new DBObservable(period, f)
   }
 }

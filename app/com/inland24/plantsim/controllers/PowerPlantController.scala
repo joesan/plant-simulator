@@ -19,7 +19,13 @@ package com.inland24.plantsim.controllers
 
 import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.models.PowerPlantType.UnknownType
-import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantFilter, PowerPlantType, toPowerPlantConfig, toPowerPlantRow}
+import com.inland24.plantsim.models.{
+  PowerPlantConfig,
+  PowerPlantFilter,
+  PowerPlantType,
+  toPowerPlantConfig,
+  toPowerPlantRow
+}
 import play.api.libs.json.Json
 import play.api.mvc.{Action, Controller, ControllerComponents, Result}
 import com.inland24.plantsim.models._
@@ -31,11 +37,10 @@ import scala.util.{Failure, Success}
 
 // TODO: pass in this execution context via AppBindings
 import monix.execution.Scheduler.Implicits.global
-
-
 @Api
-class PowerPlantController(bindings: AppBindings, val controllerComponents: ControllerComponents)
-  extends ControllerBase {
+class PowerPlantController(bindings: AppBindings,
+                           val controllerComponents: ControllerComponents)
+    extends ControllerBase {
 
   private val dbService = bindings.dbService
 
@@ -47,59 +52,64 @@ class PowerPlantController(bindings: AppBindings, val controllerComponents: Cont
         )
       case Some(powerPlantRow) =>
         Future.successful(
-          Ok(Json.prettyPrint(
-            Json.toJson(toPowerPlantConfig(powerPlantRow)))
-          ).enableCors
+          Ok(Json.prettyPrint(Json.toJson(toPowerPlantConfig(powerPlantRow)))).enableCors
         )
     }
   }
 
   def updatePowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
-    request.body.validate[PowerPlantConfig].fold (
-      errors => {
-        Future.successful(
-          BadRequest(
-            Json.obj("message" -> s"invalid PowerPlantConfig ${errors.mkString(",")}")
-          ).enableCors
-        )
-      },
-      success => {
-        dbService.insertOrUpdatePowerPlant(success).runAsync.materialize.map {
-          case Failure(ex) =>
-            InternalServerError(s"Error updating PowerPlant " +
-              s"Reason => ${ex.getMessage}").enableCors
-          case Success(result) =>
-            result match {
-              case Left(errorMessage) =>
-                BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig $errorMessage")).enableCors
-              case Right(updatedConfig) =>
-                Ok(Json.prettyPrint(Json.toJson(updatedConfig))).enableCors
-            }
+    request.body
+      .validate[PowerPlantConfig]
+      .fold(
+        errors => {
+          Future.successful(
+            BadRequest(
+              Json.obj(
+                "message" -> s"invalid PowerPlantConfig ${errors.mkString(",")}")
+            ).enableCors
+          )
+        },
+        success => {
+          dbService.insertOrUpdatePowerPlant(success).runAsync.materialize.map {
+            case Failure(ex) =>
+              InternalServerError(s"Error updating PowerPlant " +
+                s"Reason => ${ex.getMessage}").enableCors
+            case Success(result) =>
+              result match {
+                case Left(errorMessage) =>
+                  BadRequest(Json.obj(
+                    "message" -> s"invalid PowerPlantConfig $errorMessage")).enableCors
+                case Right(updatedConfig) =>
+                  Ok(Json.prettyPrint(Json.toJson(updatedConfig))).enableCors
+              }
+          }
         }
-      }
-    )
+      )
   }
 
   def powerPlants(onlyActive: Boolean, page: Int) = Action.async {
-    val filter = PowerPlantFilter(onlyActive = Some(onlyActive), pageNumber = page)
+    val filter =
+      PowerPlantFilter(onlyActive = Some(onlyActive), pageNumber = page)
     dbService.searchPowerPlants(filter).runAsync.materialize.map {
       case Success(powerPlantsSeqRow) =>
         val collected = powerPlantsSeqRow.collect {
-          case powerPlantRow
-            if powerPlantRow.powerPlantType != UnknownType =>
+          case powerPlantRow if powerPlantRow.powerPlantType != UnknownType =>
             toPowerPlantConfig(powerPlantRow)
         }
         Ok(Json.prettyPrint(Json.toJson(collected))).enableCors
 
       case Failure(ex) =>
-        InternalServerError(s"Error fetching all PowerPlant's " +
-          s"from the database => ${ex.getMessage}").enableCors
+        InternalServerError(
+          s"Error fetching all PowerPlant's " +
+            s"from the database => ${ex.getMessage}").enableCors
     }
   }
 
-  def searchPowerPlants(onlyActive: Option[Boolean], page: Int,
-    powerPlantType: Option[String] = None, powerPlantName: Option[String] = None,
-    orgName: Option[String] = None) = Action.async {
+  def searchPowerPlants(onlyActive: Option[Boolean],
+                        page: Int,
+                        powerPlantType: Option[String] = None,
+                        powerPlantName: Option[String] = None,
+                        orgName: Option[String] = None) = Action.async {
 
     val mappedPowerPlantType = powerPlantType.flatMap(someType => {
       val typ = PowerPlantType.fromString(someType)
@@ -117,42 +127,49 @@ class PowerPlantController(bindings: AppBindings, val controllerComponents: Cont
     dbService.searchPowerPlants(filter).runAsync.materialize.map {
       case Success(powerPlantsSeqRow) =>
         val collected = powerPlantsSeqRow.collect {
-          case powerPlantRow
-            if powerPlantRow.powerPlantType != UnknownType =>
+          case powerPlantRow if powerPlantRow.powerPlantType != UnknownType =>
             toPowerPlantConfig(powerPlantRow)
         }
         Ok(Json.prettyPrint(Json.toJson(collected))).enableCors
 
       case Failure(ex) =>
-        InternalServerError(s"Error fetching all PowerPlant's " +
-          s"from the database => ${ex.getMessage}").enableCors
+        InternalServerError(
+          s"Error fetching all PowerPlant's " +
+            s"from the database => ${ex.getMessage}").enableCors
     }
   }
 
   // TODO: Check implementation!
   def createNewPowerPlant = Action.async(parse.tolerantJson) { request =>
-    request.body.validate[PowerPlantConfig].fold(
-      errors => {
-        Future.successful(
-          BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig $errors")).enableCors
-        )
-      },
-      success => {
-        toPowerPlantRow(success) match {
-          case None => Future.successful(
-            BadRequest(Json.obj("message" -> s"invalid PowerPlantConfig ")).enableCors // TODO: fix errors
+    request.body
+      .validate[PowerPlantConfig]
+      .fold(
+        errors => {
+          Future.successful(
+            BadRequest(Json.obj(
+              "message" -> s"invalid PowerPlantConfig $errors")).enableCors
           )
-          case Some(row) =>
-            dbService.createNewPowerPlant(row).runAsync.materialize.map {
-              case Success(insertedRecordId) =>
-                Ok("TODO: Send a Success JSON back with the id of the newly inserted record").enableCors
-              case Failure(ex) =>
-                UnprocessableEntity(
-                  Json.obj("message" -> s"Could not create new PowerPlant because of ${ex.getMessage}")
-                ).enableCors
-            }
+        },
+        success => {
+          toPowerPlantRow(success) match {
+            case None =>
+              Future
+                .successful(
+                  BadRequest(Json.obj(
+                    "message" -> s"invalid PowerPlantConfig ")).enableCors // TODO: fix errors
+                )
+            case Some(row) =>
+              dbService.createNewPowerPlant(row).runAsync.materialize.map {
+                case Success(insertedRecordId) =>
+                  Ok("TODO: Send a Success JSON back with the id of the newly inserted record").enableCors
+                case Failure(ex) =>
+                  UnprocessableEntity(
+                    Json.obj(
+                      "message" -> s"Could not create new PowerPlant because of ${ex.getMessage}")
+                  ).enableCors
+              }
+          }
         }
-      }
-    )
+      )
   }
 }

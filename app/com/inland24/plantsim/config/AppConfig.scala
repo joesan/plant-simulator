@@ -30,18 +30,17 @@ import scala.util.Try
   * Type-safe configuration used throughout the application.
   */
 final case class AppConfig(
-  environment: String,
-  appName: String,
-  dbConfig: DBConfig
+    environment: String,
+    appName: String,
+    dbConfig: DBConfig
 )
-final case class DBConfig(
-  url: String,
-  user: Option[String],
-  password: Option[String],
-  driver: String,
-  recordCountPerPage: Int,
-  enableSubscription: Boolean,
-  refreshInterval: FiniteDuration) {
+final case class DBConfig(url: String,
+                          user: Option[String],
+                          password: Option[String],
+                          driver: String,
+                          recordCountPerPage: Int,
+                          enableSubscription: Boolean,
+                          refreshInterval: FiniteDuration) {
 
   lazy val slickDriver: JdbcProfile = driver match {
     case "com.mysql.jdbc.Driver" =>
@@ -66,12 +65,17 @@ object AppConfig {
       appName = config.getString("appName"),
       dbConfig = DBConfig(
         url = config.getString("db.url"),
-        user = Try(config.getString("db.username")).toOption.filterNot(_.isEmpty),
-        password = Try(config.getString("db.password")).toOption.filterNot(_.isEmpty),
+        user =
+          Try(config.getString("db.username")).toOption.filterNot(_.isEmpty),
+        password =
+          Try(config.getString("db.password")).toOption.filterNot(_.isEmpty),
         driver = config.getString("db.driver"),
-        enableSubscription = Try(config.getBoolean("db.enableSubscription")).toOption.getOrElse(true),
+        enableSubscription =
+          Try(config.getBoolean("db.enableSubscription")).toOption
+            .getOrElse(true),
         recordCountPerPage = config.getInt("db.recordsPerPage"),
-        refreshInterval = config.getDuration("db.refreshInterval", TimeUnit.MILLISECONDS).millis
+        refreshInterval =
+          config.getDuration("db.refreshInterval", TimeUnit.MILLISECONDS).millis
       )
     )
   }

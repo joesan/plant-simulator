@@ -19,7 +19,6 @@ package com.inland24.plantsim.models
 
 import play.api.libs.json._
 
-
 trait ReturnToNormal extends PowerPlantCommand {
 
   def powerPlantId: Int
@@ -28,15 +27,15 @@ trait ReturnToNormal extends PowerPlantCommand {
   override def commandName: String = "ReturnToNormalCommand"
 }
 case class ReturnToNormalCommand(
-  powerPlantId: Int,
-  toPowerValue: Option[Double] = None
+    powerPlantId: Int,
+    toPowerValue: Option[Double] = None
 ) extends ReturnToNormal
 object ReturnToNormal {
 
   def apply(id: Int) = ReturnToNormalCommand(
     powerPlantId = id
   )
-/* TODO: Use this classes later
+  /* TODO: Use this classes later
   case class RTNOnOffTypePowerPlant(
     powerPlantId: Int,
     toPowerValue: Option[Double] = None
@@ -50,7 +49,7 @@ object ReturnToNormal {
   implicit def jsonReads = new Reads[ReturnToNormalCommand] {
 
     def reads(json: JsValue): JsResult[ReturnToNormalCommand] = {
-      if((json \ "powerPlantId").asOpt[Int].isEmpty) {
+      if ((json \ "powerPlantId").asOpt[Int].isEmpty) {
         JsError(
           JsPath \ "ReturnToNormalCommand is missing powerPlantId key",
           "powerPlantId"

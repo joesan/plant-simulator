@@ -19,7 +19,6 @@ package com.inland24.plantsim.services.simulator
 
 import scala.util.Random
 
-
 trait RandomValueGeneratorService[T] {
 
   def random(from: T, within: T): T
@@ -35,7 +34,7 @@ object RandomValueGeneratorService {
   object DoubleRandomValue extends RandomValueGeneratorService[Double] {
     val random = new Random(92)
     override def random(from: Double, within: Double): Double =
-      from + (random.nextDouble() * (within - from) )
+      from + (random.nextDouble() * (within - from))
   }
 
   /* TODO: Check if this method is needed, if not remove it!

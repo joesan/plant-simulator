@@ -21,6 +21,7 @@ import org.scalatestplus.play._
 import play.api.test.Helpers._
 import play.api.test.FakeRequest
 import com.inland24.plantsim.controllers.ApplicationTestFactory
+import com.inland24.plantsim.services.database.DBServiceSpec
 import org.scalatest.{Ignore, WordSpecLike}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 
@@ -29,7 +30,7 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 @Ignore
 class EventsWebSocketSpec extends PlaySpec with WordSpecLike
   with BaseOneServerPerSuite with ApplicationTestFactory
-  with ScalaFutures with IntegrationPatience {
+  with ScalaFutures with IntegrationPatience with DBServiceSpec {
 
   private implicit val httpPort = new play.api.http.Port(9000)
 

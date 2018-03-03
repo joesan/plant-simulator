@@ -19,13 +19,18 @@ package com.inland24.plantsim.streams
 
 import akka.actor.{Actor, ActorLogging, Props}
 import com.inland24.plantsim.models.PowerPlantSignal
-import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, Transition}
+import com.inland24.plantsim.models.PowerPlantSignal.{
+  DispatchAlert,
+  Genesis,
+  Transition
+}
 import com.inland24.plantsim.streams.EventsStream.DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
 import monix.reactive.subjects.ConcurrentSubject
 
-
-final class EventsStream(channel: ConcurrentSubject[PowerPlantSignal, PowerPlantSignal])
-  extends Actor with ActorLogging {
+final class EventsStream(
+    channel: ConcurrentSubject[PowerPlantSignal, PowerPlantSignal])
+    extends Actor
+    with ActorLogging {
 
   override def preStart = {
     super.preStart()
@@ -44,8 +49,9 @@ final class EventsStream(channel: ConcurrentSubject[PowerPlantSignal, PowerPlant
     // We want to test the resiliency of the Actor Supervision, so we have this message here!
     case DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes =>
       // Whoosh.... some insane dog wanted a war with me! and he did by sending me this message
-      throw new Exception("Sorry mate! I got to go! I will be resurrected " +
-        "by my supervisor! Make sure please noone sends this message ever")
+      throw new Exception(
+        "Sorry mate! I got to go! I will be resurrected " +
+          "by my supervisor! Make sure please noone sends this message ever")
 
     case _ =>
       log.info(s"**** Doing Nothing ****")
@@ -56,6 +62,7 @@ object EventsStream {
   // Be careful when sending this message to the Actor!
   case object DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
 
-  def props(publishChannel: ConcurrentSubject[PowerPlantSignal, PowerPlantSignal]) =
+  def props(
+      publishChannel: ConcurrentSubject[PowerPlantSignal, PowerPlantSignal]) =
     Props(new EventsStream(publishChannel))
 }

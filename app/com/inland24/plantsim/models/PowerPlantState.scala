@@ -19,13 +19,13 @@ package com.inland24.plantsim.models
 
 sealed trait PowerPlantState
 object PowerPlantState {
-  case object Init            extends PowerPlantState
-  case object RampUp          extends PowerPlantState
-  case object RampDown        extends PowerPlantState
-  case object Active          extends PowerPlantState
-  case object ReturnToNormal  extends PowerPlantState
-  case object OutOfService    extends PowerPlantState
+  case object Init extends PowerPlantState
+  case object RampUp extends PowerPlantState
+  case object RampDown extends PowerPlantState
+  case object Active extends PowerPlantState
+  case object ReturnToNormal extends PowerPlantState
+  case object OutOfService extends PowerPlantState
   case object ReturnToService extends PowerPlantState
-  case object UnAvailable     extends PowerPlantState
-  case object Dispatched      extends PowerPlantState
+  case object UnAvailable extends PowerPlantState
+  case object Dispatched extends PowerPlantState
 }

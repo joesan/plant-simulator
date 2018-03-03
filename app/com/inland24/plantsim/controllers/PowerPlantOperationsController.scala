@@ -37,9 +37,10 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-
-class PowerPlantOperationsController(bindings: AppBindings, val controllerComponents: ControllerComponents)
-  extends ControllerBase {
+class PowerPlantOperationsController(
+    bindings: AppBindings,
+    val controllerComponents: ControllerComponents)
+    extends ControllerBase {
 
   // Place a reference to the underlying ActorSystem
   private implicit val system = bindings.actorSystem
@@ -53,20 +54,25 @@ class PowerPlantOperationsController(bindings: AppBindings, val controllerCompon
 
   // Utility to resolve an actor reference
   private def actorFor(powerPlantId: Int): Future[Option[ActorRef]] = {
-    system.actorSelection(s"akka://application/user/*/${bindings.appConfig.appName}-$powerPlantId")
+    system
+      .actorSelection(
+        s"akka://application/user/*/${bindings.appConfig.appName}-$powerPlantId")
       .resolveOne(2.seconds)
       .materialize
       .map {
         case Success(actorRef) => Some(actorRef)
-        case Failure(_) => None
+        case Failure(_)        => None
       }
   }
 
-  private def sendCommand(actorRef: ActorRef, id: Int, command: PowerPlantCommand) = {
+  private def sendCommand(actorRef: ActorRef,
+                          id: Int,
+                          command: PowerPlantCommand) = {
     actorRef ! command
     Future.successful {
       Accepted(
-        Json.obj("message" -> s"${command.commandName} accepted for PowerPlant with id $id")
+        Json.obj(
+          "message" -> s"${command.commandName} accepted for PowerPlant with id $id")
       ).enableCors
     }
   }
@@ -84,53 +90,62 @@ class PowerPlantOperationsController(bindings: AppBindings, val controllerCompon
   def kill(id: Int) = Action.async { _ =>
     val actorRef = scala.concurrent.Await.result(actorFor(id), 5.seconds).get
     actorRef ! DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
-    Future.successful(Ok("*** ###### Fnickug ---- YOU WANTED TO SPOIL MY PARTY *******......."))
+    Future.successful(
+      Ok("*** ###### Fnickug ---- YOU WANTED TO SPOIL MY PARTY *******......."))
   }
 
   // TODO: Re-Work for unit testability!
-  def returnToNormalPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
-    request.body.validate[ReturnToNormalCommand].fold(
-      errors => {
-        Future.successful {
-          BadRequest(
-            Json.obj("status" -> "error", "message" -> JsError.toJson(errors))
-          ).enableCors
-        }
-      },
-      returnToNormalCommand => {
-        actorFor(id) flatMap {
-          case None =>
+  def returnToNormalPowerPlant(id: Int) = Action.async(parse.tolerantJson) {
+    request =>
+      request.body
+        .validate[ReturnToNormalCommand]
+        .fold(
+          errors => {
             Future.successful {
-              NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
+              BadRequest(
+                Json.obj("status" -> "error",
+                         "message" -> JsError.toJson(errors))
+              ).enableCors
             }
-          case Some(actorRef) =>
-            sendCommand(actorRef, id, returnToNormalCommand)
-        }
-      }
-    )
+          },
+          returnToNormalCommand => {
+            actorFor(id) flatMap {
+              case None =>
+                Future.successful {
+                  NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
+                }
+              case Some(actorRef) =>
+                sendCommand(actorRef, id, returnToNormalCommand)
+            }
+          }
+        )
   }
 
   // TODO: Re-Work for unit testability!
-  def dispatchPowerPlant(id: Int) = Action.async(parse.tolerantJson) { request =>
-    request.body.validate[DispatchCommand].fold(
-      errors => {
-        Future.successful{
-          BadRequest(
-            Json.obj("status" -> "error", "message" -> JsError.toJson(errors))
-          ).enableCors
-        }
-      },
-      dispatchCommand => {
-        actorFor(id) flatMap {
-          case None =>
+  def dispatchPowerPlant(id: Int) = Action.async(parse.tolerantJson) {
+    request =>
+      request.body
+        .validate[DispatchCommand]
+        .fold(
+          errors => {
             Future.successful {
-              NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
+              BadRequest(
+                Json.obj("status" -> "error",
+                         "message" -> JsError.toJson(errors))
+              ).enableCors
             }
-          case Some(actorRef) =>
-            sendCommand(actorRef, id, dispatchCommand)
-        }
-      }
-    )
+          },
+          dispatchCommand => {
+            actorFor(id) flatMap {
+              case None =>
+                Future.successful {
+                  NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
+                }
+              case Some(actorRef) =>
+                sendCommand(actorRef, id, dispatchCommand)
+            }
+          }
+        )
   }
 
   def powerPlantSignals(id: Int) = Action.async {
@@ -142,16 +157,15 @@ class PowerPlantOperationsController(bindings: AppBindings, val controllerCompon
       case Some(actorRef) =>
         (actorRef ? TelemetrySignalsMessage)
           .mapTo[Map[String, String]]
-          .map(signals =>
-            Ok(Json.prettyPrint(Json.toJson(signals))).enableCors
-          )
+          .map(signals => Ok(Json.prettyPrint(Json.toJson(signals))).enableCors)
     }
   }
 
   def events(someId: Option[Int]) = WebSocket.accept[String, String] { _ =>
     ActorFlow.actorRef { out =>
       EventsWebSocketActor.props(
-        EventsWebSocketActor.eventsAndAlerts(someId, bindings.globalChannel), out
+        EventsWebSocketActor.eventsAndAlerts(someId, bindings.globalChannel),
+        out
       )
     }
   }
@@ -163,7 +177,8 @@ class PowerPlantOperationsController(bindings: AppBindings, val controllerCompon
       case Some(powerPlantActorRef) =>
         Right(ActorFlow.actorRef { out =>
           EventsWebSocketActor.props(
-            EventsWebSocketActor.telemetrySignals(id, powerPlantActorRef), out
+            EventsWebSocketActor.telemetrySignals(id, powerPlantActorRef),
+            out
           )
         })
     }

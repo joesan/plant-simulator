@@ -21,7 +21,6 @@ import org.joda.time.DateTime
 
 import scala.concurrent.duration.FiniteDuration
 
-
 sealed trait PowerPlantConfig {
   def id: Int
   def name: String
@@ -32,34 +31,34 @@ sealed trait PowerPlantConfig {
 object PowerPlantConfig {
 
   case class OnOffTypeConfig(
-    id: Int,
-    name: String,
-    minPower: Double,
-    maxPower: Double,
-    powerPlantType: PowerPlantType
+      id: Int,
+      name: String,
+      minPower: Double,
+      maxPower: Double,
+      powerPlantType: PowerPlantType
   ) extends PowerPlantConfig
 
   case class RampUpTypeConfig(
-    id: Int,
-    name: String,
-    minPower: Double,
-    maxPower: Double,
-    rampPowerRate: Double,
-    rampRateInSeconds: FiniteDuration,
-    powerPlantType: PowerPlantType
+      id: Int,
+      name: String,
+      minPower: Double,
+      maxPower: Double,
+      rampPowerRate: Double,
+      rampRateInSeconds: FiniteDuration,
+      powerPlantType: PowerPlantType
   ) extends PowerPlantConfig
 
   case class UnknownConfig(
-    id: Int = -1,
-    name: String,
-    minPower: Double,
-    maxPower: Double,
-    powerPlantType: PowerPlantType
+      id: Int = -1,
+      name: String,
+      minPower: Double,
+      maxPower: Double,
+      powerPlantType: PowerPlantType
   ) extends PowerPlantConfig
 
   // represents all the PowerPlant's from the database
   case class PowerPlantsConfig(
-    snapshotDateTime: DateTime,
-    powerPlantConfigSeq: Seq[PowerPlantConfig]
+      snapshotDateTime: DateTime,
+      powerPlantConfigSeq: Seq[PowerPlantConfig]
   )
 }

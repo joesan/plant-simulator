@@ -17,7 +17,11 @@
 
 package com.inland24.plantsim.core
 
-import com.inland24.plantsim.controllers.{ApplicationController, PowerPlantController, PowerPlantOperationsController}
+import com.inland24.plantsim.controllers.{
+  ApplicationController,
+  PowerPlantController,
+  PowerPlantOperationsController
+}
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
 import play.api.{Application, BuiltInComponentsFromContext, Configuration, _}
@@ -29,14 +33,13 @@ import router.Routes
 
 import scala.concurrent.Future
 
-
 /**
   * Bootstrap the application by performing a compile time DI
   */
 final class Bootstrap extends ApplicationLoader with LazyLogging {
 
   private[this] class App(context: Context)
-    extends BuiltInComponentsFromContext(context)
+      extends BuiltInComponentsFromContext(context)
       with _root_.controllers.AssetsComponents {
 
     // We use the Monix Scheduler
@@ -53,22 +56,24 @@ final class Bootstrap extends ApplicationLoader with LazyLogging {
     }
 
     // 0. Set the filters
-    lazy val loggingFilter: LoggingFilter = new LoggingFilter()
-    override lazy val httpFilters = Seq(loggingFilter)
-
-    //override val configuration = context.initialConfiguration
+    override lazy val httpFilters = Seq(new LoggingFilter())
 
     // 1. create the dependencies that will be injected
     lazy val appBindings = start
 
     // 2. inject the dependencies into the controllers
-    // TODO: The dependecies below are for Swagger UI, which is not working at the moment!!!!
+    // TODO: The dependencies below are for Swagger UI, which is not working at the moment!!!!
     //lazy val apiHelpController = new ApiHelpController(DefaultControllerComponents)
     //lazy val webJarAssets = new WebJarAssets(httpErrorHandler, configuration, environment)
-    lazy val applicationController = new ApplicationController(appBindings.appConfig, controllerComponents)
-    lazy val powerPlantController = new PowerPlantController(appBindings, controllerComponents)
-    lazy val powerPlantOpsController = new PowerPlantOperationsController(appBindings, controllerComponents)
+    lazy val applicationController =
+      new ApplicationController(appBindings.appConfig, controllerComponents)
+    lazy val powerPlantController =
+      new PowerPlantController(appBindings, controllerComponents)
+    lazy val powerPlantOpsController =
+      new PowerPlantOperationsController(appBindings, controllerComponents)
     //lazy val assets = new Assets(httpErrorHandler)
+
+    // 3. Setup the Routes
     override def router: Router = new Routes(
       httpErrorHandler,
       assets,
@@ -79,10 +84,10 @@ final class Bootstrap extends ApplicationLoader with LazyLogging {
       //webJarAssets
     )
 
-    // 3. add the shutdown hook to properly dispose all connections
-    applicationLifecycle.addStopHook { () => Future(stop(appBindings)) }
-
-    //override def config(): Config = configuration.underlying
+    // 4. add the shutdown hook to properly dispose all connections
+    applicationLifecycle.addStopHook { () =>
+      Future(stop(appBindings))
+    }
   }
 
   override def load(context: Context): Application = {

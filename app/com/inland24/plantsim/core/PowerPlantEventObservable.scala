@@ -23,9 +23,9 @@ import monix.execution.{Ack, Scheduler}
 import monix.reactive.observers.Subscriber
 import monix.reactive.subjects.ConcurrentSubject
 
-
-final class PowerPlantEventObservable private (underlying: ConcurrentSubject[PowerPlantSignal, PowerPlantSignal])
-  extends ConcurrentSubject[PowerPlantSignal, PowerPlantSignal] {
+final class PowerPlantEventObservable private (
+    underlying: ConcurrentSubject[PowerPlantSignal, PowerPlantSignal])
+    extends ConcurrentSubject[PowerPlantSignal, PowerPlantSignal] {
 
   override def unsafeSubscribeFn(s: Subscriber[PowerPlantSignal]) = {
     underlying.unsafeSubscribeFn(s)
@@ -47,6 +47,7 @@ object PowerPlantEventObservable {
 
   def apply(s: Scheduler): PowerPlantEventObservable = {
     implicit val s = monix.execution.Scheduler.Implicits.global
-    new PowerPlantEventObservable(ConcurrentSubject.publish[PowerPlantSignal](Unbounded))
+    new PowerPlantEventObservable(
+      ConcurrentSubject.publish[PowerPlantSignal](Unbounded))
   }
 }

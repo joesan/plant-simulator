@@ -46,13 +46,14 @@ scalacOptions ++= Seq(
 scalacOptions in Test ++= Seq("-Yrangepos")
 
 javacOptions ++= Seq(
-  "-Xlint:unchecked", "-Xlint:deprecation"
+  "-Xlint:unchecked",
+  "-Xlint:deprecation"
 )
 
 logLevel := Level.Info
 
 // use logback.xml when running unit tests
-javaOptions in Test +="-Dlogger.file=conf/logback-test.xml"
+javaOptions in Test += "-Dlogger.file=conf/logback-test.xml"
 
 // Docker container configurations
 // We will use alpine os as out base image
@@ -67,8 +68,20 @@ import com.typesafe.sbt.packager.docker._
 dockerCommands ++= Seq(
   Cmd("ENV", "configEnv", "default"), // This will be overridden when running!
   // This is the entry point where we can run the application against different environments
-  ExecCmd("ENTRYPOINT", "sh", "-c", "bin/" + s"${executableScriptName.value}" + " -Denv=$configEnv")
+  ExecCmd("ENTRYPOINT",
+          "sh",
+          "-c",
+          "bin/" + s"${executableScriptName.value}" + " -Denv=$configEnv")
 )
+
+// Scala formatter settings
+scalafmtOnCompile in ThisBuild := true // all projects
+scalafmtOnCompile := true // current project
+scalafmtOnCompile in Compile := true // current project, specific configuration
+
+scalafmtTestOnCompile in ThisBuild := true // all projects
+scalafmtTestOnCompile := true // current project
+scalafmtTestOnCompile in Compile := true // current project, specific configuration
 
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/public/"
 
@@ -79,32 +92,25 @@ libraryDependencies ++= Seq(
   // Our streaming library
   "io.monix" %% "monix" % "2.3.3",
   "io.monix" %% "monix-cats" % "2.3.3",
-
   // Dependencies needed for Slick
   "com.typesafe.slick" %% "slick" % "3.2.0",
   "com.typesafe.slick" %% "slick-hikaricp" % "3.2.0",
-
   // For application Metrics
   "io.dropwizard.metrics" % "metrics-core" % "4.0.0",
   "io.dropwizard.metrics" % "metrics-jvm" % "4.0.0",
-
   "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0",
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.6",
   "com.typesafe" % "config" % "1.3.1",
-
   // For JSON parsing
   "com.typesafe.play" %% "play-json" % "2.6.0",
   "com.typesafe.play" %% "play-json-joda" % "2.6.0",
-
   // JDBC driver for MySQL & H2
   "mysql" % "mysql-connector-java" % "5.1.26",
   "com.h2database" % "h2" % "1.4.186",
-
   // Swagger UI API Docs
   "io.swagger" %% "swagger-play2" % "1.6.0",
   "org.webjars" %% "webjars-play" % "2.6.0-M1",
   "org.webjars" % "swagger-ui" % "2.2.0",
-
   // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % "2.5.2" % Test,
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,

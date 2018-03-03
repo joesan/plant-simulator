@@ -19,25 +19,33 @@ package com.inland24.plantsim.services.database
 
 import cats.Monad
 import cats.syntax.all._
-import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantFilter, toPowerPlantRow}
+import com.inland24.plantsim.models.{
+  PowerPlantConfig,
+  PowerPlantFilter,
+  toPowerPlantRow
+}
 import com.inland24.plantsim.services.database.repository.PowerPlantRepository
 
 import scala.language.higherKinds
 
-
 class PowerPlantService[M[_]: Monad](powerPlantRepo: PowerPlantRepository[M]) {
 
   // TODO: Unify this with the create method!
-  def insertOrUpdatePowerPlant(powerPlantCfg: PowerPlantConfig): M[Either[String, PowerPlantConfig]] = {
+  def insertOrUpdatePowerPlant(
+      powerPlantCfg: PowerPlantConfig): M[Either[String, PowerPlantConfig]] = {
     powerPlantRepo.powerPlantById(powerPlantCfg.id).flatMap {
       case Some(_) =>
         toPowerPlantRow(powerPlantCfg) match {
           case Some(newPowerPlantRow) =>
-            powerPlantRepo.insertOrUpdatePowerPlant(newPowerPlantRow).map(_ => Right(powerPlantCfg))
+            powerPlantRepo
+              .insertOrUpdatePowerPlant(newPowerPlantRow)
+              .map(_ => Right(powerPlantCfg))
           case None =>
             implicitly[Monad[M]].pure(Left(s"Invalid $powerPlantCfg"))
         }
-      case None => implicitly[Monad[M]].pure(Left(s"PowerPlant not found for the given id ${powerPlantCfg.id}"))
+      case None =>
+        implicitly[Monad[M]].pure(
+          Left(s"PowerPlant not found for the given id ${powerPlantCfg.id}"))
     }
   }
 
@@ -53,12 +61,14 @@ class PowerPlantService[M[_]: Monad](powerPlantRepo: PowerPlantRepository[M]) {
     powerPlantRepo.powerPlantById(id)
   }
 
-  def createNewPowerPlant(cfg: PowerPlantConfig): M[Either[String, PowerPlantConfig]] = {
+  def createNewPowerPlant(
+      cfg: PowerPlantConfig): M[Either[String, PowerPlantConfig]] = {
     toPowerPlantRow(cfg) match {
       case Some(powerPlantRow) =>
         powerPlantRepo.newPowerPlant(powerPlantRow).map(_ => Right(cfg))
       case None =>
-        implicitly[Monad[M]].pure(Left(s"Invalid Configuration $cfg when creating a new PowerPlant"))
+        implicitly[Monad[M]].pure(
+          Left(s"Invalid Configuration $cfg when creating a new PowerPlant"))
     }
   }
 }

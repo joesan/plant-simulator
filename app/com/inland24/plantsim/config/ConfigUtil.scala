@@ -20,7 +20,6 @@ package com.inland24.plantsim.config
 import java.io.File
 import com.typesafe.config.{Config, ConfigFactory}
 
-
 object ConfigUtil {
 
   sealed trait ConfigSource

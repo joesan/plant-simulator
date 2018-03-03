@@ -30,7 +30,6 @@ import monix.eval.Task
 
 import scala.language.higherKinds
 
-
 trait AppBindings {
 
   def actorSystem: ActorSystem
@@ -44,7 +43,9 @@ trait AppBindings {
 }
 object AppBindings {
 
-  def apply(system: ActorSystem, actorMaterializer: Materializer, config: AppConfig): AppBindings = new AppBindings {
+  def apply(system: ActorSystem,
+            actorMaterializer: Materializer,
+            config: AppConfig): AppBindings = new AppBindings {
     override val actorSystem: ActorSystem = system
     override val materializer: Materializer = actorMaterializer
 
@@ -53,16 +54,19 @@ object AppBindings {
     // TODO: pass a separate thread pool / execution context in [Avoid using the default for db related operations]
     // Note: The type parameter should be explicitly specified, otherwise it won't compile!
     override val dbService: PowerPlantService[Task] = new PowerPlantService(
-      new PowerPlantRepoAsTask(appConfig.dbConfig)(scala.concurrent.ExecutionContext.Implicits.global)
+      new PowerPlantRepoAsTask(appConfig.dbConfig)(
+        scala.concurrent.ExecutionContext.Implicits.global)
     )
 
     // TODO: I use the default one! Check if this is Okay?
-    implicit val scheduler: Scheduler = monix.execution.Scheduler.Implicits.global
+    implicit val scheduler: Scheduler =
+      monix.execution.Scheduler.Implicits.global
     val globalChannel = PowerPlantEventObservable(scheduler)
 
     override val supervisorActor: ActorRef =
       system.actorOf(
-        SupervisorActor.props(appConfig, globalChannel)(monix.execution.Scheduler.Implicits.global),
+        SupervisorActor.props(appConfig, globalChannel)(
+          monix.execution.Scheduler.Implicits.global),
         s"${appConfig.appName}-supervisor"
       )
   }

@@ -17,11 +17,10 @@
 
 package com.inland24.plantsim.models
 
-
 case class PowerPlantFilter(
-  powerPlantType: Option[PowerPlantType] = None,
-  powerPlantName: Option[String] = None,
-  orgName: Option[String] = None,
-  pageNumber: Int = 1,
-  onlyActive: Option[Boolean] = None
+    powerPlantType: Option[PowerPlantType] = None,
+    powerPlantName: Option[String] = None,
+    orgName: Option[String] = None,
+    pageNumber: Int = 1,
+    onlyActive: Option[Boolean] = None
 )

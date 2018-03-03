@@ -27,7 +27,6 @@ import slick.lifted.CanBeQueryCondition
 
 import scala.language.higherKinds
 
-
 class DBSchema private (val driver: JdbcProfile) {
 
   import driver.api._
@@ -35,18 +34,20 @@ class DBSchema private (val driver: JdbcProfile) {
   /**
     * Mapping for using Joda Time and SQL Time.
     */
-  implicit def dateTimeMapping = MappedColumnType.base[DateTime, java.sql.Timestamp](
-    dt => new Timestamp(dt.getMillis),
-    ts => new DateTime(ts.getTime, DateTimeZone.UTC)
-  )
+  implicit def dateTimeMapping =
+    MappedColumnType.base[DateTime, java.sql.Timestamp](
+      dt => new Timestamp(dt.getMillis),
+      ts => new DateTime(ts.getTime, DateTimeZone.UTC)
+    )
 
   /**
     * Mapping for using PowerPlantType conversions.
     */
-  implicit def powerPlantTypeMapping = MappedColumnType.base[PowerPlantType, String](
-    powerPlantType    => PowerPlantType.toString(powerPlantType),
-    powerPlantTypeStr => PowerPlantType.fromString(powerPlantTypeStr)
-  )
+  implicit def powerPlantTypeMapping =
+    MappedColumnType.base[PowerPlantType, String](
+      powerPlantType => PowerPlantType.toString(powerPlantType),
+      powerPlantTypeStr => PowerPlantType.fromString(powerPlantTypeStr)
+    )
 
   case class MaybeFilter[X, Y, C[_]](query: slick.lifted.Query[X, Y, C]) {
     def filter[T, R: CanBeQueryCondition](data: Option[T])(f: T => X => R) = {
@@ -58,27 +59,37 @@ class DBSchema private (val driver: JdbcProfile) {
   /**
     * The PowerPlant details are maintained in the PowerPlant table
     */
-  class PowerPlantTable(tag: Tag) extends Table[PowerPlantRow](tag, "powerPlant") {
-    def id            = column[Option[Int]]("powerPlantId", O.PrimaryKey)
-    def orgName       = column[String]("orgName")
-    def isActive      = column[Boolean]("isActive")
-    def minPower      = column[Double]("minPower")
-    def maxPower      = column[Double]("maxPower")
+  class PowerPlantTable(tag: Tag)
+      extends Table[PowerPlantRow](tag, "powerPlant") {
+    def id = column[Option[Int]]("powerPlantId", O.PrimaryKey)
+    def orgName = column[String]("orgName")
+    def isActive = column[Boolean]("isActive")
+    def minPower = column[Double]("minPower")
+    def maxPower = column[Double]("maxPower")
     def powerRampRate = column[Option[Double]]("rampRate")
-    def rampRateSecs  = column[Option[Long]]("rampRateSecs")
-    def powerPlantType= column[PowerPlantType]("powerPlantType")
-    def createdAt     = column[DateTime]("createdAt")
-    def updatedAt     = column[DateTime]("updatedAt")
+    def rampRateSecs = column[Option[Long]]("rampRateSecs")
+    def powerPlantType = column[PowerPlantType]("powerPlantType")
+    def createdAt = column[DateTime]("createdAt")
+    def updatedAt = column[DateTime]("updatedAt")
 
     def * = {
-      (id, orgName, isActive, minPower, maxPower,
-        powerRampRate, rampRateSecs, powerPlantType, createdAt, updatedAt) <>
+      (id,
+       orgName,
+       isActive,
+       minPower,
+       maxPower,
+       powerRampRate,
+       rampRateSecs,
+       powerPlantType,
+       createdAt,
+       updatedAt) <>
         (PowerPlantRow.tupled, PowerPlantRow.unapply)
     }
   }
 
   // Contains the SQL query for [[ PowerPlantTable ]]
   object PowerPlantTable {
+
     /**
       * A TableQuery can be used for composing queries, inserts
       * and pretty much anything related to the sensors table.
@@ -97,7 +108,8 @@ class DBSchema private (val driver: JdbcProfile) {
       * (i.e., to set the isActive flag to false)
       */
     def deActivatePowerPlant(id: Int) = {
-      all.filter(_.id === id)
+      all
+        .filter(_.id === id)
         .map(elem => elem.isActive)
         .update(false)
     }
@@ -109,17 +121,21 @@ class DBSchema private (val driver: JdbcProfile) {
       all.filter(_.id === id)
     }
 
-    def powerPlantsFor(criteriaPowerPlantType: Option[PowerPlantType], criteriaOrgName: Option[String],
-      criteriaOnlyActive: Option[Boolean]) = {
+    def powerPlantsFor(criteriaPowerPlantType: Option[PowerPlantType],
+                       criteriaOrgName: Option[String],
+                       criteriaOnlyActive: Option[Boolean]) = {
       for {
-        filtered <- all.filter(f =>
-            criteriaOrgName.map(a =>
-              f.orgName like s"%$a%").getOrElse(slick.lifted.LiteralColumn(true)) &&
-            criteriaOnlyActive.map(b =>
-              f.isActive === b).getOrElse(slick.lifted.LiteralColumn(true)) &&
-            criteriaPowerPlantType.map(d =>
-              f.powerPlantType === d).getOrElse(slick.lifted.LiteralColumn(true))
-        )
+        filtered <- all.filter(
+          f =>
+            criteriaOrgName
+              .map(a => f.orgName like s"%$a%")
+              .getOrElse(slick.lifted.LiteralColumn(true)) &&
+              criteriaOnlyActive
+                .map(b => f.isActive === b)
+                .getOrElse(slick.lifted.LiteralColumn(true)) &&
+              criteriaPowerPlantType
+                .map(d => f.powerPlantType === d)
+                .getOrElse(slick.lifted.LiteralColumn(true)))
       } yield filtered
     }
   }

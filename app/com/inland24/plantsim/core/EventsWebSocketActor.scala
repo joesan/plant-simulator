@@ -32,9 +32,9 @@ import play.api.libs.json.JodaWrites._
 
 import scala.concurrent.Future
 
-
 class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
-  extends Actor with ActorLogging {
+    extends Actor
+    with ActorLogging {
 
   private[this] val subscription = SingleAssignmentCancelable()
 
@@ -49,7 +49,8 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
 
     // 1. This will be our Subscriber to the source Observable
     val subscriber = new Subscriber[JsValue] {
-      override implicit def scheduler: Scheduler = monix.execution.Scheduler.Implicits.global
+      override implicit def scheduler: Scheduler =
+        monix.execution.Scheduler.Implicits.global
 
       override def onError(ex: Throwable): Unit = {
         log.warning(s"Error while serving a web-socket stream", ex)
@@ -73,7 +74,7 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
         Continue
       }
     }
-/*
+    /*
     val subscriberSS = new Subscriber[JsValue] {
       def onSubscribe(s: Subscription): Unit = {
         println(s"WebSocket Opened ************** ")
@@ -113,9 +114,13 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
 }
 object EventsWebSocketActor {
 
-  def eventsAndAlerts(someId: Option[Int], source: PowerPlantEventObservable) = {
+  def eventsAndAlerts(someId: Option[Int],
+                      source: PowerPlantEventObservable) = {
     someId match {
-      case Some(id) => source.collect { case elem if elem.powerPlantConfig.id == id => Json.toJson(elem) }
+      case Some(id) =>
+        source.collect {
+          case elem if elem.powerPlantConfig.id == id => Json.toJson(elem)
+        }
       case None => source.map(elem => Json.toJson(elem))
     }
   }
@@ -125,10 +130,15 @@ object EventsWebSocketActor {
     import akka.pattern.ask
     implicit val timeOut: Timeout = 3.seconds
     // Every 5 seconds, we ask the Actor for the signals
-    Observable.interval(5.seconds)
-      .flatMap(_ => Observable.fromFuture(
-        (powerPlantActorRef ? TelemetrySignalsMessage).mapTo[Map[String, String]]
-      )).map(signalsMap => Json.toJson(signalsMap))
+    Observable
+      .interval(5.seconds)
+      .flatMap(
+        _ =>
+          Observable.fromFuture(
+            (powerPlantActorRef ? TelemetrySignalsMessage)
+              .mapTo[Map[String, String]]
+        ))
+      .map(signalsMap => Json.toJson(signalsMap))
   }
 
   def props(source: Observable[JsValue], sink: ActorRef) =

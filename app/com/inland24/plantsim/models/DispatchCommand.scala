@@ -20,7 +20,6 @@ package com.inland24.plantsim.models
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
 import play.api.libs.json._
 
-
 trait DispatchCommand extends PowerPlantCommand {
   def powerPlantId: Int
   def powerPlantType: PowerPlantType
@@ -31,17 +30,17 @@ trait DispatchCommand extends PowerPlantCommand {
 object DispatchCommand {
 
   case class DispatchOnOffPowerPlant(
-    powerPlantId: Int,
-    powerPlantType: PowerPlantType,
-    command: String,
-    value: Boolean
+      powerPlantId: Int,
+      powerPlantType: PowerPlantType,
+      command: String,
+      value: Boolean
   ) extends DispatchCommand
 
   case class DispatchRampUpPowerPlant(
-    powerPlantId: Int,
-    powerPlantType: PowerPlantType,
-    command: String,
-    value: Double
+      powerPlantId: Int,
+      powerPlantType: PowerPlantType,
+      command: String,
+      value: Double
   ) extends DispatchCommand
 
   implicit def jsonReads = new Reads[DispatchCommand] {
@@ -53,16 +52,17 @@ object DispatchCommand {
     }
 
     private def isRampUpValid(json: JsValue) = {
-      val isValidCommand = "dispatch" == (json \ "command").as[String].toLowerCase
+      val isValidCommand = "dispatch" == (json \ "command")
+        .as[String]
+        .toLowerCase
       val isValidValue = (json \ "value").asOpt[Double].nonEmpty
       isValidCommand && isValidValue
     }
 
     def reads(json: JsValue): JsResult[DispatchCommand] = {
-      if((json \ "powerPlantType").asOpt[String].isEmpty ||
-        (json \ "powerPlantId").asOpt[Int].isEmpty ||
-        (json \ "command").asOpt[String].isEmpty
-      ) {
+      if ((json \ "powerPlantType").asOpt[String].isEmpty ||
+          (json \ "powerPlantId").asOpt[Int].isEmpty ||
+          (json \ "command").asOpt[String].isEmpty) {
         JsError(
           JsPath \ "DispatchCommand is missing one of required keys",
           "powerPlantType, powerPlantId, command, value ****"

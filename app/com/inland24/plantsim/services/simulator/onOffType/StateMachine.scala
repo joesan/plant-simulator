@@ -23,14 +23,13 @@ import com.inland24.plantsim.models.{PowerPlantSignal, PowerPlantState}
 import com.inland24.plantsim.models.PowerPlantState._
 import org.joda.time.{DateTime, DateTimeZone}
 
-
 case class StateMachine(
-  newState: PowerPlantState,
-  oldState: PowerPlantState,
-  lastTurnOnOffReceivedAt: DateTime,
-  cfg: OnOffTypeConfig,
-  signals: Map[String, String],
-  events: Vector[PowerPlantSignal]
+    newState: PowerPlantState,
+    oldState: PowerPlantState,
+    lastTurnOnOffReceivedAt: DateTime,
+    cfg: OnOffTypeConfig,
+    signals: Map[String, String],
+    events: Vector[PowerPlantSignal]
 )
 object StateMachine {
 
@@ -54,14 +53,14 @@ object StateMachine {
     )
   )
 
-  val isAvailableSignalKey  = "isAvailable"
-  val isOnOffSignalKey      = "isOnOff"
-  val activePowerSignalKey  = "activePower"
+  val isAvailableSignalKey = "isAvailable"
+  val isOnOffSignalKey = "isOnOff"
+  val activePowerSignalKey = "activePower"
   val powerPlantIdSignalKey = "powerPlantId"
 
   val unAvailableSignals = Map(
     activePowerSignalKey -> 0.1.toString, // the power does not matter when the plant is unavailable for steering
-    isOnOffSignalKey     -> false.toString,
+    isOnOffSignalKey -> false.toString,
     isAvailableSignalKey -> false.toString // indicates if the power plant is not available for steering
   )
 
@@ -72,15 +71,15 @@ object StateMachine {
       signals = Map(
         powerPlantIdSignalKey -> stm.cfg.id.toString,
         activePowerSignalKey -> minPower.toString, // be default this plant operates at min power
-        isOnOffSignalKey     -> false.toString,
+        isOnOffSignalKey -> false.toString,
         isAvailableSignalKey -> true.toString // indicates if the power plant is available for steering
       ),
       events = stm.events :+ Transition(
-          oldState = stm.newState,
-          newState = Active,
-          powerPlantConfig = stm.cfg,
-          timeStamp = DateTime.now(DateTimeZone.UTC)
-        )
+        oldState = stm.newState,
+        newState = Active,
+        powerPlantConfig = stm.cfg,
+        timeStamp = DateTime.now(DateTimeZone.UTC)
+      )
     )
   }
 
@@ -105,7 +104,7 @@ object StateMachine {
       signals = Map(
         powerPlantIdSignalKey -> stm.cfg.id.toString,
         activePowerSignalKey -> stm.cfg.minPower.toString,
-        isOnOffSignalKey     -> false.toString,
+        isOnOffSignalKey -> false.toString,
         isAvailableSignalKey -> true.toString
       ),
       events = stm.events :+ Transition(
@@ -125,15 +124,15 @@ object StateMachine {
       signals = Map(
         powerPlantIdSignalKey -> stm.cfg.id.toString,
         activePowerSignalKey -> minPower.toString, // we turn it off to min power
-        isOnOffSignalKey     -> false.toString,
+        isOnOffSignalKey -> false.toString,
         isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
       ),
       events = stm.events :+ Transition(
-          oldState = stm.newState,
-          newState = ReturnToNormal,
-          powerPlantConfig = stm.cfg,
-          timeStamp = DateTime.now(DateTimeZone.UTC)
-        )
+        oldState = stm.newState,
+        newState = ReturnToNormal,
+        powerPlantConfig = stm.cfg,
+        timeStamp = DateTime.now(DateTimeZone.UTC)
+      )
     )
   }
 
@@ -145,15 +144,15 @@ object StateMachine {
       signals = Map(
         powerPlantIdSignalKey -> stm.cfg.id.toString,
         activePowerSignalKey -> maxPower.toString, // we turn it on to max power
-        isOnOffSignalKey     -> true.toString,
+        isOnOffSignalKey -> true.toString,
         isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
       ),
-      events =stm.events :+ Transition(
-          oldState = stm.newState,
-          newState = Dispatched,
-          powerPlantConfig = stm.cfg,
-          timeStamp = DateTime.now(DateTimeZone.UTC)
-        )
+      events = stm.events :+ Transition(
+        oldState = stm.newState,
+        newState = Dispatched,
+        powerPlantConfig = stm.cfg,
+        timeStamp = DateTime.now(DateTimeZone.UTC)
+      )
     )
   }
 }

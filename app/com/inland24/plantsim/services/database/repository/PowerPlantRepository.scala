@@ -23,7 +23,6 @@ import com.inland24.plantsim.services.database.models.PowerPlantRow
 
 import scala.language.higherKinds
 
-
 trait PowerPlantRepository[M[_]] {
   def allPowerPlants(fetchOnlyActive: Boolean): M[Seq[PowerPlantRow]]
   def powerPlantsPaginated(filter: PowerPlantFilter): M[Seq[PowerPlantRow]]

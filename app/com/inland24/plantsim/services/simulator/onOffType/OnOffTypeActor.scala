@@ -32,8 +32,7 @@ import com.inland24.plantsim.models.ReturnToNormalCommand
   *
   * @param config
   */
-class OnOffTypeActor private (config: Config)
-  extends Actor with ActorLogging {
+class OnOffTypeActor private (config: Config) extends Actor with ActorLogging {
 
   val cfg = config.cfg
   val eventStream = config.eventsStream
@@ -85,7 +84,7 @@ class OnOffTypeActor private (config: Config)
     case StateRequestMessage =>
       sender ! state
 
-    case DispatchOnOffPowerPlant(_,_,_,turnOn) =>
+    case DispatchOnOffPowerPlant(_, _, _, turnOn) =>
       if (turnOn)
         evolve(StateMachine.turnOn(state, maxPower = cfg.maxPower))
       else // We could also ReturnToNormal using the DispatchOnOffPowerPlant command
@@ -104,8 +103,8 @@ class OnOffTypeActor private (config: Config)
 object OnOffTypeActor {
 
   case class Config(
-    cfg: OnOffTypeConfig,
-    eventsStream: Option[ActorRef] = None
+      cfg: OnOffTypeConfig,
+      eventsStream: Option[ActorRef] = None
   )
 
   def props(cfg: Config): Props =

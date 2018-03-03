@@ -25,22 +25,26 @@ import play.api.libs.json.Json
 
 import scala.collection.JavaConverters._
 
-
 object AppMetrics {
 
   // the registry
   val registry = new MetricRegistry()
 
   // the registration
-  registerMetrics("gc",      new GarbageCollectorMetricSet(), registry)
-  registerMetrics("buffers", new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer), registry)
-  registerMetrics("memory",  new MemoryUsageGaugeSet(), registry)
+  registerMetrics("gc", new GarbageCollectorMetricSet(), registry)
+  registerMetrics(
+    "buffers",
+    new BufferPoolMetricSet(ManagementFactory.getPlatformMBeanServer),
+    registry)
+  registerMetrics("memory", new MemoryUsageGaugeSet(), registry)
   registerMetrics("threads", new ThreadStatesGaugeSet(), registry)
 
   // register timers
   val timer = registry.timer("power-plant-repo-as-task")
 
-  private def registerMetrics(metricName: String, metricSet: MetricSet, registry: MetricRegistry) = {
+  private def registerMetrics(metricName: String,
+                              metricSet: MetricSet,
+                              registry: MetricRegistry) = {
     for ((key, value) <- metricSet.getMetrics.asScala)
       registry.register(s"$metricName.$key", value)
   }
@@ -49,11 +53,12 @@ object AppMetrics {
   case class Metric(metricName: String, metricValue: String)
 
   def metricsAsJsValueSeq(metricGroup: Seq[MetricGroup]) = metricGroup.map {
-    metricGroup => Json.obj(
-      s"${metricGroup.metricGroupName}" -> metricGroup.metrics.map({
-        metric => Json.obj(metric.metricName -> metric.metricValue)
-      })
-    )
+    metricGroup =>
+      Json.obj(
+        s"${metricGroup.metricGroupName}" -> metricGroup.metrics.map({ metric =>
+          Json.obj(metric.metricName -> metric.metricValue)
+        })
+      )
   }
 
   def dbTimerMetrics: Seq[MetricGroup] = {
@@ -63,10 +68,10 @@ object AppMetrics {
           key,
           Seq(
             Metric("fifteenMinuteRate", timerVal.getFifteenMinuteRate.toString),
-            Metric("fiveMinuteRate",    timerVal.getFiveMinuteRate.toString),
-            Metric("oneMinuteRate",     timerVal.getOneMinuteRate.toString),
-            Metric("meanRate",          timerVal.getMeanRate.toString),
-            Metric("count",             timerVal.getCount.toString)
+            Metric("fiveMinuteRate", timerVal.getFiveMinuteRate.toString),
+            Metric("oneMinuteRate", timerVal.getOneMinuteRate.toString),
+            Metric("meanRate", timerVal.getMeanRate.toString),
+            Metric("count", timerVal.getCount.toString)
           )
         )
     }
@@ -76,18 +81,24 @@ object AppMetrics {
     val splitFn: String => Seq[String] =
       str => str.split("[.]").toSeq
 
-    registry.getGauges.asScala.toSeq.groupBy {
-      case (key, _) => s"${splitFn(key).head}"
-    }.map {
-      case (metricGroupKey, metricGauge) =>
-        val metrics = metricGauge.map {
-          case (metricName, gauge) =>
-            Metric(
-              splitFn(metricName).tail.mkString("_").toLowerCase.replace("-", "_"),
-              gauge.getValue.toString
-            )
-        }
-        MetricGroup(metricGroupKey, metrics)
-    }.toSeq
+    registry.getGauges.asScala.toSeq
+      .groupBy {
+        case (key, _) => s"${splitFn(key).head}"
+      }
+      .map {
+        case (metricGroupKey, metricGauge) =>
+          val metrics = metricGauge.map {
+            case (metricName, gauge) =>
+              Metric(
+                splitFn(metricName).tail
+                  .mkString("_")
+                  .toLowerCase
+                  .replace("-", "_"),
+                gauge.getValue.toString
+              )
+          }
+          MetricGroup(metricGroupKey, metrics)
+      }
+      .toSeq
   }
 }

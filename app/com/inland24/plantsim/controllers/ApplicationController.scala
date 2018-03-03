@@ -25,9 +25,9 @@ import play.api.mvc.ControllerComponents
 
 import scala.concurrent.Future
 
-
-class ApplicationController(appCfg: AppConfig, val controllerComponents: ControllerComponents)
-  extends ControllerBase {
+class ApplicationController(appCfg: AppConfig,
+                            val controllerComponents: ControllerComponents)
+    extends ControllerBase {
 
   val host = Json.obj(
     "hostname" -> java.net.InetAddress.getLocalHost.getHostName
@@ -39,22 +39,21 @@ class ApplicationController(appCfg: AppConfig, val controllerComponents: Control
     )
     Future.successful(
       Ok(
-        Json.prettyPrint(allMetrics.foldLeft(host) {
-          (acc, elem) => acc ++ elem
+        Json.prettyPrint(allMetrics.foldLeft(host) { (acc, elem) =>
+          acc ++ elem
         })
       )
     )
   }
 
   def redirectDocs = Action {
-    Redirect(url = "/assets/lib/swagger-ui/index.html", queryString = Map("url" -> Seq("/swagger.json")))
+    Redirect(url = "/assets/lib/swagger-ui/index.html",
+             queryString = Map("url" -> Seq("/swagger.json")))
   }
 
   def appConfig = Action.async {
     Future.successful(
-      Ok(Json.prettyPrint(
-        Json.toJson(appCfg))
-      )
+      Ok(Json.prettyPrint(Json.toJson(appCfg)))
     )
   }
 }
