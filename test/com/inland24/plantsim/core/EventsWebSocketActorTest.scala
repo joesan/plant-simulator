@@ -68,27 +68,28 @@ class EventsWebSocketActorTest
     1600.0,
     OnOffType
   )
-  private val powerPlantObservable = PowerPlantEventObservable(ec)
-
-  // This will be the channel which our PowerPlantActor will use to push messages
-  private val publishChannel: ActorRef = system.actorOf(EventsStream.props(powerPlantObservable))
-  private val powerPlantActor: ActorRef = system.actorOf(
-    OnOffTypeActor.props(Config(onOffTypeCfg, Some(publishChannel)))
-  )
-
-  // This is our buffer to which we can save and check the test expectations
-  private val buffer: ListBuffer[String] = ListBuffer.empty[String]
-
-  // This will be our sink to which the publishChannel will pipe messages to the WebSocket endpoint
-  class SinkActor extends Actor {
-    override def receive: Receive = {
-      case jsonStr: String =>
-        buffer += jsonStr
-    }
-  }
-  private val sink = system.actorOf(Props(new SinkActor))
 
   "EventsWebSocketActor # telemetrySignals" must {
+
+    val powerPlantObservable = PowerPlantEventObservable(ec)
+
+    // This will be the channel which our PowerPlantActor will use to push messages
+    val publishChannel: ActorRef = system.actorOf(EventsStream.props(powerPlantObservable))
+    val powerPlantActor: ActorRef = system.actorOf(
+      OnOffTypeActor.props(Config(onOffTypeCfg, Some(publishChannel)))
+    )
+
+    // This is our buffer to which we can save and check the test expectations
+    val buffer: ListBuffer[String] = ListBuffer.empty[String]
+
+    // This will be our sink to which the publishChannel will pipe messages to the WebSocket endpoint
+    class SinkActor extends Actor {
+      override def receive: Receive = {
+        case jsonStr: String =>
+          buffer += jsonStr
+      }
+    }
+    val sink = system.actorOf(Props(new SinkActor))
 
     "produce telemetry signals" in {
       // Reset the buffer
@@ -114,6 +115,29 @@ class EventsWebSocketActorTest
       assert(buffer.head === expected)
       assert(buffer.last === expected)
     }
+  }
+
+  "EventsWebSocketActor # Events and Alerts" must {
+
+    val powerPlantObservable = PowerPlantEventObservable(ec)
+
+    // This will be the channel which our PowerPlantActor will use to push messages
+    val publishChannel: ActorRef = system.actorOf(EventsStream.props(powerPlantObservable))
+    val powerPlantActor: ActorRef = system.actorOf(
+      OnOffTypeActor.props(Config(onOffTypeCfg, Some(publishChannel)))
+    )
+
+    // This is our buffer to which we can save and check the test expectations
+    val buffer: ListBuffer[String] = ListBuffer.empty[String]
+
+    // This will be our sink to which the publishChannel will pipe messages to the WebSocket endpoint
+    class SinkActor extends Actor {
+      override def receive: Receive = {
+        case jsonStr: String =>
+          buffer += jsonStr
+      }
+    }
+    val sink = system.actorOf(Props(new SinkActor))
 
     "produce events and alerts" in {
       // Reset the buffer
@@ -136,7 +160,7 @@ class EventsWebSocketActorTest
       powerPlantActor ! ReturnToServiceMessage
       Thread.sleep(1000)
 
-      // We expect that the above 2 events be pushed to your sink ActorRef!
+      // We expect 2 events (OutOfService, ReturnToService)
       assert(buffer.size === 2)
       val headJson = Json.parse(buffer.head)
       assert((headJson \ "newState").as[String] === "OutOfService")
