@@ -5,7 +5,8 @@ version := "1.0-SNAPSHOT"
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, DockerPlugin)
 
-scalaVersion := "2.11.11"
+scalaVersion := "2.12.4"
+//scalaVersion := "2.11.11"
 
 scalacOptions ++= Seq(
   "-language:implicitConversions",
@@ -17,7 +18,7 @@ scalacOptions ++= Seq(
   "-unchecked",
   "-deprecation",
   "-feature",
-  "-Yinline-warnings",
+  //"-Yinline-warnings",
   "-Ywarn-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-inaccessible",
@@ -87,17 +88,21 @@ libraryDependencies ++= Seq(
   "io.dropwizard.metrics" % "metrics-core" % "4.0.0",
   "io.dropwizard.metrics" % "metrics-jvm" % "4.0.0",
 
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.4.0",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.8.0",
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.6",
   "com.typesafe" % "config" % "1.3.1",
+
+  // For JSON parsing
+  "com.typesafe.play" %% "play-json" % "2.6.0",
+  "com.typesafe.play" %% "play-json-joda" % "2.6.0",
 
   // JDBC driver for MySQL & H2
   "mysql" % "mysql-connector-java" % "5.1.26",
   "com.h2database" % "h2" % "1.4.186",
 
   // Swagger UI API Docs
-  "io.swagger" %% "swagger-play2" % "1.5.3",
-  "org.webjars" %% "webjars-play" % "2.5.0-4",
+  "io.swagger" %% "swagger-play2" % "1.6.0",
+  "org.webjars" %% "webjars-play" % "2.6.0-M1",
   "org.webjars" % "swagger-ui" % "2.2.0",
 
   // Test dependencies

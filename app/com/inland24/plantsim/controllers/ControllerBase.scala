@@ -17,10 +17,10 @@
 
 package com.inland24.plantsim.controllers
 
-import play.api.mvc.Result
+import play.api.mvc.{BaseController, Result}
 
 
-trait ControllerBase {
+trait ControllerBase extends BaseController {
 
   implicit class RichResult (result: Result) {
     def enableCors =  result.withHeaders(

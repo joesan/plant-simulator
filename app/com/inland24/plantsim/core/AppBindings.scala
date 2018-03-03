@@ -23,7 +23,6 @@ import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.services.database.PowerPlantService
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import monix.execution.Scheduler
-import play.api.libs.concurrent.Execution.Implicits
 // ******* Note: Both these imports should be here! Do not remove them!
 import monix.cats._
 import monix.eval.Task
@@ -45,11 +44,11 @@ trait AppBindings {
 }
 object AppBindings {
 
-  def apply(system: ActorSystem, actorMaterializer: Materializer): AppBindings = new AppBindings {
+  def apply(system: ActorSystem, actorMaterializer: Materializer, config: AppConfig): AppBindings = new AppBindings {
     override val actorSystem: ActorSystem = system
     override val materializer: Materializer = actorMaterializer
 
-    override val appConfig: AppConfig = AppConfig.load()
+    override val appConfig: AppConfig = config
 
     // TODO: pass a separate thread pool / execution context in [Avoid using the default for db related operations]
     // Note: The type parameter should be explicitly specified, otherwise it won't compile!
@@ -57,7 +56,8 @@ object AppBindings {
       new PowerPlantRepoAsTask(appConfig.dbConfig)(scala.concurrent.ExecutionContext.Implicits.global)
     )
 
-    implicit val scheduler: Scheduler = Scheduler(Implicits.defaultContext)
+    // TODO: I use the default one! Check if this is Okay?
+    implicit val scheduler: Scheduler = monix.execution.Scheduler.Implicits.global
     val globalChannel = PowerPlantEventObservable(scheduler)
 
     override val supervisorActor: ActorRef =
@@ -66,4 +66,7 @@ object AppBindings {
         s"${appConfig.appName}-supervisor"
       )
   }
+
+  def apply(system: ActorSystem, actorMaterializer: Materializer): AppBindings =
+    apply(system, actorMaterializer, AppConfig.load())
 }

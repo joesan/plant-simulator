@@ -17,23 +17,33 @@
 
 package com.inland24.plantsim.core
 
-import java.util.function.Consumer
-
-import play.shaded.ahc.org.asynchttpclient.AsyncHttpClient
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.play._
+import play.api.test.Helpers._
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.test.{Helpers, TestServer, WsTestClient}
+import play.api.test.{FakeRequest, WsTestClient}
 
-import scala.compat.java8.FutureConverters
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import com.github.andyglow.websocket._
-import org.scalatest.{Matchers, WordSpecLike}
+import org.scalatest.WordSpecLike
+import org.scalatestplus.play.guice.GuiceOneServerPerSuite
 import play.api.Logger
 
 // Test adapted from https://github.com/playframework/play-scala-websocket-example.git
-class EventsWebSocketSpec extends Matchers with WordSpecLike {
+class EventsWebSocketSpec extends PlaySpec with WordSpecLike
+  with GuiceOneServerPerSuite {
+
+  private implicit val httpPort = new play.api.http.Port(9000)
+
+  "Routes" should {
+
+    "send 404 on a bad request" in  {
+      route(app, FakeRequest(GET, "/boum")).map(status) mustBe Some(NOT_FOUND)
+    }
+
+    "send 200 on a good request" in  {
+      route(app, FakeRequest(GET, "/")).map(status) mustBe Some(OK)
+    }
+
+  }
 
   "PowerPlantOperationController" should {
     "reject a WebSocket flow if the origin is set incorrectly" in WsTestClient.withClient { client =>
@@ -52,6 +62,7 @@ class EventsWebSocketSpec extends Matchers with WordSpecLike {
       ws ! "hello"
       ws ! "world"
 
+      val app = new GuiceApplicationBuilder().configure()build()
 
       // Pick a non standard port that will fail the (somewhat contrived) origin check...
 

@@ -31,6 +31,7 @@ import play.api.libs.json.Json
 
 import scala.concurrent.Future
 import play.api.mvc._
+import play.api.test.Helpers.stubControllerComponents
 import play.api.test._
 
 import scala.util.{Failure, Success}
@@ -41,7 +42,8 @@ class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlant
   with Results with BeforeAndAfterAll with DBServiceSpec {
 
   val bindings = AppBindings.apply(system, ActorMaterializer())
-  val controller = new PowerPlantOperationsController(bindings)
+  val controllerComponents = stubControllerComponents()
+  val controller = new PowerPlantOperationsController(bindings, controllerComponents)
 
   override def beforeAll(): Unit = {
     // 1. Set up the Schemas

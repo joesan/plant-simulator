@@ -41,7 +41,8 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
   with Results with BeforeAndAfterAll with DBServiceSpec {
 
   val bindings = AppBindings.apply(system, ActorMaterializer())
-  val controller = new PowerPlantController(bindings)
+  val controllerComponents = stubControllerComponents()
+  val controller = new PowerPlantController(bindings, controllerComponents)
 
   override def beforeAll(): Unit = {
     // 1. Set up the Schemas
@@ -61,7 +62,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
     "give the appropriate config back when asked" in {
       // We are using the application.test.conf (Look in the DBServiceSpec.scala)
       val result: Future[Result] =
-        new ApplicationController(bindings.appConfig).appConfig.apply(FakeRequest())
+        new ApplicationController(bindings.appConfig, controllerComponents).appConfig.apply(FakeRequest())
       val bodyText = contentAsJson(result)
       bodyText mustBe Json.parse(
         """
@@ -81,7 +82,7 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
 
     "fetch the JVM metrics" in {
       val result: Future[Result] =
-        new ApplicationController(bindings.appConfig).metrics.apply(FakeRequest())
+        new ApplicationController(bindings.appConfig, controllerComponents).metrics.apply(FakeRequest())
       val bodyText = contentAsString(result)
 
       assert(bodyText.contains(""""hostname" : """))

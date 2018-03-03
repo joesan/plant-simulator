@@ -21,12 +21,14 @@ import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.util.Timeout
 import com.inland24.plantsim.models.PowerPlantActorMessage.TelemetrySignalsMessage
 import org.joda.time.DateTime
-import play.api.libs.json.{JsValue, Json}
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.execution.{Ack, Scheduler}
 import monix.reactive.Observable
 import monix.reactive.observers.Subscriber
+
+import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.JodaWrites._
 
 import scala.concurrent.Future
 

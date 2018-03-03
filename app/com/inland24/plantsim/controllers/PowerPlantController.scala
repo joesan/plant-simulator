@@ -21,7 +21,7 @@ import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.models.PowerPlantType.UnknownType
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantFilter, PowerPlantType, toPowerPlantConfig, toPowerPlantRow}
 import play.api.libs.json.Json
-import play.api.mvc.{Action, Controller, Result}
+import play.api.mvc.{Action, Controller, ControllerComponents, Result}
 import com.inland24.plantsim.models._
 import io.swagger.annotations.Api
 import monix.execution.FutureUtils.extensions._
@@ -34,8 +34,8 @@ import monix.execution.Scheduler.Implicits.global
 
 
 @Api
-class PowerPlantController(bindings: AppBindings)
-  extends Controller with ControllerBase {
+class PowerPlantController(bindings: AppBindings, val controllerComponents: ControllerComponents)
+  extends ControllerBase {
 
   private val dbService = bindings.dbService
 

@@ -21,13 +21,13 @@ import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.AppMetrics
 import play.api.libs.json.Json
 import com.inland24.plantsim.models._
-import play.api.mvc.{Action, Controller}
+import play.api.mvc.ControllerComponents
 
 import scala.concurrent.Future
 
 
-class ApplicationController(appCfg: AppConfig)
-  extends Controller {
+class ApplicationController(appCfg: AppConfig, val controllerComponents: ControllerComponents)
+  extends ControllerBase {
 
   val host = Json.obj(
     "hostname" -> java.net.InetAddress.getLocalHost.getHostName

@@ -21,7 +21,7 @@ import com.inland24.plantsim.core.{AppBindings, EventsWebSocketActor}
 import com.inland24.plantsim.models._
 import monix.execution.FutureUtils.extensions._
 import play.api.libs.json.JsError
-import play.api.mvc.{Action, Controller, WebSocket}
+import play.api.mvc.{Action, Controller, ControllerComponents, WebSocket}
 import akka.actor.ActorRef
 import akka.pattern.ask
 import com.inland24.plantsim.models.PowerPlantActorMessage.TelemetrySignalsMessage
@@ -38,8 +38,8 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 
-class PowerPlantOperationsController(bindings: AppBindings)
-  extends Controller with ControllerBase {
+class PowerPlantOperationsController(bindings: AppBindings, val controllerComponents: ControllerComponents)
+  extends ControllerBase {
 
   // Place a reference to the underlying ActorSystem
   private implicit val system = bindings.actorSystem

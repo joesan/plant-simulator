@@ -25,9 +25,9 @@ import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, Tr
 import com.inland24.plantsim.models.PowerPlantType._
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
-import play.api.data.validation.ValidationError
 import play.api.libs.json._
 import play.api.libs.json.Reads._
+import play.api.libs.json.JodaWrites._
 
 import scala.concurrent.duration._
 import scala.concurrent.duration.FiniteDuration
@@ -97,7 +97,9 @@ package object models {
             )
           }
         case _ =>
-          JsError(__ \ "powerPlantType", ValidationError("Invalid PowerPlantConfig", "powerPlantType"))
+          JsError(__ \ "powerPlantType",
+            s"Invalid PowerPlantType $powerPlantTyp. Should be one of RampUpType or OnOffType"
+          )
       }
     }
 
