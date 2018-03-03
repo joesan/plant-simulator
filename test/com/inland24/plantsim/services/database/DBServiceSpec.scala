@@ -24,7 +24,6 @@ import org.joda.time.{DateTime, DateTimeZone}
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
-
 // The base class that contains the H2 database with some pre-populated rows
 trait DBServiceSpec {
 
@@ -45,20 +44,19 @@ trait DBServiceSpec {
   import dbSchema._
   import dbSchema.driver.api._
 
-  val powerPlants = (1 to 6) map {
-    i =>
-      PowerPlantRow(
-        id = Some(100 + i),
-        orgName = s"joesan $i",
-        isActive = true,
-        minPower = 100.0 * i,
-        maxPower = 400.0 * 2 * i,
-        powerPlantTyp = if (i % 2 == 0) OnOffType else RampUpType,
-        rampRatePower = if (i % 2 == 0) None else Some(20.0),
-        rampRateSecs = if (i % 2 == 0)  None else Some(2),
-        createdAt = getNowAsDateTime(),
-        updatedAt = getNowAsDateTime()
-      )
+  val powerPlants = (1 to 6) map { i =>
+    PowerPlantRow(
+      id = Some(100 + i),
+      orgName = s"joesan $i",
+      isActive = true,
+      minPower = 100.0 * i,
+      maxPower = 400.0 * 2 * i,
+      powerPlantTyp = if (i % 2 == 0) OnOffType else RampUpType,
+      rampRatePower = if (i % 2 == 0) None else Some(20.0),
+      rampRateSecs = if (i % 2 == 0) None else Some(2),
+      createdAt = getNowAsDateTime(),
+      updatedAt = getNowAsDateTime()
+    )
   }
 
   protected def h2SchemaDrop(): Unit = {

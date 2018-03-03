@@ -22,7 +22,12 @@ import akka.stream.ActorMaterializer
 import akka.testkit.TestKit
 import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.services.database.DBServiceSpec
-import org.scalatest.{BeforeAndAfterAll, MustMatchers, OptionValues, WordSpecLike}
+import org.scalatest.{
+  BeforeAndAfterAll,
+  MustMatchers,
+  OptionValues,
+  WordSpecLike
+}
 import monix.execution.FutureUtils.extensions._
 import monix.execution.Scheduler.Implicits.global
 
@@ -35,10 +40,15 @@ import play.api.test.Helpers._
 
 import scala.util.{Failure, Success}
 
-
-class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantControllerTest"))
-  with MustMatchers with OptionValues with WsScalaTestClient with WordSpecLike
-  with Results with BeforeAndAfterAll with DBServiceSpec {
+class PowerPlantControllerTest
+    extends TestKit(ActorSystem("PowerPlantControllerTest"))
+    with MustMatchers
+    with OptionValues
+    with WsScalaTestClient
+    with WordSpecLike
+    with Results
+    with BeforeAndAfterAll
+    with DBServiceSpec {
 
   val bindings = AppBindings.apply(system, ActorMaterializer())
   val controllerComponents = stubControllerComponents()
@@ -62,7 +72,8 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
     "give the appropriate config back when asked" in {
       // We are using the application.test.conf (Look in the DBServiceSpec.scala)
       val result: Future[Result] =
-        new ApplicationController(bindings.appConfig, controllerComponents).appConfig.apply(FakeRequest())
+        new ApplicationController(bindings.appConfig, controllerComponents).appConfig
+          .apply(FakeRequest())
       val bodyText = contentAsJson(result)
       bodyText mustBe Json.parse(
         """
@@ -82,7 +93,8 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
 
     "fetch the JVM metrics" in {
       val result: Future[Result] =
-        new ApplicationController(bindings.appConfig, controllerComponents).metrics.apply(FakeRequest())
+        new ApplicationController(bindings.appConfig, controllerComponents).metrics
+          .apply(FakeRequest())
       val bodyText = contentAsString(result)
 
       assert(bodyText.contains(""""hostname" : """))
@@ -92,7 +104,8 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
   // PowerPlantDetails test
   "PowerPlantController ## powerPlantDetails" should {
     "fetch the details of a PowerPlant" in {
-      val result: Future[Result] = controller.powerPlantDetails(101).apply(FakeRequest())
+      val result: Future[Result] =
+        controller.powerPlantDetails(101).apply(FakeRequest())
       contentAsJson(result) mustBe
         Json.parse("""
           |{
@@ -108,7 +121,8 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
     }
 
     "return a HTTP 404 for a non existing PowerPlant" in {
-      val result: Future[Result] = controller.powerPlantDetails(1).apply(FakeRequest())
+      val result: Future[Result] =
+        controller.powerPlantDetails(1).apply(FakeRequest())
       val bodyText: String = contentAsString(result)
       bodyText mustBe "HTTP 404 :: PowerPlant with ID 1 not found"
     }
@@ -163,11 +177,13 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
 
     "search all activePowerPlants" in {
       val result1: Future[Result] =
-        controller.powerPlants(onlyActive = true, page = 1)
+        controller
+          .powerPlants(onlyActive = true, page = 1)
           .apply(FakeRequest())
 
       val result2: Future[Result] =
-        controller.searchPowerPlants(onlyActive = Some(true), page = 1)
+        controller
+          .searchPowerPlants(onlyActive = Some(true), page = 1)
           .apply(FakeRequest())
 
       contentAsJson(result2) mustBe Json.parse(allActivePowerPlants)
@@ -176,12 +192,14 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
 
     "search PowerPlants only non active ones" in {
       val result1: Future[Result] =
-        controller.powerPlants(onlyActive = false, page = 1)
+        controller
+          .powerPlants(onlyActive = false, page = 1)
           .apply(FakeRequest())
       contentAsString(result1) mustBe "[ ]"
 
       val result2: Future[Result] =
-        controller.searchPowerPlants(onlyActive = Some(false), page = 1)
+        controller
+          .searchPowerPlants(onlyActive = Some(false), page = 1)
           .apply(FakeRequest())
 
       contentAsString(result2) mustBe "[ ]" // All the 5 PowerPlant's in the database are active
@@ -190,7 +208,10 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
 
     "search all RampUpType active PowerPlant's" in {
       val result: Future[Result] =
-        controller.searchPowerPlants(onlyActive = Some(true), page = 1, powerPlantType = Some("RampUpType"))
+        controller
+          .searchPowerPlants(onlyActive = Some(true),
+                             page = 1,
+                             powerPlantType = Some("RampUpType"))
           .apply(FakeRequest())
       contentAsJson(result) mustBe Json.parse(
         """
@@ -227,7 +248,10 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
 
     "search all OnOffType active PowerPlant's" in {
       val result: Future[Result] =
-        controller.searchPowerPlants(onlyActive = Some(true), page = 1, powerPlantType = Some("OnOffType"))
+        controller
+          .searchPowerPlants(onlyActive = Some(true),
+                             page = 1,
+                             powerPlantType = Some("OnOffType"))
           .apply(FakeRequest())
       contentAsJson(result) mustBe Json.parse(
         """
@@ -262,14 +286,20 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
 
     "search all UnknownType active PowerPlant's" in {
       val result: Future[Result] =
-        controller.searchPowerPlants(onlyActive = Some(true), page = 1, powerPlantType = Some("SomeUnknownType"))
+        controller
+          .searchPowerPlants(onlyActive = Some(true),
+                             page = 1,
+                             powerPlantType = Some("SomeUnknownType"))
           .apply(FakeRequest())
       contentAsJson(result) mustBe Json.parse(allActivePowerPlants)
     }
 
     "search all active PowerPlant's with powerPlantName joesan" in {
       val result: Future[Result] =
-        controller.searchPowerPlants(onlyActive = Some(true), page = 1, powerPlantName = Some("joesan"))
+        controller
+          .searchPowerPlants(onlyActive = Some(true),
+                             page = 1,
+                             powerPlantName = Some("joesan"))
           .apply(FakeRequest())
       contentAsJson(result) mustBe Json.parse(allActivePowerPlants)
     }
@@ -292,7 +322,8 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
           |}
         """.stripMargin
       val result: Future[Result] =
-        controller.updatePowerPlant(101)
+        controller
+          .updatePowerPlant(101)
           .apply(
             FakeRequest().withBody(Json.parse(jsBody))
           )
@@ -315,7 +346,8 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
         """.stripMargin
 
       val result: Future[Result] =
-        controller.updatePowerPlant(101)
+        controller
+          .updatePowerPlant(101)
           .apply(
             FakeRequest().withBody(Json.parse(jsBody))
           )
@@ -323,7 +355,8 @@ class PowerPlantControllerTest extends TestKit(ActorSystem("PowerPlantController
         case Success(suck) =>
           assert(suck.header.status === BAD_REQUEST)
         case Failure(_) =>
-          fail("Unexpected test failure when Updating a PowerPlant! Please Analyze!")
+          fail(
+            "Unexpected test failure when Updating a PowerPlant! Please Analyze!")
       }
     }
   }

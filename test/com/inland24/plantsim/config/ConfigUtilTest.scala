@@ -19,7 +19,6 @@ package com.inland24.plantsim.config
 
 import org.scalatest.{BeforeAndAfterAll, FlatSpec}
 
-
 class ConfigUtilTest extends FlatSpec with BeforeAndAfterAll {
 
   private def clearAll() = {

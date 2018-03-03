@@ -17,7 +17,6 @@ package com.inland24.plantsim.services.simulator
 
 import org.scalatest.FlatSpec
 
-
 final class SimulatorServiceSpec extends FlatSpec {
 
   behavior of "SimulatorService"
@@ -32,7 +31,8 @@ final class SimulatorServiceSpec extends FlatSpec {
 
   "SimulatorService#DoubleRandomValue" should "generate a random double value between a range" in {
     (1 to 10000) foreach { _ =>
-      val rndm = RandomValueGeneratorService.DoubleRandomValue.random(200.0, 400.0)
+      val rndm =
+        RandomValueGeneratorService.DoubleRandomValue.random(200.0, 400.0)
       assert(rndm <= 400.0)
       assert(rndm >= 200.0)
     }

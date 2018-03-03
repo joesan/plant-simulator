@@ -18,7 +18,11 @@
 package com.inland24.plantsim.services.simulator.rampUpType
 
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.PowerPlantSignal.{DispatchAlert, Genesis, Transition}
+import com.inland24.plantsim.models.PowerPlantSignal.{
+  DispatchAlert,
+  Genesis,
+  Transition
+}
 import com.inland24.plantsim.models.PowerPlantType
 import com.inland24.plantsim.models.PowerPlantState._
 import org.joda.time.{DateTime, DateTimeZone}
@@ -27,13 +31,13 @@ import Matchers._
 
 import scala.concurrent.duration._
 
-
 class RampUpTypeStateMachineTest extends WordSpecLike {
 
   private def now = DateTime.now(DateTimeZone.UTC)
 
   // TODO: This could be moved to a common place, this is duplicated in RampUpTypeActorTest as well!
-  def activePowerSignalRange(power: Double) = power * StateMachine.toleranceFactorInPercentage / 100
+  def activePowerSignalRange(power: Double) =
+    power * StateMachine.toleranceFactorInPercentage / 100
 
   val cfg = RampUpTypeConfig(
     id = 1,
@@ -52,14 +56,19 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
 
       // out activePower signal should be within the tolerance range
       val beWithinTolerance =
-        be >= (cfg.minPower - activePowerSignalRange(cfg.minPower)) and be <= (cfg.minPower + activePowerSignalRange(cfg.minPower))
+        be >= (cfg.minPower - activePowerSignalRange(cfg.minPower)) and be <= (cfg.minPower + activePowerSignalRange(
+          cfg.minPower))
 
       assert(newSignals.size === 4)
       newSignals.foreach {
-        case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey => assert(!value1.toBoolean)
-        case (key2, value2) if key2 == StateMachine.isAvailableSignalKey  => assert(value2.toBoolean)
-        case (key3, value3) if key3 == StateMachine.activePowerSignalKey  => value3.toDouble should beWithinTolerance
-        case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey => assert(value4 === cfg.id.toString)
+        case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey =>
+          assert(!value1.toBoolean)
+        case (key2, value2) if key2 == StateMachine.isAvailableSignalKey =>
+          assert(value2.toBoolean)
+        case (key3, value3) if key3 == StateMachine.activePowerSignalKey =>
+          value3.toDouble should beWithinTolerance
+        case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey =>
+          assert(value4 === cfg.id.toString)
       }
     }
   }
@@ -72,7 +81,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
 
       assert(stm.cfg.rampPowerRate == cfg.rampPowerRate)
       assert(stm.cfg.id == cfg.id)
-      assert(stm.lastRampTime.getMillis <= DateTime.now(DateTimeZone.UTC).getMillis)
+      assert(
+        stm.lastRampTime.getMillis <= DateTime.now(DateTimeZone.UTC).getMillis)
       assert(stm.signals.size === 4)
 
       // Check the PowerPlantState
@@ -87,7 +97,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           assert(elem.timeStamp.isBefore(now))
 
         case unexpected =>
-          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+          fail(
+            s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
       }
     }
 
@@ -97,10 +108,14 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
 
       assert(stm.signals.size === 4)
       stm.signals.foreach {
-        case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey => assert(!value1.toBoolean)
-        case (key2, value2) if key2 == StateMachine.isAvailableSignalKey  => assert(value2.toBoolean)
-        case (key3, value3) if key3 == StateMachine.activePowerSignalKey  => assert(value3.toDouble === cfg.minPower)
-        case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey => assert(value4 === cfg.id.toString)
+        case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey =>
+          assert(!value1.toBoolean)
+        case (key2, value2) if key2 == StateMachine.isAvailableSignalKey =>
+          assert(value2.toBoolean)
+        case (key3, value3) if key3 == StateMachine.activePowerSignalKey =>
+          assert(value3.toDouble === cfg.minPower)
+        case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey =>
+          assert(value4 === cfg.id.toString)
       }
       assert(stm.setPoint === cfg.minPower)
     }
@@ -110,10 +125,14 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
 
       assert(stm.signals.size === 4)
       stm.signals.foreach {
-        case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey => assert(!value1.toBoolean)
-        case (key2, value2) if key2 == StateMachine.isAvailableSignalKey  => assert(value2.toBoolean)
-        case (key3, value3) if key3 == StateMachine.activePowerSignalKey  => assert(value3.toDouble === cfg.minPower)
-        case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey => assert(value4 === cfg.id.toString)
+        case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey =>
+          assert(!value1.toBoolean)
+        case (key2, value2) if key2 == StateMachine.isAvailableSignalKey =>
+          assert(value2.toBoolean)
+        case (key3, value3) if key3 == StateMachine.activePowerSignalKey =>
+          assert(value3.toDouble === cfg.minPower)
+        case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey =>
+          assert(value4 === cfg.id.toString)
       }
       assert(stm.setPoint === cfg.minPower)
 
@@ -152,7 +171,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
         case unexpected =>
-          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+          fail(
+            s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
       }
     }
 
@@ -182,7 +202,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
         case unexpected =>
-          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+          fail(
+            s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
       }
     }
 
@@ -206,7 +227,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
         case unexpected =>
-          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+          fail(
+            s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
       }
     }
   }
@@ -218,7 +240,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
     val stm = StateMachine.active(StateMachine.init(cfg))
 
     "transition to OutOfService when in Active state" in {
-      val outOfServiceStm = StateMachine.outOfService(stm.copy(events = Vector.empty))
+      val outOfServiceStm =
+        StateMachine.outOfService(stm.copy(events = Vector.empty))
 
       // Check the PowerPlantState (It should go from Active to OutOfService)
       outOfServiceStm.oldState shouldBe Active
@@ -233,7 +256,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
         case unexpected =>
-          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+          fail(
+            s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
       }
     }
 
@@ -255,7 +279,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
         case unexpected =>
-          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+          fail(
+            s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
       }
     }
 
@@ -283,7 +308,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
         case unexpected =>
-          fail(s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
+          fail(
+            s"Unexpected Signal $unexpected received when dispatching the PowerPlant ")
       }
     }
   }
@@ -309,9 +335,13 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           lastRampTime = stm.lastRampTime.minusSeconds(4)
         )
       )
-      assert(dispatchState1.signals(StateMachine.activePowerSignalKey).toDouble === 500.0)
+      assert(
+        dispatchState1
+          .signals(StateMachine.activePowerSignalKey)
+          .toDouble === 500.0)
       // we then come back to the current time for the lastRampTime, so that we can do the next tests
-      val reset1 = dispatchState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
+      val reset1 =
+        dispatchState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
       /*
        * On our second dispatch, we should go from 500 to 600, but we got to wait 4 seconds
@@ -320,8 +350,12 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       val dispatchState2 = StateMachine.rampUpCheck(
         reset1.copy(lastRampTime = dispatchState1.lastRampTime.minusSeconds(4))
       )
-      assert(dispatchState2.signals(StateMachine.activePowerSignalKey).toDouble === 600.0)
-      val reset2 = dispatchState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
+      assert(
+        dispatchState2
+          .signals(StateMachine.activePowerSignalKey)
+          .toDouble === 600.0)
+      val reset2 =
+        dispatchState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
       // Let's try another dispatch immediately, this should have no effect and we should still stay at 600
       val dispatchState2_copy = StateMachine.rampUpCheck(
@@ -331,15 +365,23 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
 
       // Another 4 seconds elapse, we move to 700
       val dispatchState3 = StateMachine.rampUpCheck(
-        dispatchState2.copy(lastRampTime = dispatchState2.lastRampTime.minusSeconds(4))
+        dispatchState2.copy(
+          lastRampTime = dispatchState2.lastRampTime.minusSeconds(4))
       )
-      assert(dispatchState3.signals(StateMachine.activePowerSignalKey).toDouble === 700.0)
+      assert(
+        dispatchState3
+          .signals(StateMachine.activePowerSignalKey)
+          .toDouble === 700.0)
 
       // Another 4 seconds elapse, we move to 800, our setPoint
       val dispatchState4 = StateMachine.rampUpCheck(
-        dispatchState3.copy(lastRampTime = dispatchState3.lastRampTime.minusSeconds(4))
+        dispatchState3.copy(
+          lastRampTime = dispatchState3.lastRampTime.minusSeconds(4))
       )
-      assert(dispatchState4.signals(StateMachine.activePowerSignalKey).toDouble === 800)
+      assert(
+        dispatchState4
+          .signals(StateMachine.activePowerSignalKey)
+          .toDouble === 800)
     }
   }
 
@@ -376,9 +418,9 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
         events = Vector.empty,
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC).minusSeconds(20),
         signals = Map(
-          StateMachine.activePowerSignalKey  -> cfg.maxPower.toString,
+          StateMachine.activePowerSignalKey -> cfg.maxPower.toString,
           StateMachine.isDispatchedSignalKey -> true.toString, // when in dispatched this is true
-          StateMachine.isAvailableSignalKey  -> true.toString // indicates if the power plant is not available for steering
+          StateMachine.isAvailableSignalKey -> true.toString // indicates if the power plant is not available for steering
         )
       )
 
@@ -391,7 +433,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
        * The first ReturnToNormal command should take its activePower from 800 to 700
        */
       val rtnState1 = StateMachine.rampDownCheck(dispatchedState)
-      assert(rtnState1.signals(StateMachine.activePowerSignalKey).toDouble === 700.0)
+      assert(
+        rtnState1.signals(StateMachine.activePowerSignalKey).toDouble === 700.0)
       // we now come back to the current time for the lastRampTime, so that we can do the next tests
       val reset1 = rtnState1.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
@@ -399,21 +442,30 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
        * On our second ReturnToNormal, we should go from 700.0 to 600.0, but we got to wait 4 seconds
        * Blocking may be a bad idea, so we simulate time (i.e., subtract 4 seconds to the isRampUp check)
        */
-      val rtnState2 = StateMachine.rampDownCheck(reset1.copy(lastRampTime = rtnState1.lastRampTime.minusSeconds(4)))
-      assert(rtnState2.signals(StateMachine.activePowerSignalKey).toDouble === 600.0)
+      val rtnState2 = StateMachine.rampDownCheck(
+        reset1.copy(lastRampTime = rtnState1.lastRampTime.minusSeconds(4)))
+      assert(
+        rtnState2.signals(StateMachine.activePowerSignalKey).toDouble === 600.0)
       val reset2 = rtnState2.copy(lastRampTime = DateTime.now(DateTimeZone.UTC))
 
       // Let's try another ReturnToNormal immediately, this should have no effect and we should still stay at 600.0
-      val rtnState2_copy = StateMachine.rampDownCheck(reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)))
+      val rtnState2_copy = StateMachine.rampDownCheck(
+        reset2.copy(lastRampTime = reset2.lastRampTime.plusSeconds(1)))
       assert(reset2.signals === rtnState2_copy.signals)
 
       // Another 4 seconds elapse, we move to 500.0
-      val rtnState3 = StateMachine.rampDownCheck(rtnState2.copy(lastRampTime = rtnState2.lastRampTime.minusSeconds(4)))
-      assert(rtnState3.signals(StateMachine.activePowerSignalKey).toDouble === 500)
+      val rtnState3 = StateMachine.rampDownCheck(
+        rtnState2.copy(lastRampTime = rtnState2.lastRampTime.minusSeconds(4)))
+      assert(
+        rtnState3.signals(StateMachine.activePowerSignalKey).toDouble === 500)
 
       // Another 4 seconds elapse, we move to 400.0, our minPower to which we ReturnToNormal to
-      val rtnState4 = StateMachine.rampDownCheck(rtnState3.copy(lastRampTime = rtnState3.lastRampTime.minusSeconds(4)))
-      assert(rtnState4.signals(StateMachine.activePowerSignalKey).toDouble === cfg.minPower)
+      val rtnState4 = StateMachine.rampDownCheck(
+        rtnState3.copy(lastRampTime = rtnState3.lastRampTime.minusSeconds(4)))
+      assert(
+        rtnState4
+          .signals(StateMachine.activePowerSignalKey)
+          .toDouble === cfg.minPower)
     }
   }
 }

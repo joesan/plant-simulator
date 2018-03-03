@@ -22,7 +22,12 @@ import akka.stream.ActorMaterializer
 import akka.testkit.TestKit
 import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.services.database.DBServiceSpec
-import org.scalatest.{BeforeAndAfterAll, MustMatchers, OptionValues, WordSpecLike}
+import org.scalatest.{
+  BeforeAndAfterAll,
+  MustMatchers,
+  OptionValues,
+  WordSpecLike
+}
 import org.scalatestplus.play.WsScalaTestClient
 import play.api.mvc.Results
 import monix.execution.Scheduler.Implicits.global
@@ -36,14 +41,20 @@ import play.api.test._
 
 import scala.util.{Failure, Success}
 
-
-class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlantOperationsControllerTest"))
-  with MustMatchers with OptionValues with WsScalaTestClient with WordSpecLike
-  with Results with BeforeAndAfterAll with DBServiceSpec {
+class PowerPlantOperationsControllerTest
+    extends TestKit(ActorSystem("PowerPlantOperationsControllerTest"))
+    with MustMatchers
+    with OptionValues
+    with WsScalaTestClient
+    with WordSpecLike
+    with Results
+    with BeforeAndAfterAll
+    with DBServiceSpec {
 
   val bindings = AppBindings.apply(system, ActorMaterializer())
   val controllerComponents = stubControllerComponents()
-  val controller = new PowerPlantOperationsController(bindings, controllerComponents)
+  val controller =
+    new PowerPlantOperationsController(bindings, controllerComponents)
 
   override def beforeAll(): Unit = {
     // 1. Set up the Schemas
@@ -69,7 +80,8 @@ class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlant
         """.stripMargin
 
       val result: Future[Result] =
-        controller.returnToNormalPowerPlant(-200)
+        controller
+          .returnToNormalPowerPlant(-200)
           .apply(
             FakeRequest().withBody(Json.parse(rtnCommand))
           )
@@ -90,7 +102,8 @@ class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlant
         """.stripMargin
 
       val result: Future[Result] =
-        controller.returnToNormalPowerPlant(-200)
+        controller
+          .returnToNormalPowerPlant(-200)
           .apply(
             FakeRequest().withBody(Json.parse(rtnCommand))
           )
@@ -114,7 +127,8 @@ class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlant
         """.stripMargin
 
       val result: Future[Result] =
-        controller.returnToNormalPowerPlant(-200)
+        controller
+          .returnToNormalPowerPlant(-200)
           .apply(
             FakeRequest().withBody(Json.parse(rtnCommand))
           )
@@ -135,7 +149,8 @@ class PowerPlantOperationsControllerTest extends TestKit(ActorSystem("PowerPlant
         """.stripMargin
 
       val result: Future[Result] =
-        controller.dispatchPowerPlant(2)
+        controller
+          .dispatchPowerPlant(2)
           .apply(
             FakeRequest().withBody(Json.parse(rtnCommand))
           )

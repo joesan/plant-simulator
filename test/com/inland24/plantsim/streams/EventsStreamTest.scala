@@ -21,9 +21,19 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
-import com.inland24.plantsim.core.{AppBindings, PowerPlantEventObservable, SupervisorActor}
-import com.inland24.plantsim.models.PowerPlantActorMessage.{OutOfServiceMessage, ReturnToServiceMessage}
-import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig}
+import com.inland24.plantsim.core.{
+  AppBindings,
+  PowerPlantEventObservable,
+  SupervisorActor
+}
+import com.inland24.plantsim.models.PowerPlantActorMessage.{
+  OutOfServiceMessage,
+  ReturnToServiceMessage
+}
+import com.inland24.plantsim.models.PowerPlantConfig.{
+  OnOffTypeConfig,
+  RampUpTypeConfig
+}
 import com.inland24.plantsim.models.PowerPlantDBEvent.PowerPlantCreateEvent
 import com.inland24.plantsim.models.PowerPlantSignal
 import com.inland24.plantsim.models.PowerPlantSignal.Transition
@@ -43,8 +53,12 @@ import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
 @Ignore
-class EventsStreamTest extends TestKit(ActorSystem("EventsStreamTest"))
-  with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll {
+class EventsStreamTest
+    extends TestKit(ActorSystem("EventsStreamTest"))
+    with ImplicitSender
+    with WordSpecLike
+    with Matchers
+    with BeforeAndAfterAll {
 
   override def afterAll {
     TestKit.shutdownActorSystem(system)
@@ -56,9 +70,12 @@ class EventsStreamTest extends TestKit(ActorSystem("EventsStreamTest"))
 
   // Utility to resolve an ActorRef
   def childActorRef(powerPlantId: Int) = {
-    system.actorSelection(
-      s"akka://EventsStreamTest/user/*/${appBindings.appConfig.appName}-$powerPlantId"
-    ).resolveOne(2.seconds).materialize
+    system
+      .actorSelection(
+        s"akka://EventsStreamTest/user/*/${appBindings.appConfig.appName}-$powerPlantId"
+      )
+      .resolveOne(2.seconds)
+      .materialize
   }
 
   // Let us create our SupervisorActor instance
@@ -67,7 +84,7 @@ class EventsStreamTest extends TestKit(ActorSystem("EventsStreamTest"))
   )
 
   // We create one RampUpType and one OnOffType PowerPlant
-  val ramUpTypeCfg =  RampUpTypeConfig(
+  val ramUpTypeCfg = RampUpTypeConfig(
     powerPlantType = RampUpType,
     id = 1,
     name = "rampUpType-1",
@@ -100,7 +117,7 @@ class EventsStreamTest extends TestKit(ActorSystem("EventsStreamTest"))
 
         override def onNext(elem: PowerPlantSignal): Future[Ack] = elem match {
           case t: Transition
-            if t.powerPlantConfig.id == 2 && t.newState == OutOfService =>
+              if t.powerPlantConfig.id == 2 && t.newState == OutOfService =>
             // We got the message we are interested in (TODO: What to do....??)
             Continue
 
@@ -139,8 +156,9 @@ class EventsStreamTest extends TestKit(ActorSystem("EventsStreamTest"))
           Thread.sleep(5000)
 
         case Failure(ex) =>
-          fail(s"Something went wrong when searching for an ActorRef " +
-            s"that should have existed failure message is ${ex.getMessage}")
+          fail(
+            s"Something went wrong when searching for an ActorRef " +
+              s"that should have existed failure message is ${ex.getMessage}")
       }
 
       // Clean up

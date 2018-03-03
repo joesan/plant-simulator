@@ -28,8 +28,10 @@ import monix.execution.Scheduler.Implicits.global
 import monix.cats._
 // *****
 
-final class PowerPlantDBServiceSpec extends AsyncFlatSpec
-  with DBServiceSpec with BeforeAndAfterAll {
+final class PowerPlantDBServiceSpec
+    extends AsyncFlatSpec
+    with DBServiceSpec
+    with BeforeAndAfterAll {
 
   override def beforeAll(): Unit = {
     // 1. Set up the Schemas
@@ -50,19 +52,19 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
   behavior of "PowerPlantDBService"
 
   "allPowerPlants" should "fetch all PowerPlant's from the database" in {
-    powerPlantService.fetchAllPowerPlants().runAsync.map {
-      allPowerPlants =>
-        assert(allPowerPlants.length === 6)
+    powerPlantService.fetchAllPowerPlants().runAsync.map { allPowerPlants =>
+      assert(allPowerPlants.length === 6)
 
-        allPowerPlants.headOption match {
-          case Some(powerPlant1) =>
-            assert(powerPlant1.id === Some(101))
-            assert(powerPlant1.orgName === "joesan 1")
-            assert(powerPlant1.isActive)
-            assert(powerPlant1.powerPlantTyp === PowerPlantType.RampUpType)
-          case None =>
-            fail("expected a PowerPlant with id 101 in the database, but not found")
-        }
+      allPowerPlants.headOption match {
+        case Some(powerPlant1) =>
+          assert(powerPlant1.id === Some(101))
+          assert(powerPlant1.orgName === "joesan 1")
+          assert(powerPlant1.isActive)
+          assert(powerPlant1.powerPlantTyp === PowerPlantType.RampUpType)
+        case None =>
+          fail(
+            "expected a PowerPlant with id 101 in the database, but not found")
+      }
     }
   }
 
@@ -128,20 +130,24 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
   }
 
   "allPowerPlantsPaginated" should "fetch all PowerPlant's from the database for the given pageNumber" in {
-    powerPlantService.searchPowerPlants(PowerPlantFilter()).runAsync.map { // by default we ask for the first page
-      allPowerPlants =>
-        assert(allPowerPlants.length === 5)
+    powerPlantService
+      .searchPowerPlants(PowerPlantFilter())
+      .runAsync
+      .map { // by default we ask for the first page
+        allPowerPlants =>
+          assert(allPowerPlants.length === 5)
 
-        allPowerPlants.headOption match {
-          case Some(powerPlant1) =>
-            assert(powerPlant1.id === Some(101))
-            assert(powerPlant1.orgName === "joesan 1")
-            assert(powerPlant1.isActive)
-            assert(powerPlant1.powerPlantTyp === PowerPlantType.RampUpType)
-          case None =>
-            fail("expected a PowerPlant with id 101 in the database, but not found")
-        }
-    }
+          allPowerPlants.headOption match {
+            case Some(powerPlant1) =>
+              assert(powerPlant1.id === Some(101))
+              assert(powerPlant1.orgName === "joesan 1")
+              assert(powerPlant1.isActive)
+              assert(powerPlant1.powerPlantTyp === PowerPlantType.RampUpType)
+            case None =>
+              fail(
+                "expected a PowerPlant with id 101 in the database, but not found")
+          }
+      }
   }
 
   "powerPlantById" should "fetch the PowerPlant for the given id" in {
@@ -151,7 +157,9 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
         assert(powerPlant.orgName === "joesan 5")
         assert(powerPlant.isActive)
 
-      case _ => fail("expected the powerPlant with id 105 but was not found in the database")
+      case _ =>
+        fail(
+          "expected the powerPlant with id 105 but was not found in the database")
     }
   }
 
@@ -174,7 +182,8 @@ final class PowerPlantDBServiceSpec extends AsyncFlatSpec
             assert(powerPlant.id === Some(10000))
             assert(powerPlant.isActive)
 
-          case _ => fail("expected the powerPlant with id 10000 but was not found in the database")
+          case _ =>
+            fail("expected the powerPlant with id 10000 but was not found in the database")
         }
     }
   }

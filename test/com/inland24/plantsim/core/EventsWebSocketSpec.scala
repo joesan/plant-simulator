@@ -22,30 +22,48 @@ import play.api.test.Helpers._
 import play.api.test.FakeRequest
 import com.inland24.plantsim.controllers.ApplicationTestFactory
 import com.inland24.plantsim.services.database.DBServiceSpec
-import org.scalatest.{Ignore, WordSpecLike}
+import org.scalatest.{BeforeAndAfterAll, Ignore, WordSpecLike}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 
-
 // Test adapted from https://github.com/playframework/play-scala-websocket-example.git
-@Ignore
-class EventsWebSocketSpec extends PlaySpec with WordSpecLike
-  with BaseOneServerPerSuite with ApplicationTestFactory
-  with ScalaFutures with IntegrationPatience with DBServiceSpec {
+//@Ignore
+class EventsWebSocketSpec
+    extends PlaySpec
+    with WordSpecLike
+    with DBServiceSpec
+    with BaseOneServerPerSuite
+    with ApplicationTestFactory
+    with ScalaFutures
+    with IntegrationPatience
+    with BeforeAndAfterAll {
+
+  override def beforeAll(): Unit = {
+    // 1. Set up the Schemas
+    super.h2SchemaSetup()
+
+    // 2. Populate the tables
+    super.populateTables()
+  }
+
+  override def afterAll(): Unit = {
+    System.clearProperty("ENV")
+    super.h2SchemaDrop()
+  }
 
   private implicit val httpPort = new play.api.http.Port(9000)
 
   "Routes" should {
 
-    "send 404 on a bad request" in  {
+    "send 404 on a bad request" in {
       route(app, FakeRequest(GET, "/boum")).map(status) mustBe Some(NOT_FOUND)
     }
 
-    "send 200 on a good request" in  {
+    "send 200 on a good request" in {
       route(app, FakeRequest(GET, "/")).map(status) mustBe Some(OK)
     }
 
   }
-/*
+  /*
   "PowerPlantOperationController" should {
     "reject a WebSocket flow if the origin is set incorrectly" in WsTestClient.withClient { client =>
 

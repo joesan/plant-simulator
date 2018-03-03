@@ -23,7 +23,10 @@ import com.inland24.plantsim.models.PowerPlantConfig.PowerPlantsConfig
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
-import com.inland24.plantsim.services.database.{DBServiceSpec, PowerPlantService}
+import com.inland24.plantsim.services.database.{
+  DBServiceSpec,
+  PowerPlantService
+}
 import com.typesafe.scalalogging.LazyLogging
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
@@ -40,9 +43,12 @@ import monix.execution.Scheduler.Implicits.global
 import monix.cats._
 // *****
 
-
-class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
-  with BeforeAndAfterAll with LazyLogging {
+class DBObservableTest
+    extends DBServiceSpec
+    with WordSpecLike
+    with Matchers
+    with BeforeAndAfterAll
+    with LazyLogging {
 
   override def beforeAll(): Unit = {
     // 1. Set up the Schemas
@@ -63,7 +69,8 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
   val actorSystem = ActorSystem("test-scheduler")
 
   // Utility method to delay execution of a Future
-  def delayedFuture[T](delay: FiniteDuration)(block: => T)(implicit executor : ExecutionContext): Future[T] = {
+  def delayedFuture[T](delay: FiniteDuration)(block: => T)(
+      implicit executor: ExecutionContext): Future[T] = {
     val promise = Promise[T]
 
     actorSystem.scheduler.scheduleOnce(delay) {
@@ -90,7 +97,9 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
   "DBObservable" must {
 
     "fetch PowerPlant updates at regular intervals given" in {
-      val dbObservable = DBObservable(interval, powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync)
+      val dbObservable = DBObservable(
+        interval,
+        powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync)
 
       def newPowerPlantRow(powerPlantId: Int) = {
         PowerPlantRow(
@@ -106,35 +115,41 @@ class DBObservableTest extends DBServiceSpec with WordSpecLike with Matchers
       }
 
       // Upon every update from the database, we mutate this variable so that we could check our assertions
-      val powerPlantsConfig = PowerPlantsConfig(getNowAsDateTime(), Seq.empty[PowerPlantConfig])
+      val powerPlantsConfig =
+        PowerPlantsConfig(getNowAsDateTime(), Seq.empty[PowerPlantConfig])
 
-      dbSubscription := dbObservable.unsafeSubscribeFn (new Subscriber[Seq[PowerPlantRow]] {
-        override implicit def scheduler: Scheduler = monix.execution.Scheduler.Implicits.global
+      dbSubscription := dbObservable.unsafeSubscribeFn(
+        new Subscriber[Seq[PowerPlantRow]] {
+          override implicit def scheduler: Scheduler =
+            monix.execution.Scheduler.Implicits.global
 
-        /*
-         * Upon the first onNext event, we would just get all active PowerPlant's
-         * from the database. Once we get that, we add a new entry to the PowerPlant
-         * table, so upon next call to the onNext, we should have this entry picked up
-         * by our DBObservable. If we can assert for this entry, our test is successful!
-         */
-        override def onNext(elem: Seq[PowerPlantRow]): Future[Ack] = {
-          // Let us now make a new PowerPlant entry in the database
-          elem.find(row => row.id.contains(2000)) match {
-            case Some(_) =>
-              powerPlantsConfig.copy(
-                powerPlantConfigSeq = com.inland24.plantsim.models.toPowerPlantsConfig(elem).powerPlantConfigSeq
-              )
-            case None =>
-              // We do not yet have it, so let's add a new entry
-              powerPlantService.createNewPowerPlant(newPowerPlantRow(2000))
+          /*
+           * Upon the first onNext event, we would just get all active PowerPlant's
+           * from the database. Once we get that, we add a new entry to the PowerPlant
+           * table, so upon next call to the onNext, we should have this entry picked up
+           * by our DBObservable. If we can assert for this entry, our test is successful!
+           */
+          override def onNext(elem: Seq[PowerPlantRow]): Future[Ack] = {
+            // Let us now make a new PowerPlant entry in the database
+            elem.find(row => row.id.contains(2000)) match {
+              case Some(_) =>
+                powerPlantsConfig.copy(
+                  powerPlantConfigSeq = com.inland24.plantsim.models
+                    .toPowerPlantsConfig(elem)
+                    .powerPlantConfigSeq
+                )
+              case None =>
+                // We do not yet have it, so let's add a new entry
+                powerPlantService.createNewPowerPlant(newPowerPlantRow(2000))
+            }
+            Continue
           }
-          Continue
-        }
 
-        override def onError(ex: Throwable): Unit = fail("error when streaming updates from the database")
+          override def onError(ex: Throwable): Unit =
+            fail("error when streaming updates from the database")
 
-        override def onComplete(): Unit = logger.info("complete")
-      })
+          override def onComplete(): Unit = logger.info("complete")
+        })
 
       def block() = {
         powerPlantsConfig.powerPlantConfigSeq.find(_.id == 2000) match {

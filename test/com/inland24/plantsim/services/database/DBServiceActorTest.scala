@@ -22,10 +22,22 @@ import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
-import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, PowerPlantsConfig, RampUpTypeConfig}
-import com.inland24.plantsim.models.PowerPlantDBEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
+import com.inland24.plantsim.models.PowerPlantConfig.{
+  OnOffTypeConfig,
+  PowerPlantsConfig,
+  RampUpTypeConfig
+}
+import com.inland24.plantsim.models.PowerPlantDBEvent.{
+  PowerPlantCreateEvent,
+  PowerPlantDeleteEvent,
+  PowerPlantUpdateEvent
+}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
-import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantDBEvent, PowerPlantType}
+import com.inland24.plantsim.models.{
+  PowerPlantConfig,
+  PowerPlantDBEvent,
+  PowerPlantType
+}
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import com.typesafe.scalalogging.LazyLogging
 import org.joda.time.{DateTime, DateTimeZone}
@@ -38,9 +50,14 @@ import scala.concurrent.duration._
 import monix.cats._
 // *****
 
-class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
-  with ImplicitSender with WordSpecLike with Matchers
-  with BeforeAndAfterAll with DBServiceSpec with LazyLogging {
+class DBServiceActorTest
+    extends TestKit(ActorSystem("DBServiceActorTest"))
+    with ImplicitSender
+    with WordSpecLike
+    with Matchers
+    with BeforeAndAfterAll
+    with DBServiceSpec
+    with LazyLogging {
 
   implicit val ec = monix.execution.Scheduler.Implicits.global
   implicit val timeout: akka.util.Timeout = 3.seconds
@@ -97,7 +114,8 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
         )
       )
 
-      val events: Seq[PowerPlantDBEvent[PowerPlantConfig]] = DBServiceActor.toEvents(oldCfg, newCfg)
+      val events: Seq[PowerPlantDBEvent[PowerPlantConfig]] =
+        DBServiceActor.toEvents(oldCfg, newCfg)
 
       // We expect only one event to happen
       assert(events.size === 1)
@@ -105,16 +123,17 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
       // This event should be of the type PowerPlantUpdateEvent[OnOffTypeConfig]
       assert(events.head.isInstanceOf[PowerPlantUpdateEvent[_]])
       assert(events.head.powerPlantCfg.id === testOnOffConfig.id)
-      assert(events.head.powerPlantCfg.maxPower === testOnOffConfig.maxPower + 10.0)
+      assert(
+        events.head.powerPlantCfg.maxPower === testOnOffConfig.maxPower + 10.0)
     }
 
     "populate delete events when a delete happens in the database" in {
       val oldCfg = testPowerPlantsConfig
       val newCfg = testPowerPlantsConfig.copy(
         snapshotDateTime = DateTime.now(DateTimeZone.UTC),
-        powerPlantConfigSeq = Seq( // We delete the RampUpType PowerPlant in the database
-          testOnOffConfig
-        )
+        powerPlantConfigSeq =
+          Seq( // We delete the RampUpType PowerPlant in the database
+            testOnOffConfig)
       )
 
       val events = DBServiceActor.toEvents(oldCfg, newCfg)
@@ -143,20 +162,25 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
 
       // We expect two events to happen as we added 2 new PowerPlant's
       assert(events.size === 2)
-      events.foreach(event => assert(event.isInstanceOf[PowerPlantCreateEvent[_]]))
+      events.foreach(event =>
+        assert(event.isInstanceOf[PowerPlantCreateEvent[_]]))
 
       events.foreach {
         // One of the event is of type PowerPlantCreateEvent[OnOffTypeConfig]
-        case event if event.powerPlantCfg.powerPlantType == PowerPlantType.OnOffType =>
+        case event
+            if event.powerPlantCfg.powerPlantType == PowerPlantType.OnOffType =>
           assert(event.powerPlantCfg.id === 3)
           assert(event.powerPlantCfg.maxPower === 30000)
 
         // One of the event is of type PowerPlantCreateEvent[RampUpTypeConfig]
-        case event if event.powerPlantCfg.powerPlantType == PowerPlantType.RampUpType =>
+        case event
+            if event.powerPlantCfg.powerPlantType == PowerPlantType.RampUpType =>
           assert(event.powerPlantCfg.id === 4)
           assert(event.powerPlantCfg.minPower === 100000)
 
-        case _ => fail("Was expected PowerPlantCreateEvent event but an unexpected event was triggered")
+        case _ =>
+          fail(
+            "Was expected PowerPlantCreateEvent event but an unexpected event was triggered")
       }
     }
 
@@ -187,16 +211,20 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
       assert(createEvents.size === 2)
       createEvents.foreach {
         // One of the event is of type PowerPlantCreateEvent[OnOffTypeConfig]
-        case event if event.powerPlantCfg.powerPlantType == PowerPlantType.OnOffType =>
+        case event
+            if event.powerPlantCfg.powerPlantType == PowerPlantType.OnOffType =>
           assert(event.powerPlantCfg.id === 3)
           assert(event.powerPlantCfg.maxPower === 30000)
 
         // One of the event is of type PowerPlantCreateEvent[RampUpTypeConfig]
-        case event if event.powerPlantCfg.powerPlantType == PowerPlantType.RampUpType =>
+        case event
+            if event.powerPlantCfg.powerPlantType == PowerPlantType.RampUpType =>
           assert(event.powerPlantCfg.id === 4)
           assert(event.powerPlantCfg.minPower === 100000)
 
-        case _ => fail("Was expected PowerPlantCreateEvent event but an unexpected event was triggered")
+        case _ =>
+          fail(
+            "Was expected PowerPlantCreateEvent event but an unexpected event was triggered")
       }
 
       // 2. Check for PowerPlantUpdateEvent events
@@ -205,11 +233,14 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
       }
       assert(updateEvents.size === 1)
       updateEvents.foreach {
-        case event if event.isInstanceOf[PowerPlantUpdateEvent[_]]=>
+        case event if event.isInstanceOf[PowerPlantUpdateEvent[_]] =>
           assert(event.powerPlantCfg.id === testOnOffConfig.id)
-          assert(event.powerPlantCfg.maxPower === testOnOffConfig.maxPower + 10.0)
+          assert(
+            event.powerPlantCfg.maxPower === testOnOffConfig.maxPower + 10.0)
 
-        case _ => fail("Was expected PowerPlantUpdateEvent event but an unexpected event was triggered")
+        case _ =>
+          fail(
+            "Was expected PowerPlantUpdateEvent event but an unexpected event was triggered")
       }
 
       // 3. Check for PowerPlantDeleteEvent events
@@ -219,11 +250,13 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
       assert(deleteEvents.size === 1)
       deleteEvents.foreach {
         // Check for PowerPlantDeleteEvent event
-        case event if event.isInstanceOf[PowerPlantDeleteEvent[_]]=>
+        case event if event.isInstanceOf[PowerPlantDeleteEvent[_]] =>
           assert(event.powerPlantCfg.id === testRampUpConfig.id)
           assert(event.powerPlantCfg.maxPower === testRampUpConfig.maxPower)
 
-        case _ => fail("Was expected PowerPlantDeleteEvent event but an unexpected event was triggered")
+        case _ =>
+          fail(
+            "Was expected PowerPlantDeleteEvent event but an unexpected event was triggered")
       }
     }
   }
@@ -239,7 +272,8 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
       override def preStart(): Unit = {
         super.preStart()
         context.become(
-          active(SupervisorEvents(Seq.empty[PowerPlantDBEvent[PowerPlantConfig]]))
+          active(
+            SupervisorEvents(Seq.empty[PowerPlantDBEvent[PowerPlantConfig]]))
         )
       }
 
@@ -258,7 +292,8 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
     }
 
     // Get a reference to our TestSupervisorActor
-    val testSupervisorActorRef = system.actorOf(Props(new TestSupervisorActorRef), "test-supervisor-actor")
+    val testSupervisorActorRef =
+      system.actorOf(Props(new TestSupervisorActorRef), "test-supervisor-actor")
 
     // We disable the Observable inside the DBServiceActor, so that it is easy to unit test!
     val dbServiceActor = system.actorOf(
@@ -274,25 +309,32 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
       val powerPlantService = new PowerPlantService(powerPlantRepo)
 
       // Let us start initially with the available PowerPlant entries in the database
-      val allActivePowerPlants = Await.result(powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync, 3.seconds)
+      val allActivePowerPlants = Await.result(
+        powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync,
+        3.seconds)
 
       // Now send this initial Seq of PowerPlant's to the dbServiceActor (transformed as a PowerPlantConfig type)
       within(2.seconds) {
-        dbServiceActor ! com.inland24.plantsim.models.toPowerPlantsConfig(allActivePowerPlants)
+        dbServiceActor ! com.inland24.plantsim.models
+          .toPowerPlantsConfig(allActivePowerPlants)
         expectNoMsg()
       }
 
       // The dbServiceActor should have send those messages to our TestSupervisorActor instance, check it
-      val supEvents1 = Await.result((testSupervisorActorRef ? GetReceivedEvents).mapTo[SupervisorEvents], 3.seconds)
+      val supEvents1 = Await.result(
+        (testSupervisorActorRef ? GetReceivedEvents).mapTo[SupervisorEvents],
+        3.seconds)
       assert(
-        supEvents1.events.length ===  allActivePowerPlants.length,
+        supEvents1.events.length === allActivePowerPlants.length,
         s"unexpected number of events received by the TestSupervisorActor, " +
           s"was expecting ${allActivePowerPlants.length} events but got ${supEvents1.events.length} events"
       )
 
       // So far so good! Now let us assume that we removed all PowerPlant's with RampUpType from the database
-      val allOnOffTypePlants = allActivePowerPlants.filter(_.powerPlantTyp == OnOffType)
-      val updatedPowerPlant = allOnOffTypePlants.head.copy(orgName = "Joesan updated the name")
+      val allOnOffTypePlants =
+        allActivePowerPlants.filter(_.powerPlantTyp == OnOffType)
+      val updatedPowerPlant =
+        allOnOffTypePlants.head.copy(orgName = "Joesan updated the name")
 
       // And updated the PowerPlant with id == 1
       val allOnOffPlantsUpdated = allOnOffTypePlants.map {
@@ -304,7 +346,8 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
 
       // And then send this update to the dbServiceActor
       within(3.seconds) {
-        dbServiceActor ! com.inland24.plantsim.models.toPowerPlantsConfig(allOnOffPlantsUpdated)
+        dbServiceActor ! com.inland24.plantsim.models
+          .toPowerPlantsConfig(allOnOffPlantsUpdated)
         expectNoMsg()
       }
 
@@ -316,9 +359,11 @@ class DBServiceActorTest extends TestKit(ActorSystem("DBServiceActorTest"))
        *
        * So a total of 4 events are expected
        */
-      val supEvents2 = Await.result((testSupervisorActorRef ? GetReceivedEvents).mapTo[SupervisorEvents], 3.seconds)
+      val supEvents2 = Await.result(
+        (testSupervisorActorRef ? GetReceivedEvents).mapTo[SupervisorEvents],
+        3.seconds)
       assert(
-        supEvents2.events.length ===  4,
+        supEvents2.events.length === 4,
         s"unexpected number of events received by the TestSupervisorActor, " +
           s"was expecting 4 events but got ${supEvents2.events.length} events"
       )

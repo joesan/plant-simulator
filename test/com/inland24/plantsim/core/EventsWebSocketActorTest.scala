@@ -32,8 +32,13 @@ import scala.concurrent.duration._
 
 // TODO: Under implementation
 @Ignore
-class EventsWebSocketActorTest extends TestKit(ActorSystem("EventsWebSocketActorTest"))
-  with ImplicitSender with WordSpecLike with Matchers with BeforeAndAfterAll with DBServiceSpec {
+class EventsWebSocketActorTest
+    extends TestKit(ActorSystem("EventsWebSocketActorTest"))
+    with ImplicitSender
+    with WordSpecLike
+    with Matchers
+    with BeforeAndAfterAll
+    with DBServiceSpec {
 
   override def beforeAll: Unit = {
     // 1. Set up the Schemas
@@ -68,9 +73,7 @@ class EventsWebSocketActorTest extends TestKit(ActorSystem("EventsWebSocketActor
   // This will be the Sink Actor that our PowerPlant will push events and alerts
   val sink = system.actorOf(EventsStream.props(powerPlantObservable))
   val powerPlantActor = system.actorOf(
-    OnOffTypeActor.props(Config(
-      onOffTypeCfg, Some(sink))
-    )
+    OnOffTypeActor.props(Config(onOffTypeCfg, Some(sink)))
   )
 
   "EventsWebSocketActor # telemetrySignals" must {

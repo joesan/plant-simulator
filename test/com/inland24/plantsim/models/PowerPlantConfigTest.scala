@@ -17,12 +17,19 @@
 
 package com.inland24.plantsim.models
 
-import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig, UnknownConfig}
-import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType, UnknownType}
+import com.inland24.plantsim.models.PowerPlantConfig.{
+  OnOffTypeConfig,
+  RampUpTypeConfig,
+  UnknownConfig
+}
+import com.inland24.plantsim.models.PowerPlantType.{
+  OnOffType,
+  RampUpType,
+  UnknownType
+}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.FlatSpec
-
 
 class PowerPlantConfigTest extends FlatSpec {
 
@@ -69,10 +76,15 @@ class PowerPlantConfigTest extends FlatSpec {
         assert(cfg.minPower === testRampUpPowerPlantRow.minPower)
         assert(cfg.name === testRampUpPowerPlantRow.orgName)
         assert(
-          cfg.asInstanceOf[RampUpTypeConfig].rampRateInSeconds.toSeconds === testRampUpPowerPlantRow.rampRateSecs.get
+          cfg
+            .asInstanceOf[RampUpTypeConfig]
+            .rampRateInSeconds
+            .toSeconds === testRampUpPowerPlantRow.rampRateSecs.get
         )
         assert(
-          cfg.asInstanceOf[RampUpTypeConfig].rampPowerRate === testRampUpPowerPlantRow.rampRatePower.get
+          cfg
+            .asInstanceOf[RampUpTypeConfig]
+            .rampPowerRate === testRampUpPowerPlantRow.rampRatePower.get
         )
 
       case cfg if cfg.powerPlantType == OnOffType =>
@@ -83,7 +95,8 @@ class PowerPlantConfigTest extends FlatSpec {
         assert(cfg.name === testOnOffTypePowerPlantRow.orgName)
 
       case someShit =>
-        fail(s"Was expecting one of RampUpType or OnOffType, but $someShit came out!")
+        fail(
+          s"Was expecting one of RampUpType or OnOffType, but $someShit came out!")
     }
   }
 
@@ -104,10 +117,11 @@ class PowerPlantConfigTest extends FlatSpec {
         assert(Some(cfg.id) === testRampUpPowerPlantRow.id)
         assert(cfg.maxPower === testRampUpPowerPlantRow.maxPower)
         assert(cfg.minPower === testRampUpPowerPlantRow.minPower)
-        assert(cfg.name     === testRampUpPowerPlantRow.orgName)
+        assert(cfg.name === testRampUpPowerPlantRow.orgName)
 
       case someShit =>
-        fail(s"Was expecting one of RampUpType or OnOffType, but $someShit came out!")
+        fail(
+          s"Was expecting one of RampUpType or OnOffType, but $someShit came out!")
     }
   }
 }

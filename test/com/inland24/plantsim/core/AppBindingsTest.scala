@@ -23,9 +23,11 @@ import akka.testkit.TestKit
 import com.inland24.plantsim.config.AppConfig
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
 
-
-class AppBindingsTest extends TestKit(ActorSystem("AppBindingsActorSystem"))
-  with WordSpecLike with Matchers with BeforeAndAfterAll {
+class AppBindingsTest
+    extends TestKit(ActorSystem("AppBindingsActorSystem"))
+    with WordSpecLike
+    with Matchers
+    with BeforeAndAfterAll {
 
   override def afterAll(): Unit = {
     super.afterAll()

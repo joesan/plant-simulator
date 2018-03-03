@@ -18,12 +18,15 @@
 package com.inland24.plantsim.models
 
 import com.inland24.plantsim.config.AppConfig
-import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig, UnknownConfig}
+import com.inland24.plantsim.models.PowerPlantConfig.{
+  OnOffTypeConfig,
+  RampUpTypeConfig,
+  UnknownConfig
+}
 import org.scalatest.FlatSpec
 import play.api.libs.json.{JsError, Json}
 
 import scala.concurrent.duration._
-
 
 class ModelsTest extends FlatSpec {
 
@@ -82,9 +85,11 @@ class ModelsTest extends FlatSpec {
     )
     powerPlantCfgFormat.writes(onOffTypePlantCfg) === expectedJsonOnOffType
 
-    val actualOnOffTypeCfg = powerPlantCfgFormat.reads(
-      Json.parse(expectedJsonOnOffType)
-    ).get
+    val actualOnOffTypeCfg = powerPlantCfgFormat
+      .reads(
+        Json.parse(expectedJsonOnOffType)
+      )
+      .get
     actualOnOffTypeCfg === onOffTypePlantCfg
   }
 
@@ -114,9 +119,11 @@ class ModelsTest extends FlatSpec {
     // Check writes
     powerPlantCfgFormat.writes(rampUpTypePlantCfg) === expectedJsonRampUpType
     // Check reads
-    val actualRampUpTypeCfg = powerPlantCfgFormat.reads(
-      Json.parse(expectedJsonRampUpType)
-    ).get
+    val actualRampUpTypeCfg = powerPlantCfgFormat
+      .reads(
+        Json.parse(expectedJsonRampUpType)
+      )
+      .get
     actualRampUpTypeCfg === rampUpTypePlantCfg
   }
 
@@ -143,7 +150,10 @@ class ModelsTest extends FlatSpec {
     powerPlantCfgFormat.writes(unknownPlantCfg) === unknownTypeJson
 
     // assert the reads
-    assert(powerPlantCfgFormat.reads(Json.parse(unknownTypeJson)).isInstanceOf[JsError])
+    assert(
+      powerPlantCfgFormat
+        .reads(Json.parse(unknownTypeJson))
+        .isInstanceOf[JsError])
   }
 
   behavior of "toPowerPlantRow"
@@ -206,15 +216,19 @@ class ModelsTest extends FlatSpec {
         |}
       """.stripMargin
 
-    Json.parse(invalidPowerPlantType).validate[DispatchCommand].fold(
-      _ => {
-        // Nothing to check
-      },
-      _ => {
-        fail(s"expected the parsing of an invalid DispatchCommand " +
-          s"$invalidPowerPlantType to fail, but it succeeded")
-      }
-    )
+    Json
+      .parse(invalidPowerPlantType)
+      .validate[DispatchCommand]
+      .fold(
+        _ => {
+          // Nothing to check
+        },
+        _ => {
+          fail(
+            s"expected the parsing of an invalid DispatchCommand " +
+              s"$invalidPowerPlantType to fail, but it succeeded")
+        }
+      )
   }
 
   "DispatchCommand # reads" should "read the Json and parse a valid DispatchCommand for OnOffType" in {
@@ -228,15 +242,19 @@ class ModelsTest extends FlatSpec {
         |}
       """.stripMargin
 
-    Json.parse(dispatchOnOffType).validate[DispatchCommand].fold(
-      errors => {
-        fail(s"valid DispatchCommand should have successfully parsed, " +
-          s"but failed unexpectedly with errors >> $errors")
-      },
-      dispatchCommand => {
-        dispatchCommand.powerPlantId == 2
-      }
-    )
+    Json
+      .parse(dispatchOnOffType)
+      .validate[DispatchCommand]
+      .fold(
+        errors => {
+          fail(
+            s"valid DispatchCommand should have successfully parsed, " +
+              s"but failed unexpectedly with errors >> $errors")
+        },
+        dispatchCommand => {
+          dispatchCommand.powerPlantId == 2
+        }
+      )
   }
 
   "DispatchCommand#reads" should "error when parsing an invalid DispatchCommand for OnOffType" in {
@@ -260,23 +278,31 @@ class ModelsTest extends FlatSpec {
         |}
       """.stripMargin
 
-    Json.parse(invalidCommand).validate[DispatchCommand].fold(
-      _ => {
-        // Nothing to check!
-      },
-      _ => {
-        fail(s"expected the parsing of an invalid DispatchCommand $invalidCommand to fail, but it succeeded")
-      }
-    )
+    Json
+      .parse(invalidCommand)
+      .validate[DispatchCommand]
+      .fold(
+        _ => {
+          // Nothing to check!
+        },
+        _ => {
+          fail(
+            s"expected the parsing of an invalid DispatchCommand $invalidCommand to fail, but it succeeded")
+        }
+      )
 
-    Json.parse(invalidValue).validate[DispatchCommand].fold(
-      _ => {
-        // Nothing to check!
-      },
-      _ => {
-        fail(s"expected the parsing of an invalid DispatchCommand $invalidValue to fail, but it succeeded")
-      }
-    )
+    Json
+      .parse(invalidValue)
+      .validate[DispatchCommand]
+      .fold(
+        _ => {
+          // Nothing to check!
+        },
+        _ => {
+          fail(
+            s"expected the parsing of an invalid DispatchCommand $invalidValue to fail, but it succeeded")
+        }
+      )
   }
 
   "DispatchCommand#reads" should "read the Json and parse a valid DispatchCommand for RampUpType" in {
@@ -290,15 +316,19 @@ class ModelsTest extends FlatSpec {
         |}
       """.stripMargin
 
-    Json.parse(dispatchRampUpType).validate[DispatchCommand].fold(
-      errors => {
-        fail(s"valid DispatchCommand should have successfully parsed, " +
-          s"but failed unexpectedly with errors $errors")
-      },
-      dispatchCommand => {
-        dispatchCommand.powerPlantId == 2
-      }
-    )
+    Json
+      .parse(dispatchRampUpType)
+      .validate[DispatchCommand]
+      .fold(
+        errors => {
+          fail(
+            s"valid DispatchCommand should have successfully parsed, " +
+              s"but failed unexpectedly with errors $errors")
+        },
+        dispatchCommand => {
+          dispatchCommand.powerPlantId == 2
+        }
+      )
   }
 
   "DispatchCommand#reads" should "error when parsing an invalid DispatchCommand for RampUpType" in {
@@ -322,23 +352,31 @@ class ModelsTest extends FlatSpec {
         |}
       """.stripMargin
 
-    Json.parse(invalidCommand).validate[DispatchCommand].fold(
-      _ => {
-        // Nothing to check!
-      },
-      _ => {
-        fail(s"expected the parsing of an invalid DispatchCommand $invalidCommand to fail, but it succeeded")
-      }
-    )
+    Json
+      .parse(invalidCommand)
+      .validate[DispatchCommand]
+      .fold(
+        _ => {
+          // Nothing to check!
+        },
+        _ => {
+          fail(
+            s"expected the parsing of an invalid DispatchCommand $invalidCommand to fail, but it succeeded")
+        }
+      )
 
-    Json.parse(invalidValue).validate[DispatchCommand].fold(
-      _ => { // errors
-        // Nothing to check!
-      },
-      _ => { // success
-        fail(s"expected the parsing of an invalid DispatchCommand $invalidValue to fail, but it succeeded")
-      }
-    )
+    Json
+      .parse(invalidValue)
+      .validate[DispatchCommand]
+      .fold(
+        _ => { // errors
+          // Nothing to check!
+        },
+        _ => { // success
+          fail(
+            s"expected the parsing of an invalid DispatchCommand $invalidValue to fail, but it succeeded")
+        }
+      )
   }
 
   behavior of "ReturnToNormalCommand"
@@ -349,15 +387,19 @@ class ModelsTest extends FlatSpec {
         | { "powerPlantId": 2 }
       """.stripMargin
 
-    Json.parse(returnToNormalCommand).validate[ReturnToNormalCommand].fold(
-      _ => { // errors
-        fail(s"expected a valid ReturnToNormalCommand $returnToNormalCommand " +
-          s"to have validated successfully, but it did not!")
-      },
-      _ => { // success
-        // Nothing to check!
-      }
-    )
+    Json
+      .parse(returnToNormalCommand)
+      .validate[ReturnToNormalCommand]
+      .fold(
+        _ => { // errors
+          fail(
+            s"expected a valid ReturnToNormalCommand $returnToNormalCommand " +
+              s"to have validated successfully, but it did not!")
+        },
+        _ => { // success
+          // Nothing to check!
+        }
+      )
   }
 
   "ReturnToNormalCommand#reads" should "fail parsing for an in-valid ReturnToNormalCommand" in {
@@ -366,14 +408,18 @@ class ModelsTest extends FlatSpec {
         | { "": 2 }
       """.stripMargin
 
-    Json.parse(returnToNormalCommand).validate[ReturnToNormalCommand].fold(
-      _ => { // errors
-        // Nothing to check!
-      },
-      _ => { // success
-        fail(s"expected a in-valid ReturnToNormalCommand $returnToNormalCommand " +
-          s"to have failed validation, but the validation was successful, please analyze!")
-      }
-    )
+    Json
+      .parse(returnToNormalCommand)
+      .validate[ReturnToNormalCommand]
+      .fold(
+        _ => { // errors
+          // Nothing to check!
+        },
+        _ => { // success
+          fail(
+            s"expected a in-valid ReturnToNormalCommand $returnToNormalCommand " +
+              s"to have failed validation, but the validation was successful, please analyze!")
+        }
+      )
   }
 }

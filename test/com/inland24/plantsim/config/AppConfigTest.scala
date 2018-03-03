@@ -19,7 +19,6 @@ package com.inland24.plantsim.config
 
 import org.scalatest.FlatSpec
 
-
 class AppConfigTest extends FlatSpec {
 
   private def clearSystemProperty() = {
