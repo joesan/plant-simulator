@@ -17,7 +17,7 @@
 
 package com.inland24.plantsim.core
 
-import akka.actor.ActorSystem
+import akka.actor.{Actor, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
@@ -26,12 +26,15 @@ import com.inland24.plantsim.services.database.DBServiceSpec
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor.Config
 import com.inland24.plantsim.streams.EventsStream
-import org.scalatest.{BeforeAndAfterAll, Ignore, Matchers, WordSpecLike}
+import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import com.inland24.plantsim.models.PowerPlantSignal.Transition
+import com.inland24.plantsim.models.PowerPlantState.{Active, Init}
+import org.joda.time.{DateTime, DateTimeZone}
 
-import scala.concurrent.duration._
+import scala.collection.mutable.ListBuffer
 
 // TODO: Under implementation
-@Ignore
+//@Ignore
 class EventsWebSocketActorTest
     extends TestKit(ActorSystem("EventsWebSocketActorTest"))
     with ImplicitSender
@@ -70,14 +73,25 @@ class EventsWebSocketActorTest
   )
   val powerPlantObservable = PowerPlantEventObservable(ec)
 
-  // This will be the Sink Actor that our PowerPlant will push events and alerts
-  val sink = system.actorOf(EventsStream.props(powerPlantObservable))
+  // This will be the channel which our PowerPlantActor will use to push messages
+  val publishChannel = system.actorOf(EventsStream.props(powerPlantObservable))
   val powerPlantActor = system.actorOf(
-    OnOffTypeActor.props(Config(onOffTypeCfg, Some(sink)))
+    OnOffTypeActor.props(Config(onOffTypeCfg, Some(publishChannel)))
   )
 
-  "EventsWebSocketActor # telemetrySignals" must {
+  // This is our buffer to which we can save and check the test expectations
+  val buffer = ListBuffer.empty[String]
 
+  // This will be our sink to which the publishChannel will pipe messages to the WebSocket endpoint
+  class SinkActor extends Actor {
+    override def receive: Receive = {
+      case jsonStr: String =>
+        buffer += jsonStr
+    }
+  }
+  val sink = system.actorOf(Props(new SinkActor))
+
+  "EventsWebSocketActor # telemetrySignals" must {
     // Let us create our EventsWebSocketActor instance (for TelemetrySignals)
     val telemetrySignalsWebSocketActor = system.actorOf(
       EventsWebSocketActor.props(
@@ -86,16 +100,28 @@ class EventsWebSocketActorTest
       )
     )
 
+    // Let us create our EventsWebSocketActor instance (for Events)
+    val eventsWebSocketActor = system.actorOf(
+      EventsWebSocketActor.props(
+        EventsWebSocketActor.eventsAndAlerts(Some(102), powerPlantObservable),
+        sink
+      )
+    )
+
     "produce telemetry signals every repeatable interval" in {
-      telemetrySignalsWebSocketActor ! "Give Me Telemetry"
+      telemetrySignalsWebSocketActor ! "Some Message"
+    }
+
+    "produce events and alerts" in {
+      val transition = Transition(
+        oldState = Init,
+        newState = Active,
+        powerPlantConfig = onOffTypeCfg,
+        timeStamp = DateTime.now(DateTimeZone.UTC)
+      )
+      eventsWebSocketActor ! transition
+
+      buffer foreach println
     }
   }
-
-  // Let us create our EventsWebSocketActor instance (for Events & Alerts)
-  val eventsAndAlertsWebSocketActor = system.actorOf(
-    EventsWebSocketActor.props(
-      EventsWebSocketActor.eventsAndAlerts(Some(102), powerPlantObservable),
-      sink
-    )
-  )
 }

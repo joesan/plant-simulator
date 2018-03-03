@@ -32,6 +32,7 @@ import play.api.libs.json.JodaWrites._
 
 import scala.concurrent.Future
 
+
 class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
     extends Actor
     with ActorLogging {
@@ -44,8 +45,10 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
     super.postStop()
   }
 
-  override def preStart = {
+  override def preStart(): Unit = {
     super.preStart()
+
+    log.info("**** Started EventsWebSocketActor Subscription")
 
     // 1. This will be our Subscriber to the source Observable
     val subscriber = new Subscriber[JsValue] {
@@ -60,7 +63,6 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
           "message" -> ex.getMessage,
           "timestamp" -> DateTime.now()
         )
-
         self ! PoisonPill
       }
 
@@ -74,40 +76,12 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
         Continue
       }
     }
-    /*
-    val subscriberSS = new Subscriber[JsValue] {
-      def onSubscribe(s: Subscription): Unit = {
-        println(s"WebSocket Opened ************** ")
-        subscription := s
-      }
-
-      def onNext(json: JsValue): Unit = {
-        log.info(s"Got a new message **** $json")
-        sink ! json
-      }
-
-      def onError(t: Throwable): Unit = {
-        log.warning(s"Error while serving a web-socket stream", t)
-        sink ! Json.obj(
-          "event" -> "error",
-          "type" -> t.getClass.getName,
-          "message" -> t.getMessage,
-          "timestamp" -> DateTime.now(DateTimeZone.UTC))
-
-        context.stop(self)
-      }
-
-      def onComplete(): Unit = {
-        sink ! Json.obj("event" -> "complete", "timestamp" -> DateTime.now(DateTimeZone.UTC))
-        context.stop(self)
-      }
-    } */
 
     // 3. The Subscription that is going to push our events outside
     subscription := source.subscribe(subscriber)
   }
 
-  def receive = {
+  def receive: PartialFunction[Any, Unit] = {
     case e: String =>
       sink ! e
   }
@@ -115,7 +89,7 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
 object EventsWebSocketActor {
 
   def eventsAndAlerts(someId: Option[Int],
-                      source: PowerPlantEventObservable) = {
+                      source: PowerPlantEventObservable): Observable[JsValue] = {
     someId match {
       case Some(id) =>
         source.collect {
@@ -125,7 +99,7 @@ object EventsWebSocketActor {
     }
   }
 
-  def telemetrySignals(id: Int, powerPlantActorRef: ActorRef) = {
+  def telemetrySignals(id: Int, powerPlantActorRef: ActorRef): Observable[JsValue] = {
     import scala.concurrent.duration._
     import akka.pattern.ask
     implicit val timeOut: Timeout = 3.seconds

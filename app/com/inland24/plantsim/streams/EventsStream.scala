@@ -32,11 +32,11 @@ final class EventsStream(
     extends Actor
     with ActorLogging {
 
-  override def preStart = {
+  override def preStart: Unit = {
     super.preStart()
   }
 
-  override def receive = {
+  override def receive: PartialFunction[Any, Unit] = {
     case t: Transition =>
       channel.onNext(t)
 
@@ -51,10 +51,10 @@ final class EventsStream(
       // Whoosh.... some insane dog wanted a war with me! and he did by sending me this message
       throw new Exception(
         "Sorry mate! I got to go! I will be resurrected " +
-          "by my supervisor! Make sure please noone sends this message ever")
+          "by my supervisor! Make sure please no one sends this message ever")
 
-    case _ =>
-      log.info(s"**** Doing Nothing ****")
+    case x: Any =>
+      log.info(s"**** Got Unknown Message $x **** This will jsu be ignored!")
   }
 }
 object EventsStream {
