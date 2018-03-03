@@ -17,16 +17,23 @@
 
 package com.inland24.plantsim.core
 
+import java.util.function.Consumer
+
+import com.github.andyglow.websocket.WebsocketClient
 import org.scalatestplus.play._
 import play.api.test.Helpers._
-import play.api.test.FakeRequest
+import play.api.test.{FakeRequest, Helpers, TestServer, WsTestClient}
 import com.inland24.plantsim.controllers.ApplicationTestFactory
 import com.inland24.plantsim.services.database.DBServiceSpec
-import org.scalatest.{BeforeAndAfterAll, Ignore, WordSpecLike}
+import org.scalatest.{BeforeAndAfterAll, WordSpecLike}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import play.api.Logger
+import play.shaded.ahc.org.asynchttpclient.AsyncHttpClient
 
-// Test adapted from https://github.com/playframework/play-scala-websocket-example.git
-//@Ignore
+import scala.compat.java8.FutureConverters
+import scala.concurrent.duration._
+
+
 class EventsWebSocketSpec
     extends PlaySpec
     with WordSpecLike
@@ -52,18 +59,20 @@ class EventsWebSocketSpec
 
   private implicit val httpPort = new play.api.http.Port(9000)
 
+  // Simple tests to check some Endpoints for HTTP status
   "Routes" should {
 
     "send 404 on a bad request" in {
-      route(app, FakeRequest(GET, "/boum")).map(status) mustBe Some(NOT_FOUND)
+      route(app, FakeRequest(GET, "/kickass")).map(status) mustBe Some(NOT_FOUND)
     }
 
-    "send 200 on a good request" in {
-      route(app, FakeRequest(GET, "/")).map(status) mustBe Some(OK)
+    "send 200 for /config" in {
+      route(app, FakeRequest(GET, "/config")).map(status) mustBe Some(OK)
     }
-
   }
-  /*
+
+  // Test adapted from
+  // https://github.com/playframework/play-scala-websocket-example/blob/2.6.x/test/controllers/FunctionalSpec.scala
   "PowerPlantOperationController" should {
     "reject a WebSocket flow if the origin is set incorrectly" in WsTestClient.withClient { client =>
 
@@ -81,17 +90,17 @@ class EventsWebSocketSpec
       ws ! "hello"
       ws ! "world"
 
-      //val app = new GuiceApplicationBuilder().configure()build()
+      val app = fakeApplication //new GuiceApplicationBuilder().configure().build()
 
       // Pick a non standard port that will fail the (somewhat contrived) origin check...
 
-      /*
+
       lazy val port: Int = 31337
 
       //val app = new GuiceApplicationBuilder().build()
-      Helpers.running(TestServer(port)) {
+      Helpers.running(TestServer(port, app)) {
         val myPublicAddress = s"localhost:$port"
-        val serverURL = s"ws://$myPublicAddress/ws"
+        val serverURL = s"ws://$myPublicAddress/events"
 
         val asyncHttpClient: AsyncHttpClient = client.underlying[AsyncHttpClient]
         val webSocketClient = new WebSocketClient(asyncHttpClient)
@@ -103,7 +112,7 @@ class EventsWebSocketSpec
           val listener = new WebSocketClient.LoggingListener(consumer)
           val completionStage = webSocketClient.call(serverURL, origin, listener)
           val f = FutureConverters.toScala(completionStage)
-          Await.result(f, atMost = 1000.millis)
+          scala.concurrent.Await.result(f, atMost = 1000.millis)
           listener.getThrowable mustBe a[IllegalStateException]
         } catch {
           case e: IllegalStateException =>
@@ -113,7 +122,7 @@ class EventsWebSocketSpec
             val foo = e.getCause
             foo mustBe an [IllegalStateException]
         }
-      } */
+      }
     }
-  } */
+  }
 }

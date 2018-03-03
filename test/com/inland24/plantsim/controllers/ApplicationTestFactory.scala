@@ -41,6 +41,7 @@ trait ApplicationTestFactory extends FakeApplicationFactory {
       initialConfiguration = configuration,
       lifecycle = new DefaultApplicationLifecycle()
     )
-    new Bootstrap().load(context)
+    val laoder = new Bootstrap().load(context)
+    laoder
   }
 }
