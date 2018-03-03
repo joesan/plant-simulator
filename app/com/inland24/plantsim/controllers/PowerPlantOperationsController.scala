@@ -37,7 +37,6 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.{Failure, Success}
 
-
 class PowerPlantOperationsController(
     bindings: AppBindings,
     val controllerComponents: ControllerComponents)

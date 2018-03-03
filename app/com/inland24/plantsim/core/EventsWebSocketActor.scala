@@ -32,7 +32,6 @@ import play.api.libs.json.JodaWrites._
 
 import scala.concurrent.Future
 
-
 class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
     extends Actor
     with ActorLogging {
@@ -88,8 +87,9 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
 }
 object EventsWebSocketActor {
 
-  def eventsAndAlerts(someId: Option[Int],
-                      source: PowerPlantEventObservable): Observable[JsValue] = {
+  def eventsAndAlerts(
+      someId: Option[Int],
+      source: PowerPlantEventObservable): Observable[JsValue] = {
     someId match {
       case Some(id) =>
         source.collect {
@@ -99,7 +99,8 @@ object EventsWebSocketActor {
     }
   }
 
-  def telemetrySignals(id: Int, powerPlantActorRef: ActorRef): Observable[JsValue] = {
+  def telemetrySignals(id: Int,
+                       powerPlantActorRef: ActorRef): Observable[JsValue] = {
     import scala.concurrent.duration._
     import akka.pattern.ask
     implicit val timeOut: Timeout = 3.seconds
