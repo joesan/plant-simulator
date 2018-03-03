@@ -30,14 +30,14 @@ import com.inland24.plantsim.models.ReturnToNormalCommand
   * or Alerting happens via the outChannel that is configured in the [[Config]] that is
   * passed during this Actor initialization.
   *
-  * @param config
+  * @param config The Configuration that this Actor should use
   */
 class OnOffTypeActor private (config: Config) extends Actor with ActorLogging {
 
-  val cfg = config.cfg
-  val eventStream = config.eventsStream
+  private val cfg = config.cfg
+  private val eventStream = config.eventsStream
 
-  private def evolve(stm: StateMachine) = {
+  private def evolve(stm: StateMachine): Unit = {
     val (signals, newStm) = StateMachine.popEvents(stm)
     for (s <- signals) {
       eventStream.foreach(elem => elem ! s)
@@ -63,18 +63,13 @@ class OnOffTypeActor private (config: Config) extends Actor with ActorLogging {
     * following state transitions are possible:
     *
     * DispatchOnOffPowerPlant - To TurnOn or TurnOff the PowerPlant
-    *
-    * ReturnToNormalCommand - This is yet another possibility to TurnOff this PowerPlant
-    *
-    * OutOfServiceMessage - If for some reason this PowerPlant should be thrown out of operation
-    *
-    * ReturnToServiceMessage - To make the PowerPlant operational again
-    *
-    * StateRequestMessage - To get the current actual state of this PowerPlant
-    *
+    * ReturnToNormalCommand   - This is yet another possibility to TurnOff this PowerPlant
+    * OutOfServiceMessage     - If for some reason this PowerPlant should be thrown out of operation
+    * ReturnToServiceMessage  - To make the PowerPlant operational again
+    * StateRequestMessage     - To get the current actual state of this PowerPlant
     * TelemetrySignalsMessage - To get only the signals emitted by this PowerPlant
     *
-    * @param state
+    * @param state The StateMachine object that will be evolved for every transition
     * @return
     */
   def active(state: StateMachine): Receive = {

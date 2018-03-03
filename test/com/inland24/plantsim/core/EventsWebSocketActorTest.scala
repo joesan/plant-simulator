@@ -17,9 +17,9 @@
 
 package com.inland24.plantsim.core
 
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.inland24.plantsim.config.AppConfig
+import com.inland24.plantsim.models.PowerPlantActorMessage.{OutOfServiceMessage, ReturnToServiceMessage}
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.DBServiceSpec
@@ -27,14 +27,12 @@ import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor.Config
 import com.inland24.plantsim.streams.EventsStream
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
-import com.inland24.plantsim.models.PowerPlantSignal.Transition
-import com.inland24.plantsim.models.PowerPlantState.{Active, Init}
-import org.joda.time.{DateTime, DateTimeZone}
+
+import play.api.libs.json.Json
 
 import scala.collection.mutable.ListBuffer
 
-// TODO: Under implementation
-//@Ignore
+
 class EventsWebSocketActorTest
     extends TestKit(ActorSystem("EventsWebSocketActorTest"))
     with ImplicitSender
@@ -60,27 +58,26 @@ class EventsWebSocketActorTest
   // Use a test AppConfig
   // (We test against application.test.conf - See DBServiceSpec) where we
   // set this as Environment variable
-  val appCfg = AppConfig.load()
-  implicit val ec = monix.execution.Scheduler.Implicits.global
+  private implicit val ec = monix.execution.Scheduler.Implicits.global
 
   // This will be our PowerPlantActor instance
-  val onOffTypeCfg = OnOffTypeConfig(
+  private val onOffTypeCfg = OnOffTypeConfig(
     102,
     "joesan 102",
     200.0,
     1600.0,
     OnOffType
   )
-  val powerPlantObservable = PowerPlantEventObservable(ec)
+  private val powerPlantObservable = PowerPlantEventObservable(ec)
 
   // This will be the channel which our PowerPlantActor will use to push messages
-  val publishChannel = system.actorOf(EventsStream.props(powerPlantObservable))
-  val powerPlantActor = system.actorOf(
+  private val publishChannel: ActorRef = system.actorOf(EventsStream.props(powerPlantObservable))
+  private val powerPlantActor: ActorRef = system.actorOf(
     OnOffTypeActor.props(Config(onOffTypeCfg, Some(publishChannel)))
   )
 
   // This is our buffer to which we can save and check the test expectations
-  val buffer = ListBuffer.empty[String]
+  private val buffer: ListBuffer[String] = ListBuffer.empty[String]
 
   // This will be our sink to which the publishChannel will pipe messages to the WebSocket endpoint
   class SinkActor extends Actor {
@@ -89,39 +86,67 @@ class EventsWebSocketActorTest
         buffer += jsonStr
     }
   }
-  val sink = system.actorOf(Props(new SinkActor))
+  private val sink = system.actorOf(Props(new SinkActor))
 
   "EventsWebSocketActor # telemetrySignals" must {
-    // Let us create our EventsWebSocketActor instance (for TelemetrySignals)
-    val telemetrySignalsWebSocketActor = system.actorOf(
-      EventsWebSocketActor.props(
-        EventsWebSocketActor.telemetrySignals(102, powerPlantActor),
-        sink
-      )
-    )
 
-    // Let us create our EventsWebSocketActor instance (for Events)
-    val eventsWebSocketActor = system.actorOf(
-      EventsWebSocketActor.props(
-        EventsWebSocketActor.eventsAndAlerts(Some(102), powerPlantObservable),
-        sink
-      )
-    )
+    "produce telemetry signals" in {
+      // Reset the buffer
+      buffer.clear()
 
-    "produce telemetry signals every repeatable interval" in {
-      telemetrySignalsWebSocketActor ! "Some Message"
+      // Let us create our EventsWebSocketActor instance (for TelemetrySignals)
+      system.actorOf(
+        EventsWebSocketActor.props(
+          EventsWebSocketActor.telemetrySignals(102, powerPlantActor),
+          sink
+        )
+      )
+
+      /* Our EventsWebSocketActor pushes TelemetrySignals every 5 seconds, so to
+       * collect some signals in our sink Actor, let us wait for 10 seconds
+       * Unfortunately, I have to block! Any better ideas????
+       */
+      Thread.sleep(10000)
+
+      val expected = """{"powerPlantId":"102","activePower":"200.0","isOnOff":"false","isAvailable":"true"}"""
+      // Let us check our expectations (We expect a total of 2 Signals)
+      assert(buffer.size === 2)
+      assert(buffer.head === expected)
+      assert(buffer.last === expected)
     }
 
     "produce events and alerts" in {
-      val transition = Transition(
-        oldState = Init,
-        newState = Active,
-        powerPlantConfig = onOffTypeCfg,
-        timeStamp = DateTime.now(DateTimeZone.UTC)
-      )
-      eventsWebSocketActor ! transition
+      // Reset the buffer
+      buffer.clear()
 
-      buffer foreach println
+      // Let us create our EventsWebSocketActor instance (for Events)
+      system.actorOf(
+        EventsWebSocketActor.props(
+          EventsWebSocketActor.eventsAndAlerts(Some(102), powerPlantObservable),
+          sink
+        )
+      )
+      // We unfortunately do this shitty sleep, I have no other ideas to make this better!
+      Thread.sleep(1000)
+
+      // To be able to receive Events, let us send some message to the PowerPlantActor
+      powerPlantActor ! OutOfServiceMessage
+      Thread.sleep(1000)
+
+      powerPlantActor ! ReturnToServiceMessage
+      Thread.sleep(1000)
+
+      // We expect that the above 2 events be pushed to your sink ActorRef!
+      assert(buffer.size === 2)
+      val headJson = Json.parse(buffer.head)
+      assert((headJson \ "newState").as[String] === "OutOfService")
+      assert((headJson \ "oldState").as[String] === "Active")
+      assert((headJson \ "powerPlantCfg" \ "powerPlantId").as[Int] === 102)
+
+      val lastJson = Json.parse(buffer.last)
+      assert((lastJson \ "newState").as[String] === "ReturnToNormal")
+      assert((lastJson \ "oldState").as[String] === "OutOfService")
+      assert((lastJson \ "powerPlantCfg" \ "powerPlantId").as[Int] === 102)
     }
   }
 }
