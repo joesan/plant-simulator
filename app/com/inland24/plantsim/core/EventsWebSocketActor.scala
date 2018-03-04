@@ -71,7 +71,7 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
       }
 
       override def onNext(elem: JsValue): Future[Ack] = {
-        self ! elem.toString
+        self ! elem
         Continue
       }
     }
@@ -81,8 +81,10 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
   }
 
   def receive: PartialFunction[Any, Unit] = {
+    case jsValue: JsValue =>
+      sink ! jsValue.toString
     case e: String =>
-      sink ! e
+      log.info(s"Client sent a Message $e")
   }
 }
 object EventsWebSocketActor {
