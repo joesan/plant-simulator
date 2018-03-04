@@ -19,19 +19,21 @@ package com.inland24.plantsim.core
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.inland24.plantsim.models.PowerPlantActorMessage.{OutOfServiceMessage, ReturnToServiceMessage}
+import com.inland24.plantsim.models.PowerPlantActorMessage.{
+  OutOfServiceMessage,
+  ReturnToServiceMessage
+}
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.DBServiceSpec
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor.Config
 import com.inland24.plantsim.streams.EventsStream
+import monix.execution.Scheduler
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
-
 import play.api.libs.json.Json
 
 import scala.collection.mutable.ListBuffer
-
 
 class EventsWebSocketActorTest
     extends TestKit(ActorSystem("EventsWebSocketActorTest"))
@@ -58,7 +60,8 @@ class EventsWebSocketActorTest
   // Use a test AppConfig
   // (We test against application.test.conf - See DBServiceSpec) where we
   // set this as Environment variable
-  private implicit val ec = monix.execution.Scheduler.Implicits.global
+  private implicit val ec: Scheduler =
+    monix.execution.Scheduler.Implicits.global
 
   // This will be our PowerPlantActor instance
   private val onOffTypeCfg = OnOffTypeConfig(
@@ -74,7 +77,8 @@ class EventsWebSocketActorTest
     val powerPlantObservable = PowerPlantEventObservable(ec)
 
     // This will be the channel which our PowerPlantActor will use to push messages
-    val publishChannel: ActorRef = system.actorOf(EventsStream.props(powerPlantObservable))
+    val publishChannel: ActorRef =
+      system.actorOf(EventsStream.props(powerPlantObservable))
     val powerPlantActor: ActorRef = system.actorOf(
       OnOffTypeActor.props(Config(onOffTypeCfg, Some(publishChannel)))
     )
@@ -109,7 +113,8 @@ class EventsWebSocketActorTest
        */
       Thread.sleep(10000)
 
-      val expected = """{"powerPlantId":"102","activePower":"200.0","isOnOff":"false","isAvailable":"true"}"""
+      val expected =
+        """{"powerPlantId":"102","activePower":"200.0","isOnOff":"false","isAvailable":"true"}"""
       // Let us check our expectations (We expect a total of 2 Signals)
       assert(buffer.size === 2)
       assert(buffer.head === expected)
@@ -122,7 +127,8 @@ class EventsWebSocketActorTest
     val powerPlantObservable = PowerPlantEventObservable(ec)
 
     // This will be the channel which our PowerPlantActor will use to push messages
-    val publishChannel: ActorRef = system.actorOf(EventsStream.props(powerPlantObservable))
+    val publishChannel: ActorRef =
+      system.actorOf(EventsStream.props(powerPlantObservable))
     val powerPlantActor: ActorRef = system.actorOf(
       OnOffTypeActor.props(Config(onOffTypeCfg, Some(publishChannel)))
     )

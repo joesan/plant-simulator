@@ -36,7 +36,6 @@ import play.api.libs.json.{JsValue, Json}
 import org.awaitility.Awaitility.{await => awaitWithTimeOut}
 import play.shaded.ahc.org.asynchttpclient.AsyncHttpClient
 
-
 class EventsWebSocketSpec
     extends PlaySpec
     with WordSpecLike
@@ -66,7 +65,8 @@ class EventsWebSocketSpec
   "Routes" should {
 
     "send 404 on a bad request" in {
-      route(app, FakeRequest(GET, "/kickass")).map(status) mustBe Some(NOT_FOUND)
+      route(app, FakeRequest(GET, "/kickass")).map(status) mustBe Some(
+        NOT_FOUND)
     }
 
     "send 200 for /config" in {
@@ -80,78 +80,85 @@ class EventsWebSocketSpec
     */
   "PowerPlantOperationController" should {
 
-    "reject a WebSocket flow if the origin is set incorrectly" in WsTestClient.withClient { client =>
-      val app = fakeApplication
-      // Pick a non standard port that will fail the (somewhat contrived) origin check...
-      lazy val port: Int = 31337
-      Helpers.running(TestServer(port, app)) {
-        val myPublicAddress = s"localhost:$port"
-        val serverURL = s"ws://$myPublicAddress/events"
+    "reject a WebSocket flow if the origin is set incorrectly" in WsTestClient
+      .withClient { client =>
+        val app = fakeApplication
+        // Pick a non standard port that will fail the (somewhat contrived) origin check...
+        lazy val port: Int = 31337
+        Helpers.running(TestServer(port, app)) {
+          val myPublicAddress = s"localhost:$port"
+          val serverURL = s"ws://$myPublicAddress/events"
 
-        val asyncHttpClient: AsyncHttpClient = client.underlying[AsyncHttpClient]
-        val webSocketClient = new WebSocketClient(asyncHttpClient)
-        try {
-          val origin = "ws://example.com/ws"
-          val consumer: Consumer[String] = (message: String) => println(message)
-          val listener = new WebSocketClient.LoggingListener(consumer)
-          val completionStage = webSocketClient.call(serverURL, origin, listener)
-          val f = FutureConverters.toScala(completionStage)
-          scala.concurrent.Await.result(f, atMost = 1000.millis)
-          listener.getThrowable mustBe a[IllegalStateException]
-        } catch {
-          case e: IllegalStateException =>
-            e mustBe an [IllegalStateException]
+          val asyncHttpClient: AsyncHttpClient =
+            client.underlying[AsyncHttpClient]
+          val webSocketClient = new WebSocketClient(asyncHttpClient)
+          try {
+            val origin = "ws://example.com/ws"
+            val consumer: Consumer[String] =
+              (message: String) => println(message)
+            val listener = new WebSocketClient.LoggingListener(consumer)
+            val completionStage =
+              webSocketClient.call(serverURL, origin, listener)
+            val f = FutureConverters.toScala(completionStage)
+            scala.concurrent.Await.result(f, atMost = 1000.millis)
+            listener.getThrowable mustBe a[IllegalStateException]
+          } catch {
+            case e: IllegalStateException =>
+              e mustBe an[IllegalStateException]
 
-          case e: java.util.concurrent.ExecutionException =>
-            val foo = e.getCause
-            foo mustBe an [IllegalStateException]
+            case e: java.util.concurrent.ExecutionException =>
+              val foo = e.getCause
+              foo mustBe an[IllegalStateException]
+          }
         }
       }
-    }
 
     pending
-    "accept a WebSocket flow if the origin is set correctly" in WsTestClient.withClient { client =>
+    "accept a WebSocket flow if the origin is set correctly" in WsTestClient
+      .withClient { client =>
+        // 1. prepare ws-client
+        // 2. define message handler
+        val cli = WebsocketClient[String]("ws://echo.websocket.org") {
+          case str =>
+            Logger.info(s"<<| $str")
+        }
 
-      // 1. prepare ws-client
-      // 2. define message handler
-      val cli = WebsocketClient[String]("ws://echo.websocket.org") {
-        case str =>
-          Logger.info(s"<<| $str")
-      }
+        // 4. open websocket
+        val ws = cli.open()
 
-      // 4. open websocket
-      val ws = cli.open()
+        // 5. send messages
+        ws ! "hello"
+        ws ! "world"
 
-      // 5. send messages
-      ws ! "hello"
-      ws ! "world"
+        lazy val port: Int = 9000
+        val app = fakeApplication
+        Helpers.running(TestServer(port, app)) {
+          val myPublicAddress = s"localhost:$port"
+          val serverURL = s"ws://$myPublicAddress/powerPlant/events"
 
+          val asyncHttpClient: AsyncHttpClient =
+            client.underlying[AsyncHttpClient]
+          val webSocketClient = new WebSocketClient(asyncHttpClient)
+          val queue = new ArrayBlockingQueue[String](10)
+          val origin = serverURL
+          val consumer: Consumer[String] =
+            (message: String) => queue.put(message)
+          val listener = new WebSocketClient.LoggingListener(consumer)
+          val completionStage =
+            webSocketClient.call(serverURL, origin, listener)
+          val f = FutureConverters.toScala(completionStage)
 
-      lazy val port: Int = 9000
-      val app = fakeApplication
-      Helpers.running(TestServer(port, app)) {
-        val myPublicAddress = s"localhost:$port"
-        val serverURL = s"ws://$myPublicAddress/powerPlant/events"
-
-        val asyncHttpClient: AsyncHttpClient = client.underlying[AsyncHttpClient]
-        val webSocketClient = new WebSocketClient(asyncHttpClient)
-        val queue = new ArrayBlockingQueue[String](10)
-        val origin = serverURL
-        val consumer: Consumer[String] = (message: String) => queue.put(message)
-        val listener = new WebSocketClient.LoggingListener(consumer)
-        val completionStage = webSocketClient.call(serverURL, origin, listener)
-        val f = FutureConverters.toScala(completionStage)
-
-        // Test we can get good output from the WebSocket
-        whenReady(f, timeout = Timeout(1.second)) { webSocket =>
-          val condition: Callable[java.lang.Boolean] = () => webSocket.isOpen && queue.peek() != null
-          awaitWithTimeOut().until(condition)
-          val input: String = queue.take()
-          val json: JsValue = Json.parse(input)
-          val symbol = (json \ "symbol").as[String]
-          List(symbol) must contain oneOf("AAPL", "GOOG", "ORCL")
+          // Test we can get good output from the WebSocket
+          whenReady(f, timeout = Timeout(1.second)) { webSocket =>
+            val condition: Callable[java.lang.Boolean] =
+              () => webSocket.isOpen && queue.peek() != null
+            awaitWithTimeOut().until(condition)
+            val input: String = queue.take()
+            val json: JsValue = Json.parse(input)
+            val symbol = (json \ "symbol").as[String]
+            List(symbol) must contain oneOf ("AAPL", "GOOG", "ORCL")
+          }
         }
       }
-    }
   }
 }
