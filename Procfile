@@ -1,1 +1,1 @@
-target/universal/stage/bin/plant-simulator -Denv=dev
+web: target/universal/stage/bin/plant-simulator -Denv=dev
