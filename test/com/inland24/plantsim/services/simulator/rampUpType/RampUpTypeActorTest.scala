@@ -372,7 +372,7 @@ class RampUpTypeActorTest
 
       /*
        * Very unfortunately, we got to bloddy wait for some time until our Actor changes context!
-       * This happens only for unit testing as there is no Akka Testkit support for this behavior
+       * This happens only for unit testing as there is no Akka TestKit support for this behavior
        */
       Thread.sleep(8000) // We sleep for 8 seconds, give some time for our Actor to change context!!!
 
