@@ -27,9 +27,8 @@ import com.inland24.plantsim.models.{
   toPowerPlantRow
 }
 import play.api.libs.json.Json
-import play.api.mvc.{Action, Controller, ControllerComponents, Result}
+import play.api.mvc.ControllerComponents
 import com.inland24.plantsim.models._
-import io.swagger.annotations.Api
 import monix.execution.FutureUtils.extensions._
 
 import scala.concurrent.Future
@@ -37,7 +36,7 @@ import scala.util.{Failure, Success}
 
 // TODO: pass in this execution context via AppBindings
 import monix.execution.Scheduler.Implicits.global
-@Api
+
 class PowerPlantController(bindings: AppBindings,
                            val controllerComponents: ControllerComponents)
     extends ControllerBase {

@@ -12,7 +12,7 @@ GET         /plantsim/powerplant/metrics             com.inland24.plantsim.contr
 # Endpoints to add / update / read / delete PowerPlant's
 GET         /plantsim/powerplant/:id/details         com.inland24.plantsim.controllers.PowerPlantController.powerPlantDetails(id: Int)
 GET         /plantsim/powerplants                    com.inland24.plantsim.controllers.PowerPlantController.powerPlants(onlyActive: Boolean ?= true, page: Int ?= 1)
-GET         /plantsim/powerplant/search              com.inland24.plantsim.controllers.PowerPlantController.searchPowerPlants(onlyActive: Option[Boolean], page: Int ?= 1, powerPlantType: Option[String], powerPlantName: Option[String], orgName: Option[String])
+GET         /plantsim/powerplants/search             com.inland24.plantsim.controllers.PowerPlantController.searchPowerPlants(onlyActive: Option[Boolean], page: Int ?= 1, powerPlantType: Option[String], powerPlantName: Option[String], orgName: Option[String])
 POST        /plantsim/powerplant/:id/update          com.inland24.plantsim.controllers.PowerPlantController.updatePowerPlant(id: Int)
 
 # Endpoints to steer a PowerPlant
