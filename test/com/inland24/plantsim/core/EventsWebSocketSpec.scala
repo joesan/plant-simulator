@@ -70,7 +70,7 @@ class EventsWebSocketSpec
     }
 
     "send 200 for /config" in {
-      route(app, FakeRequest(GET, "/config")).map(status) mustBe Some(OK)
+      route(app, FakeRequest(GET, "/plantsim/config")).map(status) mustBe Some(OK)
     }
   }
 
