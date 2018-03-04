@@ -17,11 +17,11 @@ If you just want to look at the Endpoints, I have a hosted version on Heroku (pl
 
 Here are some URL's that you can call:
 
-https://cryptic-taiga-18841.herokuapp.com/plantsim/config - Gets you the application configuration
+`https://cryptic-taiga-18841.herokuapp.com/plantsim/config` - Gets you the application configuration
 
-wss://cryptic-taiga-18841.herokuapp.com/plantsim/powerplant/signals?id=1 - Gets you the Telemetry signals for PowerPlant with id = 1
+`wss://cryptic-taiga-18841.herokuapp.com/plantsim/powerplant/signals?id=1` - Gets you the Telemetry signals for PowerPlant with id = 1
 
-wss://cryptic-taiga-18841.herokuapp.com/plantsim/powerplant/events?id=1 - Gets you the Events and Alerts happening for PowerPlant with id = 1
+`wss://cryptic-taiga-18841.herokuapp.com/plantsim/powerplant/events?id=1` - Gets you the Events and Alerts happening for PowerPlant with id = 1
 
 ## Getting Started 
 
