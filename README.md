@@ -11,6 +11,18 @@
 
 # plant-simulator [![Open Source](https://img.shields.io/badge/Open%20Source-100%25-yellowgreen.svg)](https://github.com/ellerbrock/open-source-badges/)
 
+## Getting Started [For the Impatient]
+
+If you just want to look at the Endpoints, I have a hosted version on Heroku (please be soft on it, it just runs on a 512MB RAM).
+
+Here are some URL's that you can call:
+
+https://cryptic-taiga-18841.herokuapp.com/plantsim/config - Gets you the application configuration
+
+wss://cryptic-taiga-18841.herokuapp.com/plantsim/powerplant/signals?id=1 - Gets you the Telemetry signals for PowerPlant with id = 1
+
+wss://cryptic-taiga-18841.herokuapp.com/plantsim/powerplant/events?id=1 - Gets you the Events and Alerts happening for PowerPlant with id = 1
+
 ## Getting Started 
 
 This project is completely OpenSource, so feel free to explore and if you have better ideas, please let me know or even better please contribute! For some background information on the project, have a look [here](https://github.com/joesan/plant-simulator/wiki)
