@@ -96,8 +96,8 @@ class PowerPlantOperationsController(
   }
 
   // TODO: Re-Work for unit testability!
-  def returnToNormalPowerPlant(id: Int): Action[JsValue] = Action.async(parse.tolerantJson) {
-    request =>
+  def returnToNormalPowerPlant(id: Int): Action[JsValue] =
+    Action.async(parse.tolerantJson) { request =>
       request.body
         .validate[ReturnToNormalCommand]
         .fold(
@@ -120,11 +120,11 @@ class PowerPlantOperationsController(
             }
           }
         )
-  }
+    }
 
   // TODO: Re-Work for unit testability!
-  def dispatchPowerPlant(id: Int): Action[JsValue] = Action.async(parse.tolerantJson) {
-    request =>
+  def dispatchPowerPlant(id: Int): Action[JsValue] =
+    Action.async(parse.tolerantJson) { request =>
       request.body
         .validate[DispatchCommand]
         .fold(
@@ -147,7 +147,7 @@ class PowerPlantOperationsController(
             }
           }
         )
-  }
+    }
 
   def powerPlantSignals(id: Int): Action[AnyContent] = Action.async {
     actorFor(id) flatMap {
@@ -162,26 +162,28 @@ class PowerPlantOperationsController(
     }
   }
 
-  def events(someId: Option[Int]): WebSocket = WebSocket.accept[String, String] { _ =>
-    ActorFlow.actorRef { out =>
-      EventsWebSocketActor.props(
-        EventsWebSocketActor.eventsAndAlerts(someId, bindings.globalChannel),
-        out
-      )
+  def events(someId: Option[Int]): WebSocket =
+    WebSocket.accept[String, String] { _ =>
+      ActorFlow.actorRef { out =>
+        EventsWebSocketActor.props(
+          EventsWebSocketActor.eventsAndAlerts(someId, bindings.globalChannel),
+          out
+        )
+      }
     }
-  }
 
-  def signals(id: Int): WebSocket = WebSocket.acceptOrResult[String, String] { _ =>
-    actorFor(id).map {
-      case None =>
-        Left(Forbidden)
-      case Some(powerPlantActorRef) =>
-        Right(ActorFlow.actorRef { out =>
-          EventsWebSocketActor.props(
-            EventsWebSocketActor.telemetrySignals(id, powerPlantActorRef),
-            out
-          )
-        })
-    }
+  def signals(id: Int): WebSocket = WebSocket.acceptOrResult[String, String] {
+    _ =>
+      actorFor(id).map {
+        case None =>
+          Left(Forbidden)
+        case Some(powerPlantActorRef) =>
+          Right(ActorFlow.actorRef { out =>
+            EventsWebSocketActor.props(
+              EventsWebSocketActor.telemetrySignals(id, powerPlantActorRef),
+              out
+            )
+          })
+      }
   }
 }
