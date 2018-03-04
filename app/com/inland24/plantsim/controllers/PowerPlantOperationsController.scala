@@ -20,10 +20,11 @@ package com.inland24.plantsim.controllers
 import com.inland24.plantsim.core.{AppBindings, EventsWebSocketActor}
 import com.inland24.plantsim.models._
 import monix.execution.FutureUtils.extensions._
-import play.api.libs.json.JsError
-import play.api.mvc.{ControllerComponents, WebSocket}
-import akka.actor.ActorRef
+import play.api.libs.json.{JsError, JsValue}
+import play.api.mvc.{Action, AnyContent, ControllerComponents, WebSocket}
+import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.ask
+import akka.stream.Materializer
 import com.inland24.plantsim.models.PowerPlantActorMessage.TelemetrySignalsMessage
 import com.inland24.plantsim.streams.EventsStream.DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
 import play.api.libs.streams.ActorFlow
@@ -43,12 +44,12 @@ class PowerPlantOperationsController(
     extends ControllerBase {
 
   // Place a reference to the underlying ActorSystem
-  private implicit val system = bindings.actorSystem
+  private implicit val system: ActorSystem = bindings.actorSystem
   private implicit val timeout: akka.util.Timeout = 3.seconds
-  private implicit val materializer = bindings.materializer
+  private implicit val materializer: Materializer = bindings.materializer
 
   // TODO: This could return a list of supported API's
-  def home = Action { implicit request =>
+  def home: Action[AnyContent] = Action { implicit request =>
     Ok("The API is ready")
   }
 
@@ -87,7 +88,7 @@ class PowerPlantOperationsController(
     * @param id The id of the PowerPlant that mimics an error scenario
     * @return   Always a HTTP 200
     */
-  def kill(id: Int) = Action.async { _ =>
+  def kill(id: Int): Action[AnyContent] = Action.async { _ =>
     val actorRef = scala.concurrent.Await.result(actorFor(id), 5.seconds).get
     actorRef ! DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
     Future.successful(
@@ -95,7 +96,7 @@ class PowerPlantOperationsController(
   }
 
   // TODO: Re-Work for unit testability!
-  def returnToNormalPowerPlant(id: Int) = Action.async(parse.tolerantJson) {
+  def returnToNormalPowerPlant(id: Int): Action[JsValue] = Action.async(parse.tolerantJson) {
     request =>
       request.body
         .validate[ReturnToNormalCommand]
@@ -122,7 +123,7 @@ class PowerPlantOperationsController(
   }
 
   // TODO: Re-Work for unit testability!
-  def dispatchPowerPlant(id: Int) = Action.async(parse.tolerantJson) {
+  def dispatchPowerPlant(id: Int): Action[JsValue] = Action.async(parse.tolerantJson) {
     request =>
       request.body
         .validate[DispatchCommand]
@@ -148,7 +149,7 @@ class PowerPlantOperationsController(
         )
   }
 
-  def powerPlantSignals(id: Int) = Action.async {
+  def powerPlantSignals(id: Int): Action[AnyContent] = Action.async {
     actorFor(id) flatMap {
       case None =>
         Future.successful(
@@ -161,7 +162,7 @@ class PowerPlantOperationsController(
     }
   }
 
-  def events(someId: Option[Int]) = WebSocket.accept[String, String] { _ =>
+  def events(someId: Option[Int]): WebSocket = WebSocket.accept[String, String] { _ =>
     ActorFlow.actorRef { out =>
       EventsWebSocketActor.props(
         EventsWebSocketActor.eventsAndAlerts(someId, bindings.globalChannel),
@@ -170,7 +171,7 @@ class PowerPlantOperationsController(
     }
   }
 
-  def signals(id: Int) = WebSocket.acceptOrResult[String, String] { _ =>
+  def signals(id: Int): WebSocket = WebSocket.acceptOrResult[String, String] { _ =>
     actorFor(id).map {
       case None =>
         Left(Forbidden)
