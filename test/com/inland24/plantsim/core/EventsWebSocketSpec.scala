@@ -24,8 +24,7 @@ import scala.compat.java8.FutureConverters
 import scala.concurrent.duration._
 import com.github.andyglow.websocket.WebsocketClient
 import org.scalatestplus.play._
-import play.api.test.Helpers._
-import play.api.test.{FakeRequest, Helpers, TestServer, WsTestClient}
+import play.api.test.{Helpers, TestServer, WsTestClient}
 import com.inland24.plantsim.controllers.ApplicationTestFactory
 import com.inland24.plantsim.services.database.DBServiceSpec
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
@@ -34,7 +33,9 @@ import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
 import org.awaitility.Awaitility.{await => awaitWithTimeOut}
+import play.api.http.Port
 import play.shaded.ahc.org.asynchttpclient.AsyncHttpClient
+
 
 class EventsWebSocketSpec
     extends PlaySpec
@@ -59,20 +60,7 @@ class EventsWebSocketSpec
     super.h2SchemaDrop()
   }
 
-  private implicit val httpPort = new play.api.http.Port(9000)
-
-  // Simple tests to check some Endpoints for HTTP status
-  "Routes" should {
-
-    "send 404 on a bad request" in {
-      route(app, FakeRequest(GET, "/kickass")).map(status) mustBe Some(
-        NOT_FOUND)
-    }
-
-    "send 200 for /config" in {
-      route(app, FakeRequest(GET, "/plantsim/config")).map(status) mustBe Some(OK)
-    }
-  }
+  private implicit val httpPort: Port = new play.api.http.Port(9000)
 
   /**
     * Test adapted from
