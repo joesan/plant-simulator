@@ -29,7 +29,7 @@ import play.api.test.{FakeRequest, Helpers, TestServer, WsTestClient}
 import com.inland24.plantsim.controllers.ApplicationTestFactory
 import com.inland24.plantsim.services.database.DBServiceSpec
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
-import org.scalatest.{BeforeAndAfterAll, Ignore, WordSpecLike}
+import org.scalatest.{BeforeAndAfterAll, WordSpecLike}
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
