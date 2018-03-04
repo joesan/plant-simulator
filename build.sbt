@@ -6,7 +6,6 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala, DockerPlugin)
 
 scalaVersion := "2.12.4"
-//scalaVersion := "2.11.11"
 
 scalacOptions ++= Seq(
   "-language:implicitConversions",
@@ -18,7 +17,6 @@ scalacOptions ++= Seq(
   "-unchecked",
   "-deprecation",
   "-feature",
-  //"-Yinline-warnings",
   "-Ywarn-adapted-args",
   "-Ywarn-dead-code",
   "-Ywarn-inaccessible",
