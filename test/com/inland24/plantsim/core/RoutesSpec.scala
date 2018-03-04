@@ -31,7 +31,7 @@ import play.api.http.Port
   * file are properly tested for the correctness of the URL!
   */
 class RoutesSpec
-  extends PlaySpec
+    extends PlaySpec
     with WordSpecLike
     with DBServiceSpec
     with BaseOneServerPerSuite
@@ -59,50 +59,62 @@ class RoutesSpec
   "Routes" should {
 
     "send 404 on a bad request" in {
-      route(app, FakeRequest(GET, "/kickass")).map(status) mustBe Some(NOT_FOUND)
+      route(app, FakeRequest(GET, "/kickass")).map(status) mustBe Some(
+        NOT_FOUND)
     }
 
     "send 200 for /plantsim/config" in {
-      route(app, FakeRequest(GET, "/plantsim/config")).map(status) mustBe Some(OK)
+      route(app, FakeRequest(GET, "/plantsim/config")).map(status) mustBe Some(
+        OK)
     }
 
     "send 200 for /plantsim/powerplant/metrics" in {
-      route(app, FakeRequest(GET, "/plantsim/powerplant/metrics")).map(status) mustBe Some(OK)
+      route(app, FakeRequest(GET, "/plantsim/powerplant/metrics"))
+        .map(status) mustBe Some(OK)
     }
 
     // PowerPlant add, update, read, delete Endpoints
     "send 404 for invalid PowerPlant Id in /plantsim/powerplant/:id/details" in {
-      route(app, FakeRequest(GET, "/plantsim/powerplant/-1/details")).map(status) mustBe Some(NOT_FOUND)
+      route(app, FakeRequest(GET, "/plantsim/powerplant/-1/details"))
+        .map(status) mustBe Some(NOT_FOUND)
     }
 
     "send 200 for /plantsim/powerplants" in {
-      route(app, FakeRequest(GET, "/plantsim/powerplants")).map(status) mustBe Some(OK)
+      route(app, FakeRequest(GET, "/plantsim/powerplants"))
+        .map(status) mustBe Some(OK)
     }
 
     "send 200 for /plantsim/powerplants/search?onlyActive=true" in {
-      route(app, FakeRequest(GET, "/plantsim/powerplants/search?onlyActive=true")).map(status) mustBe Some(OK)
+      route(app,
+            FakeRequest(GET, "/plantsim/powerplants/search?onlyActive=true"))
+        .map(status) mustBe Some(OK)
     }
 
     "send 400 for invalid PowerPlant Id in /plantsim/powerplant/:id/update" in {
-      route(app, FakeRequest(POST, "/plantsim/powerplant/-1/update")).map(status) mustBe Some(BAD_REQUEST)
+      route(app, FakeRequest(POST, "/plantsim/powerplant/-1/update"))
+        .map(status) mustBe Some(BAD_REQUEST)
     }
 
     // PowerPlant telemetry Endpoint
     "send 404 for invalid PowerPlant Id in /plantsim/powerplant/:id/telemetry" in {
-      route(app, FakeRequest(POST, "/plantsim/powerplant/-1/telemetry")).map(status) mustBe Some(NOT_FOUND)
+      route(app, FakeRequest(POST, "/plantsim/powerplant/-1/telemetry"))
+        .map(status) mustBe Some(NOT_FOUND)
     }
 
     "send 400 for invalid PowerPlant Id in /plantsim/powerplant/:id/dispatch" in {
-      route(app, FakeRequest(POST, "/plantsim/powerplant/-1/dispatch")).map(status) mustBe Some(BAD_REQUEST)
+      route(app, FakeRequest(POST, "/plantsim/powerplant/-1/dispatch"))
+        .map(status) mustBe Some(BAD_REQUEST)
     }
 
     "send 400 for invalid PowerPlant Id in /plantsim/powerplant/:id/release" in {
-      route(app, FakeRequest(POST, "/plantsim/powerplant/-1/release")).map(status) mustBe Some(BAD_REQUEST)
+      route(app, FakeRequest(POST, "/plantsim/powerplant/-1/release"))
+        .map(status) mustBe Some(BAD_REQUEST)
     }
 
     // And finally our damaging Emdpoint!
     "send 404 for invalid PowerPlant Id in /plantsim/powerplant/:id/killEventStream" in {
-      route(app, FakeRequest(POST, "/plantsim/powerplant/-1/killEventStream")).map(status) mustBe Some(NOT_FOUND)
+      route(app, FakeRequest(POST, "/plantsim/powerplant/-1/killEventStream"))
+        .map(status) mustBe Some(NOT_FOUND)
     }
   }
 }

@@ -36,7 +36,6 @@ import org.awaitility.Awaitility.{await => awaitWithTimeOut}
 import play.api.http.Port
 import play.shaded.ahc.org.asynchttpclient.AsyncHttpClient
 
-
 class EventsWebSocketSpec
     extends PlaySpec
     with WordSpecLike

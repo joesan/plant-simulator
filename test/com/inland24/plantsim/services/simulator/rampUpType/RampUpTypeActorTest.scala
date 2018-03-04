@@ -108,6 +108,8 @@ class RampUpTypeActorTest
               value3.toDouble should beWithinTolerance
             case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey =>
               assert(value4 === initPowerPlantState.cfg.id.toString)
+            case (key0, value0) =>
+              assert(key0 === "timestamp")
           }
         case x: Any => // If I get any other message, I fail
           fail(

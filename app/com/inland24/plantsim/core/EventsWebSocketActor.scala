@@ -20,14 +20,13 @@ package com.inland24.plantsim.core
 import akka.actor.{Actor, ActorLogging, ActorRef, PoisonPill, Props}
 import akka.util.Timeout
 import com.inland24.plantsim.models.PowerPlantActorMessage.TelemetrySignalsMessage
-import org.joda.time.DateTime
+import org.joda.time.{DateTime, DateTimeZone}
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.execution.{Ack, Scheduler}
 import monix.reactive.Observable
 import monix.reactive.observers.Subscriber
-
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json._
 import play.api.libs.json.JodaWrites._
 
 import scala.concurrent.Future
@@ -60,13 +59,16 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
           "event" -> "error",
           "type" -> ex.getClass.getName,
           "message" -> ex.getMessage,
-          "timestamp" -> DateTime.now()
+          "timestamp" -> DateTime.now(DateTimeZone.UTC)
         )
         self ! PoisonPill
       }
 
       override def onComplete(): Unit = {
-        sink ! Json.obj("event" -> "complete", "timestamp" -> DateTime.now())
+        sink ! Json.obj(
+          "event" -> "complete",
+          "timestamp" -> DateTime.now(DateTimeZone.UTC)
+        )
         self ! PoisonPill
       }
 
@@ -88,6 +90,32 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
   }
 }
 object EventsWebSocketActor {
+
+  implicit val writes: Writes[Map[String, Any]] = (o: Map[String, Any]) => {
+    JsObject(
+      o.map { kvp =>
+        kvp._1 -> (kvp._2 match {
+          case x: Boolean => JsBoolean(x)
+          case x: String  => JsString(x)
+          case x: Double  => JsNumber(x)
+          case _          => JsNull
+        })
+      }
+    )
+  }
+
+  // Utility method to convert to proper types in the resulting JSON
+  def telemetrySignals(signalsAsMap: Map[String, String]) = {
+    signalsAsMap.map {
+      case (key, value) if key == "activePower" =>
+        key -> value.toDouble
+      case (key, value)
+          if key == "isOnOff" || key == "isDispatched" || key == "isAvailable" =>
+        key -> value.toBoolean
+      case (key, value) =>
+        key -> value
+    }
+  }
 
   def eventsAndAlerts(
       someId: Option[Int],
@@ -115,7 +143,7 @@ object EventsWebSocketActor {
             (powerPlantActorRef ? TelemetrySignalsMessage)
               .mapTo[Map[String, String]]
         ))
-      .map(signalsMap => Json.toJson(signalsMap))
+      .map(signalsMap => Json.toJson(telemetrySignals(signalsMap)))
   }
 
   def props(source: Observable[JsValue], sink: ActorRef) =

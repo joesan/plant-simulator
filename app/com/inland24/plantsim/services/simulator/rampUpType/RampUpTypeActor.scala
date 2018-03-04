@@ -38,6 +38,7 @@ import monix.execution.Ack
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.Observable
+import org.joda.time.{DateTime, DateTimeZone}
 
 import scala.concurrent.Future
 
@@ -99,7 +100,11 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
   // TODO: Write Scaladoc comments
   def active(state: StateMachine): Receive = {
     case TelemetrySignalsMessage =>
-      sender ! StateMachine.randomPower(state.signals) // The Power values are randomized here for simulating reality
+      // The Power values are randomized here for simulating reality
+      sender ! StateMachine.randomPower(
+        state.signals + ("timestamp" -> DateTime
+          .now(DateTimeZone.UTC)
+          .toString))
 
     case PowerPlantActorMessage.StateRequestMessage =>
       sender ! state
@@ -145,7 +150,11 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
   def rampUp(state: StateMachine,
              subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignalsMessage =>
-      sender ! StateMachine.randomPower(state.signals) // The Power values are randomized here for simulating reality
+      // The Power values are randomized here for simulating reality
+      sender ! StateMachine.randomPower(
+        state.signals + ("timestamp" -> DateTime
+          .now(DateTimeZone.UTC)
+          .toString))
 
     case StateRequestMessage =>
       sender ! state
@@ -191,7 +200,11 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     */
   def dispatched(state: StateMachine): Receive = {
     case TelemetrySignalsMessage =>
-      sender ! StateMachine.randomPower(state.signals) // The Power values are randomized here for simulating reality
+      // The Power values are randomized here for simulating reality
+      sender ! StateMachine.randomPower(
+        state.signals + ("timestamp" -> DateTime
+          .now(DateTimeZone.UTC)
+          .toString))
 
     case StateRequestMessage =>
       sender ! state
@@ -230,7 +243,11 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
   def rampDown(state: StateMachine,
                subscription: SingleAssignmentCancelable): Receive = {
     case TelemetrySignalsMessage =>
-      sender ! StateMachine.randomPower(state.signals) // The Power values are randomized here for simulating reality
+      // The Power values are randomized here for simulating reality
+      sender ! StateMachine.randomPower(
+        state.signals + ("timestamp" -> DateTime
+          .now(DateTimeZone.UTC)
+          .toString))
 
     case StateRequestMessage =>
       sender ! state

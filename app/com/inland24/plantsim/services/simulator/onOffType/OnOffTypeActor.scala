@@ -21,6 +21,7 @@ import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.ReturnToNormalCommand
+import org.joda.time.{DateTime, DateTimeZone}
 
 /**
   * The Actor instance responsible for [[com.inland24.plantsim.models.PowerPlantType.OnOffType]]
@@ -74,7 +75,9 @@ class OnOffTypeActor private (config: Config) extends Actor with ActorLogging {
     */
   def active(state: StateMachine): Receive = {
     case TelemetrySignalsMessage =>
-      sender ! state.signals
+      sender ! state.signals + ("timestamp" -> DateTime
+        .now(DateTimeZone.UTC)
+        .toString)
 
     case StateRequestMessage =>
       sender ! state

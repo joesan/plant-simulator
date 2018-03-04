@@ -31,7 +31,7 @@ import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor.Config
 import com.inland24.plantsim.streams.EventsStream
 import monix.execution.Scheduler
 import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
-import play.api.libs.json.Json
+import play.api.libs.json.{JsValue, Json}
 
 import scala.collection.mutable.ListBuffer
 
@@ -90,6 +90,7 @@ class EventsWebSocketActorTest
     class SinkActor extends Actor {
       override def receive: Receive = {
         case jsonStr: String =>
+          println(s"obtained String is $jsonStr")
           buffer += jsonStr
       }
     }
@@ -114,11 +115,17 @@ class EventsWebSocketActorTest
       Thread.sleep(10000)
 
       val expected =
-        """{"powerPlantId":"102","activePower":"200.0","isOnOff":"false","isAvailable":"true"}"""
+        Json
+          .parse(
+            """{"powerPlantId":"102","activePower":200.0,"isOnOff":false,"isAvailable":true}""")
+          .as[Map[String, JsValue]]
       // Let us check our expectations (We expect a total of 2 Signals)
       assert(buffer.size === 2)
-      assert(buffer.head === expected)
-      assert(buffer.last === expected)
+      val first = Json.parse(buffer.head).as[Map[String, JsValue]]
+      assert(first("powerPlantId") === expected("powerPlantId"))
+
+      val last = Json.parse(buffer.last).as[Map[String, JsValue]]
+      assert(last("powerPlantId") === expected("powerPlantId"))
     }
   }
 
