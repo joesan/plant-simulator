@@ -379,7 +379,7 @@ class RampUpTypeActorTest
       Thread.sleep(8000) // We sleep for 8 seconds, give some time for our Actor to change context!!!
 
       // 3. The PowerPlant should have fully returned to normal, let's check that
-      within(2.seconds) {
+      within(4.seconds) {
         rampUpTypeActor ! StateRequestMessage
         expectMsgPF() {
           case state: StateMachine =>
