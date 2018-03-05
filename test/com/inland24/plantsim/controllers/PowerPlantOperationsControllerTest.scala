@@ -52,7 +52,7 @@ class PowerPlantOperationsControllerTest
     with DBServiceSpec {
 
   val bindings = AppBindings.apply(system, ActorMaterializer())
-  val controllerComponents = stubControllerComponents()
+  private val controllerComponents = stubControllerComponents()
   val controller =
     new PowerPlantOperationsController(bindings, controllerComponents)
 
@@ -64,7 +64,7 @@ class PowerPlantOperationsControllerTest
     super.populateTables()
   }
 
-  override def afterAll() = {
+  override def afterAll(): Unit = {
     super.h2SchemaDrop()
     TestKit.shutdownActorSystem(system)
   }

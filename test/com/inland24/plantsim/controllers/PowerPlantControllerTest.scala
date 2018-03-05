@@ -51,7 +51,7 @@ class PowerPlantControllerTest
     with DBServiceSpec {
 
   val bindings = AppBindings.apply(system, ActorMaterializer())
-  val controllerComponents = stubControllerComponents()
+  private val controllerComponents = stubControllerComponents()
   val controller = new PowerPlantController(bindings, controllerComponents)
 
   override def beforeAll(): Unit = {
@@ -62,7 +62,7 @@ class PowerPlantControllerTest
     super.populateTables()
   }
 
-  override def afterAll() = {
+  override def afterAll(): Unit = {
     super.h2SchemaDrop()
     TestKit.shutdownActorSystem(system)
   }
@@ -305,7 +305,99 @@ class PowerPlantControllerTest
     }
   }
 
-  // Update PowerPlants test
+  // Create PowerPlant test
+  "PowerPlantController ## createPowerPlant" should {
+    "create a new PowerPlant successfully" in {
+      // When creating a new PowerPlant, we expect the id to be set to 0
+      val create =
+        """
+          |{
+          |   "powerPlantId":0,
+          |   "powerPlantName":"joesan new PowerPlant",
+          |   "minPower":100,
+          |   "maxPower":800,
+          |   "rampPowerRate":20.0,
+          |   "rampRateInSeconds":2,
+          |   "powerPlantType":"RampUpType"
+          |}
+        """.stripMargin
+
+      val expected =
+        """
+          |{
+          |   "powerPlantId":1,
+          |   "powerPlantName":"joesan new PowerPlant",
+          |   "minPower":100,
+          |   "maxPower":800,
+          |   "rampPowerRate":20.0,
+          |   "rampRateInSeconds":2,
+          |   "powerPlantType":"RampUpType"
+          |}
+        """.stripMargin
+
+      val result: Future[Result] =
+        controller
+          .createNewPowerPlant
+          .apply(
+            FakeRequest().withBody(Json.parse(create))
+          )
+      contentAsJson(result) mustBe Json.parse(expected)
+    }
+
+    "not create a new PowerPlant when the PowerPlant Id is not set to 0" in {
+      // When creating a new PowerPlant, we expect the id to be set to 0
+      val create =
+        """
+          |{
+          |   "powerPlantId":1,
+          |   "powerPlantName":"joesan new PowerPlant",
+          |   "minPower":100,
+          |   "maxPower":800,
+          |   "rampPowerRate":20.0,
+          |   "rampRateInSeconds":2,
+          |   "powerPlantType":"RampUpType"
+          |}
+        """.stripMargin
+
+      val expected = """{"message":"invalid PowerPlantConfig! Please set the id of the Powerplant to 0 for create new PowerPlant"}"""
+
+      val result: Future[Result] =
+        controller
+          .createNewPowerPlant
+          .apply(
+            FakeRequest().withBody(Json.parse(create))
+          )
+      contentAsJson(result) mustBe Json.parse(expected)
+    }
+
+    "not create a new PowerPlant for an Unknown PowerPlantType Config" in {
+      // When creating a new PowerPlant, we expect the id to be set to 0
+      val create =
+        """
+          |{
+          |   "powerPlantId":0,
+          |   "powerPlantName":"joesan new PowerPlant",
+          |   "minPower":100,
+          |   "maxPower":800,
+          |   "rampPowerRate":20.0,
+          |   "rampRateInSeconds":2,
+          |   "powerPlantType":"UnknownType"
+          |}
+        """.stripMargin
+
+      val expected = """{"message":"Invalid PowerPlantConfig List((/powerPlantType,List(JsonValidationError(List(Invalid PowerPlantType UnknownType. Should be one of RampUpType or OnOffType),WrappedArray()))))"}"""
+
+      val result: Future[Result] =
+        controller
+          .createNewPowerPlant
+          .apply(
+            FakeRequest().withBody(Json.parse(create))
+          )
+      contentAsJson(result) mustBe Json.parse(expected)
+    }
+  }
+
+  // Update PowerPlant test
   "PowerPlantController ## updatePowerPlant" should {
     "update an active PowerPlant successfully" in {
       // We are updating the PowerPlant with id = 101, We just change its name
