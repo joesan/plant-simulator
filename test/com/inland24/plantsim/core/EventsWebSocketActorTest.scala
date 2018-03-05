@@ -120,7 +120,7 @@ class EventsWebSocketActorTest
             """{"powerPlantId":"102","activePower":200.0,"isOnOff":false,"isAvailable":true}""")
           .as[Map[String, JsValue]]
       // Let us check our expectations (We expect a total of 2 Signals)
-      assert(buffer.size === 2)
+      assert(buffer.size >= 2)
       val first = Json.parse(buffer.head).as[Map[String, JsValue]]
       assert(first("powerPlantId") === expected("powerPlantId"))
 
