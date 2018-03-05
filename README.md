@@ -109,6 +109,10 @@ If you want to run the application against a MySQL database, follow the instruct
 
 To visualize the application and to do some real work with it, have a look [here](https://github.com/joesan/plant-simulator-ui) - Currently under development
 
+Alternatively, you could visualize the app under the following URL:
+
+`https://plant-simulator-ui.herokuapp.com/`
+
 #### To run as a Docker container
 
 ```
