@@ -386,9 +386,7 @@ class PowerPlantControllerTest
         """.stripMargin
 
       val expected =
-        """{"message":"Invalid PowerPlantConfig
-          |List((/powerPlantType,List(JsonValidationError(List(Invalid PowerPlantType UnknownType.
-          |Should be one of RampUpType or OnOffType),WrappedArray()))))"}""".stripMargin
+        """{"message":"Invalid PowerPlantConfig List((/powerPlantType,List(JsonValidationError(List(Invalid PowerPlantType UnknownType. Should be one of RampUpType or OnOffType),WrappedArray()))))"}""".stripMargin
 
       val result: Future[Result] =
         controller
