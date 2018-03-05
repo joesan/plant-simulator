@@ -385,7 +385,10 @@ class PowerPlantControllerTest
           |}
         """.stripMargin
 
-      val expected = """{"message":"Invalid PowerPlantConfig List((/powerPlantType,List(JsonValidationError(List(Invalid PowerPlantType UnknownType. Should be one of RampUpType or OnOffType),WrappedArray()))))"}"""
+      val expected =
+        """{"message":"Invalid PowerPlantConfig
+          |List((/powerPlantType,List(JsonValidationError(List(Invalid PowerPlantType UnknownType.
+          |Should be one of RampUpType or OnOffType),WrappedArray()))))"}""".stripMargin
 
       val result: Future[Result] =
         controller
@@ -423,7 +426,7 @@ class PowerPlantControllerTest
     }
 
     "not update for an invalid PowerPlantConfig JSON" in {
-      // We are updating the PowerPlant with id = 101, Notice that the powerPlantId is invalid
+      // We are updating the PowerPlant with id = invalidId, Notice that the powerPlantId is invalid
       val jsBody =
         """
           |{
@@ -440,6 +443,36 @@ class PowerPlantControllerTest
       val result: Future[Result] =
         controller
           .updatePowerPlant(101)
+          .apply(
+            FakeRequest().withBody(Json.parse(jsBody))
+          )
+      result.materialize.map {
+        case Success(suck) =>
+          assert(suck.header.status === BAD_REQUEST)
+        case Failure(_) =>
+          fail(
+            "Unexpected test failure when Updating a PowerPlant! Please Analyze!")
+      }
+    }
+
+    "not update for a PowerPlant that does not exist in the database" in {
+      // We are updating the PowerPlant with id = 23001, which does not exist
+      val jsBody =
+        """
+          |{
+          |   "powerPlantId":23001,
+          |   "powerPlantName":"joesan 1",
+          |   "minPower":100,
+          |   "maxPower":800,
+          |   "rampPowerRate":20.0,
+          |   "rampRateInSeconds": 2,
+          |   "powerPlantType":"RampUpType"
+          |}
+        """.stripMargin
+
+      val result: Future[Result] =
+        controller
+          .updatePowerPlant(23001)
           .apply(
             FakeRequest().withBody(Json.parse(jsBody))
           )
