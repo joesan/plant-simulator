@@ -28,7 +28,7 @@ trait PowerPlantRepository[M[_]] {
   def powerPlantsPaginated(filter: PowerPlantFilter): M[Seq[PowerPlantRow]]
   def powerPlantById(id: Int): M[Option[PowerPlantRow]]
   def newPowerPlant(powerPlantRow: PowerPlantRow): M[Int]
-  def insertOrUpdatePowerPlant(powerPlantRow: PowerPlantRow): M[Int]
+  def updatePowerPlant(powerPlantRow: PowerPlantRow): M[Int]
 
   def withTimerMetrics[T](fn: => T): T = {
     val context = AppMetrics.timer.time()

@@ -109,14 +109,14 @@ class DBObservableTest
           minPower = 100.0,
           maxPower = 400.0,
           powerPlantTyp = OnOffType,
-          createdAt = getNowAsDateTime(),
-          updatedAt = getNowAsDateTime()
+          createdAt = getNowAsDateTime,
+          updatedAt = getNowAsDateTime
         )
       }
 
       // Upon every update from the database, we mutate this variable so that we could check our assertions
       val powerPlantsConfig =
-        PowerPlantsConfig(getNowAsDateTime(), Seq.empty[PowerPlantConfig])
+        PowerPlantsConfig(getNowAsDateTime, Seq.empty[PowerPlantConfig])
 
       dbSubscription := dbObservable.unsafeSubscribeFn(
         new Subscriber[Seq[PowerPlantRow]] {

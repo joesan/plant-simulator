@@ -38,8 +38,8 @@ import scala.concurrent.duration.FiniteDuration
 
 package object models {
 
-  implicit val appConfigWrites = new Writes[AppConfig] {
-    def writes(appConfig: AppConfig) = Json.obj(
+  implicit val appConfigWrites: Writes[AppConfig] = (appConfig: AppConfig) =>
+    Json.obj(
       "environment" -> appConfig.environment,
       "application" -> appConfig.appName,
       "dbConfig" -> Json.obj(
@@ -48,8 +48,7 @@ package object models {
         "databaseUser" -> "***********",
         "databasePass" -> "***********"
       )
-    )
-  }
+  )
 
   implicit val finiteDurationFormat: Format[FiniteDuration] =
     new Format[FiniteDuration] {
@@ -141,7 +140,8 @@ package object models {
       case OnOffType =>
         Some(
           PowerPlantRow(
-            id = Some(cfg.id),
+            // id of 0 indicates a create operation in the database
+            id = if (cfg.id == 0) None else Some(cfg.id),
             orgName = cfg.name,
             isActive = true,
             minPower = cfg.minPower,
@@ -155,7 +155,7 @@ package object models {
       case RampUpType =>
         Some(
           PowerPlantRow(
-            id = Some(cfg.id),
+            id = if (cfg.id == 0) None else Some(cfg.id),
             orgName = cfg.name,
             isActive = true,
             minPower = cfg.minPower,
@@ -227,27 +227,25 @@ package object models {
     }
   }
 
-  implicit val powerPlantSignalWrites = new Writes[PowerPlantSignal] {
-    def writes(powerPlantSignal: PowerPlantSignal) = powerPlantSignal match {
-      case Genesis(newState, powerPlantCfg, timeStamp) =>
-        Json.obj(
-          "newState" -> newState.toString,
-          "powerPlantCfg" -> powerPlantCfg,
-          "timeStamp" -> timeStamp
-        )
-      case Transition(oldState, newState, powerPlantCfg, timeStamp) =>
-        Json.obj(
-          "newState" -> newState.toString,
-          "oldState" -> oldState.toString,
-          "powerPlantCfg" -> powerPlantCfg,
-          "timeStamp" -> timeStamp
-        )
-      case DispatchAlert(msg, powerPlantCfg, timeStamp) =>
-        Json.obj(
-          "message" -> msg,
-          "powerPlantCfg" -> powerPlantCfg,
-          "timeStamp" -> timeStamp
-        )
-    }
+  implicit val powerPlantSignalWrites: Writes[PowerPlantSignal] = {
+    case Genesis(newState, powerPlantCfg, timeStamp) =>
+      Json.obj(
+        "newState" -> newState.toString,
+        "powerPlantCfg" -> powerPlantCfg,
+        "timeStamp" -> timeStamp
+      )
+    case Transition(oldState, newState, powerPlantCfg, timeStamp) =>
+      Json.obj(
+        "newState" -> newState.toString,
+        "oldState" -> oldState.toString,
+        "powerPlantCfg" -> powerPlantCfg,
+        "timeStamp" -> timeStamp
+      )
+    case DispatchAlert(msg, powerPlantCfg, timeStamp) =>
+      Json.obj(
+        "message" -> msg,
+        "powerPlantCfg" -> powerPlantCfg,
+        "timeStamp" -> timeStamp
+      )
   }
 }

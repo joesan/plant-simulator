@@ -24,21 +24,21 @@ import com.inland24.plantsim.models.{
   PowerPlantFilter,
   toPowerPlantRow
 }
+import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.PowerPlantRepository
 
 import scala.language.higherKinds
 
 class PowerPlantService[M[_]: Monad](powerPlantRepo: PowerPlantRepository[M]) {
 
-  // TODO: Unify this with the create method!
-  def insertOrUpdatePowerPlant(
+  def updatePowerPlant(
       powerPlantCfg: PowerPlantConfig): M[Either[String, PowerPlantConfig]] = {
     powerPlantRepo.powerPlantById(powerPlantCfg.id).flatMap {
       case Some(_) =>
         toPowerPlantRow(powerPlantCfg) match {
           case Some(newPowerPlantRow) =>
             powerPlantRepo
-              .insertOrUpdatePowerPlant(newPowerPlantRow)
+              .updatePowerPlant(newPowerPlantRow)
               .map(_ => Right(powerPlantCfg))
           case None =>
             implicitly[Monad[M]].pure(Left(s"Invalid $powerPlantCfg"))
@@ -49,15 +49,16 @@ class PowerPlantService[M[_]: Monad](powerPlantRepo: PowerPlantRepository[M]) {
     }
   }
 
-  def searchPowerPlants(filter: PowerPlantFilter) = {
+  def searchPowerPlants(filter: PowerPlantFilter): M[Seq[PowerPlantRow]] = {
     powerPlantRepo.powerPlantsPaginated(filter)
   }
 
-  def fetchAllPowerPlants(onlyActive: Boolean = false) = {
+  def fetchAllPowerPlants(
+      onlyActive: Boolean = false): M[Seq[PowerPlantRow]] = {
     powerPlantRepo.allPowerPlants(onlyActive)
   }
 
-  def powerPlantById(id: Int) = {
+  def powerPlantById(id: Int): M[Option[PowerPlantRow]] = {
     powerPlantRepo.powerPlantById(id)
   }
 

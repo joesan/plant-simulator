@@ -29,9 +29,10 @@ import monix.eval.Task
 import scala.concurrent.ExecutionContext
 
 /**
-  * TODO: Write Scala doc comments
-  * @param dbConfig
-  * @param ec
+  * Implementation of all database related services. Uses the Monix Task
+  * for asynchronous execution
+  * @param dbConfig The underlying database configuration
+  * @param ec The Thread pool to operate on
   */
 class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext)
     extends PowerPlantRepository[Task] { self =>
@@ -97,11 +98,15 @@ class PowerPlantRepoAsTask(dbConfig: DBConfig)(implicit ec: ExecutionContext)
     )
   }
 
-  override def insertOrUpdatePowerPlant(
-      powerPlantRow: PowerPlantRow): Task[Int] = {
+  override def updatePowerPlant(powerPlantRow: PowerPlantRow): Task[Int] = {
     withTimerMetrics(
       Task.deferFuture(
-        database.run(PowerPlantTable.all.insertOrUpdate(powerPlantRow)))
+        database.run(
+          PowerPlantTable.all
+            .filter(_.id === powerPlantRow.id)
+            .update(powerPlantRow)
+        )
+      )
     )
   }
 }

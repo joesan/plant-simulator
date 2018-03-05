@@ -18,11 +18,15 @@
 package com.inland24.plantsim.services.database
 
 import com.inland24.plantsim.models.{PowerPlantFilter, PowerPlantType}
-import com.inland24.plantsim.models.PowerPlantType.OnOffType
+import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll}
 import monix.execution.Scheduler.Implicits.global
+
+import scala.concurrent.Await
+import scala.util.{Failure, Success, Try}
+import scala.concurrent.duration._
 
 // ***** NOTE: Do not remove this import! It won't compile without this
 import monix.cats._
@@ -163,6 +167,7 @@ final class PowerPlantDBServiceSpec
     }
   }
 
+  // Create PowerPlant tests
   "newPowerPlant" should "add a new PowerPlant to the PowerPlant table" in {
     val newPowerPlantRow = PowerPlantRow(
       id = Some(10000),
@@ -171,8 +176,8 @@ final class PowerPlantDBServiceSpec
       minPower = 100.0,
       maxPower = 400.0,
       powerPlantTyp = OnOffType,
-      createdAt = getNowAsDateTime(),
-      updatedAt = getNowAsDateTime()
+      createdAt = getNowAsDateTime,
+      updatedAt = getNowAsDateTime
     )
 
     powerPlantService.createNewPowerPlant(newPowerPlantRow).runAsync.flatMap {
@@ -186,5 +191,90 @@ final class PowerPlantDBServiceSpec
             fail("expected the powerPlant with id 10000 but was not found in the database")
         }
     }
+  }
+
+  "newPowerPlant" should "not create a new PowerPlant for an already existing PowerPlant" in {
+    // PowerPlant with id = 101 already exists in the database
+    val newPowerPlantRow = PowerPlantRow(
+      id = Some(101),
+      orgName = "joesan 101",
+      isActive = true,
+      minPower = 100.0,
+      maxPower = 800.0,
+      powerPlantTyp = RampUpType,
+      rampRatePower = Some(20.0),
+      rampRateSecs = Some(2),
+      createdAt = getNowAsDateTime,
+      updatedAt = getNowAsDateTime
+    )
+
+    // We expect a unique key violation error from the database
+    val retVal = Try(
+      Await.result(
+        powerPlantService.createNewPowerPlant(newPowerPlantRow).runAsync,
+        2.seconds))
+    retVal match {
+      case Failure(fail) =>
+        assert(
+          fail.getMessage.contains("Unique index or primary key violation"))
+      case Success(_) =>
+        fail(
+          "Expected the new creation of an already existing PowerPlant to fail, " +
+            "but is succeeded! This is serious error and should be analyzed")
+    }
+  }
+
+  // Update PowerPlant tests
+  "updatePowerPlant" should "update an existing PowerPlant to the PowerPlant table" in {
+    // PowerPlant with id = 101 already exists in the database, so we should be able to update it
+    val updatePowerPlantRow = PowerPlantRow(
+      id = Some(101),
+      orgName = "joesan 101 updated", // We update the name
+      isActive = true,
+      minPower = 100.0,
+      maxPower = 800.0,
+      powerPlantTyp = RampUpType,
+      rampRatePower = Some(20.0),
+      rampRateSecs = Some(2),
+      createdAt = getNowAsDateTime,
+      updatedAt = getNowAsDateTime
+    )
+
+    powerPlantService.updatePowerPlant(updatePowerPlantRow).runAsync.flatMap {
+      _ =>
+        powerPlantService.powerPlantById(101).runAsync.flatMap {
+          case Some(powerPlant) =>
+            assert(powerPlant.id === Some(101))
+            assert(powerPlant.orgName === "joesan 101 updated")
+            assert(powerPlant.isActive)
+
+          case _ =>
+            fail("expected the powerPlant with id 101 but was not found in the database")
+        }
+    }
+  }
+
+  "updatePowerPlant" should "not update a PowerPlant that does not exist in the database" in {
+    // PowerPlant with id = 101 already exists in the database, so we should be able to update it
+    val updatePowerPlantRow = PowerPlantRow(
+      id = Some(25000), // This does not exist
+      orgName = "joesan 25000", // We update the name
+      isActive = true,
+      minPower = 100.0,
+      maxPower = 800.0,
+      powerPlantTyp = RampUpType,
+      rampRatePower = Some(20.0),
+      rampRateSecs = Some(2),
+      createdAt = getNowAsDateTime,
+      updatedAt = getNowAsDateTime
+    )
+
+    val elem = Await.result(
+      powerPlantService.updatePowerPlant(updatePowerPlantRow).runAsync,
+      2.seconds)
+    assert(elem.isLeft)
+    assert(
+      elem.left
+        .getOrElse("") === "PowerPlant not found for the given id 25000")
   }
 }

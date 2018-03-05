@@ -94,12 +94,13 @@ object EventsWebSocketActor {
   implicit val writes: Writes[Map[String, Any]] = (o: Map[String, Any]) => {
     JsObject(
       o.map {
-        case (key, value) => key -> (value match {
-          case x: Boolean => JsBoolean(x)
-          case x: String  => JsString(x)
-          case x: Double  => JsNumber(x)
-          case _          => JsNull
-        })
+        case (key, value) =>
+          key -> (value match {
+            case x: Boolean => JsBoolean(x)
+            case x: String  => JsString(x)
+            case x: Double  => JsNumber(x)
+            case _          => JsNull
+          })
       }
     )
   }

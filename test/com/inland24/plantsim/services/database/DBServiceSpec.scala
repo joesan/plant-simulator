@@ -27,7 +27,7 @@ import scala.concurrent.duration._
 // The base class that contains the H2 database with some pre-populated rows
 trait DBServiceSpec {
 
-  def getNowAsDateTime(): DateTime = {
+  def getNowAsDateTime: DateTime = {
     DateTime.now(DateTimeZone.UTC)
   }
 
@@ -54,8 +54,8 @@ trait DBServiceSpec {
       powerPlantTyp = if (i % 2 == 0) OnOffType else RampUpType,
       rampRatePower = if (i % 2 == 0) None else Some(20.0),
       rampRateSecs = if (i % 2 == 0) None else Some(2),
-      createdAt = getNowAsDateTime(),
-      updatedAt = getNowAsDateTime()
+      createdAt = getNowAsDateTime,
+      updatedAt = getNowAsDateTime
     )
   }
 
