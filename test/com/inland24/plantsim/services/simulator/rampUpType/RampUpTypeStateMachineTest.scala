@@ -167,7 +167,6 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       dispatchStm.events.foreach {
         case elem if elem.isInstanceOf[DispatchAlert] =>
           elem.powerPlantConfig shouldBe stm.cfg
-          assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
         case unexpected =>
           fail(
