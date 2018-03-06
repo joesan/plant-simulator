@@ -88,22 +88,27 @@ object StateMachine {
   }
 
   def outOfService(stm: StateMachine): StateMachine = {
-    stm.copy(
-      oldState = stm.newState,
-      newState = OutOfService,
-      signals = unAvailableSignals + (powerPlantIdSignalKey -> stm.cfg.id.toString),
-      events = stm.events :+ Transition(
+    // If we are already in OutOfService, we don't have to do it again!
+    if (stm.newState == OutOfService) {
+      stm
+    } else {
+      stm.copy(
         oldState = stm.newState,
         newState = OutOfService,
-        powerPlantConfig = stm.cfg,
-        timeStamp = DateTime.now(DateTimeZone.UTC)
-      ) :+ DefaultAlert(
-        msg = "Unexpectedly the PowerPlant is rendered OutOfService. " +
-          "Please contact the PowerPlant owner @ contact@andromeda.galaxy to resolve",
-        powerPlantConfig = stm.cfg,
-        timeStamp = DateTime.now(DateTimeZone.UTC)
+        signals = unAvailableSignals + (powerPlantIdSignalKey -> stm.cfg.id.toString),
+        events = stm.events :+ Transition(
+          oldState = stm.newState,
+          newState = OutOfService,
+          powerPlantConfig = stm.cfg,
+          timeStamp = DateTime.now(DateTimeZone.UTC)
+        ) :+ DefaultAlert(
+          msg = "Unexpectedly the PowerPlant is rendered OutOfService. " +
+            "Please contact the PowerPlant owner @ contact@andromeda.galaxy to resolve",
+          powerPlantConfig = stm.cfg,
+          timeStamp = DateTime.now(DateTimeZone.UTC)
+        )
       )
-    )
+    }
   }
 
   def returnToService(stm: StateMachine): StateMachine = {
