@@ -20,6 +20,7 @@ import OnOffTypeActor._
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
+import com.inland24.plantsim.models.PowerPlantState.OutOfService
 import com.inland24.plantsim.models.ReturnToNormalCommand
 import org.joda.time.{DateTime, DateTimeZone}
 
@@ -38,12 +39,24 @@ class OnOffTypeActor private (config: Config) extends Actor with ActorLogging {
   private val cfg = config.cfg
   private val eventStream = config.eventsStream
 
+  private def decideTransition(stm: StateMachine): Receive =
+    stm.newState match {
+      case OutOfService =>
+        outOfService(stm)
+      case _ =>
+        active(stm)
+    }
+
   private def evolve(stm: StateMachine): Unit = {
     val (signals, newStm) = StateMachine.popEvents(stm)
     for (s <- signals) {
       eventStream.foreach(elem => elem ! s)
     }
-    context.become(active(newStm))
+    val receiveMethod = decideTransition(newStm)
+    log.info(s"OnOffType PowerPlant with id = ${cfg.id} has " +
+      s"EVOLVED STATE << " +
+      s"${Some(receiveMethod.getClass.getSimpleName.split("\\$")(2)).getOrElse("unknown")} >>")
+    context.become(receiveMethod)
   }
 
   /*
@@ -57,6 +70,24 @@ class OnOffTypeActor private (config: Config) extends Actor with ActorLogging {
   override def receive: Receive = {
     case InitMessage =>
       evolve(StateMachine.init(StateMachine.empty(cfg), cfg.minPower))
+  }
+
+  def outOfService(stm: StateMachine): Receive = {
+    case TelemetrySignalsMessage =>
+      sender ! stm.signals + ("timestamp" -> DateTime
+        .now(DateTimeZone.UTC)
+        .toString)
+
+    case StateRequestMessage =>
+      sender ! stm
+
+    case ReturnToServiceMessage => // ReturnToService means bringing the PowerPlant back to service from a fault
+      evolve(StateMachine.turnOff(stm, minPower = cfg.minPower))
+
+    case x: Any =>
+      log.warning(
+        s"OnOffType PowerPlant ${stm.cfg.id} received message $x when in OutOfService! " +
+          s"Who in the world is so unkind?")
   }
 
   /**
@@ -91,11 +122,8 @@ class OnOffTypeActor private (config: Config) extends Actor with ActorLogging {
     case ReturnToNormalCommand(_, _) => // ReturnToNormal means means returning to min power
       evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
 
-    case OutOfServiceMessage =>
+    case OutOfServiceMessage => // Indicates a fault with the PowerPlant
       evolve(StateMachine.outOfService(state))
-
-    case ReturnToServiceMessage => // ReturnToService means bringing the PowerPlant back to service from a fault
-      evolve(StateMachine.turnOff(state, minPower = cfg.minPower))
   }
 }
 object OnOffTypeActor {

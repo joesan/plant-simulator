@@ -65,9 +65,13 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
         rampUp(stm, RampUpTypeActor.startRampCheckSubscription(cfg, self))
       case RampDown =>
         rampDown(stm, RampUpTypeActor.startRampCheckSubscription(cfg, self))
-      case ReturnToService | InitState            => active(StateMachine.active(stm))
-      case Active | ReturnToNormal | OutOfService => active(stm)
-      // This should never happen, but just in case if it happens we go to the active state
+      case ReturnToService | InitState =>
+        active(StateMachine.active(stm))
+      case Active | ReturnToNormal | ReturnToService =>
+        active(stm)
+      case OutOfService =>
+        outOfService(stm)
+      // This should never happen, but just in case we go to the active state by default
       case _ => active(StateMachine.active(stm))
     }
 
@@ -95,6 +99,27 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
           StateMachine.init(cfg)
         )
       )
+  }
+
+  def outOfService(state: StateMachine): Receive = {
+    case TelemetrySignalsMessage =>
+      // The Power values are randomized here for simulating reality
+      sender ! StateMachine.randomPower(
+        state.signals + ("timestamp" -> DateTime
+          .now(DateTimeZone.UTC)
+          .toString))
+
+    case PowerPlantActorMessage.StateRequestMessage =>
+      sender ! state
+
+    case ReturnToServiceMessage =>
+      evolve(StateMachine.returnToService(state))
+      self ! Init
+
+    case x: Any =>
+      log.warning(
+        s"RampUpType PowerPlant ${state.cfg.id} received message $x when in OutOfService! " +
+          s"Who in the world is so unkind?")
   }
 
   /**

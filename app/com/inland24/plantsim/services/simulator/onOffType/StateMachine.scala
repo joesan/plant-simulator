@@ -114,7 +114,7 @@ object StateMachine {
   def returnToService(stm: StateMachine): StateMachine = {
     stm.copy(
       oldState = stm.newState,
-      newState = ReturnToService,
+      newState = Active,
       signals = Map(
         powerPlantIdSignalKey -> stm.cfg.id.toString,
         activePowerSignalKey -> stm.cfg.minPower.toString,

@@ -41,7 +41,7 @@ class RampUpTypeActorTest
     with Matchers
     with BeforeAndAfterAll {
 
-  override def afterAll {
+  override def afterAll: Unit = {
     TestKit.shutdownActorSystem(system)
   }
 
@@ -59,7 +59,7 @@ class RampUpTypeActorTest
     rampUpType.RampUpTypeActor.Config(powerPlantCfg = rampUpTypeCfg)
 
   // Utility method to get the activePowerTolerance range
-  def activePowerSignalRange(power: Double) =
+  def activePowerSignalRange(power: Double): Double =
     power * StateMachine.toleranceFactorInPercentage / 100
 
   "RampUpTypeActor" must {
@@ -108,7 +108,7 @@ class RampUpTypeActorTest
               value3.toDouble should beWithinTolerance
             case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey =>
               assert(value4 === initPowerPlantState.cfg.id.toString)
-            case (key0, value0) =>
+            case (key0, _) =>
               assert(key0 === "timestamp")
           }
         case x: Any => // If I get any other message, I fail
@@ -310,7 +310,7 @@ class RampUpTypeActorTest
     }
 
     // PowerPlant # ReturnToService tests
-    "return the PowerPlant from OutOfService to Active when sending ReturnToService message" in {
+    "return the PowerPlant from OutOfService to Active when sending ReturnToServiceMessage message" in {
       // 1. First make the PowerPlant OutOfService
       within(3.seconds) {
         rampUpTypeSimActor ! OutOfServiceMessage
@@ -365,7 +365,7 @@ class RampUpTypeActorTest
        * Very unfortunately, we got to bloddy wait for some time until our Actor changes context!
        * This happens only for unit testing as there is no Akka Testkit support for this behavior
        */
-      Thread.sleep(8000) // We sleep for 8 seconds, to give some time for our Actor to change context!!!
+      Thread.sleep(10000) // We sleep for 8 seconds, to give some time for our Actor to change context!!!
 
       within(2.seconds) {
         rampUpTypeActor ! ReturnToNormalCommand(rampUpTypeCfg.id)
