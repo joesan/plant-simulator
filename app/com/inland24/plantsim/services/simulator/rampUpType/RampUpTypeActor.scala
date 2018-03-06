@@ -71,7 +71,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       case _ => active(StateMachine.active(stm))
     }
 
-  private def evolve(stm: StateMachine) = {
+  private def evolve(stm: StateMachine): Unit = {
     val (events, newStm) = StateMachine.popEvents(stm)
     for (s <- events) {
       eventsStream.foreach(actorRef => actorRef ! s)
@@ -97,7 +97,24 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
       )
   }
 
-  // TODO: Write Scaladoc comments
+  /**
+    * This represents the Active state of a PowerPlant
+    *
+    * Possible states that we can transition into are:
+    *
+    * 1. Dispatch - To RampUp the PowerPlant
+    * 2. OutOfService - We can render the PowerPlant to be
+    *                   OutOfService, i.e., the PowerPlant is
+    *                   not anymore available for steering
+    * 3. ReturnToService - We can return the PowerPlant from
+    *                      OutOfService, i.e., we can make it
+    *                      steerable again
+    * 4. We additionally have a special state which is just there
+    *    to inject Exceptions into the out channel to which this
+    *    PowerPlant Actor pushes Alerts and Events.
+    *
+    * @param state The StateMachine
+    */
   def active(state: StateMachine): Receive = {
     case TelemetrySignalsMessage =>
       // The Power values are randomized here for simulating reality

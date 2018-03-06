@@ -336,8 +336,7 @@ class PowerPlantControllerTest
         """.stripMargin
 
       val result: Future[Result] =
-        controller
-          .createNewPowerPlant
+        controller.createNewPowerPlant
           .apply(
             FakeRequest().withBody(Json.parse(create))
           )
@@ -359,11 +358,11 @@ class PowerPlantControllerTest
           |}
         """.stripMargin
 
-      val expected = """{"message":"invalid PowerPlantConfig! Please set the id of the Powerplant to 0 for create new PowerPlant"}"""
+      val expected =
+        """{"message":"invalid PowerPlantConfig! Please set the id of the Powerplant to 0 for create new PowerPlant"}"""
 
       val result: Future[Result] =
-        controller
-          .createNewPowerPlant
+        controller.createNewPowerPlant
           .apply(
             FakeRequest().withBody(Json.parse(create))
           )
@@ -389,8 +388,7 @@ class PowerPlantControllerTest
         """{"message":"Invalid PowerPlantConfig List((/powerPlantType,List(JsonValidationError(List(Invalid PowerPlantType UnknownType. Should be one of RampUpType or OnOffType),WrappedArray()))))"}""".stripMargin
 
       val result: Future[Result] =
-        controller
-          .createNewPowerPlant
+        controller.createNewPowerPlant
           .apply(
             FakeRequest().withBody(Json.parse(create))
           )

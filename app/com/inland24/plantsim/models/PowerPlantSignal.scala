@@ -47,7 +47,7 @@ object PowerPlantSignal {
   // **** Alerts that happen in the system when interacting with the PowerPlant
   sealed trait PowerPlantAlert extends PowerPlantSignal
 
-  case class DispatchAlert(
+  case class DefaultAlert(
       msg: String,
       powerPlantConfig: PowerPlantConfig,
       timeStamp: DateTime = DateTime.now(DateTimeZone.UTC)

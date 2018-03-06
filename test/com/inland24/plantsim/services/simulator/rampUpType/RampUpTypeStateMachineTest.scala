@@ -19,7 +19,7 @@ package com.inland24.plantsim.services.simulator.rampUpType
 
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantSignal.{
-  DispatchAlert,
+  DefaultAlert,
   Genesis,
   Transition
 }
@@ -165,7 +165,7 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       // We expect two DispatchAlert event
       dispatchStm.events.size shouldBe 1
       dispatchStm.events.foreach {
-        case elem if elem.isInstanceOf[DispatchAlert] =>
+        case elem if elem.isInstanceOf[DefaultAlert] =>
           elem.powerPlantConfig shouldBe stm.cfg
 
         case unexpected =>
@@ -194,7 +194,7 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
         case elem if elem.isInstanceOf[Transition] =>
           elem.powerPlantConfig shouldBe stm.cfg
 
-        case elem if elem.isInstanceOf[DispatchAlert] =>
+        case elem if elem.isInstanceOf[DefaultAlert] =>
           elem.powerPlantConfig shouldBe stm.cfg
 
         case unexpected =>
@@ -220,7 +220,6 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       dispatchStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
           elem.powerPlantConfig shouldBe stm.cfg
-          assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
         case unexpected =>
           fail(
@@ -244,12 +243,14 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       outOfServiceStm.newState shouldBe OutOfService
 
       // We expect one Transition event
-      outOfServiceStm.events.size shouldBe 1
+      outOfServiceStm.events.size shouldBe 2
 
       outOfServiceStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
           elem.powerPlantConfig shouldBe stm.cfg
-          assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
+
+        case elem if elem.isInstanceOf[DefaultAlert] =>
+          elem.powerPlantConfig shouldBe stm.cfg
 
         case unexpected =>
           fail(
@@ -267,10 +268,14 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       outOfServiceStm.newState shouldBe OutOfService
 
       // We expect one Transition event and one Alert event
-      outOfServiceStm.events.size shouldBe 1
+      outOfServiceStm.events.size shouldBe 2
 
       outOfServiceStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
+          elem.powerPlantConfig shouldBe stm.cfg
+          assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
+
+        case elem if elem.isInstanceOf[DefaultAlert] =>
           elem.powerPlantConfig shouldBe stm.cfg
           assert(elem.timeStamp.isBefore(now) || elem.timeStamp.isEqual(now))
 
@@ -296,10 +301,13 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       outOfServiceStm.newState shouldBe OutOfService
 
       // We expect one Transition event
-      outOfServiceStm.events.size shouldBe 1
+      outOfServiceStm.events.size shouldBe 2
 
       outOfServiceStm.events.foreach {
         case elem if elem.isInstanceOf[Transition] =>
+          elem.powerPlantConfig shouldBe stm.cfg
+
+        case elem if elem.isInstanceOf[DefaultAlert] =>
           elem.powerPlantConfig shouldBe stm.cfg
 
         case unexpected =>

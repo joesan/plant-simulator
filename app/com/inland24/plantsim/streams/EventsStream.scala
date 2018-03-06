@@ -20,7 +20,7 @@ package com.inland24.plantsim.streams
 import akka.actor.{Actor, ActorLogging, Props}
 import com.inland24.plantsim.models.PowerPlantSignal
 import com.inland24.plantsim.models.PowerPlantSignal.{
-  DispatchAlert,
+  DefaultAlert,
   Genesis,
   Transition
 }
@@ -43,7 +43,7 @@ final class EventsStream(
     case g: Genesis =>
       channel.onNext(g)
 
-    case d: DispatchAlert =>
+    case d: DefaultAlert =>
       channel.onNext(d)
 
     // We want to test the resiliency of the Actor Supervision, so we have this message here!

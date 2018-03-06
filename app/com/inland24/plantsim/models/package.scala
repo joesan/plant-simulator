@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.models.PowerPlantConfig._
 import com.inland24.plantsim.models.PowerPlantSignal.{
-  DispatchAlert,
+  DefaultAlert,
   Genesis,
   Transition
 }
@@ -241,7 +241,7 @@ package object models {
         "powerPlantCfg" -> powerPlantCfg,
         "timeStamp" -> timeStamp
       )
-    case DispatchAlert(msg, powerPlantCfg, timeStamp) =>
+    case DefaultAlert(msg, powerPlantCfg, timeStamp) =>
       Json.obj(
         "message" -> msg,
         "powerPlantCfg" -> powerPlantCfg,

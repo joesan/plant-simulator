@@ -20,7 +20,7 @@ package com.inland24.plantsim.services.simulator.rampUpType
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.{PowerPlantSignal, PowerPlantState}
 import com.inland24.plantsim.models.PowerPlantSignal.{
-  DispatchAlert,
+  DefaultAlert,
   Genesis,
   Transition
 }
@@ -178,6 +178,11 @@ object StateMachine {
         oldState = stm.newState,
         powerPlantConfig = stm.cfg,
         timeStamp = DateTime.now(DateTimeZone.UTC)
+      ) :+ DefaultAlert(
+        msg = "Unexpectedly the PowerPlant is rendered OutOfService. " +
+          "Please contact the PowerPlant owner @ contact@andromeda.galaxy to resolve",
+        powerPlantConfig = stm.cfg,
+        timeStamp = DateTime.now(DateTimeZone.UTC)
       )
     )
   }
@@ -201,7 +206,7 @@ object StateMachine {
     if (setPoint <= stm.cfg.minPower) {
       stm.copy(
         events = Vector(
-          DispatchAlert(
+          DefaultAlert(
             msg = s"requested dispatchPower = $setPoint is lesser than " +
               s"minPower = ${stm.cfg.minPower} capacity of the PowerPlant, " +
               s"so curtailing at maxPower for PowerPlant ${stm.cfg.id}",
@@ -221,7 +226,7 @@ object StateMachine {
           newState = RampUp,
           powerPlantConfig = stm.cfg
         ) :+
-          DispatchAlert(
+          DefaultAlert(
             s"requested dispatchPower = $setPoint is greater than " +
               s"maxPower = ${stm.cfg.maxPower} capacity of the PowerPlant, " +
               s"so curtailing at maxPower for PowerPlant ${stm.cfg.id}",

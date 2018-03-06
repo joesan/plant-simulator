@@ -18,7 +18,11 @@
 package com.inland24.plantsim.services.simulator.onOffType
 
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
-import com.inland24.plantsim.models.PowerPlantSignal.{Genesis, Transition}
+import com.inland24.plantsim.models.PowerPlantSignal.{
+  DefaultAlert,
+  Genesis,
+  Transition
+}
 import com.inland24.plantsim.models.{PowerPlantSignal, PowerPlantState}
 import com.inland24.plantsim.models.PowerPlantState._
 import org.joda.time.{DateTime, DateTimeZone}
@@ -91,6 +95,11 @@ object StateMachine {
       events = stm.events :+ Transition(
         oldState = stm.newState,
         newState = OutOfService,
+        powerPlantConfig = stm.cfg,
+        timeStamp = DateTime.now(DateTimeZone.UTC)
+      ) :+ DefaultAlert(
+        msg = "Unexpectedly the PowerPlant is rendered OutOfService. " +
+          "Please contact the PowerPlant owner @ contact@andromeda.galaxy to resolve",
         powerPlantConfig = stm.cfg,
         timeStamp = DateTime.now(DateTimeZone.UTC)
       )

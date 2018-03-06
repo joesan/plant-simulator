@@ -173,8 +173,8 @@ class EventsWebSocketActorTest
       powerPlantActor ! ReturnToServiceMessage
       Thread.sleep(1000)
 
-      // We expect 2 events (OutOfService, ReturnToService)
-      assert(buffer.size === 2)
+      // We expect 2 events (OutOfService, ReturnToService) and one Alert
+      assert(buffer.size === 3)
       val headJson = Json.parse(buffer.head)
       assert((headJson \ "newState").as[String] === "OutOfService")
       assert((headJson \ "oldState").as[String] === "Active")
