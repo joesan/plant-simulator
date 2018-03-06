@@ -25,7 +25,11 @@ import play.api.mvc.{Action, AnyContent, ControllerComponents, WebSocket}
 import akka.actor.{ActorRef, ActorSystem}
 import akka.pattern.ask
 import akka.stream.Materializer
-import com.inland24.plantsim.models.PowerPlantActorMessage.TelemetrySignalsMessage
+import com.inland24.plantsim.models.PowerPlantActorMessage.{
+  OutOfServiceMessage,
+  ReturnToServiceMessage,
+  TelemetrySignalsMessage
+}
 import com.inland24.plantsim.streams.EventsStream.DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
 import play.api.libs.streams.ActorFlow
 
@@ -93,6 +97,35 @@ class PowerPlantOperationsController(
     actorRef ! DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
     Future.successful(
       Ok("*** ###### Fnickug ---- YOU WANTED TO SPOIL MY PARTY *******......."))
+  }
+
+  def outOfServicePowerPlant(id: Int): Action[AnyContent] = Action.async {
+    actorFor(id) flatMap {
+      case None =>
+        Future.successful(
+          NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
+        )
+      case Some(actorRef) =>
+        actorRef ! OutOfServiceMessage
+        Future.successful(
+          Ok(s"Successfully triggered OutOfService for PowerPlant with id $id")
+        )
+    }
+  }
+
+  def returnToServicePowerPlant(id: Int): Action[AnyContent] = Action.async {
+    actorFor(id) flatMap {
+      case None =>
+        Future.successful(
+          NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
+        )
+      case Some(actorRef) =>
+        actorRef ! ReturnToServiceMessage
+        Future.successful(
+          Ok(
+            s"Successfully triggered ReturnToService for PowerPlant with id $id")
+        )
+    }
   }
 
   // TODO: Re-Work for unit testability!

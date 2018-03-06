@@ -19,6 +19,8 @@ POST        /plantsim/powerplant/:id/update          com.inland24.plantsim.contr
 GET         /plantsim/powerplant/:id/telemetry       com.inland24.plantsim.controllers.PowerPlantOperationsController.powerPlantSignals(id: Int)
 POST        /plantsim/powerplant/:id/dispatch        com.inland24.plantsim.controllers.PowerPlantOperationsController.dispatchPowerPlant(id: Int)
 POST        /plantsim/powerplant/:id/release         com.inland24.plantsim.controllers.PowerPlantOperationsController.returnToNormalPowerPlant(id: Int)
+POST        /plantsim/powerplant/:id/outofservice    com.inland24.plantsim.controllers.PowerPlantOperationsController.outOfServicePowerPlant(id: Int)
+POST        /plantsim/powerplant/:id/returntoservice com.inland24.plantsim.controllers.PowerPlantOperationsController.returnToServicePowerPlant(id: Int)
 
 # Endpoints to tap into Alerts and Events
 GET         /plantsim/powerplant/events              com.inland24.plantsim.controllers.PowerPlantOperationsController.events(id: Option[Int] = None)

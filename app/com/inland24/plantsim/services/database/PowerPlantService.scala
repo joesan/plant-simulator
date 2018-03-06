@@ -19,9 +19,16 @@ package com.inland24.plantsim.services.database
 
 import cats.Monad
 import cats.syntax.all._
-import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, RampUpTypeConfig}
+import com.inland24.plantsim.models.PowerPlantConfig.{
+  OnOffTypeConfig,
+  RampUpTypeConfig
+}
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
-import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantFilter, toPowerPlantRow}
+import com.inland24.plantsim.models.{
+  PowerPlantConfig,
+  PowerPlantFilter,
+  toPowerPlantRow
+}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.PowerPlantRepository
 
@@ -64,13 +71,16 @@ class PowerPlantService[M[_]: Monad](powerPlantRepo: PowerPlantRepository[M]) {
       cfg: PowerPlantConfig): M[Either[String, PowerPlantConfig]] = {
     toPowerPlantRow(cfg) match {
       case Some(powerPlantRow) =>
-        powerPlantRepo.newPowerPlant(powerPlantRow).map(newId =>
-          cfg.powerPlantType match {
-            case RampUpType => Right(cfg.asInstanceOf[RampUpTypeConfig].copy(id = newId))
-            case OnOffType => Right(cfg.asInstanceOf[OnOffTypeConfig].copy(id = newId))
-            case _ => Right(cfg)
-          }
-        )
+        powerPlantRepo
+          .newPowerPlant(powerPlantRow)
+          .map(newId =>
+            cfg.powerPlantType match {
+              case RampUpType =>
+                Right(cfg.asInstanceOf[RampUpTypeConfig].copy(id = newId))
+              case OnOffType =>
+                Right(cfg.asInstanceOf[OnOffTypeConfig].copy(id = newId))
+              case _ => Right(cfg)
+          })
       case None =>
         implicitly[Monad[M]].pure(
           Left(s"Invalid Configuration $cfg when creating a new PowerPlant"))

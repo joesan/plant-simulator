@@ -81,9 +81,8 @@ class PowerPlantController(bindings: AppBindings,
                   case Success(result) =>
                     result match {
                       case Left(errorMessage) =>
-                        BadRequest(Json.obj(
-                          "message" ->
-                            s"Error When creating a new PowerPlant :: Error Message: $errorMessage")).enableCors
+                        BadRequest(Json.obj("message" ->
+                          s"Error When creating a new PowerPlant :: Error Message: $errorMessage")).enableCors
                       case Right(createdConfig) =>
                         Ok(Json.prettyPrint(Json.toJson(createdConfig))).enableCors
                     }
@@ -121,9 +120,8 @@ class PowerPlantController(bindings: AppBindings,
                 case Success(result) =>
                   result match {
                     case Left(errorMessage) =>
-                      BadRequest(Json.obj(
-                        "message" ->
-                          s"Error when updating PowerPlant Error Message :: $errorMessage")).enableCors
+                      BadRequest(Json.obj("message" ->
+                        s"Error when updating PowerPlant Error Message :: $errorMessage")).enableCors
                     case Right(updatedConfig) =>
                       Ok(Json.prettyPrint(Json.toJson(updatedConfig))).enableCors
                   }
