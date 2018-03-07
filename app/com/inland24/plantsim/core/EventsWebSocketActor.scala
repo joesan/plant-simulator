@@ -106,9 +106,9 @@ object EventsWebSocketActor {
   }
 
   // Utility method to convert to proper types in the resulting JSON
-  def telemetrySignals(signalsAsMap: Map[String, String]) = {
+  def telemetrySignals(signalsAsMap: Map[String, String]): Map[String, Any] = {
     signalsAsMap.map {
-      case (key, value) if key == "activePower" =>
+      case (key, value) if key == "activePower" || key == "setPoint" =>
         key -> value.toDouble
       case (key, value)
           if key == "isOnOff" || key == "isDispatched" || key == "isAvailable" =>
