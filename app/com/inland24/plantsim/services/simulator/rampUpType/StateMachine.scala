@@ -214,7 +214,7 @@ object StateMachine {
           DefaultAlert(
             msg = s"requested dispatchPower = $setPoint is lesser than " +
               s"minPower = ${stm.cfg.minPower} capacity of the PowerPlant, " +
-              s"so curtailing at maxPower for PowerPlant ${stm.cfg.id}",
+              s"so rejecting dispatch for PowerPlant ${stm.cfg.id}",
             powerPlantConfig = stm.cfg,
             timeStamp = DateTime.now(DateTimeZone.UTC)
           )
