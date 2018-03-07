@@ -70,6 +70,8 @@ class OnOffTypeStateMachineTest extends WordSpecLike {
           assert(value.toBoolean)
         case (key, value) if key == StateMachine.isOnOffSignalKey =>
           assert(value.toBoolean)
+        case (key, value) if key == StateMachine.setPointSignalKey =>
+          assert(value === onOffTpeCfg.maxPower.toString)
       }
       assert(turnedOn.events.exists(elem => elem.isInstanceOf[Transition]))
       assert(turnedOn.newState === Dispatched)
@@ -98,6 +100,8 @@ class OnOffTypeStateMachineTest extends WordSpecLike {
           assert(value.toBoolean)
         case (key, value) if key == StateMachine.isOnOffSignalKey =>
           assert(!value.toBoolean)
+        case (key, value) if key == StateMachine.setPointSignalKey =>
+          assert(value === onOffTpeCfg.minPower.toString)
       }
       assert(turnedOff.events.exists(elem => elem.isInstanceOf[Transition]))
       assert(turnedOff.newState === ReturnToNormal)

@@ -20,7 +20,10 @@ import OnOffTypeActor._
 import com.inland24.plantsim.models.DispatchCommand.DispatchOnOffPowerPlant
 import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
-import com.inland24.plantsim.models.PowerPlantState.OutOfService
+import com.inland24.plantsim.models.PowerPlantState.{
+  OutOfService,
+  ReturnToNormal
+}
 import com.inland24.plantsim.models.ReturnToNormalCommand
 import org.joda.time.{DateTime, DateTimeZone}
 
@@ -43,6 +46,8 @@ class OnOffTypeActor private (config: Config) extends Actor with ActorLogging {
     stm.newState match {
       case OutOfService =>
         outOfService(stm)
+      case ReturnToNormal =>
+        active(StateMachine.init(stm, stm.cfg.minPower))
       case _ =>
         active(stm)
     }

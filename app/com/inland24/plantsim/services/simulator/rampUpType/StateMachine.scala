@@ -68,6 +68,7 @@ object StateMachine {
   val isDispatchedSignalKey = "isDispatched"
   val activePowerSignalKey = "activePower"
   val powerPlantIdSignalKey = "powerPlantId"
+  val setPointSignalKey = "setPoint"
 
   val unAvailableSignals = Map(
     activePowerSignalKey -> 0.1.toString, // the power does not matter when the plant is unavailable for steering
@@ -125,7 +126,7 @@ object StateMachine {
   }
 
   // The starting state of our StateMachine
-  def init(cfg: RampUpTypeConfig) = {
+  def init(cfg: RampUpTypeConfig): StateMachine = {
     StateMachine(
       cfg = cfg,
       oldState = Init,
@@ -208,12 +209,12 @@ object StateMachine {
 
   def dispatch(stm: StateMachine, setPoint: Double): StateMachine = {
     // 1. Check if the setPoint or the power to be dispatched is greater than the minPower
-    if (setPoint <= stm.cfg.minPower) {
+    if (setPoint <= stm.cfg.minPower + 200.0) {
       stm.copy(
         events = Vector(
           DefaultAlert(
-            msg = s"requested dispatchPower = $setPoint is lesser than " +
-              s"minPower = ${stm.cfg.minPower} capacity of the PowerPlant, " +
+            msg = s"requested setPoint = $setPoint is lesser than " +
+              s"minPower = ${stm.cfg.minPower + 200.0} capacity of the PowerPlant, " +
               s"so rejecting dispatch for PowerPlant ${stm.cfg.id}",
             powerPlantConfig = stm.cfg,
             timeStamp = DateTime.now(DateTimeZone.UTC)
@@ -226,6 +227,7 @@ object StateMachine {
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
         oldState = stm.newState,
         newState = RampUp,
+        signals = stm.signals + (setPointSignalKey -> setPoint.toString),
         events = stm.events :+ Transition(
           oldState = stm.newState,
           newState = RampUp,
@@ -243,6 +245,7 @@ object StateMachine {
         setPoint = setPoint,
         lastSetPointReceivedAt = DateTime.now(DateTimeZone.UTC),
         oldState = stm.newState,
+        signals = stm.signals + (setPointSignalKey -> setPoint.toString),
         newState = RampUp,
         events = stm.events :+ Transition(
           oldState = stm.newState,
@@ -280,7 +283,8 @@ object StateMachine {
               powerPlantIdSignalKey -> state.cfg.id.toString,
               isDispatchedSignalKey -> false.toString,
               activePowerSignalKey -> state.cfg.minPower.toString,
-              isAvailableSignalKey -> true.toString // the plant is available and not faulty!
+              isAvailableSignalKey -> true.toString, // the plant is available and not faulty!
+              setPointSignalKey -> state.signals(setPointSignalKey)
             )
           )
         } else { // else, we do one RampDown attempt
@@ -292,7 +296,8 @@ object StateMachine {
               powerPlantIdSignalKey -> state.cfg.id.toString,
               isDispatchedSignalKey -> true.toString,
               activePowerSignalKey -> (currentActivePower - state.cfg.rampPowerRate).toString,
-              isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
+              isAvailableSignalKey -> true.toString, // the plant is still available and not faulty!
+              setPointSignalKey -> state.setPoint.toString
             )
           )
         }
@@ -322,7 +327,8 @@ object StateMachine {
                 powerPlantIdSignalKey -> stm.cfg.id.toString,
                 isDispatchedSignalKey -> true.toString,
                 activePowerSignalKey -> stm.setPoint.toString,
-                isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
+                isAvailableSignalKey -> true.toString, // the plant is still available and not faulty!
+                setPointSignalKey -> stm.setPoint.toString
               ),
               events = stm.events :+ Transition(
                 oldState = stm.newState,
@@ -339,7 +345,8 @@ object StateMachine {
                 powerPlantIdSignalKey -> stm.cfg.id.toString,
                 isDispatchedSignalKey -> false.toString,
                 activePowerSignalKey -> (currentActivePower + stm.cfg.rampPowerRate).toString,
-                isAvailableSignalKey -> true.toString // the plant is still available and not faulty!
+                isAvailableSignalKey -> true.toString, // the plant is still available and not faulty!
+                setPointSignalKey -> stm.setPoint.toString
               )
             )
           }
