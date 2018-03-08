@@ -111,7 +111,7 @@ To visualize the application and to do some real work with it, have a look [here
 
 Alternatively, you could visualize the app under the following URL:
 
-`https://plant-simulator-ui.herokuapp.com/`
+`https://plant-simulator-ui.herokuapp.com/` - More information could be found [here](https://github.com/joesan/plant-simulator/wiki/API-Documentation)
 
 #### To run as a Docker container
 
