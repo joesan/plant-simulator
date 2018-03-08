@@ -136,15 +136,7 @@ Alternatively, you could visualize the app under the following URL:
 
 ## Deployment
 
-I have a pre-deployed version of the application running on Heroku. Here are some of the Endpoints you can try!
-
-`https://cryptic-taiga-18841.herokuapp.com/plantsim/config` - Gets you the application configuration
-
-`https://cryptic-taiga-18841.herokuapp.com/plantsim/powerplant/1/details` - Fetch the details about a PowerPlant
-
-`wss://cryptic-taiga-18841.herokuapp.com/plantsim/powerplant/signals?id=1` - Gets you the Telemetry signals for PowerPlant with id = 1
-
-`wss://cryptic-taiga-18841.herokuapp.com/plantsim/powerplant/events?id=1` - Gets you the Events and Alerts happening for PowerPlant with id = 1
+The application is pre-deployed on a Heroku server. More details cal be found (here)[https://github.com/joesan/plant-simulator/wiki/API-Documentation]
 
 [[TODO]] Add additional notes about how to deploy this on a live system
 
