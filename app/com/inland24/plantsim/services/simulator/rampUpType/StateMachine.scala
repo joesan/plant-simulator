@@ -283,8 +283,7 @@ object StateMachine {
               powerPlantIdSignalKey -> state.cfg.id.toString,
               isDispatchedSignalKey -> false.toString,
               activePowerSignalKey -> state.cfg.minPower.toString,
-              isAvailableSignalKey -> true.toString, // the plant is available and not faulty!
-              setPointSignalKey -> state.signals(setPointSignalKey)
+              isAvailableSignalKey -> true.toString // the plant is available and not faulty!
             )
           )
         } else { // else, we do one RampDown attempt
