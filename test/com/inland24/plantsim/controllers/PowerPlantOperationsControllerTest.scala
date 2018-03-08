@@ -163,8 +163,53 @@ class PowerPlantOperationsControllerTest
     }
   }
 
-  "PowerPlantOperationsController ## powerPlantSignals" should {
+  "PowerPlantOperationsController ## OutOfService and ReturnToService" should {
+    "return with a HTTP NotFound for a PowerPlant that does not exist when OutOfService is requested" in {
+      val result: Future[Result] =
+        controller.outOfServicePowerPlant(-200).apply(FakeRequest())
+      result.materialize.map {
+        case Success(succ) =>
+          assert(succ.header.status === NotFound)
+        case Failure(ex) =>
+          fail(s"Unexpected server error ${ex.getMessage}")
+      }
+    }
 
+    "return with a HTTP NotFound for a PowerPlant that does not exist when ReturnToService is requested" in {
+      val result: Future[Result] =
+        controller.returnToServicePowerPlant(-200).apply(FakeRequest())
+      result.materialize.map {
+        case Success(succ) =>
+          assert(succ.header.status === NotFound)
+        case Failure(ex) =>
+          fail(s"Unexpected server error ${ex.getMessage}")
+      }
+    }
+
+    "return with a HTTP Ok for a PowerPlant when OutOfService is requested" in {
+      val result: Future[Result] =
+        controller.outOfServicePowerPlant(2).apply(FakeRequest())
+      result.materialize.map {
+        case Success(succ) =>
+          assert(succ.header.status === Ok)
+        case Failure(ex) =>
+          fail(s"Unexpected server error ${ex.getMessage}")
+      }
+    }
+
+    "return with a HTTP Ok for a PowerPlant when ReturnToService is requested" in {
+      val result: Future[Result] =
+        controller.returnToServicePowerPlant(2).apply(FakeRequest())
+      result.materialize.map {
+        case Success(succ) =>
+          assert(succ.header.status === Ok)
+        case Failure(ex) =>
+          fail(s"Unexpected server error ${ex.getMessage}")
+      }
+    }
+  }
+
+  "PowerPlantOperationsController ## powerPlantSignals" should {
     "return with a HTTP NotFound for a PowerPlant that does not exist" in {
       val result: Future[Result] =
         controller.powerPlantSignals(-200).apply(FakeRequest())
