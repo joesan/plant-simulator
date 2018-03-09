@@ -13,7 +13,7 @@
 
 ## Getting Started 
 
-For some background information on the project, have a look [here](https://github.com/joesan/plant-simulator/wiki)
+For some background information on the project, please have a look [here](https://github.com/joesan/plant-simulator/wiki)
 
 The instructions below will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
@@ -40,7 +40,7 @@ Follow the steps below to import the project into IntelliJ
 
 ### Database Support
 
-Though th application is multi database compliant, currently only MySQL and H2 databases are supported, the reason being that the [set up scripts](https://github.com/joesan/database-projects/tree/master/power-plant-simulator) are only avaiable for MySQL and H2. 
+Though the application is multi database compliant, currently only MySQL and H2 databases are supported, the reason being that the [set up scripts](https://github.com/joesan/database-projects/tree/master/power-plant-simulator) are only avaiable for MySQL and H2. If you need support for other relational databases, please feel free to contribute!
 
 You have to make sure to set up your database and configure the database credentials and url in one of the applicatiox.xxxx.conf files (where xxxx stands for either test or prod)
 
