@@ -275,7 +275,8 @@ class RampUpTypeActorTest
       expectMsgPF(5.seconds) {
         case state: StateMachine =>
           assert(
-            state.signals === StateMachine.unAvailableSignals + (StateMachine.powerPlantIdSignalKey -> state.cfg.id.toString))
+            state.signals === StateMachine.unAvailableSignals + (StateMachine.powerPlantIdSignalKey -> state.cfg.id.toString)
+          )
         case x: Any =>
           fail(
             s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
