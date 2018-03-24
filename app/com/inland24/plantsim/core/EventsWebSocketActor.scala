@@ -135,9 +135,9 @@ object EventsWebSocketActor {
     import scala.concurrent.duration._
     import akka.pattern.ask
     implicit val timeOut: Timeout = 3.seconds
-    // Every 5 seconds, we ask the Actor for the signals
+    // Every 4 seconds, we ask the Actor for the signals
     Observable
-      .interval(5.seconds)
+      .interval(4.seconds)
       .flatMap(
         _ =>
           Observable.fromFuture(
