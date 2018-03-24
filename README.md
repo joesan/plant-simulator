@@ -15,7 +15,7 @@
 
 For some background information on the project, please have a look [here](https://github.com/joesan/plant-simulator/wiki)
 
-The instructions below will get you a copy of the project up and running on your local machine for development and testing purposes. 
+The instructions given below will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
 ### Prerequisites
 
