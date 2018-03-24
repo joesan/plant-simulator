@@ -59,7 +59,7 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
         be >= (cfg.minPower - activePowerSignalRange(cfg.minPower)) and be <= (cfg.minPower + activePowerSignalRange(
           cfg.minPower))
 
-      assert(newSignals.size === 4)
+      assert(newSignals.size === 5)
       newSignals.foreach {
         case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey =>
           assert(!value1.toBoolean)
@@ -69,6 +69,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           value3.toDouble should beWithinTolerance
         case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey =>
           assert(value4 === cfg.id.toString)
+        case (key5, value5) if key5 == StateMachine.setPointSignalKey =>
+          assert(value5 === cfg.minPower.toString)
       }
     }
   }
@@ -83,7 +85,7 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       assert(stm.cfg.id == cfg.id)
       assert(
         stm.lastRampTime.getMillis <= DateTime.now(DateTimeZone.UTC).getMillis)
-      assert(stm.signals.size === 4)
+      assert(stm.signals.size === 5)
 
       // Check the PowerPlantState
       assert(stm.newState === Init)
@@ -105,7 +107,7 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       "(available = true, activePower = minPower, isDispatched = false)" in {
       val stm = StateMachine.init(cfg)
 
-      assert(stm.signals.size === 4)
+      assert(stm.signals.size === 5)
       stm.signals.foreach {
         case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey =>
           assert(!value1.toBoolean)
@@ -115,6 +117,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           assert(value3.toDouble === cfg.minPower)
         case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey =>
           assert(value4 === cfg.id.toString)
+        case (key5, value5) if key5 == StateMachine.setPointSignalKey =>
+          assert(value5 === cfg.minPower.toString)
       }
       assert(stm.setPoint === cfg.minPower)
     }
@@ -122,7 +126,7 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
     "set the PowerPlant in an active state" in {
       val stm = StateMachine.active(StateMachine.init(cfg))
 
-      assert(stm.signals.size === 4)
+      assert(stm.signals.size === 5)
       stm.signals.foreach {
         case (key1, value1) if key1 == StateMachine.isDispatchedSignalKey =>
           assert(!value1.toBoolean)
@@ -132,6 +136,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
           assert(value3.toDouble === cfg.minPower)
         case (key4, value4) if key4 == StateMachine.powerPlantIdSignalKey =>
           assert(value4 === cfg.id.toString)
+        case (key5, value5) if key5 == StateMachine.setPointSignalKey =>
+          assert(value5 === cfg.minPower.toString)
       }
       assert(stm.setPoint === cfg.minPower)
 

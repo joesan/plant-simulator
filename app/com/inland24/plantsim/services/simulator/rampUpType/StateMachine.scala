@@ -145,7 +145,8 @@ object StateMachine {
         powerPlantIdSignalKey -> cfg.id.toString,
         isDispatchedSignalKey -> false.toString,
         activePowerSignalKey -> cfg.minPower.toString, // by default this plant operates at min power
-        isAvailableSignalKey -> true.toString // indicates if the power plant is available for steering
+        isAvailableSignalKey -> true.toString, // indicates if the power plant is available for steering
+        setPointSignalKey -> cfg.minPower.toString // by default, our setPoint will be the minPower
       )
     )
   }
@@ -159,7 +160,8 @@ object StateMachine {
         powerPlantIdSignalKey -> stm.cfg.id.toString,
         isDispatchedSignalKey -> false.toString,
         activePowerSignalKey -> stm.cfg.minPower.toString, // be default this plant operates at min power
-        isAvailableSignalKey -> true.toString // indicates if the power plant is available for steering
+        isAvailableSignalKey -> true.toString, // indicates if the power plant is available for steering
+        setPointSignalKey -> stm.cfg.minPower.toString // by default, our setPoint will be the minPower
       ),
       events = stm.events :+ Transition(
         newState = com.inland24.plantsim.models.PowerPlantState.Active,
@@ -270,7 +272,8 @@ object StateMachine {
             .isDefined) {
         val currentActivePower = state.signals(activePowerSignalKey).toDouble
         // check if the newActivePower is lesser than the minPower
-        if (currentActivePower - state.cfg.rampPowerRate <= state.cfg.minPower) { // if true, this means we have ramped down to the required minPower!
+        if (currentActivePower - state.cfg.rampPowerRate <= state.cfg.minPower) {
+          // if true, this means we have ramped down to the required minPower!
           state.copy(
             oldState = state.newState,
             newState = Active,
@@ -283,7 +286,8 @@ object StateMachine {
               powerPlantIdSignalKey -> state.cfg.id.toString,
               isDispatchedSignalKey -> false.toString,
               activePowerSignalKey -> state.cfg.minPower.toString,
-              isAvailableSignalKey -> true.toString // the plant is available and not faulty!
+              isAvailableSignalKey -> true.toString, // the plant is available and not faulty!
+              setPointSignalKey -> state.cfg.minPower.toString // by default, our setPoint will be the minPower
             )
           )
         } else { // else, we do one RampDown attempt
@@ -296,7 +300,7 @@ object StateMachine {
               isDispatchedSignalKey -> true.toString,
               activePowerSignalKey -> (currentActivePower - state.cfg.rampPowerRate).toString,
               isAvailableSignalKey -> true.toString, // the plant is still available and not faulty!
-              setPointSignalKey -> state.setPoint.toString
+              setPointSignalKey -> state.cfg.minPower.toString
             )
           )
         }
