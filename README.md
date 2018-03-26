@@ -15,6 +15,10 @@
 
 For some background information on the project, please have a look [here](https://github.com/joesan/plant-simulator/wiki)
 
+Here is what the operation of a PowerPlant would look like! A constant command and control of the PowerPlant would end up showing you the following graph!
+
+![PowerPlant Command and Control](https://github.com/joesan/plant-simulator/blob/master/streaming_telemetry.png)
+
 The instructions given below will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
 ### Prerequisites
