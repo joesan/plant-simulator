@@ -147,7 +147,17 @@ For even more convenience, I have created alredy generated and pre-populated abo
 sbt -Denv=loadtest run
 ```
 
-After you do this, I assure you that you will have fun!
+After you do this, I assure you that you will have fun! Ok so not you had some fun, let us have even more fun. Let us dispatch all of the PowerPlants at once. 
+To do this I have prepared a simple script that can send dispatch commands. 
+
+```
+0. Make sure that the application is up and running
+1. Open another terminal and navigate to the project rool folder
+2. Call the dispatch script
+   ./dispatch.sh
+3. Make sure that you have some fun doing this!   
+```
+
 
 ## Deployment
 
