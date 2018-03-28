@@ -151,7 +151,10 @@ After you do this, I assure you that you will have fun! Ok so not you had some f
 To do this I have prepared a simple script that can send dispatch commands. 
 
 ```
-0. Make sure that the application is up and running
+0. Make sure that the application is up and running and make sure that you have a WebSocket connection open
+   To open a command line WebSocket client, you can do the following:
+   npm install -g wscat
+   wscat -c ws://localhost:9000/plantsim/powerplant/events
 1. Open another terminal and navigate to the project rool folder
 2. Call the dispatch script
    ./dispatch.sh
