@@ -139,7 +139,9 @@ Alternatively, you could visualize the app under the following URL:
 ```
 
 ## Load Testing the Application
-I have included some possibilities with which you can load test the application. The idea is to create as many PowerPlant's as we want in the database and use this database to start the application. For convenience, I have created a script with which you can generate as many data as you want. The script db-generator.sh can be found [here](https://github.com/joesan/database-projects/tree/master/power-plant-simulator/h2). Have a look at the README.md on that link to know how you could generate the random massive data set.
+I have included some possibilities with which you can load test the application. The idea is to create as many PowerPlant's as we want in the database and use this database to start the application. For convenience, I have created a script with which you can generate as many data as you want. 
+
+The script db-generator.sh can be found [here](https://github.com/joesan/database-projects/tree/master/power-plant-simulator/h2). Have a look at the README.md on that link to know how you could generate the random massive data set.
 
 For even more convenience, I have created alredy generated and pre-populated about 100,000 PowerPlant's in the H2 database file [plant-sim-load-test.mv.db](https://github.com/joesan/plant-simulator/blob/master/plant-sim-load-test.mv.db). All you need to do is just to run the application using this file as the database. So just issue the following command:
 
@@ -160,7 +162,7 @@ To do this I have prepared a simple script that can send dispatch commands.
    ./dispatch.sh
 3. Make sure that you have some fun doing this!   
 ```
-
+If you open the WebSocket client from a browser (for example the Chrome WebSocket client, you will notice that the browser freezes because it cannot handle the burst of messages coming from the server when you dispatch all of the PowerPlant's. This problem could be mitigated by something called (backpressure)[https://github.com/ReactiveX/RxJava/wiki/Backpressure]
 
 ## Deployment
 
