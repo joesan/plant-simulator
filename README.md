@@ -149,8 +149,7 @@ For even more convenience, I have created alredy generated and pre-populated abo
 sbt -Denv=loadtest run
 ```
 
-After you do this, I assure you that you will have fun! Ok so not you had some fun, let us have even more fun. Let us dispatch all of the PowerPlants at once. 
-To do this I have prepared a simple script that can send dispatch commands. 
+After you do this, I assure you that you will have fun! Ok so not you had some fun, let us have even more fun. Let us dispatch all of the PowerPlants at once. To do this I have prepared a simple script that can send dispatch commands. 
 
 ```
 0. Make sure that the application is up and running and make sure that you have a WebSocket connection open
@@ -162,7 +161,7 @@ To do this I have prepared a simple script that can send dispatch commands.
    ./dispatch.sh
 3. Make sure that you have some fun doing this!   
 ```
-If you open the WebSocket client from a browser (for example the Chrome WebSocket client, you will notice that the browser freezes because it cannot handle the burst of messages coming from the server when you dispatch all of the PowerPlant's. This problem could be mitigated by something called (backpressure)[https://github.com/ReactiveX/RxJava/wiki/Backpressure]
+If you open the WebSocket client from a browser (for example the Chrome WebSocket client, you will notice that the browser freezes because it cannot handle the burst of messages coming from the server when you dispatch all of the PowerPlant's. This problem could be mitigated by something called [backpressure](https://github.com/ReactiveX/RxJava/wiki/Backpressure)
 
 ## Deployment
 
