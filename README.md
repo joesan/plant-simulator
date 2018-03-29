@@ -15,6 +15,8 @@
 
 For some background information on the project, please have a look [here](https://github.com/joesan/plant-simulator/wiki)
 
+For the impatient you, I have a version up and running on Heroku [here](https://plant-simulator-ui.herokuapp.com/)! Please be soft on it as it is running on just 512MB RAM! But you will not be dissapointed! Give it a try!
+
 Here is what the operation of a PowerPlant would look like! A constant command and control of the PowerPlant would end up showing you the following graph!
 
 ![PowerPlant Command and Control](https://github.com/joesan/plant-simulator/blob/master/streaming_telemetry.png)
