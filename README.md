@@ -50,6 +50,10 @@ Though the application is multi database compliant, currently only MySQL and H2 
 
 You have to make sure to set up your database and configure the database credentials and url in one of the applicatiox.xxxx.conf files (where xxxx stands for either test or prod)
 
+### Load Testing
+
+This is a serious application which is ready to take a beating. Have a look [here](https://github.com/joesan/plant-simulator/blob/master/LOADTEST.md) of what it could do!
+
 ### Running tests
 
 You have the option here to either run tests from IntelliJ or from the command line
