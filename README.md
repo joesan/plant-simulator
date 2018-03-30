@@ -9,6 +9,8 @@
 
 # plant-simulator
 
+De-centralized Command and control of PowerPlant's that can operated at scale!
+
 ## Getting Started 
 
 For some background information on the project, please have a look [here](https://github.com/joesan/plant-simulator/wiki)
