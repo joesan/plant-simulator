@@ -27,11 +27,11 @@ With that little picture above, I hope you are interested to try the application
 
 ```
 1. Install Java Version 8
-2. Install Scala Version 2.11.8
+2. Install Scala Version 2.12.4
 3. Install IntelliJ - Latest community edition and then install the latest Scala plugin available
 ```
 
-### Installing
+### Setting up the codebase locally
 
 Follow the steps below to import the project into IntelliJ
 
@@ -41,7 +41,7 @@ Follow the steps below to import the project into IntelliJ
    
 2. Fire up IntelliJ and import the project
    
-3. If you are opening IntelliJ for the first time, set up the Scala library in IntelliJ
+3. If you are opening IntelliJ for the first time, set up the Scala library in IntelliJ accordingly
 ```
 
 ### Database Support
