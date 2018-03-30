@@ -9,7 +9,7 @@
 
 # plant-simulator
 
-De-centralized Command and control of PowerPlant's that can operated at scale!
+De-centralized command and control of PowerPlant's that can operated at scale!
 
 ## Getting Started 
 
