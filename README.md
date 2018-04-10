@@ -146,7 +146,7 @@ Alternatively, you could visualize the app under the following URL:
 
 ## Deployment
 
-The application is pre-deployed on a Heroku server. More details cal be found [here](https://github.com/joesan/plant-simulator/wiki/API-Documentation)
+I have a pre-deployed version on Heroku. More details can be found [here!](https://github.com/joesan/plant-simulator/wiki/API-Documentation)
 
 [[TODO]] Add additional notes about how to deploy this on a live system
 
