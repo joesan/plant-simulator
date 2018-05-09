@@ -177,6 +177,21 @@ The whole project is licensed under Apache License, Version 2.0. See [LICENSE.tx
 * To everybody that helped in this project
 * The [Monix library](https://monix.io/)
 
+## ALERT ##
+
+I stopped doing any wotk on this project. I have a new architecture that I think is massively scalable and resillient and guess what, I will run it in K8s. I have started the work on it. Have a look in one of the following projects:
+
+1. plant-monitor
+2. plant-infra
+
+It is still a WIP as I use my evenings and weekends to work on these projects. 
+
+Have a look here on what the architecture would look like:
+
+https://github.com/joesan/plant-simulator/wiki/Application-Architecture
+
+Keep visiting for updates!
+
 ##
 <sup>[![forthebadge](http://forthebadge.com/images/badges/powered-by-electricity.svg)](http://forthebadge.com)</sup>
 <sup>[![forthebadge](http://forthebadge.com/images/badges/built-with-grammas-recipe.svg)](http://forthebadge.com)</sup>
