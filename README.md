@@ -179,7 +179,7 @@ The whole project is licensed under Apache License, Version 2.0. See [LICENSE.tx
 
 ## ALERT ##
 
-I stopped doing any wotk on this project. I have a new architecture that I think is massively scalable and resillient and guess what, I will run it in K8s. I have started the work on it. Have a look in one of the following projects:
+I stopped doing any further work on this project. I have a new architecture that I beleive is massively scalable and resillient and guess what, I will run it in K8s. I have started the work on it. Have a look in one of the following projects:
 
 1. plant-monitor
 2. plant-infra
