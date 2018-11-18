@@ -148,9 +148,9 @@ Alternatively, you could visualize the app under the following URL:
 
 I have a pre-deployed version on Heroku. More details can be found [here!](https://github.com/joesan/plant-simulator/wiki/API-Documentation)
 
-[[TODO]] Add additional notes about how to deploy this on a live system
+I haven't worked on any automated deployment to kubernetes, but that is a plan for sometime later!
 
-[[TODO]] See [deployment](#Deployment) for notes on how to deploy the project on a live system.
+[[TODO]] Add additional notes about how to deploy this on a live system (a k8s cluster running on AWS or Azure)
 
 ## Tools Used
 
