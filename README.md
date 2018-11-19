@@ -6,6 +6,7 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1185/badge)](https://bestpractices.coreinfrastructure.org/projects/1185)
 [![Open Source](https://img.shields.io/badge/Open%20Source-100%25-yellowgreen.svg)](https://github.com/ellerbrock/open-source-badges/)
 [![Powered By](https://img.shields.io/badge/poweredBy-Scala-brightgreen.svg)]()
+[!Total Downloads[Github All Releases](https://img.shields.io/github/downloads/joesan/plant-simulator/total.svg)]()
 
 # plant-simulator
 
