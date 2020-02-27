@@ -27,7 +27,9 @@ ignore:
 jobs:
   include:
   - stage: test
-    script: sbt clean coverage test coverageReport assembly   
+    script: sbt clean coverage test coverageReport
+  - stage: assembly
+    script: sbt "set test in assembly := {}" assembly    
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - - docker build -t $APPLICATION_NAME .
