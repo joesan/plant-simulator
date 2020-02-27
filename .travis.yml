@@ -2,12 +2,12 @@ language: scala
 jdk: oraclejdk8
 sudo: required
 services:
-- docker
+  - docker
 env:
   global:
-  - APPLICATION_NAME=inland24/plant-simulator
+  - APPLICATION_NAME=joesan/plant-simulator
   - DOCKER_REGISTRY_URL=hub.docker.com
-  - DOCKER_APP_URL=hub.docker.com/inland24/plant-simulator
+  - DOCKER_APP_URL=hub.docker.com/joesan/plant-simulator
   - IMAGE_VERSION_DEV=1.0-SNAPSHOT
 before_cache:
 - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
@@ -28,10 +28,16 @@ jobs:
   include:
   - stage: test
     script: sbt clean coverage test coverageReport
+before_install:
+  - docker build -t $APPLICATION_NAME .    
 after_success:
-- bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then
+    docker login -e="$DOCKER_REGISTRY_EMAIL" -u="$DOCKER_REGISTRY_USERNAME" -p="$DOCKER_REGISTRY_PASSWORD";
+    docker push $APPLICATION_NAME;
+    fi
 after_script:
-- echo $TRAVIS_BRANCH
+  - echo $TRAVIS_BRANCH
 notifications:
   email:
     recipients:
