@@ -28,9 +28,9 @@ jobs:
   include:
   - stage: test
     script: sbt clean coverage test coverageReport
-  - stage: assembly
+  - stage: assemble-jar
     script: sbt "set test in assembly := {}" assembly
-  - stage: push 
+  - stage: push-docker 
     script: bash docker_push.sh    
 after_success:
   - bash <(curl -s https://codecov.io/bash)
