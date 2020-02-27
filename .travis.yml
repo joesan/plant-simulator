@@ -17,7 +17,7 @@ cache:
   - "$HOME/.ivy2/cache"
   - "$HOME/.sbt"
 scala:
-- 2.11.7
+  - 2.11.7
 branches:
   only:
   - master
