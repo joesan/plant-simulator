@@ -27,7 +27,7 @@ ignore:
 jobs:
   include:
   - stage: test
-    script: sbt clean coverage test coverageReport    
+    script: sbt clean coverage test coverageReport assembly   
 after_success:
   - bash <(curl -s https://codecov.io/bash)
   - - docker build -t $APPLICATION_NAME .

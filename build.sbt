@@ -106,9 +106,9 @@ libraryDependencies ++= Seq(
   "mysql" % "mysql-connector-java" % "5.1.26",
   "com.h2database" % "h2" % "1.4.186",
   // Swagger UI API Docs
-  "io.swagger" %% "swagger-play2" % "1.6.0",
-  "org.webjars" %% "webjars-play" % "2.6.0-M1",
-  "org.webjars" % "swagger-ui" % "2.2.0",
+  //"io.swagger" %% "swagger-play2" % "1.6.0",
+  //"org.webjars" %% "webjars-play" % "2.6.0-M1",
+  //"org.webjars" % "swagger-ui" % "2.2.0",
   // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % "2.5.2" % Test,
   "org.scalatest" %% "scalatest" % "3.0.1" % Test,
@@ -116,3 +116,22 @@ libraryDependencies ++= Seq(
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.2" % Test exclude ("org.slf4j", "slf4j-simple"),
   "com.github.andyglow" %% "websocket-scala-client" % "0.2.4" % Test exclude ("org.slf4j", "slf4j-simple")
 )
+
+// Assembly of the fat jar file
+mainClass in assembly := Some("play.core.server.ProdServerStart")
+fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value)
+
+assemblyMergeStrategy in assembly := {
+  case manifest if manifest.contains("MANIFEST.MF") =>
+    // We don't need manifest files since sbt-assembly will create
+    // one with the given settings
+    MergeStrategy.discard
+  case referenceOverrides
+      if referenceOverrides.contains("reference-overrides.conf") =>
+    // Keep the content for all reference-overrides.conf files
+    MergeStrategy.concat
+  case x =>
+    // For all the other files, use the default sbt-assembly merge strategy
+    val oldStrategy = (assemblyMergeStrategy in assembly).value
+    oldStrategy(x)
+}
