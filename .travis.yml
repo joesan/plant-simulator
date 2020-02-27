@@ -29,14 +29,11 @@ jobs:
   - stage: test
     script: sbt clean coverage test coverageReport
   - stage: assembly
-    script: sbt "set test in assembly := {}" assembly    
+    script: sbt "set test in assembly := {}" assembly
+  - stage: push 
+    script: bash docker_push.sh    
 after_success:
   - bash <(curl -s https://codecov.io/bash)
-  - - docker build -t $APPLICATION_NAME .
-  - if [ "$TRAVIS_BRANCH" == "master" ]; then
-    docker login -e="$DOCKER_REGISTRY_EMAIL" -u="$DOCKER_REGISTRY_USERNAME" -p="$DOCKER_REGISTRY_PASSWORD";
-    docker push $APPLICATION_NAME;
-    fi
 after_script:
   - echo $TRAVIS_BRANCH
 notifications:
