@@ -6,10 +6,14 @@ ENV CHECKSUM 18b106d09b2874f2a538c6e1f6b20c565885b2a8051428bd6d630fb92c1c0f96
 
 ENV APP_NAME plant-simulator
 ENV PROJECT_HOME /opt/apps
+ENV PROJECT_DIR $PROJECT_HOME/$APP_NAME
 
 RUN mkdir -p $PROJECT_HOME/$APP_NAME
 
 RUN echo "Printing current directory in docker......"
+RUN echo "$PWD"
+
+RUN cd $PROJECT_DIR
 RUN echo "$PWD"
 
 # Copy the jar file
