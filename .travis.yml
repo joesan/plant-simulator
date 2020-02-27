@@ -23,7 +23,7 @@ branches:
   - master
   - "/^develop-.*$/"
 ignore:
-  - *.md
+  -*.md
 jobs:
   include:
   - stage: test
