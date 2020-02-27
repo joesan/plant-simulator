@@ -30,6 +30,7 @@ jobs:
     script: sbt clean coverage test coverageReport
   - stage: assemble-jar
     script: sbt "set test in assembly := {}" assembly
+    if: branch = master
   - stage: push-docker 
     script: bash docker_push.sh 
     if: branch = master   
@@ -44,11 +45,12 @@ notifications:
     on_success: always
 before_deploy:
 - test $TRAVIS_TEST_RESULT = 0
-deploy:
-  provider: heroku
-  api_key:
-      secure: hFYEe79Z46Q+2AjozLfoow0Gf3vY8Vn4nx73Sh2kymBBUhec69SuZ7jgwe4KU902AkGUOyN7fL61CYCwA0lHNTChyRNQXU9jeohBi7EpVeLw4wMS6wKFvDd1OjmMeohOirsSsI+sHdXY6is0+7iQkzaNBobDSap3X5VpMx3mbfM1jmYTd8hd9znpdHiJkUEOik1Sl1p4A2dmLFklVFngJfTMR46rFol6lO1+wiuJjt0sGTxvN47eaeZS+QbTnzr/tC3+3pGVv+/JosD1WeQBuHsosZrZP2E90FUMIt0fMzdidqtxbibskiufRVtDod27JrRxvfEjjerG9r8SfL8nnfhIVAhYqY/OCH7UXjfps8GTI6bJNm7zb2FRci2ko5dqSjBR8uE+Dc+NLpE6tF14FLDET4pDPbcE4O1s2abz4/u3c2oPivWg18O36zFaH82Ctv8HUdpbIsd1CoFqqwZUQVMRMlVf5Fqp5BYU/FYUjbCLBCKBh50LmG+4NJa59RT3KMHjXGuJE463OBWgCeHuLSDYIL7WItrGwSQv2jHTfTN6kpJrq/8511DPOoJSf3nWTduX8nUFSn+O3Uo9FRpVMbL6N4RiAPdKugrd+5JZD6NdCKyxo+UyZon/hQveJVKEmjUAV7CfEXpwc20eYtJnbazVfvigrioCk277oU4/ufA=
-  app: cryptic-taiga-18841
-  on:
-    repo: joesan/plant-simulator
+#deploy:
+ # provider: heroku
+  #api_key:
+   #   secure: hFYEe79Z46Q+2AjozLfoow0Gf3vY8Vn4nx73Sh2kymBBUhec69SuZ7jgwe4KU902AkGUOyN7fL61CYCwA0lHNTChyRNQXU9jeohBi7EpVeLw4wMS6wKFvDd1OjmMeohOirsSsI+sHdXY6is0+7iQkzaNBobDSap3X5VpMx3mbfM1jmYTd8hd9znpdHiJkUEOik1Sl1p4A2dmLFklVFngJfTMR46rFol6lO1+wiuJjt0sGTxvN47eaeZS+QbTnzr/tC3+3pGVv+/JosD1WeQBuHsosZrZP2E90FUMIt0fMzdidqtxbibskiufRVtDod27JrRxvfEjjerG9r8SfL8nnfhIVAhYqY/OCH7UXjfps8GTI6bJNm7zb2FRci2ko5dqSjBR8uE+Dc+NLpE6tF14FLDET4pDPbcE4O1s2abz4/u3c2oPivWg18O36zFaH82Ctv8HUdpbIsd1CoFqqwZUQVMRMlVf5Fqp5BYU/FYUjbCLBCKBh50LmG+4NJa59RT3KMHjXGuJE463OBWgCeHuLSDYIL7WItrGwSQv2jHTfTN6kpJrq/8511DPOoJSf3nWTduX8nUFSn+O3Uo9FRpVMbL6N4RiAPdKugrd+5JZD6NdCKyxo+UyZon/hQveJVKEmjUAV7CfEXpwc20eYtJnbazVfvigrioCk277oU4/ufA=
+  #app: cryptic-taiga-18841
+  #on:
+   # branch: master
+    #repo: joesan/plant-simulator
 
