@@ -27,11 +27,10 @@ ignore:
 jobs:
   include:
   - stage: test
-    script: sbt clean coverage test coverageReport
-before_install:
-  - docker build -t $APPLICATION_NAME .    
+    script: sbt clean coverage test coverageReport    
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+  - - docker build -t $APPLICATION_NAME .
   - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -e="$DOCKER_REGISTRY_EMAIL" -u="$DOCKER_REGISTRY_USERNAME" -p="$DOCKER_REGISTRY_PASSWORD";
     docker push $APPLICATION_NAME;
