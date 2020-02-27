@@ -59,7 +59,7 @@ dockerBaseImage := "anapsix/alpine-java:8_server-jre_unlimited"
 
 // These values will be assigned the docker image name
 maintainer in Docker := "https://github.com/joesan"
-packageName in Docker := s"inland24/${name.value}"
+packageName in Docker := s"joesan/${name.value}"
 version in Docker := version.value
 
 import com.typesafe.sbt.packager.docker._
