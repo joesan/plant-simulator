@@ -31,7 +31,7 @@ jobs:
   - stage: docker_push
     script: 
       - sbt "set test in assembly := {}" assembly
-      - bash docker_push.sh 
+      - sudo bash docker_push.sh 
     if: branch = master  
 after_success:
   #- bash <(curl -s https://codecov.io/bash)
