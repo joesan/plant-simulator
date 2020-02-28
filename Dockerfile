@@ -20,7 +20,7 @@ RUN echo "$PWD"
 COPY ./target/scala-*/plant-simulator-*.jar $PROJECT_HOME/$APP_NAME
 
 # Copy the database file
-COPY .plant-simulator.mv.db $PROJECT_HOME/$APP_NAME
+COPY plant-simulator.mv.db $PROJECT_HOME/$APP_NAME
 
 # Run the application
 CMD ["$PROJECT_HOME/$APP_NAME java -Denv=dev -jar plant-simulator-*.jar"]
