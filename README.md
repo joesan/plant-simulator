@@ -8,7 +8,7 @@
 [![Powered By](https://img.shields.io/badge/poweredBy-Scala-brightgreen.svg)]()
 [![Github All Releases](https://img.shields.io/github/downloads/joesan/plant-simulator/total.svg)]()
 
-# plant-simulator
+# plant-simulator (a.k.a Digital Twin)
 
 De-centralized command and control of PowerPlant's that can be steered and operated at scale!
 
