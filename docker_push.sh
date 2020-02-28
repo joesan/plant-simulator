@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if [ $TRAVIS_BRANCH == "master" ]; then
-  echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin;
+  echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin;
   echo "DOCKER_REGISTRY_USERNAME = "$DOCKER_REGISTRY_USERNAME
   echo "DOCKER_APP_NAME          = "$DOCKER_APP_NAME
   echo "DOCKER_REGISTRY_URL      = "$DOCKER_REGISTRY_URL
