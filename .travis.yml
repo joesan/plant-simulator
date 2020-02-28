@@ -29,8 +29,9 @@ jobs:
   - stage: test
     script: sbt clean coverage test coverageReport
   - stage: docker_push
-    script: sbt "set test in assembly := {}" assembly
-    script: bash docker_push.sh 
+    script: 
+      - sbt "set test in assembly := {}" assembly
+      - bash docker_push.sh 
     if: branch = master  
 after_success:
   #- bash <(curl -s https://codecov.io/bash)
