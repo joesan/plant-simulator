@@ -30,4 +30,4 @@ spec:
       name: plant-simulator-service-port
   selector:
     app: plant-simulator
-  type: ClusterIP
+  type: LoadBalancer
