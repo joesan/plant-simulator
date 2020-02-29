@@ -13,7 +13,7 @@ RUN mkdir -p $PROJECT_HOME/$APP_NAME
 RUN echo "Printing current directory in docker......"
 RUN echo "$PWD"
 
-RUN cd $PROJECT_DIR
+WORKDIR $PROJECT_DIR
 RUN echo "$PWD"
 
 # Copy the jar file
@@ -23,4 +23,4 @@ COPY ./target/scala-*/plant-simulator-*.jar $PROJECT_HOME/$APP_NAME
 COPY plant-simulator.mv.db $PROJECT_HOME/$APP_NAME
 
 # Run the application
-CMD ["$PROJECT_HOME/$APP_NAME java -Denv=dev -jar plant-simulator-*.jar"]
+CMD $PROJECT_HOME/$APP_NAME java -Denv=dev -jar plant-simulator-*.jar
