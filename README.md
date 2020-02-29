@@ -148,6 +148,48 @@ Alternatively, you could visualize the app under the following URL:
    
 ```
 
+#### To run as a Docker container in a Kubernetes runtime
+
+```
+1. Makue sure you have Docker & Minikube installed on your host system (I assume you are on a Mac)
+   
+2. Build the Docker image by navigating to the project root folder and run the following command
+   For example., on my machine it is
+   
+   Joes-MacBook-Pro:plant-simulator joesan$ pwd
+   /Users/joesan/Projects/Private/scala-projects/plant-simulator
+   Joes-MacBook-Pro:plant-simulator joesan$ docker build -t plant-simulator .
+   
+   The above command would have built the image and push it to your local
+   docker registry (on your host system). Next you got to tag this image using the
+   following command:
+   
+   Joes-MacBook-Pro:plant-simulator joesan$ docker tag plant-simulator joesan/plant-simulator
+   
+   Alternatively, you could also pull the latest pre-built Docker image from my repo
+   https://hub.docker.com/repository/docker/joesan/plant-simulator
+   
+3. Now issue the following command to deploy the application to Minikube:
+   Joes-MacBook-Pro:plant-simulator joesan$ kubectl create -f kubernetes/plant-simulator-deployment.yml
+   
+4. Issue the following command to find out the IP address of the application:
+   Jothis-MacBook-Pro:~ joesan$ minikube service list
+   |----------------------|---------------------------|-----------------------------|-----|
+   |      NAMESPACE       |           NAME            |         TARGET PORT         | URL |
+   |----------------------|---------------------------|-----------------------------|-----|
+   | default              | kubernetes                | No node port                |
+   | default              | plant-simulator-service   | http://192.168.99.100:32224 |
+   | demo                 | podinfo                   | No node port                |
+   | flux                 | memcached                 | No node port                |
+   | kube-system          | kube-dns                  | No node port                |
+   | kubernetes-dashboard | dashboard-metrics-scraper | No node port                |
+   | kubernetes-dashboard | kubernetes-dashboard      | No node port                |
+   |----------------------|---------------------------|-----------------------------|-----|
+
+   Use the IP address and follow the [API documentation!](https://github.com/joesan/plant-simulator/wiki/API-Documentation) to    play with it!
+   
+```
+
 ## Deployment
 
 I have a pre-deployed version on Heroku. More details can be found [here!](https://github.com/joesan/plant-simulator/wiki/API-Documentation)
