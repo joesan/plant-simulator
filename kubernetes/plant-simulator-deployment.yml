@@ -24,7 +24,7 @@ metadata:
     name: plant-simulator-service
 spec:
   ports:
-    - port: 8080
+    - port: 9000
       targetPort: 9000
       protocol: TCP
       name: plant-simulator-service-port
