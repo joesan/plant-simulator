@@ -8,7 +8,7 @@
 [![Powered By](https://img.shields.io/badge/poweredBy-Scala-brightgreen.svg)]()
 [![Github All Releases](https://img.shields.io/github/downloads/joesan/plant-simulator/total.svg)]()
 
-# plant-simulator
+# plant-simulator (a.k.a Digital Twin)
 
 De-centralized command and control of PowerPlant's that can be steered and operated at scale!
 
@@ -114,7 +114,7 @@ If you want to run the application against a MySQL database, follow the instruct
 3. Navigate to the following url on your favorite browser:
    http://localhost:9000
    
-4. To do something meaningful with the application, have a look at the [documentation](https://github.com/joesan/plant-simulator/wiki/API-Documentation) for more information on how to call the API's!
+4. To do something meaningful with the application, have a look at the [documentation!](https://github.com/joesan/plant-simulator/wiki/API-Documentation) for more information on how to call the API's!
    
 ``` 
 
@@ -135,13 +135,16 @@ Alternatively, you could visualize the app under the following URL:
    The above command would have built the image and push it to your local
    docker registry (on your host system)
    
+   Alternatively, you could also pull the pre-built Docker image from my repo
+   https://hub.docker.com/repository/docker/joesan/plant-simulator
+   
 3. Issue the following command to run the container:
-   TODO - Document
+   docker run -i -p 9000:9000 joesan/plant-simulator
    
-4. Navigate to the following url on your favorite browser:
+   Note that I have a database file included in the container, so no need to set your database separately!
    
+4. Follow the [API documentation!](https://github.com/joesan/plant-simulator/wiki/API-Documentation) to play with it
    
-   [TODO] Add the Swagger API Docs and put the URL here
    
 ```
 
@@ -149,9 +152,9 @@ Alternatively, you could visualize the app under the following URL:
 
 I have a pre-deployed version on Heroku. More details can be found [here!](https://github.com/joesan/plant-simulator/wiki/API-Documentation)
 
-I haven't worked on any automated deployment to kubernetes, but that is a plan for sometime later!
+I have adopted [GitOps](https://www.gitops.tech/) for automated deployments to kubernetes. So all you need is a k8s cluster!
 
-[[TODO]] Add additional notes about how to deploy this on a live system (a k8s cluster running on AWS or Azure)
+[[TODO]] Document on running GitOps in a blog post and link it here!
 
 ## Tools Used
 
