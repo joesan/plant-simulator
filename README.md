@@ -127,7 +127,7 @@ Alternatively, you could visualize the app under the following URL:
 #### To run as a Docker container
 
 ```
-1. Makue sure you have Docker installed on your host system 
+1. Make sure you have Docker installed on your host system 
    
 2. Issue one of the following commands to build the docker image:
    sbt docker:publishLocal
@@ -144,7 +144,6 @@ Alternatively, you could visualize the app under the following URL:
    Note that I have a database file included in the container, so no need to set your database separately!
    
 4. Follow the [API documentation!](https://github.com/joesan/plant-simulator/wiki/API-Documentation) to play with it
-   
    
 ```
 
@@ -173,7 +172,7 @@ Alternatively, you could visualize the app under the following URL:
    Joes-MacBook-Pro:plant-simulator joesan$ kubectl create -f kubernetes/plant-simulator-deployment.yml
    
 4. Issue the following command to find out the IP address of the application:
-   Jothis-MacBook-Pro:~ joesan$ minikube service list
+   Joes-MacBook-Pro:~ joesan$ minikube service list
    |----------------------|---------------------------|-----------------------------|-----|
    |      NAMESPACE       |           NAME            |         TARGET PORT         | URL |
    |----------------------|---------------------------|-----------------------------|-----|
