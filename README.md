@@ -191,11 +191,11 @@ Alternatively, you could visualize the app under the following URL:
 
 ## Deployment
 
-I have a pre-deployed version on Heroku. More details can be found [here!](https://github.com/joesan/plant-simulator/wiki/API-Documentation)
+There are two options when it comes to deployment. 
 
-I have adopted [GitOps](https://www.gitops.tech/) for automated deployments to kubernetes. So all you need is a k8s cluster! - More on this later!
+1. I have a pre-deployed version on Heroku. More details can be found [here!](https://github.com/joesan/plant-simulator/wiki/API-Documentation)
 
-[[TODO]] Document on running GitOps in a blog post and link it here!
+2. You can deploy this yourself on your kubernetes cluster. Have a look [here!](https://github.com/joesan/plant-simulator-deployment)
 
 ## Tools Used
 
