@@ -10,7 +10,7 @@ For even more convenience, I have created alredy generated and pre-populated abo
 sbt -Denv=loadtest run
 ```
 
-After you do this, I assure you that you will have fun! Ok so not you had some fun, let us have even more fun. Let us dispatch all of the PowerPlants at once. To do this I have prepared a simple script that can send dispatch commands. 
+After you do this, I assure you that you will have fun! Ok if that fun was not enough, let us have even more fun. Let us dispatch all of the PowerPlants at once. To do this I have prepared a simple script that can send dispatch commands. 
 
 ```
 0. Make sure that the application is up and running and make sure that you have a WebSocket connection open
@@ -22,5 +22,7 @@ After you do this, I assure you that you will have fun! Ok so not you had some f
    ./dispatch.sh
 3. Make sure that you have some fun doing this!   
 ```
+
+Dispatching all the PowerPlant's would mean that we will spin up those manxy actors as many PowerPlant's we have and the system will be responsive even after that. This is the guarantee you get when you build your system using the [reactive manifesto](https://www.reactivemanifesto.org/)
 
 If you open the WebSocket client from a browser (for example the Chrome WebSocket client, you will notice that the browser freezes because it cannot handle the burst of messages coming from the server when you dispatch all of the PowerPlant's. This problem could be mitigated by something called [backpressure](https://github.com/ReactiveX/RxJava/wiki/Backpressure)
