@@ -8,6 +8,8 @@ lazy val root = (project in file("."))
 scalaVersion := "2.12.4"
 
 scalacOptions ++= Seq(
+  // Warnings propogates as errors
+  "-Xfatal-warnings",
   "-language:implicitConversions",
   // turns all warnings into errors ;-)
   "-target:jvm-1.8",
