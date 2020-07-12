@@ -7,7 +7,7 @@ GET			    /							                           controllers.Assets.at(path="https:/
 
 # Endpoints for Configuration, Metrics
 GET			    /plantsim/config					               com.inland24.plantsim.controllers.ApplicationController.appConfig
-GET         /plantsim/powerplant/metrics             com.inland24.plantsim.controllers.ApplicationController.metrics
+GET         /plantsim/app/metrics                    com.inland24.plantsim.controllers.ApplicationController.metrics
 
 # Endpoints to add / update / read / delete PowerPlant's
 GET         /plantsim/powerplant/:id/details         com.inland24.plantsim.controllers.PowerPlantController.powerPlantDetails(id: Int)
