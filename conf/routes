@@ -3,10 +3,10 @@
 # ~~~~
 
 # Root PAGE
-GET			/							 controllers.Assets.at(path="https://github.com/joesan/plant-simulator/blob/master/README.md", file)
+GET			    /							                           controllers.Assets.at(path="https://github.com/joesan/plant-simulator/blob/master/README.md", file)
 
 # Endpoints for Configuration, Metrics
-GET			/plantsim/config					     com.inland24.plantsim.controllers.ApplicationController.appConfig
+GET			    /plantsim/config					               com.inland24.plantsim.controllers.ApplicationController.appConfig
 GET         /plantsim/powerplant/metrics             com.inland24.plantsim.controllers.ApplicationController.metrics
 
 # Endpoints to add / update / read / delete PowerPlant's
