@@ -20,7 +20,7 @@ For the impatient you, I have a version up and running on Heroku [here](https://
 
 Here is what the operation of a PowerPlant would look like! A constant command and control of the PowerPlant would end up showing you the following graph! In the graph below, you will see that the PowerPlant which was operating at its base power was asked to RampUp for some time and it did that. By RampUp, I mean that the PowerPlant can start operating and inject power into the electrical grid (if connected). The plant-simulator app monitored the RampUp closely and if I plot the values I end up getting this beautiful graph below!
 
-![PowerPlant Command and Control](https://github.com/joesan/plant-simulator/blob/master/streaming_telemetry.png)
+[PowerPlant Command and Control](https://github.com/joesan/plant-simulator/blob/master/streaming_telemetry.png)
 
 With that little picture above, I hope you are interested to try the application! The instructions given below will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
