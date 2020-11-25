@@ -102,8 +102,8 @@ libraryDependencies ++= Seq(
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.6",
   "com.typesafe" % "config" % "1.3.1",
   // For JSON parsing
-  "com.typesafe.play" %% "play-json" % "2.6.0",
-  "com.typesafe.play" %% "play-json-joda" % "2.6.0",
+  "com.typesafe.play" %% "play-json" % "2.6.14",
+  "com.typesafe.play" %% "play-json-joda" % "2.6.14",
   // JDBC driver for MySQL & H2
   "mysql" % "mysql-connector-java" % "5.1.26",
   "com.h2database" % "h2" % "1.4.186",
