@@ -113,8 +113,7 @@ libraryDependencies ++= Seq(
   //"org.webjars" % "swagger-ui" % "2.2.0",
   // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % "2.5.32" % Test,
-  "org.scalatest" %% "scalatest" % "3.0.9" % Test,
-
+  "org.scalatest" %% "scalatest" % "3.2.3" % Test,
   "org.awaitility" % "awaitility" % "3.1.6" % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % Test exclude ("org.slf4j", "slf4j-simple"),
   "com.github.andyglow" %% "websocket-scala-client" % "0.3.0" % Test exclude ("org.slf4j", "slf4j-simple")
