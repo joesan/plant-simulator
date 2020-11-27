@@ -116,7 +116,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.9" % Test,
 
   "org.awaitility" % "awaitility" % "3.1.6" % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % Test exclude ("org.slf4j", "slf4j-simple"),
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test exclude ("org.slf4j", "slf4j-simple"),
   "com.github.andyglow" %% "websocket-scala-client" % "0.3.0" % Test exclude ("org.slf4j", "slf4j-simple")
 )
 
