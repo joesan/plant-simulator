@@ -93,8 +93,8 @@ libraryDependencies ++= Seq(
   "io.monix" %% "monix" % "3.3.0",
   "io.monix" %% "monix-cats" % "2.3.3",
   // Dependencies needed for Slick
-  "com.typesafe.slick" %% "slick" % "3.2.3",
-  "com.typesafe.slick" %% "slick-hikaricp" % "3.2.3",
+  "com.typesafe.slick" %% "slick" % "3.3.3",
+  "com.typesafe.slick" %% "slick-hikaricp" % "3.3.3",
   // For application Metrics
   "io.dropwizard.metrics" % "metrics-core" % "4.0.7",
   "io.dropwizard.metrics" % "metrics-jvm" % "4.0.7",
