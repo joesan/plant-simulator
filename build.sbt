@@ -93,19 +93,19 @@ libraryDependencies ++= Seq(
   "io.monix" %% "monix" % "3.3.0",
   "io.monix" %% "monix-cats" % "2.3.3",
   // Dependencies needed for Slick
-  "com.typesafe.slick" %% "slick" % "3.2.3",
-  "com.typesafe.slick" %% "slick-hikaricp" % "3.2.3",
+  "com.typesafe.slick" %% "slick" % "3.3.3",
+  "com.typesafe.slick" %% "slick-hikaricp" % "3.3.3",
   // For application Metrics
-  "io.dropwizard.metrics" % "metrics-core" % "4.0.7",
-  "io.dropwizard.metrics" % "metrics-jvm" % "4.0.7",
+  "io.dropwizard.metrics" % "metrics-core" % "4.1.16",
+  "io.dropwizard.metrics" % "metrics-jvm" % "4.1.16",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.7",
   "com.typesafe" % "config" % "1.3.4",
   // For JSON parsing
-  "com.typesafe.play" %% "play-json" % "2.6.14",
-  "com.typesafe.play" %% "play-json-joda" % "2.6.14",
+  "com.typesafe.play" %% "play-json" % "2.9.1",
+  "com.typesafe.play" %% "play-json-joda" % "2.9.1",
   // JDBC driver for MySQL & H2
-  "mysql" % "mysql-connector-java" % "5.1.49",
+  "mysql" % "mysql-connector-java" % "8.0.22",
   "com.h2database" % "h2" % "1.4.186",
   // Swagger UI API Docs
   //"io.swagger" %% "swagger-play2" % "1.6.0",
@@ -113,10 +113,10 @@ libraryDependencies ++= Seq(
   //"org.webjars" % "swagger-ui" % "2.2.0",
   // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % "2.6.10" % Test,
-  "org.scalatest" %% "scalatest" % "3.0.9" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.3" % Test,
 
-  "org.awaitility" % "awaitility" % "3.1.6" % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % Test exclude ("org.slf4j", "slf4j-simple"),
+  "org.awaitility" % "awaitility" % "4.0.3" % Test,
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test exclude ("org.slf4j", "slf4j-simple"),
   "com.github.andyglow" %% "websocket-scala-client" % "0.3.0" % Test exclude ("org.slf4j", "slf4j-simple")
 )
 
