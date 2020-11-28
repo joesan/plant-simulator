@@ -96,8 +96,8 @@ libraryDependencies ++= Seq(
   "com.typesafe.slick" %% "slick" % "3.2.3",
   "com.typesafe.slick" %% "slick-hikaricp" % "3.2.3",
   // For application Metrics
-  "io.dropwizard.metrics" % "metrics-core" % "4.0.7",
-  "io.dropwizard.metrics" % "metrics-jvm" % "4.0.7",
+  "io.dropwizard.metrics" % "metrics-core" % "4.1.16",
+  "io.dropwizard.metrics" % "metrics-jvm" % "4.1.16",
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.7",
   "com.typesafe" % "config" % "1.3.4",
