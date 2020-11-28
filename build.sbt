@@ -105,7 +105,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % "2.6.14",
   "com.typesafe.play" %% "play-json-joda" % "2.6.14",
   // JDBC driver for MySQL & H2
-  "mysql" % "mysql-connector-java" % "5.1.49",
+  "mysql" % "mysql-connector-java" % "8.0.22",
   "com.h2database" % "h2" % "1.4.186",
   // Swagger UI API Docs
   //"io.swagger" %% "swagger-play2" % "1.6.0",
@@ -113,10 +113,10 @@ libraryDependencies ++= Seq(
   //"org.webjars" % "swagger-ui" % "2.2.0",
   // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % "2.5.32" % Test,
-  "org.scalatest" %% "scalatest" % "3.0.9" % Test,
+  "org.scalatest" %% "scalatest" % "3.2.3" % Test,
 
   "org.awaitility" % "awaitility" % "4.0.3" % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % Test exclude ("org.slf4j", "slf4j-simple"),
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test exclude ("org.slf4j", "slf4j-simple"),
   "com.github.andyglow" %% "websocket-scala-client" % "0.3.0" % Test exclude ("org.slf4j", "slf4j-simple")
 )
 
