@@ -112,7 +112,7 @@ libraryDependencies ++= Seq(
   //"org.webjars" %% "webjars-play" % "2.6.0-M1",
   //"org.webjars" % "swagger-ui" % "2.2.0",
   // Test dependencies
-  "com.typesafe.akka" %% "akka-testkit" % "2.5.32" % Test,
+  "com.typesafe.akka" %% "akka-testkit" % "2.6.10" % Test,
   "org.scalatest" %% "scalatest" % "3.2.3" % Test,
 
   "org.awaitility" % "awaitility" % "4.0.3" % Test,
