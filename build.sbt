@@ -115,7 +115,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-testkit" % "2.5.32" % Test,
   "org.scalatest" %% "scalatest" % "3.2.3" % Test,
   "org.awaitility" % "awaitility" % "3.1.6" % Test,
-  "org.scalatestplus.play" %% "scalatestplus-play" % "3.1.3" % Test exclude ("org.slf4j", "slf4j-simple"),
+  "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test exclude ("org.slf4j", "slf4j-simple"),
   "com.github.andyglow" %% "websocket-scala-client" % "0.3.0" % Test exclude ("org.slf4j", "slf4j-simple")
 )
 
