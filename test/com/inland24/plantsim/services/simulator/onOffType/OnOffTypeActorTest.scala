@@ -24,14 +24,16 @@ import com.inland24.plantsim.models.{PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.simulator.onOffType.StateMachine._
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor._
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.featurespec.AnyFeatureSpecLike
 
 import scala.concurrent.duration._
 
 class OnOffTypeActorTest
     extends TestKit(ActorSystem("OnOffTypeActorTest"))
     with ImplicitSender
-    with WordSpecLike
+    with AnyFeatureSpecLike
     with Matchers
     with BeforeAndAfterAll {
 
@@ -54,15 +56,15 @@ class OnOffTypeActorTest
 
   private val onOffActorCfg = Config(onOffTypeCfg)
 
-  "OnOffTypeActor" must {
+  Feature("OnOffTypeActor") {
 
     val onOffTypeSimActor = system.actorOf(OnOffTypeActor.props(onOffActorCfg))
 
     // PowerPlant # Init tests
-    "start with Active state" in {
+    Scenario("start with Active state") {
       // We do this shit just so that the Actor has some time to Init
       within(1.seconds) {
-        expectNoMsg()
+        expectNoMessage
       }
 
       onOffTypeSimActor ! StateRequestMessage
@@ -79,7 +81,7 @@ class OnOffTypeActorTest
     }
 
     // PowerPlant # TurnOn tests
-    "turn on when a TurnOn message is sent when in Active state" in {
+    Scenario("turn on when a TurnOn message is sent when in Active state") {
       within(1.seconds) {
         onOffTypeSimActor ! DispatchOnOffPowerPlant(
           powerPlantId = onOffTypeCfg.id,
@@ -87,7 +89,7 @@ class OnOffTypeActorTest
           powerPlantType = OnOffType,
           value = true
         )
-        expectNoMsg()
+        expectNoMessage
       }
 
       onOffTypeSimActor ! StateRequestMessage
@@ -106,7 +108,7 @@ class OnOffTypeActorTest
     }
 
     // PowerPlant # TurnOff tests
-    "turn on when a TurnOn message is sent when in turned on state" in {
+    Scenario("turn on when a TurnOn message is sent when in turned on state") {
       within(1.seconds) {
         onOffTypeSimActor ! DispatchOnOffPowerPlant(
           powerPlantId = onOffTypeCfg.id,
@@ -114,7 +116,7 @@ class OnOffTypeActorTest
           powerPlantType = OnOffType,
           value = false
         )
-        expectNoMsg()
+        expectNoMessage
       }
 
       onOffTypeSimActor ! StateRequestMessage
@@ -130,7 +132,8 @@ class OnOffTypeActorTest
       }
     }
 
-    "turn off when a ReturnToNormalCommand message is sent when in turned on state" in {
+    Scenario(
+      "turn off when a ReturnToNormalCommand message is sent when in turned on state") {
       // First turn it on
       within(1.seconds) {
         onOffTypeSimActor ! DispatchOnOffPowerPlant(
@@ -139,13 +142,13 @@ class OnOffTypeActorTest
           powerPlantType = OnOffType,
           value = true
         )
-        expectNoMsg()
+        expectNoMessage
       }
 
       // Now turin it off
       within(4.seconds) {
         onOffTypeSimActor ! ReturnToNormalCommand(initPowerPlantState.cfg.id)
-        expectNoMsg()
+        expectNoMessage
       }
 
       onOffTypeSimActor ! StateRequestMessage
@@ -162,7 +165,8 @@ class OnOffTypeActorTest
     }
 
     // PowerPlant # OutOfService tests
-    "go to OutOfService when OutOfService message is sent during Turned on state" in {
+    Scenario(
+      "go to OutOfService when OutOfService message is sent during Turned on state") {
       within(1.seconds) {
         onOffTypeSimActor ! DispatchOnOffPowerPlant(
           powerPlantId = onOffTypeCfg.id,
@@ -170,12 +174,12 @@ class OnOffTypeActorTest
           powerPlantType = OnOffType,
           value = true
         )
-        expectNoMsg()
+        expectNoMessage
       }
 
       within(4.seconds) {
         onOffTypeSimActor ! OutOfServiceMessage
-        expectNoMsg()
+        expectNoMessage
       }
 
       onOffTypeSimActor ! StateRequestMessage
@@ -190,7 +194,8 @@ class OnOffTypeActorTest
       }
     }
 
-    "go to OutOfService when OutOfService message is sent during Turned off state" in {
+    Scenario(
+      "go to OutOfService when OutOfService message is sent during Turned off state") {
       within(1.seconds) {
         onOffTypeSimActor ! DispatchOnOffPowerPlant(
           powerPlantId = onOffTypeCfg.id,
@@ -198,12 +203,12 @@ class OnOffTypeActorTest
           powerPlantType = OnOffType,
           value = true
         )
-        expectNoMsg()
+        expectNoMessage
       }
 
       within(5.seconds) {
         onOffTypeSimActor ! OutOfServiceMessage
-        expectNoMsg()
+        expectNoMessage
       }
 
       onOffTypeSimActor ! StateRequestMessage
@@ -220,15 +225,16 @@ class OnOffTypeActorTest
     }
 
     // PowerPlant # ReturnToService tests
-    "return to service when ReturnToService message is sent during OutOfService state" in {
+    Scenario(
+      "return to service when ReturnToService message is sent during OutOfService state") {
       within(1.seconds) {
         onOffTypeSimActor ! OutOfServiceMessage
-        expectNoMsg()
+        expectNoMessage
       }
 
       within(1.seconds) {
         onOffTypeSimActor ! ReturnToServiceMessage
-        expectNoMsg()
+        expectNoMessage
       }
 
       onOffTypeSimActor ! StateRequestMessage

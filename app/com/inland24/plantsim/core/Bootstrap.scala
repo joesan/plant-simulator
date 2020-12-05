@@ -24,6 +24,7 @@ import com.inland24.plantsim.controllers.{
 }
 import com.typesafe.config.ConfigFactory
 import com.typesafe.scalalogging.LazyLogging
+import monix.execution.Scheduler
 import play.api.{Application, BuiltInComponentsFromContext, Configuration, _}
 import play.api.ApplicationLoader.Context
 
@@ -43,23 +44,23 @@ final class Bootstrap extends ApplicationLoader with LazyLogging {
       with _root_.controllers.AssetsComponents {
 
     // We use the Monix Scheduler
-    implicit val s = monix.execution.Scheduler.Implicits.global
+    implicit val s: Scheduler = monix.execution.Scheduler.Implicits.global
 
-    def stop(bindings: AppBindings) = {
+    def stop(bindings: AppBindings): Unit = {
       logger.info("Stopping application :: plant-simulator")
       bindings.globalChannel.onComplete()
     }
 
-    def start = {
+    def start: AppBindings = {
       logger.info("Starting application :: plant-simulator")
-      AppBindings(actorSystem, materializer)
+      AppBindings(actorSystem)
     }
 
     // 0. Set the filters
     override lazy val httpFilters = Seq(new LoggingFilter())
 
     // 1. create the dependencies that will be injected
-    lazy val appBindings = start
+    lazy val appBindings: AppBindings = start
 
     // 2. inject the dependencies into the controllers
     // TODO: The dependencies below are for Swagger UI, which is not working at the moment!!!!

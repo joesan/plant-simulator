@@ -48,7 +48,7 @@ class PowerPlantOperationsControllerTest
     with BeforeAndAfterAll
     with DBServiceSpec {
 
-  val bindings: AppBindings = AppBindings.apply(system, ActorMaterializer())
+  val bindings: AppBindings = AppBindings.apply(system)
   private val controllerComponents = stubControllerComponents()
   val controller =
     new PowerPlantOperationsController(bindings, controllerComponents)

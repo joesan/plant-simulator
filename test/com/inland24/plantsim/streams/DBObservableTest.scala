@@ -30,23 +30,25 @@ import com.inland24.plantsim.services.database.{
 import com.typesafe.scalalogging.LazyLogging
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
-import monix.execution.cancelables.SingleAssignmentCancelable
+import monix.execution.cancelables.SingleAssignCancelable
 import monix.reactive.observers.Subscriber
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.BeforeAndAfterAll
 
 import scala.concurrent.{ExecutionContext, Future, Promise}
 import scala.concurrent.duration._
 import scala.util.Success
 import monix.execution.Scheduler.Implicits.global
+import org.scalatest.featurespec.AnyFeatureSpecLike
+import org.scalatest.matchers.should
 
 // ***** NOTE: Do not remove this import! It won't compile without this
-import monix.cats._
+import cats._
 // *****
 
 class DBObservableTest
     extends DBServiceSpec
-    with WordSpecLike
-    with Matchers
+    with AnyFeatureSpecLike
+    with should.Matchers
     with BeforeAndAfterAll
     with LazyLogging {
 
@@ -66,7 +68,7 @@ class DBObservableTest
   }
 
   // We use this for testing purposes
-  val actorSystem = ActorSystem("test-scheduler")
+  val actorSystem: ActorSystem = ActorSystem("test-scheduler")
 
   // Utility method to delay execution of a Future
   def delayedFuture[T](delay: FiniteDuration)(block: => T)(
@@ -92,14 +94,14 @@ class DBObservableTest
   val interval: FiniteDuration = 2.seconds
 
   // Our subscription that we cancel after tests are done
-  val dbSubscription = SingleAssignmentCancelable()
+  val dbSubscription: SingleAssignCancelable = SingleAssignCancelable()
 
-  "DBObservable" must {
+  Feature("DBObservable") {
 
-    "fetch PowerPlant updates at regular intervals given" in {
+    Scenario("fetch PowerPlant updates at regular intervals given") {
       val dbObservable = DBObservable(
         interval,
-        powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync)
+        powerPlantService.fetchAllPowerPlants(onlyActive = true).runToFuture)
 
       def newPowerPlantRow(powerPlantId: Int) = {
         PowerPlantRow(
@@ -151,7 +153,7 @@ class DBObservableTest
           override def onComplete(): Unit = logger.info("complete")
         })
 
-      def block() = {
+      def block(): Unit = {
         powerPlantsConfig.powerPlantConfigSeq.find(_.id == 2000) match {
           case Some(_) =>
             logger.info("test successful")

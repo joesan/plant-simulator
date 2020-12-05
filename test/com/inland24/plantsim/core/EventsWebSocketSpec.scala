@@ -19,7 +19,6 @@ package com.inland24.plantsim.core
 
 import java.util.concurrent.{ArrayBlockingQueue, Callable}
 import java.util.function.Consumer
-
 import scala.compat.java8.FutureConverters
 import scala.concurrent.duration._
 import com.github.andyglow.websocket.WebsocketClient
@@ -28,7 +27,7 @@ import play.api.test.{Helpers, TestServer, WsTestClient}
 import com.inland24.plantsim.controllers.ApplicationTestFactory
 import com.inland24.plantsim.services.database.DBServiceSpec
 import org.scalatest.concurrent.PatienceConfiguration.Timeout
-import org.scalatest.{BeforeAndAfterAll, WordSpecLike}
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.Logger
 import play.api.libs.json.{JsValue, Json}
@@ -38,7 +37,6 @@ import play.shaded.ahc.org.asynchttpclient.AsyncHttpClient
 
 class EventsWebSocketSpec
     extends PlaySpec
-    with WordSpecLike
     with DBServiceSpec
     with BaseOneServerPerSuite
     with ApplicationTestFactory
@@ -107,7 +105,7 @@ class EventsWebSocketSpec
         // 2. define message handler
         val cli = WebsocketClient[String]("ws://echo.websocket.org") {
           case str =>
-            Logger.info(s"<<| $str")
+            Logger(this.getClass).info(s"<<| $str")
         }
 
         // 4. open websocket

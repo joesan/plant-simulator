@@ -30,14 +30,16 @@ import com.inland24.plantsim.models.{
 }
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
 import com.inland24.plantsim.services.simulator.rampUpType
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.featurespec.AnyFeatureSpecLike
+import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.duration._
 
 class RampUpTypeActorTest
     extends TestKit(ActorSystem("RampUpTypeActorTest"))
     with ImplicitSender
-    with WordSpecLike
+    with AnyFeatureSpecLike
     with Matchers
     with BeforeAndAfterAll {
 
@@ -62,16 +64,16 @@ class RampUpTypeActorTest
   def activePowerSignalRange(power: Double): Double =
     power * StateMachine.toleranceFactorInPercentage / 100
 
-  "RampUpTypeActor" must {
+  Feature("RampUpTypeActor") {
 
     val rampUpTypeSimActor =
       system.actorOf(RampUpTypeActor.props(rampUpTypeActorCfg))
 
     // PowerPlant # Init / Active tests
-    "start with minPower when initialized to Active state" in {
+    Scenario("start with minPower when initialized to Active state") {
       // We do this shit just so that the Actor has some time to Init
       within(2.seconds) {
-        expectNoMsg()
+        expectNoMessage
       }
       rampUpTypeSimActor ! PowerPlantActorMessage.StateRequestMessage
       expectMsgPF(2.seconds) {
@@ -118,7 +120,7 @@ class RampUpTypeActorTest
     }
 
     // PowerPlant # RampUp tests
-    "start to RampUp when a Dispatch command is sent" in {
+    Scenario("start to RampUp when a Dispatch command is sent") {
       within(10.seconds) {
         rampUpTypeSimActor ! DispatchRampUpPowerPlant(
           powerPlantId = rampUpTypeCfg.id,
@@ -126,7 +128,7 @@ class RampUpTypeActorTest
           powerPlantType = RampUpType,
           value = rampUpTypeCfg.maxPower
         )
-        expectNoMsg
+        expectNoMessage
       }
       rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF() {
@@ -158,7 +160,8 @@ class RampUpTypeActorTest
       }
     }
 
-    "ignore Dispatch command when the dispatchPower is less than it's minPower" in {
+    Scenario(
+      "ignore Dispatch command when the dispatchPower is less than it's minPower") {
       within(3.seconds) {
         rampUpTypeSimActor !
           DispatchRampUpPowerPlant(
@@ -167,11 +170,12 @@ class RampUpTypeActorTest
             powerPlantType = RampUpType,
             value = rampUpTypeCfg.minPower - 1.0
           )
-        expectNoMsg
+        expectNoMessage
       }
     }
 
-    "dispatch to maxPower if the dispatchPower is more than the maxPower capacity of the PowerPlant" in {
+    Scenario(
+      "dispatch to maxPower if the dispatchPower is more than the maxPower capacity of the PowerPlant") {
       within(10.seconds) {
         // expected activePower should be this one here
         rampUpTypeSimActor !
@@ -181,7 +185,7 @@ class RampUpTypeActorTest
             powerPlantType = RampUpType,
             value = rampUpTypeCfg.maxPower + 1.0
           )
-        expectNoMsg
+        expectNoMessage
       }
       rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF() {
@@ -213,7 +217,8 @@ class RampUpTypeActorTest
       }
     }
 
-    "ignore multiple Dispatch commands and should respond only to the first dispatch command" in {
+    Scenario(
+      "ignore multiple Dispatch commands and should respond only to the first dispatch command") {
       within(10.seconds) {
         // expected activePower should be this one here
         rampUpTypeSimActor !
@@ -232,7 +237,7 @@ class RampUpTypeActorTest
             powerPlantType = RampUpType,
             value = 10000.0
           )
-        expectNoMsg
+        expectNoMessage
       }
       rampUpTypeSimActor ! StateRequestMessage
       expectMsgPF() {
@@ -265,10 +270,11 @@ class RampUpTypeActorTest
     }
 
     // PowerPlant # OutOfService tests
-    "send the PowerPlant into OutOfService when OutOfService message is sent during Active" in {
+    Scenario(
+      "send the PowerPlant into OutOfService when OutOfService message is sent during Active") {
       within(5.seconds) {
         rampUpTypeSimActor ! OutOfServiceMessage
-        expectNoMsg()
+        expectNoMessage
       }
 
       rampUpTypeSimActor ! StateRequestMessage
@@ -283,7 +289,8 @@ class RampUpTypeActorTest
       }
     }
 
-    "throw the PowerPlant into OutOfService when OutOfService message is sent during RampUp" in {
+    Scenario(
+      "throw the PowerPlant into OutOfService when OutOfService message is sent during RampUp") {
       // 1. Send a Dispatch message
       within(2.seconds) {
         rampUpTypeSimActor ! DispatchRampUpPowerPlant(
@@ -292,7 +299,7 @@ class RampUpTypeActorTest
           powerPlantType = RampUpType,
           value = rampUpTypeCfg.maxPower
         )
-        expectNoMsg()
+        expectNoMessage
       }
 
       // 2. Send a OutOfService message
@@ -311,11 +318,12 @@ class RampUpTypeActorTest
     }
 
     // PowerPlant # ReturnToService tests
-    "return the PowerPlant from OutOfService to Active when sending ReturnToServiceMessage message" in {
+    Scenario(
+      "return the PowerPlant from OutOfService to Active when sending ReturnToServiceMessage message") {
       // 1. First make the PowerPlant OutOfService
       within(3.seconds) {
         rampUpTypeSimActor ! OutOfServiceMessage
-        expectNoMsg()
+        expectNoMessage
       }
 
       // 2. Send a ReturnToService message
@@ -346,7 +354,8 @@ class RampUpTypeActorTest
 
     // PowerPlant # ReturnToNormal tests
     // TODO: Re-work on this test to perfection! Currently it blocks thread! Try using receiveWhile from the TestKit
-    "return the PowerPlant to Normal when ReturnToNormalCommand message is sent in dispatched state" in {
+    Scenario(
+      "return the PowerPlant to Normal when ReturnToNormalCommand message is sent in dispatched state") {
       // To avoid confusion and the tests failing, we create a new actor instance for this test
       val rampUpTypeActor =
         system.actorOf(RampUpTypeActor.props(rampUpTypeActorCfg))
@@ -359,7 +368,7 @@ class RampUpTypeActorTest
           powerPlantType = RampUpType,
           value = rampUpTypeCfg.maxPower
         )
-        expectNoMsg()
+        expectNoMessage
       }
 
       /*
@@ -370,7 +379,7 @@ class RampUpTypeActorTest
 
       within(2.seconds) {
         rampUpTypeActor ! ReturnToNormalCommand(rampUpTypeCfg.id)
-        expectNoMsg()
+        expectNoMessage
       }
 
       /*

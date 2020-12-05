@@ -21,8 +21,9 @@ import org.slf4j.Logger;
 import play.shaded.ahc.org.asynchttpclient.AsyncHttpClient;
 import play.shaded.ahc.org.asynchttpclient.BoundRequestBuilder;
 import play.shaded.ahc.org.asynchttpclient.ListenableFuture;
+import play.shaded.ahc.org.asynchttpclient.netty.ws.NettyWebSocket;
 import play.shaded.ahc.org.asynchttpclient.ws.WebSocket;
-import play.shaded.ahc.org.asynchttpclient.ws.WebSocketTextListener;
+import play.shaded.ahc.org.asynchttpclient.ws.WebSocketListener;
 import play.shaded.ahc.org.asynchttpclient.ws.WebSocketUpgradeHandler;
 
 import java.util.concurrent.CompletableFuture;
@@ -42,15 +43,15 @@ public class WebSocketClient {
         this.client = c;
     }
 
-    public CompletableFuture<WebSocket> call(String url, String origin, WebSocketTextListener listener) throws ExecutionException, InterruptedException {
+    public CompletableFuture<NettyWebSocket> call(String url, String origin, WebSocketListener listener) throws ExecutionException, InterruptedException {
         final BoundRequestBuilder requestBuilder = client.prepareGet(url).addHeader("Origin", origin);
 
         final WebSocketUpgradeHandler handler = new WebSocketUpgradeHandler.Builder().addWebSocketListener(listener).build();
-        final ListenableFuture<WebSocket> future = requestBuilder.execute(handler);
+        final ListenableFuture<NettyWebSocket> future = requestBuilder.execute(handler);
         return future.toCompletableFuture();
     }
 
-    static class LoggingListener implements WebSocketTextListener {
+    static class LoggingListener implements WebSocketListener {
         private final Consumer<String> onMessageCallback;
 
         public LoggingListener(Consumer<String> onMessageCallback) {
@@ -70,6 +71,11 @@ public class WebSocketClient {
             //websocket.sendMessage("hello");
         }
 
+        @Override
+        public void onClose(WebSocket webSocket, int i, String s) {
+
+        }
+
         public void onClose(WebSocket websocket) {
             //logger.info("onClose: ");
         }
@@ -79,7 +85,7 @@ public class WebSocketClient {
             throwableFound = t;
         }
 
-        @Override
+        //@Override
         public void onMessage(String s) {
             //logger.info("onMessage: s = " + s);
             onMessageCallback.accept(s);

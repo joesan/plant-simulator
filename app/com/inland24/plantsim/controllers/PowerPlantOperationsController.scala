@@ -50,7 +50,7 @@ class PowerPlantOperationsController(
   // Place a reference to the underlying ActorSystem
   private implicit val system: ActorSystem = bindings.actorSystem
   private implicit val timeout: akka.util.Timeout = 3.seconds
-  private implicit val materializer: Materializer = bindings.materializer
+  //private implicit val materializer: Materializer = bindings.materializer
 
   // TODO: This could return a list of supported API's
   def home: Action[AnyContent] = Action { implicit request =>

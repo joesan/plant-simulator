@@ -33,7 +33,7 @@ import scala.language.higherKinds
 trait AppBindings {
 
   def actorSystem: ActorSystem
-  def materializer: Materializer
+  //def materializer: Materializer
 
   def dbService: PowerPlantService[Task]
   def appConfig: AppConfig
@@ -44,10 +44,10 @@ trait AppBindings {
 object AppBindings {
 
   def apply(system: ActorSystem,
-            actorMaterializer: Materializer,
+            //actorMaterializer: Materializer,
             config: AppConfig): AppBindings = new AppBindings {
     override val actorSystem: ActorSystem = system
-    override val materializer: Materializer = actorMaterializer
+    //override val materializer: Materializer = actorMaterializer
 
     override val appConfig: AppConfig = config
 
@@ -72,6 +72,7 @@ object AppBindings {
       )
   }
 
-  def apply(system: ActorSystem, actorMaterializer: Materializer): AppBindings =
-    apply(system, actorMaterializer, AppConfig.load())
+  def apply(system: ActorSystem /*, actorMaterializer: Materializer */ )
+    : AppBindings =
+    apply(system /*, actorMaterializer,*/, AppConfig.load())
 }

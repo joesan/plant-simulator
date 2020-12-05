@@ -20,11 +20,11 @@ import com.inland24.plantsim.models.PowerPlantSignal.Transition
 import com.inland24.plantsim.models.PowerPlantState._
 import com.inland24.plantsim.models.PowerPlantType
 import com.inland24.plantsim.services.simulator.onOffType.StateMachine.powerPlantIdSignalKey
-import org.scalatest.WordSpecLike
+import org.scalatest.featurespec.AnyFeatureSpecLike
 
-class OnOffTypeStateMachineTest extends WordSpecLike {
+class OnOffTypeStateMachineTest extends AnyFeatureSpecLike {
 
-  val onOffTpeCfg = OnOffTypeConfig(
+  val onOffTpeCfg: OnOffTypeConfig = OnOffTypeConfig(
     id = 1,
     name = "someConfig",
     minPower = 10.0,
@@ -33,8 +33,9 @@ class OnOffTypeStateMachineTest extends WordSpecLike {
   )
 
   // PowerPlant init tests
-  "PowerPlantState # init" must {
-    "initialize to a default state (available = true && onOff = false)" in {
+  Feature("PowerPlantState # init") {
+    Scenario(
+      "initialize to a default state (available = true && onOff = false)") {
       val initState =
         StateMachine.init(StateMachine.empty(onOffTpeCfg), onOffTpeCfg.minPower)
       initState.signals.foreach {
@@ -54,8 +55,8 @@ class OnOffTypeStateMachineTest extends WordSpecLike {
   }
 
   // PowerPlant turnOn tests
-  "PowerPlantState # turnOn" must {
-    "turnOn when in Off state and in available state" in {
+  Feature("PowerPlantState # turnOn") {
+    Scenario("turnOn when in Off state and in available state") {
       val turnedOn = StateMachine.turnOn(
         StateMachine.init(StateMachine.empty(onOffTpeCfg),
                           onOffTpeCfg.minPower),
@@ -80,8 +81,8 @@ class OnOffTypeStateMachineTest extends WordSpecLike {
   }
 
   // PowerPlant turnOff tests
-  "PowerPlant # turnOff" must {
-    "turnOff when in On state a TurnOff message is sent" in {
+  Feature("PowerPlant # turnOff") {
+    Scenario("turnOff when in On state a TurnOff message is sent") {
       // First let's turn the PowerPlant on
       val turnedOn = StateMachine.turnOn(
         StateMachine.init(StateMachine.empty(onOffTpeCfg),
@@ -110,8 +111,8 @@ class OnOffTypeStateMachineTest extends WordSpecLike {
   }
 
   // PowerPlant OutOfService tests
-  "PowerPlant # outOfService" must {
-    "throw a PowerPlant to OutOfService when in active state" in {
+  Feature("PowerPlant # outOfService") {
+    Scenario("throw a PowerPlant to OutOfService when in active state") {
       // First, we need a PowerPlant in Active state
       val initState =
         StateMachine.init(StateMachine.empty(onOffTpeCfg), onOffTpeCfg.minPower)

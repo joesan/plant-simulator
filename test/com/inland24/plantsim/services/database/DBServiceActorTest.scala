@@ -22,17 +22,28 @@ import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
-import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, PowerPlantsConfig, RampUpTypeConfig}
-import com.inland24.plantsim.models.PowerPlantDBEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
+import com.inland24.plantsim.models.PowerPlantConfig.{
+  OnOffTypeConfig,
+  PowerPlantsConfig,
+  RampUpTypeConfig
+}
+import com.inland24.plantsim.models.PowerPlantDBEvent.{
+  PowerPlantCreateEvent,
+  PowerPlantDeleteEvent,
+  PowerPlantUpdateEvent
+}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
-import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantDBEvent, PowerPlantType}
+import com.inland24.plantsim.models.{
+  PowerPlantConfig,
+  PowerPlantDBEvent,
+  PowerPlantType
+}
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import com.typesafe.scalalogging.LazyLogging
 import monix.execution.Scheduler
 import org.joda.time.{DateTime, DateTimeZone}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.featurespec.AnyFeatureSpecLike
-import org.scalatest.flatspec.AnyFlatSpecLike
 import org.scalatest.matchers.must.Matchers
 
 import scala.concurrent.Await
@@ -137,7 +148,7 @@ class DBServiceActorTest
       assert(events.head.powerPlantCfg.id === testRampUpConfig.id)
     }
 
-    "populate create events when a create happens in the database" in {
+    Scenario("populate create events when a create happens in the database") {
       val oldCfg = testPowerPlantsConfig
       val newCfg = testPowerPlantsConfig.copy(
         snapshotDateTime = DateTime.now(DateTimeZone.UTC),
@@ -175,8 +186,9 @@ class DBServiceActorTest
       }
     }
 
-    "populate create / update / delete events when create / update / delete" +
-      " happens in the database" in {
+    Scenario(
+      "populate create / update / delete events when create / update / delete" +
+        " happens in the database") {
       val oldCfg = testPowerPlantsConfig
       val newCfg = testPowerPlantsConfig.copy(
         snapshotDateTime = DateTime.now(DateTimeZone.UTC),
@@ -252,7 +264,7 @@ class DBServiceActorTest
     }
   }
 
-  "DBServiceActor" must {
+  Feature("DBServiceActor") {
 
     // This message is used to fetch and check the received events in the TestSupervisorActorRef
     case object GetReceivedEvents
@@ -294,21 +306,21 @@ class DBServiceActorTest
       )
     )
 
-    "populate PowerPlantsConfig upon every message it receives" in {
+    Scenario("populate PowerPlantsConfig upon every message it receives") {
       // This will be our service instance
       val powerPlantRepo = new PowerPlantRepoAsTask(config.dbConfig)
       val powerPlantService = new PowerPlantService(powerPlantRepo)
 
       // Let us start initially with the available PowerPlant entries in the database
       val allActivePowerPlants = Await.result(
-        powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync,
+        powerPlantService.fetchAllPowerPlants(onlyActive = true).runToFuture,
         3.seconds)
 
       // Now send this initial Seq of PowerPlant's to the dbServiceActor (transformed as a PowerPlantConfig type)
       within(2.seconds) {
         dbServiceActor ! com.inland24.plantsim.models
           .toPowerPlantsConfig(allActivePowerPlants)
-        expectNoMsg()
+        expectNoMessage
       }
 
       // The dbServiceActor should have send those messages to our TestSupervisorActor instance, check it
@@ -339,7 +351,7 @@ class DBServiceActorTest
       within(3.seconds) {
         dbServiceActor ! com.inland24.plantsim.models
           .toPowerPlantsConfig(allOnOffPlantsUpdated)
-        expectNoMsg()
+        expectNoMessage
       }
 
       /*

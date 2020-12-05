@@ -150,7 +150,7 @@ class SupervisorActorTest
 
       within(3.seconds) {
         supervisorActor ! SupervisorEvents(createEventsSeq)
-        expectNoMsg()
+        expectNoMessage
       }
 
       // Now check if the corresponding ActorRef's are created!
@@ -183,7 +183,7 @@ class SupervisorActorTest
 
       within(5.seconds) {
         supervisorActor ! SupervisorEvents(createEventsSeq)
-        expectNoMsg()
+        expectNoMessage
       }
 
       // Now let us send Update events, so that the Actors are re-started!
@@ -194,7 +194,7 @@ class SupervisorActorTest
 
       within(5.seconds) {
         supervisorActor ! SupervisorEvents(updateEventsSeq)
-        expectNoMsg()
+        expectNoMessage
       }
 
       // Now check if the corresponding ActorRef's are created!
@@ -227,7 +227,7 @@ class SupervisorActorTest
 
       within(5.seconds) {
         supervisorActor ! SupervisorEvents(createEventsSeq)
-        expectNoMsg()
+        expectNoMessage
       }
 
       val deleteEventsSeq = Seq(
@@ -241,7 +241,7 @@ class SupervisorActorTest
 
       within(6.seconds) {
         supervisorActor ! SupervisorEvents(deleteEventsSeq)
-        expectNoMsg()
+        expectNoMessage
       }
 
       // Now check if the corresponding ActorRef's are created!
@@ -269,7 +269,7 @@ class SupervisorActorTest
 
       within(3.seconds) {
         supervisorActor ! SupervisorEvents(createEventsSeq)
-        expectNoMsg()
+        expectNoMessage
       }
 
       // Now check if the corresponding ActorRef's are not created!
@@ -291,7 +291,7 @@ class SupervisorActorTest
 
       within(3.seconds) {
         supervisorActor ! SupervisorEvents(updateEventsSeq)
-        expectNoMsg()
+        expectNoMessage
       }
 
       // Now check if the corresponding ActorRef's are created!

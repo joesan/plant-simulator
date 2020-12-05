@@ -21,15 +21,16 @@ import com.inland24.plantsim.models.{PowerPlantFilter, PowerPlantType}
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
-import org.scalatest.{AsyncFlatSpec, BeforeAndAfterAll}
+import org.scalatest.BeforeAndAfterAll
 import monix.execution.Scheduler.Implicits.global
+import org.scalatest.flatspec.AsyncFlatSpec
 
 import scala.concurrent.Await
 import scala.util.{Failure, Success, Try}
 import scala.concurrent.duration._
 
 // ***** NOTE: Do not remove this import! It won't compile without this
-import monix.cats._
+import cats._
 // *****
 
 final class PowerPlantDBServiceSpec
@@ -56,7 +57,7 @@ final class PowerPlantDBServiceSpec
   behavior of "PowerPlantDBService"
 
   "allPowerPlants" should "fetch all PowerPlant's from the database" in {
-    powerPlantService.fetchAllPowerPlants().runAsync.map { allPowerPlants =>
+    powerPlantService.fetchAllPowerPlants().runToFuture.map { allPowerPlants =>
       assert(allPowerPlants.length === 6)
 
       allPowerPlants.headOption match {
@@ -72,12 +73,12 @@ final class PowerPlantDBServiceSpec
     }
   }
 
-  "powerPlantsPaginated" should "fetch all PowerPlant's that metch the search criteria" in {
+  "powerPlantsPaginated" should "fetch all PowerPlant's that match the search criteria" in {
     val searchFilter1 = PowerPlantFilter(
       onlyActive = Some(true),
       powerPlantType = None
     )
-    powerPlantService.searchPowerPlants(searchFilter1).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter1).runToFuture.map {
       filtered =>
         assert(filtered.length === 5)
     }
@@ -86,7 +87,7 @@ final class PowerPlantDBServiceSpec
       onlyActive = Some(true),
       orgName = Some("joesan 1")
     )
-    powerPlantService.searchPowerPlants(searchFilter2).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter2).runToFuture.map {
       filtered =>
         assert(filtered.length === 1)
         assert(filtered.head.id === 1)
@@ -97,7 +98,7 @@ final class PowerPlantDBServiceSpec
       // Notice the capital letter, there is no name with capital letter in the database
       orgName = Some("Joesan 1")
     )
-    powerPlantService.searchPowerPlants(searchFilter3).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter3).runToFuture.map {
       filtered =>
         assert(filtered.length === 0)
     }
@@ -109,7 +110,7 @@ final class PowerPlantDBServiceSpec
       pageNumber = 20,
       orgName = Some("joesan 1")
     )
-    powerPlantService.searchPowerPlants(searchFilter4).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter4).runToFuture.map {
       filtered =>
         assert(filtered.length === 0)
     }
@@ -118,7 +119,7 @@ final class PowerPlantDBServiceSpec
       onlyActive = Some(true),
       orgName = Some("joesan")
     )
-    powerPlantService.searchPowerPlants(searchFilter5).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter5).runToFuture.map {
       filtered =>
         assert(filtered.length === 5)
     }
@@ -127,7 +128,7 @@ final class PowerPlantDBServiceSpec
       onlyActive = Some(false),
       orgName = Some("joesan")
     )
-    powerPlantService.searchPowerPlants(searchFilter6).runAsync.map {
+    powerPlantService.searchPowerPlants(searchFilter6).runToFuture.map {
       filtered =>
         assert(filtered.length === 0)
     }
@@ -136,7 +137,7 @@ final class PowerPlantDBServiceSpec
   "allPowerPlantsPaginated" should "fetch all PowerPlant's from the database for the given pageNumber" in {
     powerPlantService
       .searchPowerPlants(PowerPlantFilter())
-      .runAsync
+      .runToFuture
       .map { // by default we ask for the first page
         allPowerPlants =>
           assert(allPowerPlants.length === 5)
@@ -155,7 +156,7 @@ final class PowerPlantDBServiceSpec
   }
 
   "powerPlantById" should "fetch the PowerPlant for the given id" in {
-    powerPlantService.powerPlantById(105).runAsync.flatMap {
+    powerPlantService.powerPlantById(105).runToFuture.flatMap {
       case Some(powerPlant) =>
         assert(powerPlant.id === Some(105))
         assert(powerPlant.orgName === "joesan 5")
@@ -180,9 +181,11 @@ final class PowerPlantDBServiceSpec
       updatedAt = getNowAsDateTime
     )
 
-    powerPlantService.createNewPowerPlant(newPowerPlantRow).runAsync.flatMap {
-      _ =>
-        powerPlantService.powerPlantById(10000).runAsync.flatMap {
+    powerPlantService
+      .createNewPowerPlant(newPowerPlantRow)
+      .runToFuture
+      .flatMap { _ =>
+        powerPlantService.powerPlantById(10000).runToFuture.flatMap {
           case Some(powerPlant) =>
             assert(powerPlant.id === Some(10000))
             assert(powerPlant.isActive)
@@ -190,7 +193,7 @@ final class PowerPlantDBServiceSpec
           case _ =>
             fail("expected the powerPlant with id 10000 but was not found in the database")
         }
-    }
+      }
   }
 
   "newPowerPlant" should "not create a new PowerPlant for an already existing PowerPlant" in {
@@ -211,7 +214,7 @@ final class PowerPlantDBServiceSpec
     // We expect a unique key violation error from the database
     val retVal = Try(
       Await.result(
-        powerPlantService.createNewPowerPlant(newPowerPlantRow).runAsync,
+        powerPlantService.createNewPowerPlant(newPowerPlantRow).runToFuture,
         2.seconds))
     retVal match {
       case Failure(fail) =>
@@ -240,9 +243,11 @@ final class PowerPlantDBServiceSpec
       updatedAt = getNowAsDateTime
     )
 
-    powerPlantService.updatePowerPlant(updatePowerPlantRow).runAsync.flatMap {
-      _ =>
-        powerPlantService.powerPlantById(101).runAsync.flatMap {
+    powerPlantService
+      .updatePowerPlant(updatePowerPlantRow)
+      .runToFuture
+      .flatMap { _ =>
+        powerPlantService.powerPlantById(101).runToFuture.flatMap {
           case Some(powerPlant) =>
             assert(powerPlant.id === Some(101))
             assert(powerPlant.orgName === "joesan 101 updated")
@@ -251,7 +256,7 @@ final class PowerPlantDBServiceSpec
           case _ =>
             fail("expected the powerPlant with id 101 but was not found in the database")
         }
-    }
+      }
   }
 
   "updatePowerPlant" should "not update a PowerPlant that does not exist in the database" in {
@@ -270,7 +275,7 @@ final class PowerPlantDBServiceSpec
     )
 
     val elem = Await.result(
-      powerPlantService.updatePowerPlant(updatePowerPlantRow).runAsync,
+      powerPlantService.updatePowerPlant(updatePowerPlantRow).runToFuture,
       2.seconds)
     assert(elem.isLeft)
     assert(

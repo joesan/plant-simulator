@@ -22,7 +22,7 @@ import play.api.test.Helpers._
 import play.api.test.FakeRequest
 import com.inland24.plantsim.controllers.ApplicationTestFactory
 import com.inland24.plantsim.services.database.DBServiceSpec
-import org.scalatest.{BeforeAndAfterAll, WordSpecLike}
+import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import play.api.http.Port
 
@@ -32,7 +32,6 @@ import play.api.http.Port
   */
 class RoutesSpec
     extends PlaySpec
-    with WordSpecLike
     with DBServiceSpec
     with BaseOneServerPerSuite
     with ApplicationTestFactory

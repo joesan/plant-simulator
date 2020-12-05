@@ -15,9 +15,9 @@
 
 package com.inland24.plantsim.services.simulator
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-final class SimulatorServiceSpec extends FlatSpec {
+final class SimulatorServiceSpec extends AnyFlatSpec {
 
   behavior of "SimulatorService"
 

@@ -19,7 +19,10 @@ package com.inland24.plantsim.core
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.inland24.plantsim.models.PowerPlantActorMessage.{OutOfServiceMessage, ReturnToServiceMessage}
+import com.inland24.plantsim.models.PowerPlantActorMessage.{
+  OutOfServiceMessage,
+  ReturnToServiceMessage
+}
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.DBServiceSpec
@@ -29,14 +32,15 @@ import com.inland24.plantsim.streams.EventsStream
 import monix.execution.Scheduler
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.BeforeAndAfterAll
+import org.scalatest.featurespec.AnyFeatureSpecLike
 import play.api.libs.json.{JsValue, Json}
 
 import scala.collection.mutable.ListBuffer
 
-
 class EventsWebSocketActorTest
     extends TestKit(ActorSystem("EventsWebSocketActorTest"))
     with ImplicitSender
+    with AnyFeatureSpecLike
     with Matchers
     with BeforeAndAfterAll
     with DBServiceSpec {
@@ -70,7 +74,7 @@ class EventsWebSocketActorTest
     OnOffType
   )
 
-  "EventsWebSocketActor # telemetrySignals" must {
+  Feature("EventsWebSocketActor # telemetrySignals") {
 
     val powerPlantObservable = PowerPlantEventObservable(ec)
 
@@ -94,7 +98,7 @@ class EventsWebSocketActorTest
     }
     val sink = system.actorOf(Props(new SinkActor))
 
-    "produce telemetry signals" in {
+    Scenario("produce telemetry signals") {
       // Reset the buffer
       buffer.clear()
 
@@ -127,7 +131,7 @@ class EventsWebSocketActorTest
     }
   }
 
-  "EventsWebSocketActor # Events and Alerts" must {
+  Feature("EventsWebSocketActor # Events and Alerts") {
 
     val powerPlantObservable = PowerPlantEventObservable(ec)
 
@@ -150,7 +154,7 @@ class EventsWebSocketActorTest
     }
     val sink = system.actorOf(Props(new SinkActor))
 
-    "produce events and alerts" in {
+    Scenario("produce events and alerts") {
       // Reset the buffer
       buffer.clear()
 

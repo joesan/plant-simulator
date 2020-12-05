@@ -40,7 +40,7 @@ class AppBindingsTest
     val appCfg = AppConfig.load()
 
     Scenario("initialize application components against a default environment") {
-      val appBindings = AppBindings(system, ActorMaterializer()(system))
+      val appBindings = AppBindings(system)
 
       appBindings.appConfig === appCfg
       appBindings.supervisorActor.path.name === s"${appCfg.appName}-supervisor"

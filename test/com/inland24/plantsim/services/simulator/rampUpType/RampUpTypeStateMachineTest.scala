@@ -26,20 +26,22 @@ import com.inland24.plantsim.models.PowerPlantSignal.{
 import com.inland24.plantsim.models.PowerPlantType
 import com.inland24.plantsim.models.PowerPlantState._
 import org.joda.time.{DateTime, DateTimeZone}
-import org.scalatest._
-import Matchers._
+import org.scalatest.featurespec.AnyFeatureSpecLike
+import org.scalatest.matchers.should
 
 import scala.concurrent.duration._
 
-class RampUpTypeStateMachineTest extends WordSpecLike {
+class RampUpTypeStateMachineTest
+    extends AnyFeatureSpecLike
+    with should.Matchers {
 
   private def now = DateTime.now(DateTimeZone.UTC)
 
   // TODO: This could be moved to a common place, this is duplicated in RampUpTypeActorTest as well!
-  def activePowerSignalRange(power: Double) =
+  def activePowerSignalRange(power: Double): Double =
     power * StateMachine.toleranceFactorInPercentage / 100
 
-  val cfg = RampUpTypeConfig(
+  val cfg: RampUpTypeConfig = RampUpTypeConfig(
     id = 1,
     name = "RampUpType",
     minPower = 400.0,
@@ -49,8 +51,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
     powerPlantType = PowerPlantType.RampUpType
   )
 
-  "StateMachine ## Utility" must {
-    "generate a randomPower within a given tolerance" in {
+  Feature("StateMachine ## Utility") {
+    Scenario("generate a randomPower within a given tolerance") {
       val activeStm = StateMachine.active(StateMachine.init(cfg))
       val newSignals = StateMachine.randomPower(activeStm.signals)
 
@@ -76,9 +78,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
   }
 
   // PowerPlant init tests
-  "PowerPlant ## init" must {
-
-    "start with a default state" in {
+  Feature("PowerPlant ## init") {
+    Scenario("start with a default state") {
       val stm = StateMachine.init(cfg)
 
       assert(stm.cfg.rampPowerRate == cfg.rampPowerRate)
@@ -103,8 +104,9 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       }
     }
 
-    "initialize the default signals " +
-      "(available = true, activePower = minPower, isDispatched = false)" in {
+    Scenario(
+      "initialize the default signals " +
+        "(available = true, activePower = minPower, isDispatched = false)") {
       val stm = StateMachine.init(cfg)
 
       assert(stm.signals.size === 5)
@@ -123,7 +125,7 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       assert(stm.setPoint === cfg.minPower)
     }
 
-    "set the PowerPlant in an active state" in {
+    Scenario("set the PowerPlant in an active state") {
       val stm = StateMachine.active(StateMachine.init(cfg))
 
       assert(stm.signals.size === 5)
@@ -148,13 +150,14 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
   }
 
   // PowerPlant dispatch tests
-  "PowerPlant ## dispatch" must {
+  Feature("PowerPlant ## dispatch") {
 
     // We first need an active PowerPlant
     val stm = StateMachine.active(StateMachine.init(cfg))
     val setPoint = stm.cfg.maxPower
 
-    "not transition to RampUp state if setPoint is less than the minPower" in {
+    Scenario(
+      "not transition to RampUp state if setPoint is less than the minPower") {
       // Let us try to dispatch
       val dispatchStm = StateMachine.dispatch(
         stm.copy(events = Vector.empty), // We clear the events that happened when active and in init
@@ -180,7 +183,8 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       }
     }
 
-    "curtail the setPoint if the setPoint is greater than the maxPower" in {
+    Scenario(
+      "curtail the setPoint if the setPoint is greater than the maxPower") {
       // Let us try to dispatch
       val dispatchStm = StateMachine.dispatch(
         stm.copy(events = Vector.empty),
@@ -209,7 +213,7 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       }
     }
 
-    "use the given SetPoint and start to RampUp" in {
+    Scenario("use the given SetPoint and start to RampUp") {
       // Let us try to dispatch
       val dispatchStm = StateMachine.dispatch(
         stm.copy(events = Vector.empty),
@@ -235,12 +239,12 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
   }
 
   // PowerPlant out of service tests
-  "PowerPlant ## outOfService" must {
+  Feature("PowerPlant ## outOfService") {
 
     // We first need an active PowerPlant
     val stm = StateMachine.active(StateMachine.init(cfg))
 
-    "transition to OutOfService when in Active state" in {
+    Scenario("transition to OutOfService when in Active state") {
       val outOfServiceStm =
         StateMachine.outOfService(stm.copy(events = Vector.empty))
 
@@ -264,7 +268,7 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       }
     }
 
-    "transition to OutOfService when in Init state" in {
+    Scenario("transition to OutOfService when in Init state") {
       val outOfServiceStm = StateMachine.outOfService(
         StateMachine.init(cfg).copy(events = Vector.empty)
       )
@@ -289,7 +293,7 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
       }
     }
 
-    "transition to OutOfService when in RampUp state" in {
+    Scenario("transition to OutOfService when in RampUp state") {
       val rampUpStm = StateMachine.rampUpCheck(
         stm.copy(
           setPoint = stm.cfg.maxPower,
@@ -322,12 +326,12 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
   }
 
   // PowerPlant rampUp tests
-  "PowerPlant ## rampUp" must {
+  Feature("PowerPlant ## rampUp") {
 
     val stm = StateMachine.active(StateMachine.init(cfg))
     val setPoint = stm.cfg.maxPower
 
-    "dispatch the PowerPlant based on it's ramp rate" in {
+    Scenario("dispatch the PowerPlant based on it's ramp rate") {
       /*
        * Let's dispatch this Plant to its maxPower which is 800
        * The plant is currently operating at its minPower which is 400
@@ -392,13 +396,14 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
     }
   }
 
-  "PowerPlant ## returnToService" must {
+  Feature("PowerPlant ## returnToService") {
 
     // We first need an active PowerPlant
     val stm = StateMachine.active(StateMachine.init(cfg))
     val setPoint = stm.cfg.maxPower
 
-    "go to active state from OutOfService when ReturnToService is requested" in {
+    Scenario(
+      "go to active state from OutOfService when ReturnToService is requested") {
       val returnToService = StateMachine.returnToService(
         StateMachine.outOfService(stm)
       )
@@ -408,13 +413,13 @@ class RampUpTypeStateMachineTest extends WordSpecLike {
     }
   }
 
-  "PowerPlant ## returnToNormal" must {
+  Feature("PowerPlant ## returnToNormal") {
 
     // We first need an active PowerPlant
     val stm = StateMachine.active(StateMachine.init(cfg))
     val setPoint = stm.cfg.maxPower
 
-    "start ramping down the power plant according to its ramp rate" in {
+    Scenario("start ramping down the power plant according to its ramp rate") {
       val dispatchedState = new StateMachine(
         oldState = RampUp,
         newState = Dispatched,

@@ -34,11 +34,9 @@ trait ApplicationTestFactory extends FakeApplicationFactory {
   override def fakeApplication: Application = {
     val env = Environment.simple(new File("."))
     val configuration = Configuration.load(env)
-    val context = ApplicationLoader.Context(
+    val context = ApplicationLoader.Context.create(
       environment = env,
-      sourceMapper = None,
-      webCommands = new DefaultWebCommands(),
-      initialConfiguration = configuration,
+      initialSettings = Map.empty,
       lifecycle = new DefaultApplicationLifecycle()
     )
     new Bootstrap().load(context)
