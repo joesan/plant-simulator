@@ -60,7 +60,8 @@ class OnOffTypeActor private (config: Config) extends Actor with ActorLogging {
     val receiveMethod = decideTransition(newStm)
     log.info(s"OnOffType PowerPlant with id = ${cfg.id} has " +
       s"EVOLVED STATE << " +
-      s"${Some(receiveMethod.getClass.getSimpleName.split("\\$")(2)).getOrElse("unknown")} >>")
+      //s"${Some(receiveMethod.getClass.getSimpleName.split("\\$")(2)).getOrElse("unknown")} >>")
+      s"${Some(receiveMethod.getClass.getSimpleName).getOrElse("unknown")} >>")
     context.become(receiveMethod)
   }
 
