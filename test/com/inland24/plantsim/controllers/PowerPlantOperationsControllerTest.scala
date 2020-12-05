@@ -22,16 +22,13 @@ import akka.stream.ActorMaterializer
 import akka.testkit.TestKit
 import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.services.database.DBServiceSpec
-import org.scalatest.{
-  BeforeAndAfterAll,
-  MustMatchers,
-  OptionValues,
-  WordSpecLike
-}
+import org.scalatest.{BeforeAndAfterAll, OptionValues}
 import org.scalatestplus.play.WsScalaTestClient
 import play.api.mvc.Results
 import monix.execution.Scheduler.Implicits.global
 import monix.execution.FutureUtils.extensions._
+import org.scalatest.featurespec.AnyFeatureSpecLike
+import org.scalatest.matchers.should
 import play.api.libs.json.Json
 
 import scala.concurrent.Future
@@ -43,15 +40,15 @@ import scala.util.{Failure, Success}
 
 class PowerPlantOperationsControllerTest
     extends TestKit(ActorSystem("PowerPlantOperationsControllerTest"))
-    with MustMatchers
+    with should.Matchers
+    with AnyFeatureSpecLike
     with OptionValues
     with WsScalaTestClient
-    with WordSpecLike
     with Results
     with BeforeAndAfterAll
     with DBServiceSpec {
 
-  val bindings = AppBindings.apply(system, ActorMaterializer())
+  val bindings: AppBindings = AppBindings.apply(system, ActorMaterializer())
   private val controllerComponents = stubControllerComponents()
   val controller =
     new PowerPlantOperationsController(bindings, controllerComponents)
@@ -69,9 +66,8 @@ class PowerPlantOperationsControllerTest
     TestKit.shutdownActorSystem(system)
   }
 
-  "PowerPlantOperationsController ## returnToNormal" should {
-
-    "return with a HTTP NotFound for a PowerPlant that does not exist" in {
+  Feature("PowerPlantOperationsController ## returnToNormal") {
+    Scenario("return with a HTTP NotFound for a PowerPlant that does not exist") {
       val rtnCommand =
         """
           | {
@@ -93,7 +89,7 @@ class PowerPlantOperationsControllerTest
       }
     }
 
-    "return with a HTTP BadRequest for an invalid JSON payload" in {
+    Scenario("return with a HTTP BadRequest for an invalid JSON payload") {
       val rtnCommand =
         """
           | {
@@ -116,9 +112,8 @@ class PowerPlantOperationsControllerTest
     }
   }
 
-  "PowerPlantOperationsController ## dispatchPowerPlant" should {
-
-    "return with a HTTP NotFound for a PowerPlant that does not exist" in {
+  Feature("PowerPlantOperationsController ## dispatchPowerPlant") {
+    Scenario("return with a HTTP NotFound for a PowerPlant that does not exist") {
       val rtnCommand =
         """
           | {
@@ -140,7 +135,7 @@ class PowerPlantOperationsControllerTest
       }
     }
 
-    "return with a HTTP BadRequest for an invalid JSON payload" in {
+    Scenario("return with a HTTP BadRequest for an invalid JSON payload") {
       val rtnCommand =
         """
           | {
@@ -163,8 +158,9 @@ class PowerPlantOperationsControllerTest
     }
   }
 
-  "PowerPlantOperationsController ## OutOfService and ReturnToService" should {
-    "return with a HTTP NotFound for a PowerPlant that does not exist when OutOfService is requested" in {
+  Feature("PowerPlantOperationsController ## OutOfService and ReturnToService") {
+    Scenario(
+      "return with a HTTP NotFound for a PowerPlant that does not exist when OutOfService is requested") {
       val result: Future[Result] =
         controller.outOfServicePowerPlant(-200).apply(FakeRequest())
       result.materialize.map {
@@ -175,7 +171,8 @@ class PowerPlantOperationsControllerTest
       }
     }
 
-    "return with a HTTP NotFound for a PowerPlant that does not exist when ReturnToService is requested" in {
+    Scenario(
+      "return with a HTTP NotFound for a PowerPlant that does not exist when ReturnToService is requested") {
       val result: Future[Result] =
         controller.returnToServicePowerPlant(-200).apply(FakeRequest())
       result.materialize.map {
@@ -186,7 +183,8 @@ class PowerPlantOperationsControllerTest
       }
     }
 
-    "return with a HTTP Ok for a PowerPlant when OutOfService is requested" in {
+    Scenario(
+      "return with a HTTP Ok for a PowerPlant when OutOfService is requested") {
       val result: Future[Result] =
         controller.outOfServicePowerPlant(2).apply(FakeRequest())
       result.materialize.map {
@@ -197,7 +195,8 @@ class PowerPlantOperationsControllerTest
       }
     }
 
-    "return with a HTTP Ok for a PowerPlant when ReturnToService is requested" in {
+    Scenario(
+      "return with a HTTP Ok for a PowerPlant when ReturnToService is requested") {
       val result: Future[Result] =
         controller.returnToServicePowerPlant(2).apply(FakeRequest())
       result.materialize.map {
@@ -209,8 +208,8 @@ class PowerPlantOperationsControllerTest
     }
   }
 
-  "PowerPlantOperationsController ## powerPlantSignals" should {
-    "return with a HTTP NotFound for a PowerPlant that does not exist" in {
+  Feature("PowerPlantOperationsController ## powerPlantSignals") {
+    Scenario("return with a HTTP NotFound for a PowerPlant that does not exist") {
       val result: Future[Result] =
         controller.powerPlantSignals(-200).apply(FakeRequest())
       result.materialize.map {

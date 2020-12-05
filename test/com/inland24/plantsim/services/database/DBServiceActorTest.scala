@@ -22,44 +22,36 @@ import akka.pattern.ask
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
-import com.inland24.plantsim.models.PowerPlantConfig.{
-  OnOffTypeConfig,
-  PowerPlantsConfig,
-  RampUpTypeConfig
-}
-import com.inland24.plantsim.models.PowerPlantDBEvent.{
-  PowerPlantCreateEvent,
-  PowerPlantDeleteEvent,
-  PowerPlantUpdateEvent
-}
+import com.inland24.plantsim.models.PowerPlantConfig.{OnOffTypeConfig, PowerPlantsConfig, RampUpTypeConfig}
+import com.inland24.plantsim.models.PowerPlantDBEvent.{PowerPlantCreateEvent, PowerPlantDeleteEvent, PowerPlantUpdateEvent}
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
-import com.inland24.plantsim.models.{
-  PowerPlantConfig,
-  PowerPlantDBEvent,
-  PowerPlantType
-}
+import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantDBEvent, PowerPlantType}
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import com.typesafe.scalalogging.LazyLogging
+import monix.execution.Scheduler
 import org.joda.time.{DateTime, DateTimeZone}
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.featurespec.AnyFeatureSpecLike
+import org.scalatest.flatspec.AnyFlatSpecLike
+import org.scalatest.matchers.must.Matchers
 
 import scala.concurrent.Await
 import scala.concurrent.duration._
 
 // ***** NOTE: This import should be here, otherwise it won't compile
-import monix.cats._
+import cats._
 // *****
 
 class DBServiceActorTest
     extends TestKit(ActorSystem("DBServiceActorTest"))
     with ImplicitSender
-    with WordSpecLike
+    with AnyFeatureSpecLike
     with Matchers
     with BeforeAndAfterAll
     with DBServiceSpec
     with LazyLogging {
 
-  implicit val ec = monix.execution.Scheduler.Implicits.global
+  implicit val ec: Scheduler = monix.execution.Scheduler.Implicits.global
   implicit val timeout: akka.util.Timeout = 3.seconds
 
   override def beforeAll(): Unit = {
@@ -76,7 +68,7 @@ class DBServiceActorTest
     TestKit.shutdownActorSystem(system)
   }
 
-  val testOnOffConfig = OnOffTypeConfig(
+  val testOnOffConfig: OnOffTypeConfig = OnOffTypeConfig(
     id = 1,
     name = "1",
     minPower = 10.0,
@@ -84,7 +76,7 @@ class DBServiceActorTest
     powerPlantType = PowerPlantType.OnOffType
   )
 
-  val testRampUpConfig = RampUpTypeConfig(
+  val testRampUpConfig: RampUpTypeConfig = RampUpTypeConfig(
     id = 2,
     name = "1",
     minPower = 10.0,
@@ -95,15 +87,14 @@ class DBServiceActorTest
   )
 
   // We assume that we have 2 PowerPlant's in our database
-  val testPowerPlantsConfig = PowerPlantsConfig(
+  val testPowerPlantsConfig: PowerPlantsConfig = PowerPlantsConfig(
     snapshotDateTime = DateTime.now(DateTimeZone.UTC),
     powerPlantConfigSeq = Seq(testOnOffConfig, testRampUpConfig)
   )
 
-  "DBServiceActor#toEvents" must {
-
+  Feature("DBServiceActor#toEvents") {
     // tests to test the DBServiceActor companion
-    "populate update events when an update happens in the database" in {
+    Scenario("populate update events when an update happens in the database") {
       val oldCfg = testPowerPlantsConfig
       val newCfg = testPowerPlantsConfig.copy(
         snapshotDateTime = DateTime.now(DateTimeZone.UTC),
@@ -127,7 +118,7 @@ class DBServiceActorTest
         events.head.powerPlantCfg.maxPower === testOnOffConfig.maxPower + 10.0)
     }
 
-    "populate delete events when a delete happens in the database" in {
+    Scenario("populate delete events when a delete happens in the database") {
       val oldCfg = testPowerPlantsConfig
       val newCfg = testPowerPlantsConfig.copy(
         snapshotDateTime = DateTime.now(DateTimeZone.UTC),

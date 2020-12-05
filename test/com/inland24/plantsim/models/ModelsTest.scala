@@ -23,12 +23,12 @@ import com.inland24.plantsim.models.PowerPlantConfig.{
   RampUpTypeConfig,
   UnknownConfig
 }
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 import play.api.libs.json.{JsError, Json}
 
 import scala.concurrent.duration._
 
-class ModelsTest extends FlatSpec {
+class ModelsTest extends AnyFlatSpec {
 
   behavior of "PowerPlantType"
 

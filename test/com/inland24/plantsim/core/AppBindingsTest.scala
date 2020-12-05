@@ -21,12 +21,14 @@ import akka.actor.ActorSystem
 import akka.stream.ActorMaterializer
 import akka.testkit.TestKit
 import com.inland24.plantsim.config.AppConfig
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.featurespec.AnyFeatureSpecLike
+import org.scalatest.matchers.must.Matchers
 
 class AppBindingsTest
     extends TestKit(ActorSystem("AppBindingsActorSystem"))
-    with WordSpecLike
     with Matchers
+    with AnyFeatureSpecLike
     with BeforeAndAfterAll {
 
   override def afterAll(): Unit = {
@@ -34,11 +36,10 @@ class AppBindingsTest
     system.terminate()
   }
 
-  "AppBindings" must {
-
+  Feature("AppBindings") {
     val appCfg = AppConfig.load()
 
-    "initialize application components against a default environment" in {
+    Scenario("initialize application components against a default environment") {
       val appBindings = AppBindings(system, ActorMaterializer()(system))
 
       appBindings.appConfig === appCfg

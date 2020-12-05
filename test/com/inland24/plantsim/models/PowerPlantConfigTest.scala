@@ -29,9 +29,9 @@ import com.inland24.plantsim.models.PowerPlantType.{
 }
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class PowerPlantConfigTest extends FlatSpec {
+class PowerPlantConfigTest extends AnyFlatSpec {
 
   behavior of "PowerPlantConfig"
 

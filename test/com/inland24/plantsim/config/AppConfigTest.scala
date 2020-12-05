@@ -17,9 +17,9 @@
 
 package com.inland24.plantsim.config
 
-import org.scalatest.FlatSpec
+import org.scalatest.flatspec.AnyFlatSpec
 
-class AppConfigTest extends FlatSpec {
+class AppConfigTest extends AnyFlatSpec {
 
   private def clearSystemProperty() = {
     System.clearProperty("config.file")
@@ -31,7 +31,7 @@ class AppConfigTest extends FlatSpec {
     System.setProperty(key, value)
   }
 
-  val environments = Seq("default", "dev", "test")
+  val environments: Seq[String] = Seq("default", "dev", "test")
 
   environments foreach { env =>
     "AppConfig # load" should s"load the configuration for $env environment" in {

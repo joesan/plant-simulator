@@ -18,7 +18,7 @@
 package com.inland24.plantsim.core
 
 import monix.execution.FutureUtils.extensions._
-import akka.actor.ActorSystem
+import akka.actor.{ActorRef, ActorSystem}
 import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.config.AppConfig
 import com.inland24.plantsim.core.SupervisorActor.SupervisorEvents
@@ -39,17 +39,20 @@ import com.inland24.plantsim.models.PowerPlantType.{
 }
 import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantType}
 import com.inland24.plantsim.services.database.DBServiceActor.PowerPlantEventsSeq
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import monix.execution.Scheduler
+import org.scalatest.featurespec.AnyFeatureSpecLike
+import org.scalatest.matchers.should
+import org.scalatest.BeforeAndAfterAll
 
-import scala.concurrent.Await
+import scala.concurrent.{Await, Future}
 import scala.concurrent.duration._
 import scala.util.{Failure, Success, Try}
 
 class SupervisorActorTest
     extends TestKit(ActorSystem("SupervisorActorTest"))
     with ImplicitSender
-    with WordSpecLike
-    with Matchers
+    with AnyFeatureSpecLike
+    with should.Matchers
     with BeforeAndAfterAll {
 
   override def afterAll {
@@ -57,11 +60,11 @@ class SupervisorActorTest
   }
 
   // Use a default AppConfig
-  val appCfg = AppConfig.load()
-  implicit val ec = monix.execution.Scheduler.Implicits.global
+  val appCfg: AppConfig = AppConfig.load()
+  implicit val ec: Scheduler = monix.execution.Scheduler.Implicits.global
 
   // Let us create our SupervisorActor instance
-  val supervisorActor = system.actorOf(
+  val supervisorActor: ActorRef = system.actorOf(
     SupervisorActor.props(appCfg, PowerPlantEventObservable(ec))
   )
 
@@ -96,12 +99,12 @@ class SupervisorActorTest
         )
     }
 
-  def powerPlantCreateEvent(powerPlantId: Int,
-                            powerPlantCfg: PowerPlantConfig) = {
+  def powerPlantCreateEvent(powerPlantId: Int, powerPlantCfg: PowerPlantConfig)
+    : PowerPlantCreateEvent[PowerPlantConfig] = {
     PowerPlantCreateEvent[PowerPlantConfig](powerPlantId, powerPlantCfg)
   }
 
-  def childActorRef(powerPlantId: Int) = {
+  def childActorRef(powerPlantId: Int): Future[Try[ActorRef]] = {
     system
       .actorSelection(
         s"akka://SupervisorActorTest/user/*/${appCfg.appName}-$powerPlantId"
@@ -110,7 +113,7 @@ class SupervisorActorTest
       .materialize
   }
 
-  "SupervisorActor" must {
+  Feature("SupervisorActor") {
 
     // Let us create 3 events, one PowerPlantCreateEvent, a PowerPlantUpdateEvent and  a PowerPlantDeleteEvent
     val onOffTypePowerPlantEventsSeq = Seq(
@@ -138,7 +141,8 @@ class SupervisorActorTest
         powerPlantCfg(6, RampUpType).asInstanceOf[RampUpTypeConfig])
     )
 
-    "Create a new PowerPlant Actor when a PowerPlantCreate event is received" in {
+    Scenario(
+      "Create a new PowerPlant Actor when a PowerPlantCreate event is received") {
       val createEventsSeq = Seq(
         onOffTypePowerPlantEventsSeq.head,
         rampUpTypePowerPlantEventsSeq.head
@@ -165,7 +169,8 @@ class SupervisorActorTest
       }
     }
 
-    "Stop and Re-start a running PowerPlant Actor when a PowerPlantUpdate event is received" in {
+    Scenario(
+      "Stop and Re-start a running PowerPlant Actor when a PowerPlantUpdate event is received") {
       // First let us create the Actor instances
       val createEventsSeq = Seq(
         PowerPlantCreateEvent[OnOffTypeConfig](
@@ -208,7 +213,8 @@ class SupervisorActorTest
       }
     }
 
-    "Stop a running PowerPlant Actor when a PowerPlantDelete event is received" in {
+    Scenario(
+      "Stop a running PowerPlant Actor when a PowerPlantDelete event is received") {
       // First let us start the actors, so that we can stop them later
       val createEventsSeq = Seq(
         PowerPlantCreateEvent[OnOffTypeConfig](
@@ -254,7 +260,7 @@ class SupervisorActorTest
       }
     }
 
-    "Do nothing when an event of type UnknownConfig is encountered" in {
+    Scenario("Do nothing when an event of type UnknownConfig is encountered") {
       val createEventsSeq = Seq(
         PowerPlantCreateEvent[UnknownConfig](
           100,
@@ -275,7 +281,8 @@ class SupervisorActorTest
       }
     }
 
-    "Start an Actor if a PowerPlantUpdate event is received, but there was no Actor already running" in {
+    Scenario(
+      "Start an Actor if a PowerPlantUpdate event is received, but there was no Actor already running") {
       val updateEventsSeq = Seq(
         PowerPlantUpdateEvent[OnOffTypeConfig](
           101,

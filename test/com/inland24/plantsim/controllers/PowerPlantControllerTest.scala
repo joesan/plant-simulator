@@ -22,14 +22,11 @@ import akka.stream.ActorMaterializer
 import akka.testkit.TestKit
 import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.services.database.DBServiceSpec
-import org.scalatest.{
-  BeforeAndAfterAll,
-  MustMatchers,
-  OptionValues,
-  WordSpecLike
-}
+import org.scalatest.{BeforeAndAfterAll, OptionValues}
 import monix.execution.FutureUtils.extensions._
 import monix.execution.Scheduler.Implicits.global
+import org.scalatest.featurespec.AnyFeatureSpecLike
+import org.scalatest.matchers.should
 
 import scala.concurrent.Future
 import org.scalatestplus.play._
@@ -42,15 +39,15 @@ import scala.util.{Failure, Success}
 
 class PowerPlantControllerTest
     extends TestKit(ActorSystem("PowerPlantControllerTest"))
-    with MustMatchers
+    with should.Matchers
+    with AnyFeatureSpecLike
     with OptionValues
     with WsScalaTestClient
-    with WordSpecLike
     with Results
     with BeforeAndAfterAll
     with DBServiceSpec {
 
-  val bindings = AppBindings.apply(system, ActorMaterializer())
+  val bindings: AppBindings = AppBindings.apply(system, ActorMaterializer())
   private val controllerComponents = stubControllerComponents()
   val controller = new PowerPlantController(bindings, controllerComponents)
 
@@ -68,14 +65,14 @@ class PowerPlantControllerTest
   }
 
   // ApplicationConfigController test
-  "ApplicationConfigController ## appConfig" should {
-    "give the appropriate config back when asked" in {
+  Feature("ApplicationConfigController") {
+    Scenario("give the appropriate config back when asked") {
       // We are using the application.test.conf (Look in the DBServiceSpec.scala)
       val result: Future[Result] =
         new ApplicationController(bindings.appConfig, controllerComponents).appConfig
           .apply(FakeRequest())
       val bodyText = contentAsJson(result)
-      bodyText mustBe Json.parse(
+      bodyText shouldBe Json.parse(
         """
           |{
           |  "environment" : "test",
@@ -87,11 +84,11 @@ class PowerPlantControllerTest
           |    "databasePass" : "***********"
           |  }
           |}
-        """.stripMargin
+      """.stripMargin
       )
     }
 
-    "fetch the JVM metrics" in {
+    Scenario("fetch the JVM metrics") {
       val result: Future[Result] =
         new ApplicationController(bindings.appConfig, controllerComponents).metrics
           .apply(FakeRequest())
@@ -102,11 +99,11 @@ class PowerPlantControllerTest
   }
 
   // PowerPlantDetails test
-  "PowerPlantController ## powerPlantDetails" should {
-    "fetch the details of a PowerPlant" in {
+  Feature("PowerPlantController ## powerPlantDetails") {
+    Scenario("fetch the details of a PowerPlant") {
       val result: Future[Result] =
         controller.powerPlantDetails(101).apply(FakeRequest())
-      contentAsJson(result) mustBe
+      contentAsJson(result) shouldBe
         Json.parse("""
           |{
           |  "powerPlantId" : 101,
@@ -120,16 +117,16 @@ class PowerPlantControllerTest
         """.stripMargin)
     }
 
-    "return a HTTP 404 for a non existing PowerPlant" in {
+    Scenario("return a HTTP 404 for a non existing PowerPlant") {
       val result: Future[Result] =
         controller.powerPlantDetails(1).apply(FakeRequest())
       val bodyText: String = contentAsString(result)
-      bodyText mustBe "HTTP 404 :: PowerPlant with ID 1 not found"
+      bodyText shouldBe "HTTP 404 :: PowerPlant with ID 1 not found"
     }
   }
 
   // Search PowerPlants test
-  "PowerPlantController ## searchPowerPlants" should {
+  Feature("PowerPlantController ## searchPowerPlants") {
     val allActivePowerPlants =
       """
         |[{
@@ -175,7 +172,7 @@ class PowerPlantControllerTest
         |}]
       """.stripMargin
 
-    "search all activePowerPlants" in {
+    Scenario("search all activePowerPlants") {
       val result1: Future[Result] =
         controller
           .powerPlants(onlyActive = true, page = 1)
@@ -186,34 +183,34 @@ class PowerPlantControllerTest
           .searchPowerPlants(onlyActive = Some(true), page = 1)
           .apply(FakeRequest())
 
-      contentAsJson(result2) mustBe Json.parse(allActivePowerPlants)
-      contentAsJson(result1) mustBe Json.parse(allActivePowerPlants)
+      contentAsJson(result2) shouldBe Json.parse(allActivePowerPlants)
+      contentAsJson(result1) shouldBe Json.parse(allActivePowerPlants)
     }
 
-    "search PowerPlants only non active ones" in {
+    Scenario("search PowerPlants only non active ones") {
       val result1: Future[Result] =
         controller
           .powerPlants(onlyActive = false, page = 1)
           .apply(FakeRequest())
-      contentAsString(result1) mustBe "[ ]"
+      contentAsString(result1) shouldBe "[ ]"
 
       val result2: Future[Result] =
         controller
           .searchPowerPlants(onlyActive = Some(false), page = 1)
           .apply(FakeRequest())
 
-      contentAsString(result2) mustBe "[ ]" // All the 5 PowerPlant's in the database are active
-      contentAsString(result1) mustBe "[ ]" // All the 5 PowerPlant's in the database are active
+      contentAsString(result2) shouldBe "[ ]" // All the 5 PowerPlant's in the database are active
+      contentAsString(result1) shouldBe "[ ]" // All the 5 PowerPlant's in the database are active
     }
 
-    "search all RampUpType active PowerPlant's" in {
+    Scenario("search all RampUpType active PowerPlant's") {
       val result: Future[Result] =
         controller
           .searchPowerPlants(onlyActive = Some(true),
                              page = 1,
                              powerPlantType = Some("RampUpType"))
           .apply(FakeRequest())
-      contentAsJson(result) mustBe Json.parse(
+      contentAsJson(result) shouldBe Json.parse(
         """
           |[{
           |   "powerPlantId":101,
@@ -246,14 +243,14 @@ class PowerPlantControllerTest
       )
     }
 
-    "search all OnOffType active PowerPlant's" in {
+    Scenario("search all OnOffType active PowerPlant's") {
       val result: Future[Result] =
         controller
           .searchPowerPlants(onlyActive = Some(true),
                              page = 1,
                              powerPlantType = Some("OnOffType"))
           .apply(FakeRequest())
-      contentAsJson(result) mustBe Json.parse(
+      contentAsJson(result) shouldBe Json.parse(
         """
           |[
           |   {
@@ -284,30 +281,30 @@ class PowerPlantControllerTest
       )
     }
 
-    "search all UnknownType active PowerPlant's" in {
+    Scenario("search all UnknownType active PowerPlant's") {
       val result: Future[Result] =
         controller
           .searchPowerPlants(onlyActive = Some(true),
                              page = 1,
                              powerPlantType = Some("SomeUnknownType"))
           .apply(FakeRequest())
-      contentAsJson(result) mustBe Json.parse(allActivePowerPlants)
+      contentAsJson(result) shouldBe Json.parse(allActivePowerPlants)
     }
 
-    "search all active PowerPlant's with powerPlantName joesan" in {
+    Scenario("search all active PowerPlant's with powerPlantName joesan") {
       val result: Future[Result] =
         controller
           .searchPowerPlants(onlyActive = Some(true),
                              page = 1,
                              powerPlantName = Some("joesan"))
           .apply(FakeRequest())
-      contentAsJson(result) mustBe Json.parse(allActivePowerPlants)
+      contentAsJson(result) shouldBe Json.parse(allActivePowerPlants)
     }
   }
 
   // Create PowerPlant test
-  "PowerPlantController ## createPowerPlant" should {
-    "create a new PowerPlant successfully" in {
+  Feature("PowerPlantController ## createPowerPlant") {
+    Scenario("create a new PowerPlant successfully") {
       // When creating a new PowerPlant, we expect the id to be set to 0
       val create =
         """
@@ -340,10 +337,11 @@ class PowerPlantControllerTest
           .apply(
             FakeRequest().withBody(Json.parse(create))
           )
-      contentAsJson(result) mustBe Json.parse(expected)
+      contentAsJson(result) shouldBe Json.parse(expected)
     }
 
-    "not create a new PowerPlant when the PowerPlant Id is not set to 0" in {
+    Scenario(
+      "not create a new PowerPlant when the PowerPlant Id is not set to 0") {
       // When creating a new PowerPlant, we expect the id to be set to 0
       val create =
         """
@@ -366,10 +364,10 @@ class PowerPlantControllerTest
           .apply(
             FakeRequest().withBody(Json.parse(create))
           )
-      contentAsJson(result) mustBe Json.parse(expected)
+      contentAsJson(result) shouldBe Json.parse(expected)
     }
 
-    "not create a new PowerPlant for an Unknown PowerPlantType Config" in {
+    Scenario("not create a new PowerPlant for an Unknown PowerPlantType Config") {
       // When creating a new PowerPlant, we expect the id to be set to 0
       val create =
         """
@@ -392,13 +390,13 @@ class PowerPlantControllerTest
           .apply(
             FakeRequest().withBody(Json.parse(create))
           )
-      contentAsJson(result) mustBe Json.parse(expected)
+      contentAsJson(result) shouldBe Json.parse(expected)
     }
   }
 
   // Update PowerPlant test
-  "PowerPlantController ## updatePowerPlant" should {
-    "update an active PowerPlant successfully" in {
+  Feature("PowerPlantController ## updatePowerPlant") {
+    Scenario("update an active PowerPlant successfully") {
       // We are updating the PowerPlant with id = 101, We just change its name
       val jsBody =
         """
@@ -418,10 +416,10 @@ class PowerPlantControllerTest
           .apply(
             FakeRequest().withBody(Json.parse(jsBody))
           )
-      contentAsJson(result) mustBe Json.parse(jsBody)
+      contentAsJson(result) shouldBe Json.parse(jsBody)
     }
 
-    "not update for an invalid PowerPlantConfig JSON" in {
+    Scenario("not update for an invalid PowerPlantConfig JSON") {
       // We are updating the PowerPlant with id = invalidId, Notice that the powerPlantId is invalid
       val jsBody =
         """
@@ -451,7 +449,7 @@ class PowerPlantControllerTest
       }
     }
 
-    "not update for a PowerPlant that does not exist in the database" in {
+    Scenario("not update for a PowerPlant that does not exist in the database") {
       // We are updating the PowerPlant with id = 23001, which does not exist
       val jsBody =
         """

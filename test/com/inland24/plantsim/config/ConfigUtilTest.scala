@@ -17,9 +17,10 @@
 
 package com.inland24.plantsim.config
 
-import org.scalatest.{BeforeAndAfterAll, FlatSpec}
+import org.scalatest.flatspec.AnyFlatSpec
+import org.scalatest.BeforeAndAfterAll
 
-class ConfigUtilTest extends FlatSpec with BeforeAndAfterAll {
+class ConfigUtilTest extends AnyFlatSpec with BeforeAndAfterAll {
 
   private def clearAll() = {
     System.clearProperty("config.file")
@@ -27,9 +28,9 @@ class ConfigUtilTest extends FlatSpec with BeforeAndAfterAll {
     System.clearProperty("ENV")
   }
 
-  override def beforeAll() = clearAll()
+  override def beforeAll(): Unit = clearAll()
 
-  override def afterAll() = clearAll()
+  override def afterAll(): Unit = clearAll()
 
   "loadFromEnv" should "load the default config when nothing is specified from the environment" in {
     val config = ConfigUtil.loadFromEnv()

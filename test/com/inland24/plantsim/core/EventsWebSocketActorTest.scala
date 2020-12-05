@@ -19,10 +19,7 @@ package com.inland24.plantsim.core
 
 import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 import akka.testkit.{ImplicitSender, TestKit}
-import com.inland24.plantsim.models.PowerPlantActorMessage.{
-  OutOfServiceMessage,
-  ReturnToServiceMessage
-}
+import com.inland24.plantsim.models.PowerPlantActorMessage.{OutOfServiceMessage, ReturnToServiceMessage}
 import com.inland24.plantsim.models.PowerPlantConfig.OnOffTypeConfig
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.DBServiceSpec
@@ -30,15 +27,16 @@ import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor
 import com.inland24.plantsim.services.simulator.onOffType.OnOffTypeActor.Config
 import com.inland24.plantsim.streams.EventsStream
 import monix.execution.Scheduler
-import org.scalatest.{BeforeAndAfterAll, Matchers, WordSpecLike}
+import org.scalatest.matchers.must.Matchers
+import org.scalatest.BeforeAndAfterAll
 import play.api.libs.json.{JsValue, Json}
 
 import scala.collection.mutable.ListBuffer
 
+
 class EventsWebSocketActorTest
     extends TestKit(ActorSystem("EventsWebSocketActorTest"))
     with ImplicitSender
-    with WordSpecLike
     with Matchers
     with BeforeAndAfterAll
     with DBServiceSpec {
