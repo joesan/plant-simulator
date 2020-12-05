@@ -5,7 +5,7 @@ version := "1.0-SNAPSHOT"
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, DockerPlugin)
 
-scalaVersion := "2.12.4"
+scalaVersion := "2.13.3"
 
 scalacOptions ++= Seq(
   // Warnings propogates as errors
@@ -114,7 +114,6 @@ libraryDependencies ++= Seq(
   // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % "2.6.10" % Test,
   "org.scalatest" %% "scalatest" % "3.2.3" % Test,
-
   "org.awaitility" % "awaitility" % "4.0.3" % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test exclude ("org.slf4j", "slf4j-simple"),
   "com.github.andyglow" %% "websocket-scala-client" % "0.3.0" % Test exclude ("org.slf4j", "slf4j-simple")
