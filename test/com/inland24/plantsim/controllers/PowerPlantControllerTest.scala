@@ -18,7 +18,6 @@
 package com.inland24.plantsim.controllers
 
 import akka.actor.ActorSystem
-import akka.stream.ActorMaterializer
 import akka.testkit.TestKit
 import com.inland24.plantsim.core.AppBindings
 import com.inland24.plantsim.services.database.DBServiceSpec

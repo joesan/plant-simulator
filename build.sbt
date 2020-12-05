@@ -87,11 +87,12 @@ resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositori
 
 //doc in Compile <<= target.map(_ / "none")
 
+val AkkaVersion = "2.6.10"
+
 libraryDependencies ++= Seq(
   ws,
   // Our streaming library
   "io.monix" %% "monix" % "3.3.0",
-  //"io.monix" %% "monix-cats" % "2.3.3",
   // Dependencies needed for Slick
   "com.typesafe.slick" %% "slick" % "3.3.3",
   "com.typesafe.slick" %% "slick-hikaricp" % "3.3.3",
@@ -111,8 +112,9 @@ libraryDependencies ++= Seq(
   //"io.swagger" %% "swagger-play2" % "1.6.0",
   //"org.webjars" %% "webjars-play" % "2.6.0-M1",
   //"org.webjars" % "swagger-ui" % "2.2.0",
+
   // Test dependencies
-  "com.typesafe.akka" %% "akka-testkit" % "2.6.10" % Test,
+  "com.typesafe.akka" %% "akka-testkit" % AkkaVersion % Test,
   "org.scalatest" %% "scalatest" % "3.2.3" % Test,
   "org.awaitility" % "awaitility" % "4.0.3" % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test exclude ("org.slf4j", "slf4j-simple"),
