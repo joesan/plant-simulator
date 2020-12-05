@@ -36,7 +36,7 @@ import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor.Confi
 import com.inland24.plantsim.streams.EventsStream.DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
 import monix.execution.Ack
 import monix.execution.Ack.Continue
-import monix.execution.cancelables.SingleAssignmentCancelable
+import monix.execution.cancelables.SingleAssignCancelable
 import monix.reactive.Observable
 import org.joda.time.{DateTime, DateTimeZone}
 
@@ -190,7 +190,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     *    is not operational anymore.
     */
   def rampUp(state: StateMachine,
-             subscription: SingleAssignmentCancelable): Receive = {
+             subscription: SingleAssignCancelable): Receive = {
     case TelemetrySignalsMessage =>
       // The Power values are randomized here for simulating reality
       sender ! StateMachine.randomPower(
@@ -283,7 +283,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
     *    is not operational anymore.
     */
   def rampDown(state: StateMachine,
-               subscription: SingleAssignmentCancelable): Receive = {
+               subscription: SingleAssignCancelable): Receive = {
     case TelemetrySignalsMessage =>
       // The Power values are randomized here for simulating reality
       sender ! StateMachine.randomPower(
@@ -331,7 +331,7 @@ object RampUpTypeActor {
   )
 
   private def cancelRampCheckSubscription(
-      subscription: SingleAssignmentCancelable): Unit = {
+      subscription: SingleAssignCancelable): Unit = {
     subscription.cancel()
   }
 
@@ -343,7 +343,7 @@ object RampUpTypeActor {
       actorRef ! RampCheckMessage
       Continue
     }
-    val subscription = SingleAssignmentCancelable()
+    val subscription = SingleAssignCancelable()
     subscription := source.subscribe(onNext _)
     subscription
   }

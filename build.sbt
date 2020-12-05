@@ -5,7 +5,7 @@ version := "1.0-SNAPSHOT"
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, DockerPlugin)
 
-scalaVersion := "2.13.3"
+scalaVersion := "2.12.3"
 
 scalacOptions ++= Seq(
   // Warnings propogates as errors
@@ -85,13 +85,13 @@ scalafmtTestOnCompile in Compile := true // current project, specific configurat
 
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/public/"
 
-doc in Compile <<= target.map(_ / "none")
+//doc in Compile <<= target.map(_ / "none")
 
 libraryDependencies ++= Seq(
   ws,
   // Our streaming library
   "io.monix" %% "monix" % "3.3.0",
-  "io.monix" %% "monix-cats" % "2.3.3",
+  //"io.monix" %% "monix-cats" % "2.3.3",
   // Dependencies needed for Slick
   "com.typesafe.slick" %% "slick" % "3.3.3",
   "com.typesafe.slick" %% "slick-hikaricp" % "3.3.3",

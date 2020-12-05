@@ -30,13 +30,13 @@ import com.inland24.plantsim.models.{PowerPlantConfig, PowerPlantDBEvent}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import com.inland24.plantsim.streams.DBObservable
+import monix.execution.cancelables.SingleAssignCancelable
 // ******* Note: Both these imports should be here! Do not remove them!
-import monix.cats._
+import cats._
 import monix.eval.Task
 // *******
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
-import monix.execution.cancelables.SingleAssignmentCancelable
 import monix.reactive.observers.Subscriber
 import org.joda.time.{DateTime, DateTimeZone}
 
@@ -64,7 +64,7 @@ class DBServiceActor private (dbConfig: DBConfig, supervisorActor: ActorRef)(
   )
 
   // This will be our subscription to fetch from the database
-  val dbSubscription = SingleAssignmentCancelable()
+  val dbSubscription: SingleAssignCancelable = SingleAssignCancelable()
 
   override def preStart(): Unit = {
     super.preStart()
@@ -79,7 +79,7 @@ class DBServiceActor private (dbConfig: DBConfig, supervisorActor: ActorRef)(
     if (dbConfig.enableSubscription) {
       val obs = DBObservable(
         dbConfig.refreshInterval,
-        powerPlantService.fetchAllPowerPlants(onlyActive = true).runAsync
+        powerPlantService.fetchAllPowerPlants(onlyActive = true).runToFuture
       )
 
       log.info("Activating DB lookup subscription")

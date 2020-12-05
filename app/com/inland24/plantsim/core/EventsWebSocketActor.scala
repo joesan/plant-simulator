@@ -22,7 +22,7 @@ import akka.util.Timeout
 import com.inland24.plantsim.models.PowerPlantActorMessage.TelemetrySignalsMessage
 import org.joda.time.{DateTime, DateTimeZone}
 import monix.execution.Ack.Continue
-import monix.execution.cancelables.SingleAssignmentCancelable
+import monix.execution.cancelables.SingleAssignCancelable
 import monix.execution.{Ack, Scheduler}
 import monix.reactive.Observable
 import monix.reactive.observers.Subscriber
@@ -35,7 +35,7 @@ class EventsWebSocketActor(source: Observable[JsValue], sink: ActorRef)
     extends Actor
     with ActorLogging {
 
-  private[this] val subscription = SingleAssignmentCancelable()
+  private[this] val subscription = SingleAssignCancelable()
 
   override def postStop(): Unit = {
     subscription.cancel()
@@ -147,6 +147,6 @@ object EventsWebSocketActor {
       .map(signalsMap => Json.toJson(telemetrySignals(signalsMap)))
   }
 
-  def props(source: Observable[JsValue], sink: ActorRef) =
+  def props(source: Observable[JsValue], sink: ActorRef): Props =
     Props(new EventsWebSocketActor(source, sink))
 }

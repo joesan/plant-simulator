@@ -19,13 +19,13 @@ package com.inland24.plantsim.streams
 
 import monix.execution.Cancelable
 import monix.reactive.Observable
+import cats.{Eq, implicits}
 import monix.reactive.observers.Subscriber
 import monix.execution.FutureUtils.extensions._
 
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 import scala.util.{Failure, Success}
-
 import play.api.Logger
 
 /**
@@ -42,13 +42,16 @@ final class DBObservable[T] private (period: FiniteDuration,
   def unsafeSubscribeFn(subscriber: Subscriber[Seq[T]]): Cancelable = {
     implicit val s = subscriber.scheduler
 
+    implicit val eqForAddress: Eq[Seq[T]] =
+      Eq.fromUniversalEquals
+
     def request() = {
-      Logger.info("Looking up the database for new updates")
+      Logger(this.getClass).info("Looking up the database for new updates")
       val safe = f.materialize.map { // materialize is cool!
         case Success(r) =>
           Some(r)
         case Failure(ex) =>
-          Logger.error("Error while querying the database", ex)
+          Logger(this.getClass).error("Error while querying the database", ex)
           None
       }
 

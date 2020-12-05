@@ -35,7 +35,7 @@ class LoggingFilter(implicit val mat: Materializer, ec: ExecutionContext)
       val endTime = System.currentTimeMillis
       val requestTime = endTime - startTime
 
-      Logger.info(
+      Logger(this.getClass).info(
         s"${requestHeader.method} ${requestHeader.uri} took ${requestTime}ms HTTP status >> ${result.header.status}")
 
       result.withHeaders("Request-Time" -> requestTime.toString)

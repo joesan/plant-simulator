@@ -43,7 +43,7 @@ class PowerPlantController(bindings: AppBindings,
   private val dbService = bindings.dbService
 
   def powerPlantDetails(id: Int): Action[AnyContent] = Action.async {
-    dbService.powerPlantById(id).runAsync.flatMap {
+    dbService.powerPlantById(id).runToFuture.flatMap {
       case None =>
         Future.successful(
           NotFound(s"HTTP 404 :: PowerPlant with ID $id not found").enableCors
@@ -72,7 +72,7 @@ class PowerPlantController(bindings: AppBindings,
             if (powerPlantCfg.id == 0) {
               dbService
                 .createNewPowerPlant(powerPlantCfg)
-                .runAsync
+                .runToFuture
                 .materialize
                 .map {
                   case Failure(ex) =>
@@ -111,7 +111,7 @@ class PowerPlantController(bindings: AppBindings,
           success => {
             dbService
               .updatePowerPlant(success)
-              .runAsync
+              .runToFuture
               .materialize
               .map {
                 case Failure(ex) =>
@@ -134,7 +134,7 @@ class PowerPlantController(bindings: AppBindings,
     Action.async {
       val filter =
         PowerPlantFilter(onlyActive = Some(onlyActive), pageNumber = page)
-      dbService.searchPowerPlants(filter).runAsync.materialize.map {
+      dbService.searchPowerPlants(filter).runToFuture.materialize.map {
         case Success(powerPlantsSeqRow) =>
           val collected = powerPlantsSeqRow.collect {
             case powerPlantRow if powerPlantRow.powerPlantType != UnknownType =>
@@ -169,7 +169,7 @@ class PowerPlantController(bindings: AppBindings,
         pageNumber = page
       )
 
-      dbService.searchPowerPlants(filter).runAsync.materialize.map {
+      dbService.searchPowerPlants(filter).runToFuture.materialize.map {
         case Success(powerPlantsSeqRow) =>
           val collected = powerPlantsSeqRow.collect {
             case powerPlantRow if powerPlantRow.powerPlantType != UnknownType =>

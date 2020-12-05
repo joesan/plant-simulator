@@ -24,7 +24,7 @@ import com.inland24.plantsim.services.database.PowerPlantService
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
 import monix.execution.Scheduler
 // ******* Note: Both these imports should be here! Do not remove them!
-import monix.cats._
+import cats._
 import monix.eval.Task
 // *******
 
@@ -61,7 +61,8 @@ object AppBindings {
     // TODO: I use the default one! Check if this is Okay?
     implicit val scheduler: Scheduler =
       monix.execution.Scheduler.Implicits.global
-    val globalChannel = PowerPlantEventObservable(scheduler)
+    val globalChannel: PowerPlantEventObservable = PowerPlantEventObservable(
+      scheduler)
 
     override val supervisorActor: ActorRef =
       system.actorOf(

@@ -40,7 +40,7 @@ import com.inland24.plantsim.services.simulator.rampUpType.RampUpTypeActor
 import com.inland24.plantsim.streams.EventsStream
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
-import monix.execution.cancelables.SingleAssignmentCancelable
+import monix.execution.cancelables.SingleAssignCancelable
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -65,21 +65,22 @@ class SupervisorActor(
     with Stash {
 
   // We would use this to safely dispose any open connections
-  val cancelable = SingleAssignmentCancelable()
+  val cancelable: SingleAssignCancelable = SingleAssignCancelable()
 
   // This is how we name our actors
-  val simulatorActorNamePrefix = config.appName
+  val simulatorActorNamePrefix: String = config.appName
 
   // The default timeout for all Ask's the Actor makes
-  implicit val timeout = Timeout(5.seconds)
+  implicit val timeout: Timeout = Timeout(5.seconds)
 
   // The DBServiceActor instance that is responsible for tracking changes to the PowerPlant table
-  val dbServiceActor = context.actorOf(
+  val dbServiceActor: ActorRef = context.actorOf(
     DBServiceActor.props(config.dbConfig, self),
     "plant-simulator-dbService")
 
   // The EventsStream Actor to which all our PowerPlant's will send Events and Alerts
-  val eventsStream = context.actorOf(EventsStream.props(globalChannel))
+  val eventsStream: ActorRef =
+    context.actorOf(EventsStream.props(globalChannel))
 
   override val supervisorStrategy: OneForOneStrategy =
     OneForOneStrategy(maxNrOfRetries = 10, withinTimeRange = 5.seconds) {
@@ -251,6 +252,6 @@ object SupervisorActor {
   case class SupervisorEvents(events: PowerPlantEventsSeq)
 
   def props(cfg: AppConfig, globalChannel: PowerPlantEventObservable)(
-      implicit s: Scheduler) =
+      implicit s: Scheduler): Props =
     Props(new SupervisorActor(cfg, globalChannel)(s))
 }
