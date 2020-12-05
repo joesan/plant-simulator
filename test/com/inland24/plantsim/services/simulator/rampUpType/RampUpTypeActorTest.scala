@@ -121,7 +121,7 @@ class RampUpTypeActorTest
 
     // PowerPlant # RampUp tests
     Scenario("start to RampUp when a Dispatch command is sent") {
-      within(10.seconds) {
+      within(20.seconds) {
         rampUpTypeSimActor ! DispatchRampUpPowerPlant(
           powerPlantId = rampUpTypeCfg.id,
           command = "dispatch",
@@ -138,8 +138,8 @@ class RampUpTypeActorTest
       Thread.sleep(10000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
 
       rampUpTypeSimActor ! StateRequestMessage
-      Thread.sleep(10000)
-      expectMsgPF(10.seconds) {
+      Thread.sleep(15000)
+      expectMsgPF(40.seconds) {
         case state: StateMachine =>
           // check the signals
           assert(
@@ -397,7 +397,7 @@ class RampUpTypeActorTest
       Thread.sleep(10000) // We sleep for 10 seconds, give some time for our Actor to change context!!!
 
       // 3. The PowerPlant should have fully returned to normal, let's check that
-      within(4.seconds) {
+      within(20.seconds) {
         Thread.sleep(10000)
         rampUpTypeActor ! StateRequestMessage
         expectMsgPF() {
