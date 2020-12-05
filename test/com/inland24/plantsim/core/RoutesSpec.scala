@@ -67,8 +67,8 @@ class RoutesSpec
         OK)
     }
 
-    "send 200 for /plantsim/powerplant/metrics" in {
-      route(app, FakeRequest(GET, "/plantsim/powerplant/metrics"))
+    "send 200 for /plantsim/app/metrics" in {
+      route(app, FakeRequest(GET, "/plantsim/app/metrics"))
         .map(status) mustBe Some(OK)
     }
 

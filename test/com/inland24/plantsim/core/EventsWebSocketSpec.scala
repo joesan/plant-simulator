@@ -35,6 +35,8 @@ import org.awaitility.Awaitility.{await => awaitWithTimeOut}
 import play.api.http.Port
 import play.shaded.ahc.org.asynchttpclient.AsyncHttpClient
 
+import java.io.IOException
+
 class EventsWebSocketSpec
     extends PlaySpec
     with DBServiceSpec
@@ -86,7 +88,7 @@ class EventsWebSocketSpec
               webSocketClient.call(serverURL, origin, listener)
             val f = FutureConverters.toScala(completionStage)
             scala.concurrent.Await.result(f, atMost = 1000.millis)
-            listener.getThrowable mustBe a[IllegalStateException]
+            listener.getThrowable mustBe a[IOException]
           } catch {
             case e: IllegalStateException =>
               e mustBe an[IllegalStateException]

@@ -130,8 +130,15 @@ class RampUpTypeActorTest
         )
         expectNoMessage
       }
+
+      /*
+       * Very unfortunately, we got to bloddy wait for some time until our Actor changes context!
+       * This happens only for unit testing as there is no Akka Testkit support for this behavior
+       */
+      Thread.sleep(10000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
+
       rampUpTypeSimActor ! StateRequestMessage
-      expectMsgPF() {
+      expectMsgPF(10.seconds) {
         case state: StateMachine =>
           // check the signals
           assert(
@@ -375,7 +382,7 @@ class RampUpTypeActorTest
        * Very unfortunately, we got to bloddy wait for some time until our Actor changes context!
        * This happens only for unit testing as there is no Akka Testkit support for this behavior
        */
-      Thread.sleep(10000) // We sleep for 8 seconds, to give some time for our Actor to change context!!!
+      Thread.sleep(10000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
 
       within(2.seconds) {
         rampUpTypeActor ! ReturnToNormalCommand(rampUpTypeCfg.id)
@@ -383,10 +390,10 @@ class RampUpTypeActorTest
       }
 
       /*
-       * Very unfortunately, we got to bloddy wait for some time until our Actor changes context!
+       * Very unfortunately, we got to bloody wait for some time until our Actor changes context!
        * This happens only for unit testing as there is no Akka TestKit support for this behavior
        */
-      Thread.sleep(8000) // We sleep for 8 seconds, give some time for our Actor to change context!!!
+      Thread.sleep(10000) // We sleep for 10 seconds, give some time for our Actor to change context!!!
 
       // 3. The PowerPlant should have fully returned to normal, let's check that
       within(4.seconds) {
