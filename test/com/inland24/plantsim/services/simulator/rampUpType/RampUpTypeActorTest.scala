@@ -138,6 +138,7 @@ class RampUpTypeActorTest
       Thread.sleep(10000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
 
       rampUpTypeSimActor ! StateRequestMessage
+      Thread.sleep(10000)
       expectMsgPF(10.seconds) {
         case state: StateMachine =>
           // check the signals
