@@ -398,7 +398,7 @@ class RampUpTypeActorTest
       // 3. The PowerPlant should have fully returned to normal, let's check that
       within(20.seconds) {
         rampUpTypeActor ! StateRequestMessage
-        expectMsgPF(10.seconds) {
+        receiveWhile(10.seconds) {
           case state: StateMachine =>
             state.newState shouldBe Active
             state.oldState shouldBe RampDown
