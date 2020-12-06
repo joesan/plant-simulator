@@ -43,10 +43,11 @@ after_success:
   - rm deployment-version.txt    # Remove the file
   - touch deployment-version.txt # Add the file
   - echo 'plant-simulator.version=${TRAVIS_BUILD_VERSION}' >> deployment-version.txt
+  - cat deployment-version.txt
   # sed -i '1s/.*/plant-simulator.version=${TRAVIS_BUILD_VERSION}/' deployment-version.txt
   - git config user.email "travis@travis.org"
   - git config user.name ${USER} # this email and name can be set anything you like
-  - git add README.md
+  - git add .
   - git commit --allow-empty -m ${MESSAGE}
   - git push https://joesan:${GITHUB_API_KEY}@${GH_REPO} HEAD:master
 after_script:
