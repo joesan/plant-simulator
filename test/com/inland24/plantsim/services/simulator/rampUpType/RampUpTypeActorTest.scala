@@ -23,13 +23,18 @@ import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantState.{Active, Init, RampDown}
-import com.inland24.plantsim.models.{PowerPlantActorMessage, PowerPlantType, ReturnToNormalCommand}
+import com.inland24.plantsim.models.{
+  PowerPlantActorMessage,
+  PowerPlantType,
+  ReturnToNormalCommand
+}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
 import com.inland24.plantsim.services.simulator.rampUpType
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.featurespec.AnyFeatureSpecLike
 import org.scalatest.matchers.should.Matchers
 
+import scala.annotation.tailrec
 import scala.concurrent.duration._
 
 /**
@@ -137,12 +142,25 @@ class RampUpTypeActorTest
        */
       Thread.sleep(10000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
       rampUpTypeSimActor ! StateRequestMessage
-      receiveWhile(40.seconds) {
-        case state: StateMachine =>
+
+      @tailrec
+      def loop(countdown: Int = 10,
+               counter: Int = 0,
+               stm: StateMachine): Boolean = {
+        if (counter < countdown) {
+          if (stm.signals(StateMachine.activePowerSignalKey).toDouble != 800) {
+            Thread.sleep(4000)
+            loop(countdown - 1, counter + 1, stm)
+          } else true
+        } else true
+      }
+
+      expectMsgPF() {
+        case state: StateMachine
+            if loop(stm = state) => // Wait for a certain time
           // check the signals
-          // TODO: It should actually be 800.0 but the travis build fails because of threading issues
           assert(
-            state.signals(StateMachine.activePowerSignalKey).toDouble >= 700.0,
+            state.signals(StateMachine.activePowerSignalKey).toDouble == 800.0,
             "expecting activePower to be 800.0, but was not the case"
           )
           assert(
@@ -401,7 +419,7 @@ class RampUpTypeActorTest
         receiveWhile(30.seconds) {
           case state: StateMachine =>
             state.newState shouldBe Active
-            state.oldState should (be (Init) or be (RampDown))
+            state.oldState should (be(Init) or be(RampDown))
             state.setPoint shouldBe initPowerPlantState.cfg.maxPower
             // PowerPlant should be dispatched false as it comes back to active state
             state
