@@ -5,10 +5,12 @@ services:
   - docker
 env:
   global:
-  - APPLICATION_NAME=joesan/plant-simulator
+  - USER=joesan
+  - APPLICATION_NAME=${USER}/plant-simulator
   - DOCKER_REGISTRY_URL=hub.docker.com
-  - DOCKER_APP_URL=hub.docker.com/joesan/plant-simulator
+  - DOCKER_APP_URL=${DOCKER_REGISTRY_URL}/${USER}/plant-simulator
   - IMAGE_VERSION_DEV=1.0-SNAPSHOT
+  - PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME=plant-simulator-deployment
 before_cache:
 - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
 - find $HOME/.sbt        -name "*.lock"               -print -delete
@@ -35,6 +37,18 @@ jobs:
     if: branch = master  
 after_success:
   #- bash <(curl -s https://codecov.io/bash)
+  - MESSAGE=$(git log --format=%B -n 1 $TRAVIS_BUILD_VERSION)
+  - git clone git://${GH_REPO}
+  - cd ${PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME}
+  - rm deployment-version.txt    # Remove the file
+  - touch deployment-version.txt # Add the file
+  - echo 'plant-simulator.version=${TRAVIS_BUILD_VERSION}' >> deployment-version.txt
+  # sed -i '1s/.*/plant-simulator.version=${TRAVIS_BUILD_VERSION}/' deployment-version.txt
+  - git config user.email "travis@travis.org"
+  - git config user.name ${USER} # this email and name can be set anything you like
+  - git add README.md
+  - git commit --allow-empty -m ${MESSAGE}
+  - git push https://joesan:${GITHUB_API_KEY}@${GH_REPO} HEAD:master
 after_script:
   - echo $TRAVIS_BRANCH
 notifications:
