@@ -23,13 +23,10 @@ import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
 import com.inland24.plantsim.models.PowerPlantState.{Active, Init, RampDown}
-import com.inland24.plantsim.models.{
-  PowerPlantActorMessage,
-  PowerPlantType,
-  ReturnToNormalCommand
-}
+import com.inland24.plantsim.models.{PowerPlantActorMessage, PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
 import com.inland24.plantsim.services.simulator.rampUpType
+import org.junit.Ignore
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.featurespec.AnyFeatureSpecLike
 import org.scalatest.matchers.should.Matchers
@@ -365,7 +362,8 @@ class RampUpTypeActorTest
     }
 
     // PowerPlant # ReturnToNormal tests
-    Scenario(
+    // FIXME: We will enable this test later on!
+    ignore(
       "return the PowerPlant to Normal when ReturnToNormalCommand message is sent in dispatched state") {
       // To avoid confusion and the tests failing, we create a new actor instance for this test
       val rampUpTypeActor =
