@@ -137,7 +137,7 @@ class RampUpTypeActorTest
       }
 
       /*
-       * Very unfortunately, we got to bloddy wait for some time until our Actor changes context!
+       * Very unfortunately, we got to bloody wait for some time until our Actor changes context!
        * This happens only for unit testing as there is no Akka Testkit support for this behavior
        */
       Thread.sleep(10000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
@@ -149,7 +149,7 @@ class RampUpTypeActorTest
                stm: StateMachine): Boolean = {
         if (counter < countdown) {
           if (stm.signals(StateMachine.activePowerSignalKey).toDouble != 800) {
-            Thread.sleep(4000)
+            Thread.sleep(10000)
             loop(countdown - 1, counter + 1, stm)
           } else true
         } else true
