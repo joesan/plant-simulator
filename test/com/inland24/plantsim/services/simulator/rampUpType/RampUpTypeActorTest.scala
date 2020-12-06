@@ -140,24 +140,11 @@ class RampUpTypeActorTest
        * Very unfortunately, we got to bloody wait for some time until our Actor changes context!
        * This happens only for unit testing as there is no Akka Testkit support for this behavior
        */
-      Thread.sleep(10000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
+      Thread.sleep(20000) // We sleep for 10 seconds, to give some time for our Actor to change context!!!
       rampUpTypeSimActor ! StateRequestMessage
 
-      @tailrec
-      def loop(countdown: Int = 10,
-               counter: Int = 0,
-               stm: StateMachine): Boolean = {
-        if (counter < countdown) {
-          if (stm.signals(StateMachine.activePowerSignalKey).toDouble != 800) {
-            Thread.sleep(10000)
-            loop(countdown - 1, counter + 1, stm)
-          } else true
-        } else true
-      }
-
-      expectMsgPF() {
-        case state: StateMachine
-            if loop(stm = state) => // Wait for a certain time
+      receiveWhile(40.seconds) {
+        case state: StateMachine => // Wait for a certain time
           // check the signals
           assert(
             state.signals(StateMachine.activePowerSignalKey).toDouble == 800.0,
@@ -410,7 +397,7 @@ class RampUpTypeActorTest
        * Very unfortunately, we got to bloody wait for some time until our Actor changes context!
        * This happens only for unit testing as there is no Akka TestKit support for this behavior
        */
-      Thread.sleep(10000) // We sleep for 10 seconds, give some time for our Actor to change context!!!
+      Thread.sleep(20000) // We sleep for 10 seconds, give some time for our Actor to change context!!!
 
       // 3. The PowerPlant should have fully returned to normal, let's check that
       within(40.seconds) {
