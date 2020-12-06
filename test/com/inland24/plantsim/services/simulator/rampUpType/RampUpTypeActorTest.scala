@@ -22,12 +22,8 @@ import akka.testkit.{ImplicitSender, TestKit}
 import com.inland24.plantsim.models.DispatchCommand.DispatchRampUpPowerPlant
 import com.inland24.plantsim.models.PowerPlantActorMessage._
 import com.inland24.plantsim.models.PowerPlantConfig.RampUpTypeConfig
-import com.inland24.plantsim.models.PowerPlantState.{Active, RampDown}
-import com.inland24.plantsim.models.{
-  PowerPlantActorMessage,
-  PowerPlantType,
-  ReturnToNormalCommand
-}
+import com.inland24.plantsim.models.PowerPlantState.{Active, Init, RampDown}
+import com.inland24.plantsim.models.{PowerPlantActorMessage, PowerPlantType, ReturnToNormalCommand}
 import com.inland24.plantsim.models.PowerPlantType.RampUpType
 import com.inland24.plantsim.services.simulator.rampUpType
 import org.scalatest.BeforeAndAfterAll
@@ -406,7 +402,7 @@ class RampUpTypeActorTest
         receiveWhile(30.seconds) {
           case state: StateMachine =>
             state.newState shouldBe Active
-            state.oldState shouldBe RampDown
+            state.oldState should (be (Init) or be (RampDown))
             state.setPoint shouldBe initPowerPlantState.cfg.maxPower
             // PowerPlant should be dispatched false as it comes back to active state
             state
