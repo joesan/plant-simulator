@@ -85,26 +85,27 @@ scalafmtTestOnCompile in Compile := true // current project, specific configurat
 
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/public/"
 
-//doc in Compile <<= target.map(_ / "none")
-
 val AkkaVersion = "2.6.10"
+val SlickVersion = "3.3.3"
+val DropWizardMetricsVersion = "4.1.16"
+val PlayJsonVersion = "2.9.1"
 
 libraryDependencies ++= Seq(
   ws,
   // Our streaming library
   "io.monix" %% "monix" % "3.3.0",
   // Dependencies needed for Slick
-  "com.typesafe.slick" %% "slick" % "3.3.3",
-  "com.typesafe.slick" %% "slick-hikaricp" % "3.3.3",
+  "com.typesafe.slick" %% "slick" % SlickVersion,
+  "com.typesafe.slick" %% "slick-hikaricp" % SlickVersion,
   // For application Metrics
-  "io.dropwizard.metrics" % "metrics-core" % "4.1.16",
-  "io.dropwizard.metrics" % "metrics-jvm" % "4.1.16",
+  "io.dropwizard.metrics" % "metrics-core" % DropWizardMetricsVersion,
+  "io.dropwizard.metrics" % "metrics-jvm" % DropWizardMetricsVersion,
   "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.7",
   "com.typesafe" % "config" % "1.4.1",
   // For JSON parsing
-  "com.typesafe.play" %% "play-json" % "2.9.1",
-  "com.typesafe.play" %% "play-json-joda" % "2.9.1",
+  "com.typesafe.play" %% "play-json" % PlayJsonVersion,
+  "com.typesafe.play" %% "play-json-joda" % PlayJsonVersion,
   // JDBC driver for MySQL & H2
   "mysql" % "mysql-connector-java" % "8.0.22",
   "com.h2database" % "h2" % "1.4.186",
