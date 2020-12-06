@@ -65,7 +65,6 @@ class RampUpTypeActorTest
     power * StateMachine.toleranceFactorInPercentage / 100
 
   Feature("RampUpTypeActor") {
-
     val rampUpTypeSimActor =
       system.actorOf(RampUpTypeActor.props(rampUpTypeActorCfg))
 
@@ -139,7 +138,7 @@ class RampUpTypeActorTest
 
       rampUpTypeSimActor ! StateRequestMessage
       Thread.sleep(15000)
-      expectMsgPF(40.seconds) {
+      receiveWhile(40.seconds) {
         case state: StateMachine =>
           // check the signals
           assert(
@@ -398,9 +397,8 @@ class RampUpTypeActorTest
 
       // 3. The PowerPlant should have fully returned to normal, let's check that
       within(20.seconds) {
-        Thread.sleep(10000)
         rampUpTypeActor ! StateRequestMessage
-        expectMsgPF() {
+        expectMsgPF(10.seconds) {
           case state: StateMachine =>
             state.newState shouldBe Active
             state.oldState shouldBe RampDown
