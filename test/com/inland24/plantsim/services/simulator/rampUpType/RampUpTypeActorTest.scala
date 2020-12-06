@@ -398,31 +398,27 @@ class RampUpTypeActorTest
        * This happens only for unit testing as there is no Akka TestKit support for this behavior
        */
       Thread.sleep(20000) // We sleep for 10 seconds, give some time for our Actor to change context!!!
+      rampUpTypeActor ! StateRequestMessage
 
       // 3. The PowerPlant should have fully returned to normal, let's check that
-      within(40.seconds) {
-        Thread.sleep(10000)
-        rampUpTypeActor ! StateRequestMessage
-        receiveWhile(30.seconds) {
-          case state: StateMachine =>
-            state.newState shouldBe Active
-            state.oldState should (be(Init) or be(RampDown))
-            state.setPoint shouldBe initPowerPlantState.cfg.maxPower
-            // PowerPlant should be dispatched false as it comes back to active state
-            state
-              .signals(StateMachine.isDispatchedSignalKey)
-              .toBoolean shouldBe false
-            state
-              .signals(StateMachine.isAvailableSignalKey)
-              .toBoolean shouldBe true
-            state
-              .signals(StateMachine.activePowerSignalKey)
-              .toDouble shouldBe initPowerPlantState.cfg.minPower
-
-          case x: Any =>
-            fail(
-              s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
-        }
+      receiveWhile(30.seconds) {
+        case state: StateMachine =>
+          state.newState shouldBe Active
+          state.oldState should (be(Init) or be(RampDown))
+          state.setPoint shouldBe initPowerPlantState.cfg.maxPower
+          // PowerPlant should be dispatched false as it comes back to active state
+          state
+            .signals(StateMachine.isDispatchedSignalKey)
+            .toBoolean shouldBe false
+          state
+            .signals(StateMachine.isAvailableSignalKey)
+            .toBoolean shouldBe true
+          state
+            .signals(StateMachine.activePowerSignalKey)
+            .toDouble shouldBe initPowerPlantState.cfg.minPower
+        case x: Any =>
+          fail(
+            s"Expected a PowerPlantState as message response from the Actor, but the response was $x")
       }
     }
   }
