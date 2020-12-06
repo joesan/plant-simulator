@@ -397,8 +397,8 @@ class RampUpTypeActorTest
 
       // 3. The PowerPlant should have fully returned to normal, let's check that
       within(40.seconds) {
-        rampUpTypeActor ! StateRequestMessage
         Thread.sleep(10000)
+        rampUpTypeActor ! StateRequestMessage
         receiveWhile(30.seconds) {
           case state: StateMachine =>
             state.newState shouldBe Active
