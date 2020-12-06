@@ -36,6 +36,11 @@ import org.scalatest.matchers.should.Matchers
 
 import scala.concurrent.duration._
 
+/**
+  * Few points to note:
+  * 1. We use Thread.sleep(millis) to give our actors some time to evolve
+  * 2. We use receiveWhile(seconds) for some test cases while the expectMsgPf results in test failure
+  */
 class RampUpTypeActorTest
     extends TestKit(ActorSystem("RampUpTypeActorTest"))
     with ImplicitSender
@@ -360,7 +365,6 @@ class RampUpTypeActorTest
     }
 
     // PowerPlant # ReturnToNormal tests
-    // TODO: Re-work on this test to perfection! Currently it blocks thread! Try using receiveWhile from the TestKit
     Scenario(
       "return the PowerPlant to Normal when ReturnToNormalCommand message is sent in dispatched state") {
       // To avoid confusion and the tests failing, we create a new actor instance for this test
@@ -396,9 +400,10 @@ class RampUpTypeActorTest
       Thread.sleep(10000) // We sleep for 10 seconds, give some time for our Actor to change context!!!
 
       // 3. The PowerPlant should have fully returned to normal, let's check that
-      within(20.seconds) {
+      within(40.seconds) {
         rampUpTypeActor ! StateRequestMessage
-        receiveWhile(10.seconds) {
+        Thread.sleep(10000)
+        receiveWhile(30.seconds) {
           case state: StateMachine =>
             state.newState shouldBe Active
             state.oldState shouldBe RampDown
