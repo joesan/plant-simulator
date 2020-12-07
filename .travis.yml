@@ -38,7 +38,7 @@ jobs:
 after_success:
   #- bash <(curl -s https://codecov.io/bash)
   - MESSAGE=$(git log --format=%B -n 1 $TRAVIS_BUILD_VERSION)
-  - git clone git://${GH_REPO}
+  - git clone ${GH_REPO}
   - cd ${PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME}
   - rm deployment-version.txt    # Remove the file
   - touch deployment-version.txt # Add the file
