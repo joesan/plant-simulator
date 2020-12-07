@@ -49,7 +49,7 @@ after_success:
   - git config user.email "travis@travis.org"
   - git config user.name ${USER} # this email and name can be set anything you like
   - git add .
-  - git commit --allow-empty -m "'$MESSAGE'"
+  - git commit --allow-empty -m "'${MESSAGE}'"
   - git push https://${GITHUB_API_KEY}@${GH_REPO} HEAD:master
 after_script:
   - echo $TRAVIS_BRANCH

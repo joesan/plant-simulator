@@ -362,8 +362,8 @@ class RampUpTypeActorTest
     }
 
     // PowerPlant # ReturnToNormal tests
-    // FIXME: We will enable this test later on!
-    ignore(
+    // FIXME: We will enable this test later on! I disabled it here because this test fails when run in the CI server
+    ignore( // Scenario(
       "return the PowerPlant to Normal when ReturnToNormalCommand message is sent in dispatched state") {
       // To avoid confusion and the tests failing, we create a new actor instance for this test
       val rampUpTypeActor =
