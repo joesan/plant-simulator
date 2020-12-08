@@ -37,7 +37,6 @@ jobs:
     if: branch = master  
 after_success:
   #- bash <(curl -s https://codecov.io/bash)
-  - MESSAGE=$(git log --format=%B -n 1 $TRAVIS_BUILD_NUMBER)
   - git clone https://${GH_REPO}
   - cd ${PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME}
   - rm deployment-version.txt    # Remove the file
@@ -48,7 +47,7 @@ after_success:
   - git config user.name ${USER} # this email and name can be set anything you like
   - git add .
   # git commit --allow-empty -m "'${MESSAGE}'"
-  - git commit --allow-empty -m "New release version for deployment plant-simulator tagged with version $TRAVIS_BUILD_NUMBER"
+  - git commit --allow-empty -m "deployment plant-simulator tagged with version $TRAVIS_BUILD_NUMBER"
   - git push https://${GITHUB_API_KEY}@${GH_REPO} HEAD:master
 after_script:
   - echo $TRAVIS_BRANCH

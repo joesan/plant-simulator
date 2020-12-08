@@ -196,6 +196,24 @@ There are two options when it comes to deployment.
 
 2. You can deploy this yourself on your kubernetes cluster. Have a look [here!](https://github.com/joesan/plant-simulator-deployment)
 
+## Automated Deployment
+
+I added the possibility to do automated deployments using Travis CI after success. So here is what I did to get this happen:
+
+1. Create an Auth token from GitHub - Follow the instructions from [here](https://docs.github.com/en/free-pro-team@latest/github/authenticating-to-github/creating-a-personal-access-token)
+
+2. Set the credentials as environment variables in Travis CI. For example., in this case I had to set these 2 environment variables
+
+   ```
+   GH_REPO             github.com/joesan/plant-simulator-deployment.git // The project where we want to commit a version number
+   GH_API_KEY          ***********  // The GitHub Auth token
+   ```
+3. Have a look at .travis.yml in the after_success section on how to push a git commit with the version number
+
+4. Once Travis commits a version number to the plant-simulator-deployment project where the Kubernetes deployment files are 
+   located, the CI / CD pipeline for that project gets triggered. Head over to [plant-simulator-deployment](https://github.com/joesan/plant-simulator-deployment) 
+   project to find out more
+
 ## Tools Used
 
 * [SBT](http://www.scala-sbt.org/) - Scala Build Tool
