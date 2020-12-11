@@ -42,7 +42,6 @@ after_success:
   - rm deployment-version.txt    # Remove the file
   - touch deployment-version.txt # Add the file
   - echo plant-simulator.version=${TRAVIS_BUILD_NUMBER} >> deployment-version.txt
-  # sed -i '1s/.*/plant-simulator.version=${TRAVIS_BUILD_VERSION}/' deployment-version.txt
   - git config user.email "travis@travis.org"
   - git config user.name ${USER} # this email and name can be set anything you like
   - git add .
