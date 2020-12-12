@@ -28,8 +28,8 @@ ignore:
   -*.md
 jobs:
   include:
-  #- stage: test
-    #script: sbt clean coverage test coverageReport
+  - stage: test
+    script: sbt clean coverage test coverageReport
   - stage: docker_push
     script: 
       - sbt "set test in assembly := {}" assembly
