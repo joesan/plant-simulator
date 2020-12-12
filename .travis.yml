@@ -27,6 +27,7 @@ branches:
   only:
   - master
   - "/^develop-.*$/"
+  - "/^v.*$/"
 ignore:
   -*.md
 jobs:
