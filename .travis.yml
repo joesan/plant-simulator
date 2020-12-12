@@ -29,7 +29,7 @@ ignore:
 jobs:
   include:
   - stage: test
-    script: sbt clean coverage test coverageReport
+    #script: sbt clean coverage test coverageReport
   - stage: docker_push
     script: 
       - sbt "set test in assembly := {}" assembly
@@ -43,7 +43,8 @@ after_success:
   - touch deployment-version.txt # Add the file
   - echo plant-simulator.version=${TRAVIS_BUILD_NUMBER} >> deployment-version.txt
    # Install yq (https://github.com/mikefarah/yq) for inline yaml editing
-  - sudo snap install yq
+  - sudo wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O /usr/bin/yq
+  - sudo chmod +x /usr/bin/yq
   - yq write --inplace helm-k8s/values.yaml 'app.version' ${TRAVIS_BUILD_NUMBER}
   - git config user.email "travis@travis.org"
   - git config user.name ${USER} # this email and name can be set anything you like
