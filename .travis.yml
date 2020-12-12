@@ -38,8 +38,7 @@ jobs:
       - sbt "set test in assembly := {}" assembly
       - bash docker/docker_push.sh
     #if: branch = master
-    on: # We push an image only when we tag a release
-      tags: true
+    if: tag IS present
 after_success:
   - bash scripts/after_success_check.sh
   #- bash <(curl -s https://codecov.io/bash)
