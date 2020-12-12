@@ -13,12 +13,7 @@ env:
   - PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME=plant-simulator-deployment
 # Script to skip CI builds when non-essential files are commited (like README.md)
 before_install:
-  - |
-      if ! git diff --name-only $TRAVIS_COMMIT_RANGE | grep -qvE '(.md)|(.png)|(.pdf)|(.jpg)|(.jpeg)|(.html)|^(LICENSE)|^(docs)'
-      then
-        echo "Only doc files were updated, not running the CI."
-        exit
-      fi  
+  - sudo bash scripts/before_install_check.sh
 before_cache:
 - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
 - find $HOME/.sbt        -name "*.lock"               -print -delete
@@ -41,26 +36,27 @@ jobs:
   - stage: docker_push
     script: 
       - sbt "set test in assembly := {}" assembly
-      - sudo bash docker_push.sh 
+      - sudo bash docker/docker_push.sh
     #if: branch = master
       on: # We push an image only when we tag a release
         tags: true
 after_success:
+  - sudo bash scripts/after_success_check.sh
   #- bash <(curl -s https://codecov.io/bash)
-  - git clone https://${GH_REPO}
-  - cd ${PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME}
-  - rm deployment-version.txt    # Remove the file
-  - touch deployment-version.txt # Add the file
-  - echo plant-simulator.version=${TRAVIS_BUILD_NUMBER} >> deployment-version.txt
+  #- git clone https://${GH_REPO}
+  #- cd ${PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME}
+  #- rm deployment-version.txt    # Remove the file
+  #- touch deployment-version.txt # Add the file
+  #- echo plant-simulator.version=${TRAVIS_BUILD_NUMBER} >> deployment-version.txt
    # Install yq (https://github.com/mikefarah/yq) for inline yaml editing
-  - sudo wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O /usr/bin/yq
-  - sudo chmod +x /usr/bin/yq
-  - yq write --inplace helm-k8s/values.yaml 'app.version' ${TRAVIS_BUILD_NUMBER}
-  - git config user.email "travis@travis.org"
-  - git config user.name ${USER} # this email and name can be set anything you like
-  - git add .
-  - git commit --allow-empty -m "deployment plant-simulator tagged with version $TRAVIS_BUILD_NUMBER"
-  - git push https://${GITHUB_API_KEY}@${GH_REPO} HEAD:master
+  #- sudo wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O /usr/bin/yq
+  #- sudo chmod +x /usr/bin/yq
+  #- yq write --inplace helm-k8s/values.yaml 'app.version' ${TRAVIS_BUILD_NUMBER}
+  #- git config user.email "travis@travis.org"
+  #- git config user.name ${USER} # this email and name can be set anything you like
+  #- git add .
+  #- git commit --allow-empty -m "deployment plant-simulator tagged with version $TRAVIS_BUILD_NUMBER"
+  #- git push https://${GITHUB_API_KEY}@${GH_REPO} HEAD:master
 after_script:
   - echo $TRAVIS_BRANCH
 notifications:
