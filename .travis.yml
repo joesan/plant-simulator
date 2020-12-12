@@ -43,7 +43,7 @@ after_success:
   - touch deployment-version.txt # Add the file
   - echo plant-simulator.version=${TRAVIS_BUILD_NUMBER} >> deployment-version.txt
    # Install yq (https://github.com/mikefarah/yq) for inline yaml editing
-  - snap install yq
+  - sudo snap install yq
   - yq write --inplace helm-k8s/values.yaml 'app.version' ${TRAVIS_BUILD_NUMBER}
   - git config user.email "travis@travis.org"
   - git config user.name ${USER} # this email and name can be set anything you like
