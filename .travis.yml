@@ -28,7 +28,7 @@ ignore:
   -*.md
 jobs:
   include:
-  - stage: test
+  #- stage: test
     #script: sbt clean coverage test coverageReport
   - stage: docker_push
     script: 
