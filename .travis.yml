@@ -13,7 +13,7 @@ env:
   - PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME=plant-simulator-deployment
 # Script to skip CI builds when non-essential files are commited (like README.md)
 before_install:
-  #- sudo bash scripts/before_install_check.sh
+  - sudo bash scripts/before_install_check.sh
 before_cache:
 - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
 - find $HOME/.sbt        -name "*.lock"               -print -delete
