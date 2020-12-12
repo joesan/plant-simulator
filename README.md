@@ -196,7 +196,7 @@ There are two options when it comes to deployment.
 
 2. You can deploy this yourself on your kubernetes cluster. Have a look [here!](https://github.com/joesan/plant-simulator-deployment)
 
-## Automated Deployment
+## Automated Deployment / Continuous Integration
 
 I added the possibility to do automated deployments using Travis CI after success. So here is what I did to get this happen:
 
@@ -208,7 +208,7 @@ I added the possibility to do automated deployments using Travis CI after succes
    GH_REPO             github.com/joesan/plant-simulator-deployment.git // The project where we want to commit a version number
    GH_API_KEY          ***********  // The GitHub Auth token
    ```
-3. Have a look at .travis.yml in the after_success section on how to push a git commit with the version number
+3. Have a look at .travis.yml in the after_success section on how to push a git commit with the version number. We use [yq](https://github.com/mikefarah/yq) for      inline editing of YAML files. So upon successful build, we write the version for the latest build (TRAVIS_BUILD_NUMBER) into the plant-simulator-deployment        project
 
 4. Once Travis commits a version number to the plant-simulator-deployment project where the Kubernetes deployment files are 
    located, the CI / CD pipeline for that project gets triggered. Head over to [plant-simulator-deployment](https://github.com/joesan/plant-simulator-deployment) 
