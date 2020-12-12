@@ -9,7 +9,7 @@
 
 # plant-simulator (a.k.a Digital Twin)
 
-De-centralized command and control of PowerPlant's (all sorts) that can be steered and operated at scale!
+De-centralized command and control of electricty producing & consuming power plants that can be steered and operated at scale!
 
 ## Getting Started 
 
