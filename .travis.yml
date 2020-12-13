@@ -1,11 +1,7 @@
 language: scala
 jdk: openjdk8
 sudo: required
-os:
-  - linux
-  addons:
-    - apt:
-        - pass
+os: linux
 services:
   - docker
 env:
@@ -48,7 +44,9 @@ jobs:
         bash scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment"
       # Temporary workaround for the Docker credentials being written unencrypted!
       - rm -Rf /home/travis/.docker/config.json
+      - echo "CATIIINGGGGGG ************************** "
       - cat /home/travis/.docker/config.json
+      - echo "CATIIINGGGGGG ************************** "
     if: tag IS present
     #if: branch = master
 after_script:
