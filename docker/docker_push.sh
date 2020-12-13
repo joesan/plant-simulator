@@ -2,9 +2,11 @@
 #if [ $TRAVIS_BRANCH == "master" ]; then
 if [ -n "$TRAVIS_TAG"  ]; then
   docker build . -t $DOCKER_APP_NAME -f docker/Dockerfile;
-  docker images;
   docker tag $DOCKER_APP_NAME $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME:$TRAVIS_TAG;
 
+  docker images;
+
+  echo "Travis tag is **************** $TRAVIS_TAG"
   echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin docker.io
   echo "Successfully logged into Docker hub <<hub.docker.com>>"
 
