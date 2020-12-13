@@ -224,6 +224,20 @@ I added the possibility to do automated deployments using Travis CI after succes
 
 For more information on how to contribute, have a look [here](https://github.com/joesan/plant-simulator/blob/master/CONTRIBUTING.md)
 
+## Releases
+
+We use tag's for doing releases. To tag a release do the following:
+
+1. Commit pending changes into the master branch and push the master branch into Git
+
+2. Run the following commands (Make sure to adjust the SemVer appropriately):
+
+```
+git tag -a v2.2.2 -m "Your comments" // Create annotated tag
+
+git push origin --tags               // Push annotaged tag
+```
+
 ## Authors / Maintainers
 
 * *Joesan*           - [Joesan @ GitHub](https://github.com/joesan/)
