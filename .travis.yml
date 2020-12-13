@@ -25,7 +25,7 @@ cache:
 scala:
   - 2.11.7
 branches:
-  only: # Build only for master, develop- branch and tags starting with a v
+  only: # Build only for master, feature branches starting with develop- and tags starting with a v
   - master
   - "/^develop-.*$/"
   - "/^v.*$/"
@@ -42,7 +42,8 @@ jobs:
       - |
         bash docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
         bash scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment"
-      # Temporary workaround for the Docker credentials being written unencrypted! (https://github.com/filebrowser/filebrowser/compare/93c406ba589a...d0ee09ac446c)
+      # Temporary workaround for the Docker credentials being written unencrypted!
+      # see here - https://github.com/filebrowser/filebrowser/compare/93c406ba589a...d0ee09ac446c and here - https://github.com/travis-ci/travis-ci/issues/9495
       - rm -Rf /home/travis/.docker/config.json
     if: tag IS present
     #if: branch = master
