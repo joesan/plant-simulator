@@ -14,7 +14,7 @@ env:
   - PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME=plant-simulator-deployment
 # Script to skip CI builds when non-essential files are commited (like README.md)
 before_install:
-  - bash scripts/before_install_check.sh
+  - sh scripts/before_install_check.sh
 before_cache:
 - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
 - find $HOME/.sbt        -name "*.lock"               -print -delete
@@ -38,13 +38,13 @@ jobs:
   - stage: docker_push
     script: 
       - sbt "set test in assembly := {}" assembly
-      - if ! bash docker/docker_travis.sh; then
+      - if ! sh docker/docker_travis.sh; then
         echo "Error setting up Docker Registry credentials.... EXITING" >&2
 
-        elif ! bash docker/docker_push.sh; then
+        elif ! sh docker/docker_push.sh; then
         echo "Error pushing Docker image into Docker hub.... EXITING" >&2
 
-        elif ! bash scripts/after_success_check.sh; then
+        elif ! sh scripts/after_success_check.sh; then
         echo "Error running liv_query.sh; rest of script cancelled." >&2
 
         fi
