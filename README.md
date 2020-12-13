@@ -235,7 +235,7 @@ We use tag's for doing releases. To tag a release do the following:
 ```
 git tag -a v2.2.2 -m "Your comments" // Create annotated tag
 
-git push origin --tags               // Push annotaged tag
+git push origin --tags               // Push annotated tag
 ```
 
 ## Authors / Maintainers
