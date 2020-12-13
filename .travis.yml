@@ -38,10 +38,10 @@ jobs:
   - stage: docker_push
     script: 
       - sbt "set test in assembly := {}" assembly
-      - bash scripts/docker_push_and_github_commit.sh
       #- ./docker/docker_travis.sh && echo "Success setting up Docker Registry credentials" && \
-      #- bash docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
-       # bash scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment" && \
+      - |
+        bash docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
+        bash scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment" && \
 
       #- bash docker/docker_travis.sh
       #- bash docker/docker_push.sh
