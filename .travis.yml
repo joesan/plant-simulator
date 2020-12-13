@@ -42,7 +42,7 @@ jobs:
       - |
         bash docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
         bash scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment"
-      # Temporary workaround for the Docker credentials being written unencrypted!
+      # Temporary workaround for the Docker credentials being written unencrypted! (https://github.com/filebrowser/filebrowser/compare/93c406ba589a...d0ee09ac446c)
       # rm -Rf /home/travis/.docker/config.json
       - echo "CATIIINGGGGGG ************************** "
       - cat /home/travis/.docker/config.json
