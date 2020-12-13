@@ -1,7 +1,11 @@
 language: scala
 jdk: openjdk8
 sudo: required
-os: linux
+os:
+  - linux
+  addons:
+    - apt:
+        - pass
 services:
   - docker
 env:
@@ -42,7 +46,8 @@ jobs:
       - |
         bash docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
         bash scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment"
-
+      # Temporary workaround for the Docker credentials being written unencrypted!
+      - rm -Rf /home/travis/.docker/config.json
       - cat /home/travis/.docker/config.json
     if: tag IS present
     #if: branch = master
