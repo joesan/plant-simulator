@@ -7,7 +7,7 @@ if [ -n "$TRAVIS_TAG"  ]; then
   docker images;
 
   echo "Travis tag is **************** $TRAVIS_TAG"
-  echo "$DOCKER_REGISTRY_PASSWORDD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin docker.io
+  echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin docker.io
   echo "Successfully logged into Docker hub <<hub.docker.com>>"
 
   echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag $TRAVIS_TAG";
