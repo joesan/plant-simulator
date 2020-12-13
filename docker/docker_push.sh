@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
 if [ $TRAVIS_BRANCH == "master" ]; then
 #if [ -n "$TRAVIS_TAG"  ]; then
   docker build . -t $DOCKER_APP_NAME -f docker/Dockerfile;

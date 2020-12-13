@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/usr/bin/env bash
 set -x
 
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
