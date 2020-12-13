@@ -38,19 +38,10 @@ jobs:
   - stage: docker_push
     script: 
       - sbt "set test in assembly := {}" assembly
-      #- if ! sh docker/docker_travis.sh; then
-        #echo "Error setting up Docker Registry credentials.... EXITING" >&2
-
-        #elif ! sh docker/docker_push.sh; then
-        #echo "Error pushing Docker image into Docker hub.... EXITING" >&2
-
-        #elif ! sh scripts/after_success_check.sh; then
-        #echo "Error running liv_query.sh; rest of script cancelled." >&2
-
-        #fi
+      - bash scripts/docker_push_and_github_commit.sh
       #- ./docker/docker_travis.sh && echo "Success setting up Docker Registry credentials" && \
-      - bash docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
-        bash scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment" && \
+      #- bash docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
+       # bash scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment" && \
 
       #- bash docker/docker_travis.sh
       #- bash docker/docker_push.sh
