@@ -1,4 +1,4 @@
-#!bin/bash -e
+#!/bin/bash -e
 if [ -n "$TRAVIS_TAG"  ]; then
   git clone https://${GH_REPO}
   cd "${PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME}"
