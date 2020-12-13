@@ -20,7 +20,7 @@ WORKDIR $PROJECT_DIR
 COPY ./target/scala-*/plant-simulator-*.jar $PROJECT_DIR
 
 # Copy the database file
-COPY ./docker/plant-simulator.mv.db $PROJECT_DIR
+COPY ./database/plant-simulator.mv.db $PROJECT_DIR
 
 # Run the application
 CMD java -Denv=dev -jar plant-simulator-*.jar
