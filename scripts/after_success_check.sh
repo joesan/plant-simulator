@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-if [ $TRAVIS_BRANCH == "master" ]; then
-#if [ -n "$TRAVIS_TAG"  ]; then
+#if [ $TRAVIS_BRANCH == "master" ]; then
+if [ -n "$TRAVIS_TAG"  ]; then
   git clone https://${GH_REPO}
   cd "${PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME}"
   rm deployment-version.txt    # Remove the file

@@ -14,10 +14,10 @@ env:
   - PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME=plant-simulator-deployment
 # Script to skip CI builds when non-essential files are commited (like README.md)
 before_install:
-#- sh scripts/before_install_check.sh
+  - sh scripts/before_install_check.sh
 before_cache:
-- find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
-- find $HOME/.sbt        -name "*.lock"               -print -delete
+  - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
+  - find $HOME/.sbt        -name "*.lock"               -print -delete
 cache:
   directories:
   - "$HOME/.ivy2/cache"
@@ -25,7 +25,7 @@ cache:
 scala:
   - 2.11.7
 branches:
-  only:
+  only: # Build only for master, develop- branch and tags starting with a v
   - master
   - "/^develop-.*$/"
   - "/^v.*$/"
@@ -33,8 +33,8 @@ ignore:
   -*.md
 jobs:
   include:
-  #- stage: test
-    #script: sbt clean coverage test coverageReport
+  - stage: test
+    script: sbt clean coverage test coverageReport
   - stage: docker_push
     script: 
       - sbt "set test in assembly := {}" assembly
@@ -42,13 +42,8 @@ jobs:
       - |
         bash docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
         bash scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment"
-
-      #- bash docker/docker_travis.sh
-      #- bash docker/docker_push.sh
-      # Write the Docker tag version into the plant-simulator-deployment project
-      #- bash scripts/after_success_check.sh
-    #if: tag IS present
-    if: branch = master
+    if: tag IS present
+    #if: branch = master
 after_script:
   - echo $TRAVIS_BRANCH
 notifications:
