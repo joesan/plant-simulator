@@ -14,7 +14,7 @@ env:
   - PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME=plant-simulator-deployment
 # Script to skip CI builds when non-essential files are commited (like README.md)
 before_install:
-  - sh scripts/before_install_check.sh
+  #- sh scripts/before_install_check.sh
 before_cache:
 - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
 - find $HOME/.sbt        -name "*.lock"               -print -delete
@@ -56,7 +56,8 @@ jobs:
       #- bash docker/docker_push.sh
       # Write the Docker tag version into the plant-simulator-deployment project
       #- bash scripts/after_success_check.sh
-    if: tag IS present
+    #if: tag IS present
+    if: branch = master
 after_script:
   - echo $TRAVIS_BRANCH
 notifications:
