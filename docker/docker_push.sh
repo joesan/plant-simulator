@@ -1,6 +1,6 @@
 #!/bin/bash -e
-#if [ $TRAVIS_BRANCH == "master" ]; then
-if [ -n "$TRAVIS_TAG"  ]; then
+if [ $TRAVIS_BRANCH == "master" ]; then
+#if [ -n "$TRAVIS_TAG"  ]; then
   docker build . -t $DOCKER_APP_NAME -f docker/Dockerfile;
   docker tag $DOCKER_APP_NAME $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME:$TRAVIS_TAG;
 
