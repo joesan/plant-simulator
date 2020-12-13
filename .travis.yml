@@ -48,7 +48,7 @@ jobs:
         #echo "Error running liv_query.sh; rest of script cancelled." >&2
 
         #fi
-      - docker/docker_travis.sh && echo "Success setting up Docker Registry credentials" && \
+      - ./docker/docker_travis.sh && echo "Success setting up Docker Registry credentials" && \
         docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
         scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment" && \
 
