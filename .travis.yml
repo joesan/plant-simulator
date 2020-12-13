@@ -49,8 +49,8 @@ jobs:
 
         #fi
       #- ./docker/docker_travis.sh && echo "Success setting up Docker Registry credentials" && \
-      - bash ./docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
-        bash ./scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment" && \
+      - ./docker/docker_push.sh && echo "Success pushing Docker image into Docker hub" && \
+        ./scripts/after_success_check.sh && echo "Success writing tag to plant-simulator-deployment" && \
 
       #- bash docker/docker_travis.sh
       #- bash docker/docker_push.sh
