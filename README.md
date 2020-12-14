@@ -208,9 +208,9 @@ I added the possibility to do automated deployments using Travis CI after succes
    GH_REPO             github.com/joesan/plant-simulator-deployment.git // The project where we want to commit a version number
    GH_API_KEY          ***********  // The GitHub Auth token
    ```
-3. Have a look at .travis.yml in the after_success section on how to push a git commit with the version number. We use [yq](https://github.com/mikefarah/yq) for      inline editing of YAML files. So upon successful build, we write the version for the latest build (TRAVIS_BUILD_NUMBER) into the plant-simulator-deployment        project
+3. Have a look at .travis.yml in the docker_push section on how to push a git commit with the version number. We use [yq](https://github.com/mikefarah/yq) for      inline editing of YAML files. So upon successful build, we write the version for the latest build (TRAVIS_BUILD_NUMBER) into the plant-simulator-deployment        project
 
-4. Once Travis commits a version number to the plant-simulator-deployment project where the Kubernetes deployment files are 
+4. Once Travis commits a version number (here only tags) to the plant-simulator-deployment project where the Kubernetes deployment files are 
    located, the CI / CD pipeline for that project gets triggered. Head over to [plant-simulator-deployment](https://github.com/joesan/plant-simulator-deployment) 
    project to find out more
 
@@ -237,6 +237,8 @@ git tag -a v2.2.2 -m "Your comments" // Create annotated tag
 
 git push origin --tags               // Push annotated tag
 ```
+
+For more information, see the releases page [here](https://github.com/joesan/plant-simulator/releases)
 
 ## Authors / Maintainers
 
