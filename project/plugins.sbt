@@ -2,7 +2,7 @@
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.7")
 
 // The sbt native packager - needed for docker builds
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.7.6")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.8.0")
 
 // For code coverage test
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.6.1")
