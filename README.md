@@ -256,16 +256,9 @@ The whole project is licensed under Apache License, Version 2.0. See [LICENSE.tx
 * To everybody that helped in this project
 * The [Monix library](https://monix.io/)
 
-## ALERT ##
+## Improvements ##
 
-I stopped doing any further work on this project. I have a new architecture that I beleive is massively scalable and resillient and guess what, I will run it in K8s. I have started the work on it. Have a look in one of the following projects:
-
-1. plant-monitor
-2. plant-infra
-
-It is still a WIP as I use my evenings and weekends to work on these projects. 
-
-Have a look here on what the architecture would look like:
+Have a look here on what a much better distributed architecture would look like:
 
 https://github.com/joesan/plant-simulator/wiki/Application-Architecture
 
