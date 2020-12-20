@@ -243,6 +243,7 @@ For more information, see the releases page [here](https://github.com/joesan/pla
 ## Authors / Maintainers
 
 * *Joesan*           - [Joesan @ GitHub](https://github.com/joesan/)
+* *Scala Steward*    - [Scala Steward @ GitHub](https://github.com/scala-steward-org/scala-steward)
 
 See also the list of [contributors](https://github.com/joesan/plant-simulator/graphs/contributors) who helped.
 
