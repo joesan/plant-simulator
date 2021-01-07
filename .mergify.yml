@@ -10,8 +10,17 @@ pull_request_rules:
   - name: merge scala-steward's PRs
     conditions:
       - author=scala-steward
-      - status-success=ci-passed
+      - status-success=build
+    actions:
+      merge:
+        method: merge
+  - name: automatic merge on CI success and review
+    conditions:
+      - base=master
+      - "#review-requested=0"
+      - "#changes-requested-reviews-by=0"
+      - "#approved-reviews-by>=1"
+      - status-success=build
     actions:
       merge:
         method: squash
-        strict: true
