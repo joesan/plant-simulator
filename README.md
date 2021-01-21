@@ -15,7 +15,7 @@ De-centralized command and control of electricty producing & consuming power pla
 
 For some background information on the project, please have a look [here](https://github.com/joesan/plant-simulator/wiki)
 
-For the impatient you, I have a version up and running on Heroku [here](https://plant-simulator-ui.herokuapp.com/)! Please be soft on it as it is running on just 512MB RAM! But you will not be dissapointed! Give it a try!
+For the impatient you, I have a version up and running on Heroku [here](https://plant-simulator-ui.herokuapp.com/)! Please be soft on it as it is running on just 512MB RAM! But you will not be dissapointed! Give it a try! [Here is the API](https://github.com/joesan/plant-simulator/wiki/API-Documentation) that you can use to test the Command and Control of the Power Plant's
 
 Here is what the operation of a PowerPlant would look like! A constant command and control of the PowerPlant would end up showing you the following graph! In the graph below, you will see that the PowerPlant which was operating at its base power was asked to RampUp for some time and it did that. By RampUp, I mean that the PowerPlant can start operating and inject power into the electrical grid (if connected). The plant-simulator app monitored the RampUp closely and if I plot the values I end up getting this beautiful graph below!
 
