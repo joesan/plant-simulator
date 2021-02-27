@@ -27,7 +27,7 @@ import com.inland24.plantsim.models.{PowerPlantSignal, PowerPlantState}
 import com.inland24.plantsim.models.PowerPlantState._
 import org.joda.time.{DateTime, DateTimeZone}
 
-case class StateMachine(
+final case class StateMachine(
     newState: PowerPlantState,
     oldState: PowerPlantState,
     lastTurnOnOffReceivedAt: DateTime,
@@ -57,13 +57,13 @@ object StateMachine {
     )
   )
 
-  val isAvailableSignalKey = "isAvailable"
-  val isOnOffSignalKey = "isOnOff"
-  val activePowerSignalKey = "activePower"
-  val powerPlantIdSignalKey = "powerPlantId"
-  val setPointSignalKey = "setPoint"
+  val isAvailableSignalKey: String = "isAvailable"
+  val isOnOffSignalKey: String = "isOnOff"
+  val activePowerSignalKey: String = "activePower"
+  val powerPlantIdSignalKey: String = "powerPlantId"
+  val setPointSignalKey: String = "setPoint"
 
-  val unAvailableSignals = Map(
+  val unAvailableSignals: Map[String, String] = Map(
     activePowerSignalKey -> 0.1.toString, // the power does not matter when the plant is unavailable for steering
     isOnOffSignalKey -> false.toString,
     isAvailableSignalKey -> false.toString // indicates if the power plant is not available for steering

@@ -17,7 +17,7 @@
 
 package com.inland24.plantsim.models
 
-case class PowerPlantFilter(
+final case class PowerPlantFilter(
     powerPlantType: Option[PowerPlantType] = None,
     powerPlantName: Option[String] = None,
     orgName: Option[String] = None,

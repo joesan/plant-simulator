@@ -18,12 +18,13 @@
 package com.inland24.plantsim.services.database.repository
 
 import java.sql.Timestamp
-
 import com.inland24.plantsim.models.PowerPlantType
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import org.joda.time.{DateTime, DateTimeZone}
-import slick.jdbc.JdbcProfile
-import slick.lifted.CanBeQueryCondition
+import slick.ast.BaseTypedType
+import slick.jdbc.{JdbcProfile, JdbcType}
+import slick.lifted.{CanBeQueryCondition, ProvenShape}
+import slick.sql.FixedSqlAction
 
 import scala.language.higherKinds
 
@@ -34,7 +35,8 @@ class DBSchema private (val driver: JdbcProfile) {
   /**
     * Mapping for using Joda Time and SQL Time.
     */
-  implicit def dateTimeMapping =
+  implicit def dateTimeMapping
+    : JdbcType[DateTime] with BaseTypedType[DateTime] =
     MappedColumnType.base[DateTime, java.sql.Timestamp](
       dt => new Timestamp(dt.getMillis),
       ts => new DateTime(ts.getTime, DateTimeZone.UTC)
@@ -43,14 +45,16 @@ class DBSchema private (val driver: JdbcProfile) {
   /**
     * Mapping for using PowerPlantType conversions.
     */
-  implicit def powerPlantTypeMapping =
+  implicit def powerPlantTypeMapping
+    : JdbcType[PowerPlantType] with BaseTypedType[PowerPlantType] =
     MappedColumnType.base[PowerPlantType, String](
       powerPlantType => PowerPlantType.toString(powerPlantType),
       powerPlantTypeStr => PowerPlantType.fromString(powerPlantTypeStr)
     )
 
   case class MaybeFilter[X, Y, C[_]](query: slick.lifted.Query[X, Y, C]) {
-    def filter[T, R: CanBeQueryCondition](data: Option[T])(f: T => X => R) = {
+    def filter[T, R: CanBeQueryCondition](data: Option[T])(
+        f: T => X => R): MaybeFilter[X, Y, C] = {
       data.map(v => MaybeFilter(query.withFilter(f(v)))).getOrElse(this)
     }
   }
@@ -61,18 +65,19 @@ class DBSchema private (val driver: JdbcProfile) {
     */
   class PowerPlantTable(tag: Tag)
       extends Table[PowerPlantRow](tag, "powerPlant") {
-    def id = column[Option[Int]]("powerPlantId", O.PrimaryKey)
-    def orgName = column[String]("orgName")
-    def isActive = column[Boolean]("isActive")
-    def minPower = column[Double]("minPower")
-    def maxPower = column[Double]("maxPower")
-    def powerRampRate = column[Option[Double]]("rampRate")
-    def rampRateSecs = column[Option[Long]]("rampRateSecs")
-    def powerPlantType = column[PowerPlantType]("powerPlantType")
-    def createdAt = column[DateTime]("createdAt")
-    def updatedAt = column[DateTime]("updatedAt")
+    def id: Rep[Option[Int]] = column[Option[Int]]("powerPlantId", O.PrimaryKey)
+    def orgName: Rep[String] = column[String]("orgName")
+    def isActive: Rep[Boolean] = column[Boolean]("isActive")
+    def minPower: Rep[Double] = column[Double]("minPower")
+    def maxPower: Rep[Double] = column[Double]("maxPower")
+    def powerRampRate: Rep[Option[Double]] = column[Option[Double]]("rampRate")
+    def rampRateSecs: Rep[Option[Long]] = column[Option[Long]]("rampRateSecs")
+    def powerPlantType: Rep[PowerPlantType] =
+      column[PowerPlantType]("powerPlantType")
+    def createdAt: Rep[DateTime] = column[DateTime]("createdAt")
+    def updatedAt: Rep[DateTime] = column[DateTime]("updatedAt")
 
-    def * = {
+    def * : ProvenShape[PowerPlantRow] = {
       (id,
        orgName,
        isActive,
@@ -94,12 +99,12 @@ class DBSchema private (val driver: JdbcProfile) {
       * A TableQuery can be used for composing queries, inserts
       * and pretty much anything related to the sensors table.
       */
-    val all = TableQuery[PowerPlantTable]
+    val all: TableQuery[PowerPlantTable] = TableQuery[PowerPlantTable]
 
     /**
       * Fetch all active PowerPlant's
       */
-    def activePowerPlants = {
+    def activePowerPlants: Query[PowerPlantTable, PowerPlantRow, Seq] = {
       all.filter(_.isActive === true)
     }
 
@@ -107,7 +112,8 @@ class DBSchema private (val driver: JdbcProfile) {
       * Deactivate a PowerPlant
       * (i.e., to set the isActive flag to false)
       */
-    def deActivatePowerPlant(id: Int) = {
+    def deActivatePowerPlant(
+        id: Int): FixedSqlAction[Int, NoStream, Effect.Write] = {
       all
         .filter(_.id === id)
         .map(elem => elem.isActive)
@@ -117,13 +123,14 @@ class DBSchema private (val driver: JdbcProfile) {
     /**
       * Filter and fetch PowerPlant by organization id
       */
-    def powerPlantById(id: Int) = {
+    def powerPlantById(id: Int): Query[PowerPlantTable, PowerPlantRow, Seq] = {
       all.filter(_.id === id)
     }
 
     def powerPlantsFor(criteriaPowerPlantType: Option[PowerPlantType],
                        criteriaOrgName: Option[String],
-                       criteriaOnlyActive: Option[Boolean]) = {
+                       criteriaOnlyActive: Option[Boolean])
+      : Query[PowerPlantTable, PowerPlantRow, Seq] = {
       for {
         filtered <- all.filter(
           f =>
@@ -141,7 +148,7 @@ class DBSchema private (val driver: JdbcProfile) {
   }
 }
 object DBSchema {
-  def apply(driver: JdbcProfile) = {
+  def apply(driver: JdbcProfile): DBSchema = {
     new DBSchema(driver)
   }
 }

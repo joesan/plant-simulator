@@ -29,7 +29,7 @@ import org.joda.time.{DateTime, DateTimeZone, Seconds}
 
 import scala.concurrent.duration._
 
-case class StateMachine(
+final case class StateMachine(
     cfg: RampUpTypeConfig,
     setPoint: Double,
     lastSetPointReceivedAt: DateTime,
@@ -62,15 +62,15 @@ object StateMachine {
    RampUpType PowerPlant should have its own toleranceFactor configured
    in the database!
    */
-  val toleranceFactorInPercentage = 2
+  val toleranceFactorInPercentage: Int = 2
 
-  val isAvailableSignalKey = "isAvailable"
-  val isDispatchedSignalKey = "isDispatched"
-  val activePowerSignalKey = "activePower"
-  val powerPlantIdSignalKey = "powerPlantId"
-  val setPointSignalKey = "setPoint"
+  val isAvailableSignalKey: String = "isAvailable"
+  val isDispatchedSignalKey: String = "isDispatched"
+  val activePowerSignalKey: String = "activePower"
+  val powerPlantIdSignalKey: String = "powerPlantId"
+  val setPointSignalKey: String = "setPoint"
 
-  val unAvailableSignals = Map(
+  val unAvailableSignals: Map[String, String] = Map(
     activePowerSignalKey -> 0.1.toString, // the power does not matter when the plant is unavailable for steering
     isDispatchedSignalKey -> false.toString,
     isAvailableSignalKey -> false.toString // indicates if the power plant is not available for steering

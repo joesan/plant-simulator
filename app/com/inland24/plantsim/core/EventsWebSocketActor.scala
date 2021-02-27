@@ -105,19 +105,6 @@ object EventsWebSocketActor {
     )
   }
 
-  // Utility method to convert to proper types in the resulting JSON
-  def telemetrySignals(signalsAsMap: Map[String, String]): Map[String, Any] = {
-    signalsAsMap.map {
-      case (key, value) if key == "activePower" || key == "setPoint" =>
-        key -> value.toDouble
-      case (key, value)
-          if key == "isOnOff" || key == "isDispatched" || key == "isAvailable" =>
-        key -> value.toBoolean
-      case (key, value) =>
-        key -> value
-    }
-  }
-
   def eventsAndAlerts(
       someId: Option[Int],
       source: PowerPlantEventObservable): Observable[JsValue] = {
@@ -132,6 +119,20 @@ object EventsWebSocketActor {
 
   def telemetrySignals(id: Int,
                        powerPlantActorRef: ActorRef): Observable[JsValue] = {
+
+    // Utility method to convert to proper types in the resulting JSON
+    def asMapSignals(signalsAsMap: Map[String, String]): Map[String, Any] = {
+      signalsAsMap.map {
+        case (key, value) if key == "activePower" || key == "setPoint" =>
+          key -> value.toDouble
+        case (key, value)
+            if key == "isOnOff" || key == "isDispatched" || key == "isAvailable" =>
+          key -> value.toBoolean
+        case (key, value) =>
+          key -> value
+      }
+    }
+
     import scala.concurrent.duration._
     import akka.pattern.ask
     implicit val timeOut: Timeout = 3.seconds
@@ -144,7 +145,7 @@ object EventsWebSocketActor {
             (powerPlantActorRef ? TelemetrySignalsMessage)
               .mapTo[Map[String, String]]
         ))
-      .map(signalsMap => Json.toJson(telemetrySignals(signalsMap)))
+      .map(signalsMap => Json.toJson(asMapSignals(signalsMap)))
   }
 
   def props(source: Observable[JsValue], sink: ActorRef): Props =

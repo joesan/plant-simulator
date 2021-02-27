@@ -63,6 +63,7 @@ object EventsStream {
   case object DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
 
   def props(
-      publishChannel: ConcurrentSubject[PowerPlantSignal, PowerPlantSignal]) =
+      publishChannel: ConcurrentSubject[PowerPlantSignal, PowerPlantSignal])
+    : Props =
     Props(new EventsStream(publishChannel))
 }

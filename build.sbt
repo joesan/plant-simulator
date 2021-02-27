@@ -45,7 +45,28 @@ scalacOptions ++= Seq(
 
 scalacOptions in Test ++= Seq("-Yrangepos")
 
-wartremoverWarnings ++= Warts.all
+wartremoverWarnings ++= Warts.allBut(
+  Wart.ImplicitParameter,
+  Wart.ImplicitConversion,
+  Wart.Var, // Bloody, because of Play Routes
+  Wart.GlobalExecutionContext,
+  Wart.ToString,
+  Wart.TraversableOps,
+  Wart.AsInstanceOf,
+  Wart.Overloading,
+  Wart.Product,
+  Wart.ListAppend,
+  Wart.Throw,
+  Wart.PlatformDefault,
+  Wart.NonUnitStatements,
+  Wart.ExplicitImplicitTypes,
+  Wart.Serializable,
+  Wart.Equals,
+  Wart.Recursion,
+  Wart.DefaultArguments,
+  Wart.Nothing,
+  Wart.Any
+)
 
 javacOptions ++= Seq(
   "-Xlint:unchecked",

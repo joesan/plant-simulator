@@ -326,7 +326,7 @@ class RampUpTypeActor private (config: Config) extends Actor with ActorLogging {
 }
 object RampUpTypeActor {
 
-  case class Config(
+  final case class Config(
       powerPlantCfg: RampUpTypeConfig,
       eventsStream: Option[ActorRef] = None
   )

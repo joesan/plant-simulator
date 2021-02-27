@@ -26,13 +26,13 @@ trait RandomValueGeneratorService[T] {
 object RandomValueGeneratorService {
 
   object IntRandomValue extends RandomValueGeneratorService[Int] {
-    val random = new Random(81)
+    val random: Random = new Random(81)
     override def random(from: Int, within: Int): Int =
       from + random.nextInt((within - from) + 1)
   }
 
   object DoubleRandomValue extends RandomValueGeneratorService[Double] {
-    val random = new Random(92)
+    val random: Random = new Random(92)
     override def random(from: Double, within: Double): Double =
       from + (random.nextDouble() * (within - from))
   }

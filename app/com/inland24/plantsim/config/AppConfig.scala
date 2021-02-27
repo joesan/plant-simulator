@@ -52,7 +52,10 @@ final case class DBConfig(url: String,
   }
 
   lazy val database: JdbcBackend.DatabaseDef = {
-    Database.forURL(url, user.orNull, password.orNull, driver = driver)
+    Database.forURL(url,
+                    user.getOrElse(""),
+                    password.getOrElse(""),
+                    driver = driver)
   }
 }
 object AppConfig {

@@ -201,9 +201,10 @@ package object models {
               name = powerPlantRow.orgName,
               minPower = powerPlantRow.minPower,
               maxPower = powerPlantRow.maxPower,
-              rampPowerRate = powerPlantRow.rampRatePower.get,
-              rampRateInSeconds = FiniteDuration(powerPlantRow.rampRateSecs.get,
-                                                 TimeUnit.SECONDS),
+              rampPowerRate = powerPlantRow.rampRatePower.getOrElse(0.0),
+              rampRateInSeconds =
+                FiniteDuration(powerPlantRow.rampRateSecs.getOrElse(0L),
+                               TimeUnit.SECONDS),
               powerPlantType = RampUpType
             )
           // If it is of RampUpType but rampPowerRate and rampRateInSeconds are not specified, we error

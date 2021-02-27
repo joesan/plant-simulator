@@ -22,7 +22,7 @@ import play.api.mvc.{BaseController, Result}
 trait ControllerBase extends BaseController {
 
   implicit class RichResult(result: Result) {
-    def enableCors = result.withHeaders(
+    def enableCors: Result = result.withHeaders(
       "Access-Control-Allow-Origin" -> "*",
       "Access-Control-Allow-Methods" -> "OPTIONS, GET, POST, PUT, DELETE, HEAD" // OPTIONS for pre-flight
       ,

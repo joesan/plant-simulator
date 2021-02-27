@@ -139,7 +139,7 @@ class SupervisorActor(
       context.unwatch(actor)
       log.info(
         s"Actor Terminated message received for actor ${source.path.name}")
-      // Now unstash all of the messages
+      // Now un-stash all of the messages
       log.info(s"Un-stashing all messages")
       context.become(receive)
       unstashAll()

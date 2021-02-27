@@ -27,7 +27,7 @@ import scala.collection.JavaConverters._
 object AppMetrics {
 
   // the registry
-  val registry = new MetricRegistry()
+  val registry: MetricRegistry = new MetricRegistry()
 
   // the registration
   registerMetrics("gc", new GarbageCollectorMetricSet(), registry)
@@ -43,7 +43,7 @@ object AppMetrics {
 
   private def registerMetrics(metricName: String,
                               metricSet: MetricSet,
-                              registry: MetricRegistry) = {
+                              registry: MetricRegistry): Unit = {
     for ((key, value) <- metricSet.getMetrics.asScala)
       registry.register(s"$metricName.$key", value)
   }

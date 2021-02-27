@@ -134,7 +134,7 @@ class OnOffTypeActor private (config: Config) extends Actor with ActorLogging {
 }
 object OnOffTypeActor {
 
-  case class Config(
+  final case class Config(
       cfg: OnOffTypeConfig,
       eventsStream: Option[ActorRef] = None
   )

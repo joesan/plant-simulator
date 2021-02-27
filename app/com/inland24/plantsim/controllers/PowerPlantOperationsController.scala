@@ -93,10 +93,17 @@ class PowerPlantOperationsController(
     * @return   Always a HTTP 200
     */
   def kill(id: Int): Action[AnyContent] = Action.async { _ =>
-    val actorRef = scala.concurrent.Await.result(actorFor(id), 5.seconds).get
-    actorRef ! DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
-    Future.successful(
-      Ok("*** ###### Fnickug ---- YOU WANTED TO SPOIL MY PARTY *******......."))
+    scala.concurrent.Await.result(actorFor(id), 5.seconds) match {
+      case Some(actorRef) =>
+        actorRef ! DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes
+        Future.successful(
+          Ok("*** ###### Fnickug ---- YOU WANTED TO SPOIL MY PARTY *******.......")
+        )
+      case None =>
+        Future.successful(
+          Ok("Could not resolve an Actor reference within 5 seconds! Something is fucked up!!!!!")
+        )
+    }
   }
 
   def outOfServicePowerPlant(id: Int): Action[AnyContent] = Action.async {

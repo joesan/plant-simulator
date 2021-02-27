@@ -20,7 +20,7 @@ package com.inland24.plantsim.services.database.models
 import com.inland24.plantsim.models.PowerPlantType
 import org.joda.time.DateTime
 
-case class PowerPlantRow(
+final case class PowerPlantRow(
     id: Option[Int],
     orgName: String,
     isActive: Boolean,

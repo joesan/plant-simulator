@@ -17,7 +17,7 @@
 
 package com.inland24.plantsim.services.database.models
 
-case class AddressRow(
+final case class AddressRow(
     id: Int,
     streetNum: Int,
     street: String,
