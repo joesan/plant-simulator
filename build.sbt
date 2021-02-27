@@ -5,7 +5,7 @@ version := "1.0-SNAPSHOT"
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, DockerPlugin)
 
-scalaVersion := "2.12.13"
+scalaVersion := "2.12.12"
 
 scalacOptions ++= Seq(
   // Warnings propogates as errors
@@ -44,6 +44,8 @@ scalacOptions ++= Seq(
 )
 
 scalacOptions in Test ++= Seq("-Yrangepos")
+
+wartremoverWarnings ++= Warts.all
 
 javacOptions ++= Seq(
   "-Xlint:unchecked",

@@ -18,10 +18,9 @@
 package com.inland24.plantsim.core
 
 import java.lang.management.ManagementFactory
-
-import com.codahale.metrics.{MetricRegistry, MetricSet}
+import com.codahale.metrics.{MetricRegistry, MetricSet, Timer}
 import com.codahale.metrics.jvm._
-import play.api.libs.json.Json
+import play.api.libs.json.{JsObject, Json}
 
 import scala.collection.JavaConverters._
 
@@ -40,7 +39,7 @@ object AppMetrics {
   registerMetrics("threads", new ThreadStatesGaugeSet(), registry)
 
   // register timers
-  val timer = registry.timer("power-plant-repo-as-task")
+  val timer: Timer = registry.timer("power-plant-repo-as-task")
 
   private def registerMetrics(metricName: String,
                               metricSet: MetricSet,
@@ -49,17 +48,17 @@ object AppMetrics {
       registry.register(s"$metricName.$key", value)
   }
 
-  case class MetricGroup(metricGroupName: String, metrics: Seq[Metric])
-  case class Metric(metricName: String, metricValue: String)
+  final case class MetricGroup(metricGroupName: String, metrics: Seq[Metric])
+  final case class Metric(metricName: String, metricValue: String)
 
-  def metricsAsJsValueSeq(metricGroup: Seq[MetricGroup]) = metricGroup.map {
-    metricGroup =>
+  def metricsAsJsValueSeq(metricGroup: Seq[MetricGroup]): Seq[JsObject] =
+    metricGroup.map { metricGroup =>
       Json.obj(
         s"${metricGroup.metricGroupName}" -> metricGroup.metrics.map({ metric =>
           Json.obj(metric.metricName -> metric.metricValue)
         })
       )
-  }
+    }
 
   def dbTimerMetrics: Seq[MetricGroup] = {
     registry.getTimers.asScala.toSeq.map {

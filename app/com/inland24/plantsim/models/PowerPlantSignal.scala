@@ -30,13 +30,13 @@ object PowerPlantSignal {
     def newState: PowerPlantState
   }
 
-  case class Genesis(
+  final case class Genesis(
       newState: PowerPlantState,
       powerPlantConfig: PowerPlantConfig,
       timeStamp: DateTime = DateTime.now(DateTimeZone.UTC)
   ) extends StateTransitionEvent
 
-  case class Transition(
+  final case class Transition(
       oldState: PowerPlantState,
       newState: PowerPlantState,
       powerPlantConfig: PowerPlantConfig,
@@ -47,7 +47,7 @@ object PowerPlantSignal {
   // **** Alerts that happen in the system when interacting with the PowerPlant
   sealed trait PowerPlantAlert extends PowerPlantSignal
 
-  case class DefaultAlert(
+  final case class DefaultAlert(
       msg: String,
       powerPlantConfig: PowerPlantConfig,
       timeStamp: DateTime = DateTime.now(DateTimeZone.UTC)
