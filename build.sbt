@@ -45,6 +45,8 @@ scalacOptions ++= Seq(
 
 scalacOptions in Test ++= Seq("-Yrangepos")
 
+wartremoverWarnings ++= Warts.all
+
 javacOptions ++= Seq(
   "-Xlint:unchecked",
   "-Xlint:deprecation"
