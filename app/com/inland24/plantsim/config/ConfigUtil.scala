@@ -24,8 +24,8 @@ object ConfigUtil {
 
   sealed trait ConfigSource
   object ConfigSource {
-    case class FromFile(path: String) extends ConfigSource
-    case class FromResource(name: String) extends ConfigSource
+    final case class FromFile(path: String) extends ConfigSource
+    final case class FromResource(name: String) extends ConfigSource
   }
 
   def getConfigSource: ConfigSource =

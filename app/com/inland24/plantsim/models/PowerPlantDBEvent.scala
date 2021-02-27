@@ -26,19 +26,19 @@ sealed trait PowerPlantDBEvent[T <: PowerPlantConfig] {
 object PowerPlantDBEvent {
 
   // A PowerPlant could be updated in the database
-  case class PowerPlantUpdateEvent[T <: PowerPlantConfig](
+  final case class PowerPlantUpdateEvent[T <: PowerPlantConfig](
       id: Long,
       powerPlantCfg: T
   ) extends PowerPlantDBEvent[T]
 
   // A PowerPlant could be newly created in the database
-  case class PowerPlantCreateEvent[T <: PowerPlantConfig](
+  final case class PowerPlantCreateEvent[T <: PowerPlantConfig](
       id: Long,
       powerPlantCfg: T
   ) extends PowerPlantDBEvent[T]
 
   // A PowerPlant could be deleted in the database
-  case class PowerPlantDeleteEvent[T <: PowerPlantConfig](
+  final case class PowerPlantDeleteEvent[T <: PowerPlantConfig](
       id: Long,
       powerPlantCfg: T
   ) extends PowerPlantDBEvent[T]

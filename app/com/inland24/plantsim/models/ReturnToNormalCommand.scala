@@ -26,13 +26,13 @@ trait ReturnToNormal extends PowerPlantCommand {
 
   override def commandName: String = "ReturnToNormalCommand"
 }
-case class ReturnToNormalCommand(
+final case class ReturnToNormalCommand(
     powerPlantId: Int,
     toPowerValue: Option[Double] = None
 ) extends ReturnToNormal
 object ReturnToNormal {
 
-  def apply(id: Int) = ReturnToNormalCommand(
+  def apply(id: Int): ReturnToNormalCommand = ReturnToNormalCommand(
     powerPlantId = id
   )
   /* TODO: Use this classes later
@@ -46,19 +46,20 @@ object ReturnToNormal {
     toPowerValue: Option[Double] = None
   ) */
 
-  implicit def jsonReads = new Reads[ReturnToNormalCommand] {
+  implicit def jsonReads: Reads[ReturnToNormalCommand] =
+    new Reads[ReturnToNormalCommand] {
 
-    def reads(json: JsValue): JsResult[ReturnToNormalCommand] = {
-      if ((json \ "powerPlantId").asOpt[Int].isEmpty) {
-        JsError(
-          JsPath \ "ReturnToNormalCommand is missing powerPlantId key",
-          "powerPlantId"
-        )
-      } else {
-        JsSuccess(
-          ReturnToNormalCommand((json \ "powerPlantId").as[Int])
-        )
+      def reads(json: JsValue): JsResult[ReturnToNormalCommand] = {
+        if ((json \ "powerPlantId").asOpt[Int].isEmpty) {
+          JsError(
+            JsPath \ "ReturnToNormalCommand is missing powerPlantId key",
+            "powerPlantId"
+          )
+        } else {
+          JsSuccess(
+            ReturnToNormalCommand((json \ "powerPlantId").as[Int])
+          )
+        }
       }
     }
-  }
 }

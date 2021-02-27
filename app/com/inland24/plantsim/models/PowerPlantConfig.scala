@@ -30,7 +30,7 @@ sealed trait PowerPlantConfig {
 }
 object PowerPlantConfig {
 
-  case class OnOffTypeConfig(
+  final case class OnOffTypeConfig(
       id: Int,
       name: String,
       minPower: Double,
@@ -38,7 +38,7 @@ object PowerPlantConfig {
       powerPlantType: PowerPlantType
   ) extends PowerPlantConfig
 
-  case class RampUpTypeConfig(
+  final case class RampUpTypeConfig(
       id: Int,
       name: String,
       minPower: Double,
@@ -48,7 +48,7 @@ object PowerPlantConfig {
       powerPlantType: PowerPlantType
   ) extends PowerPlantConfig
 
-  case class UnknownConfig(
+  final case class UnknownConfig(
       id: Int = -1,
       name: String,
       minPower: Double,
@@ -57,7 +57,7 @@ object PowerPlantConfig {
   ) extends PowerPlantConfig
 
   // represents all the PowerPlant's from the database
-  case class PowerPlantsConfig(
+  final case class PowerPlantsConfig(
       snapshotDateTime: DateTime,
       powerPlantConfigSeq: Seq[PowerPlantConfig]
   )

@@ -29,21 +29,21 @@ trait DispatchCommand extends PowerPlantCommand {
 }
 object DispatchCommand {
 
-  case class DispatchOnOffPowerPlant(
+  final case class DispatchOnOffPowerPlant(
       powerPlantId: Int,
       powerPlantType: PowerPlantType,
       command: String,
       value: Boolean
   ) extends DispatchCommand
 
-  case class DispatchRampUpPowerPlant(
+  final case class DispatchRampUpPowerPlant(
       powerPlantId: Int,
       powerPlantType: PowerPlantType,
       command: String,
       value: Double
   ) extends DispatchCommand
 
-  implicit def jsonReads = new Reads[DispatchCommand] {
+  implicit def jsonReads: Reads[DispatchCommand] = new Reads[DispatchCommand] {
 
     private def isTurnOnOffValid(json: JsValue) = {
       val isValidCommand = "turnon" == (json \ "command").as[String].toLowerCase
