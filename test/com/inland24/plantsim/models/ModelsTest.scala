@@ -58,8 +58,8 @@ class ModelsTest extends AnyFlatSpec {
       """.stripMargin
 
     // default environment is loaded from application.conf
-    val appCfg = AppConfig.load()
-    val actualJson = appConfigWrites.writes(appCfg).toString()
+    val appCfg: AppConfig = AppConfig.load()
+    val actualJson: String = appConfigWrites.writes(appCfg).toString()
 
     expectedJson === actualJson
   }

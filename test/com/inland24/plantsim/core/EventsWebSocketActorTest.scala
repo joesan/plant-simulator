@@ -53,7 +53,7 @@ class EventsWebSocketActorTest
     super.populateTables()
   }
 
-  override def afterAll {
+  override def afterAll: Unit = {
     System.clearProperty("ENV")
     super.h2SchemaDrop()
     TestKit.shutdownActorSystem(system)
@@ -66,7 +66,7 @@ class EventsWebSocketActorTest
     monix.execution.Scheduler.Implicits.global
 
   // This will be our PowerPlantActor instance
-  private val onOffTypeCfg = OnOffTypeConfig(
+  private val onOffTypeCfg: OnOffTypeConfig = OnOffTypeConfig(
     102,
     "joesan 102",
     200.0,

@@ -49,8 +49,8 @@ class PowerPlantOperationsControllerTest
     with DBServiceSpec {
 
   val bindings: AppBindings = AppBindings.apply(system)
-  private val controllerComponents = stubControllerComponents()
-  val controller =
+  private val controllerComponents: ControllerComponents = stubControllerComponents()
+  val controller: PowerPlantOperationsController =
     new PowerPlantOperationsController(bindings, controllerComponents)
 
   override def beforeAll(): Unit = {

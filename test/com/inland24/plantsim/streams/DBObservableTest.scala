@@ -23,11 +23,9 @@ import com.inland24.plantsim.models.PowerPlantConfig.PowerPlantsConfig
 import com.inland24.plantsim.models.PowerPlantType.OnOffType
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
-import com.inland24.plantsim.services.database.{
-  DBServiceSpec,
-  PowerPlantService
-}
+import com.inland24.plantsim.services.database.{DBServiceSpec, PowerPlantService}
 import com.typesafe.scalalogging.LazyLogging
+import monix.eval.Task
 import monix.execution.{Ack, Scheduler}
 import monix.execution.Ack.Continue
 import monix.execution.cancelables.SingleAssignCancelable
@@ -87,8 +85,8 @@ class DBObservableTest
   }
 
   // This will be our service instance
-  val powerPlantRepo = new PowerPlantRepoAsTask(config.dbConfig)
-  val powerPlantService = new PowerPlantService(powerPlantRepo)
+  val powerPlantRepo: PowerPlantRepoAsTask = new PowerPlantRepoAsTask(config.dbConfig)
+  val powerPlantService: PowerPlantService[Task] = new PowerPlantService(powerPlantRepo)
 
   // We want to fetch updates from the database every 2 seconds
   val interval: FiniteDuration = 2.seconds

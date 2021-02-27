@@ -21,6 +21,7 @@ import com.inland24.plantsim.models.{PowerPlantFilter, PowerPlantType}
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
 import com.inland24.plantsim.services.database.models.PowerPlantRow
 import com.inland24.plantsim.services.database.repository.impl.PowerPlantRepoAsTask
+import monix.eval.Task
 import org.scalatest.BeforeAndAfterAll
 import monix.execution.Scheduler.Implicits.global
 import org.scalatest.flatspec.AsyncFlatSpec
@@ -51,8 +52,8 @@ final class PowerPlantDBServiceSpec
   }
 
   // This will be our service instance
-  val powerPlantRepo = new PowerPlantRepoAsTask(config.dbConfig)
-  val powerPlantService = new PowerPlantService(powerPlantRepo)
+  val powerPlantRepo: PowerPlantRepoAsTask = new PowerPlantRepoAsTask(config.dbConfig)
+  val powerPlantService: PowerPlantService[Task] = new PowerPlantService(powerPlantRepo)
 
   behavior of "PowerPlantDBService"
 
