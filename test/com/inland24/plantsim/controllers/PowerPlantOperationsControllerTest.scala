@@ -49,7 +49,8 @@ class PowerPlantOperationsControllerTest
     with DBServiceSpec {
 
   val bindings: AppBindings = AppBindings.apply(system)
-  private val controllerComponents: ControllerComponents = stubControllerComponents()
+  private val controllerComponents: ControllerComponents =
+    stubControllerComponents()
   val controller: PowerPlantOperationsController =
     new PowerPlantOperationsController(bindings, controllerComponents)
 

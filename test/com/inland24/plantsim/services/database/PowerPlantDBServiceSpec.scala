@@ -52,8 +52,10 @@ final class PowerPlantDBServiceSpec
   }
 
   // This will be our service instance
-  val powerPlantRepo: PowerPlantRepoAsTask = new PowerPlantRepoAsTask(config.dbConfig)
-  val powerPlantService: PowerPlantService[Task] = new PowerPlantService(powerPlantRepo)
+  val powerPlantRepo: PowerPlantRepoAsTask = new PowerPlantRepoAsTask(
+    config.dbConfig)
+  val powerPlantService: PowerPlantService[Task] = new PowerPlantService(
+    powerPlantRepo)
 
   behavior of "PowerPlantDBService"
 

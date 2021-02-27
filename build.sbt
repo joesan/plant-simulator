@@ -45,7 +45,7 @@ scalacOptions ++= Seq(
 
 scalacOptions in Test ++= Seq("-Yrangepos")
 
-wartremoverWarnings ++= Warts.allBut(
+wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
   Wart.ImplicitParameter,
   Wart.ImplicitConversion,
   Wart.Var, // Bloody, because of Play Routes
