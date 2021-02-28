@@ -49,12 +49,13 @@ final class EventsStream(
     // We want to test the resiliency of the Actor Supervision, so we have this message here!
     case DoNotSendThisMessageAsThisIsDangerousButWeHaveItHereForTestingPurposes =>
       // Whoosh.... some insane dog wanted a war with me! and he did by sending me this message
-      throw new Exception(
-        "Sorry mate! I got to go! I will be resurrected " +
+      log.info(
+        "Sorry mate! I got to go! Division by zero is the next statement that would blow me up. I will be resurrected " +
           "by my supervisor! Make sure please no one sends this message ever")
+      (1 / 0) // We know this will blow up
 
     case x: Any =>
-      log.info(s"**** Got Unknown Message $x **** This will jsu be ignored!")
+      log.info(s"**** Got Unknown Message $x **** This will just be ignored!")
   }
 }
 object EventsStream {

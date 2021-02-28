@@ -43,9 +43,9 @@ trait AppBindings {
 }
 object AppBindings {
 
-  def apply(system: ActorSystem,
-            //actorMaterializer: Materializer,
-            config: AppConfig): AppBindings = new AppBindings {
+  def applyWithCfg(system: ActorSystem,
+                   //actorMaterializer: Materializer,
+                   config: AppConfig): AppBindings = new AppBindings {
     override val actorSystem: ActorSystem = system
     //override val materializer: Materializer = actorMaterializer
 
@@ -55,7 +55,8 @@ object AppBindings {
     // Note: The type parameter should be explicitly specified, otherwise it won't compile!
     override val dbService: PowerPlantService[Task] = new PowerPlantService(
       new PowerPlantRepoAsTask(appConfig.dbConfig)(
-        scala.concurrent.ExecutionContext.Implicits.global)
+        //scala.concurrent.ExecutionContext.Implicits.global)
+        monix.execution.Scheduler.Implicits.global)
     )
 
     // TODO: I use the default one! Check if this is Okay?
@@ -74,5 +75,5 @@ object AppBindings {
 
   def apply(system: ActorSystem /*, actorMaterializer: Materializer */ )
     : AppBindings =
-    apply(system /*, actorMaterializer,*/, AppConfig.load())
+    applyWithCfg(system /*, actorMaterializer,*/, AppConfig.load())
 }

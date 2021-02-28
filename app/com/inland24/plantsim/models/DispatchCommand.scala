@@ -20,6 +20,8 @@ package com.inland24.plantsim.models
 import com.inland24.plantsim.models.PowerPlantType.{OnOffType, RampUpType}
 import play.api.libs.json._
 
+import java.util.Locale
+
 trait DispatchCommand extends PowerPlantCommand {
   def powerPlantId: Int
   def powerPlantType: PowerPlantType
@@ -46,7 +48,9 @@ object DispatchCommand {
   implicit def jsonReads: Reads[DispatchCommand] = new Reads[DispatchCommand] {
 
     private def isTurnOnOffValid(json: JsValue) = {
-      val isValidCommand = "turnon" == (json \ "command").as[String].toLowerCase
+      val isValidCommand = "turnon" == (json \ "command")
+        .as[String]
+        .toLowerCase(Locale.ENGLISH)
       val isValidValue = (json \ "value").asOpt[Boolean].nonEmpty
       isValidCommand && isValidValue
     }
@@ -54,7 +58,7 @@ object DispatchCommand {
     private def isRampUpValid(json: JsValue) = {
       val isValidCommand = "dispatch" == (json \ "command")
         .as[String]
-        .toLowerCase
+        .toLowerCase(Locale.ENGLISH)
       val isValidValue = (json \ "value").asOpt[Double].nonEmpty
       isValidCommand && isValidValue
     }

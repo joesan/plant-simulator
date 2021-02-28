@@ -48,7 +48,7 @@ class DBSchema private (val driver: JdbcProfile) {
   implicit def powerPlantTypeMapping
     : JdbcType[PowerPlantType] with BaseTypedType[PowerPlantType] =
     MappedColumnType.base[PowerPlantType, String](
-      powerPlantType => PowerPlantType.toString(powerPlantType),
+      powerPlantType => PowerPlantType.asString(powerPlantType),
       powerPlantTypeStr => PowerPlantType.fromString(powerPlantTypeStr)
     )
 

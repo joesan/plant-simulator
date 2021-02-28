@@ -121,7 +121,7 @@ package object models {
               .asInstanceOf[RampUpTypeConfig]
               .rampRateInSeconds
               .length,
-            "powerPlantType" -> PowerPlantType.toString(o.powerPlantType)
+            "powerPlantType" -> PowerPlantType.asString(o.powerPlantType)
           )
         } else {
           Json.obj(
@@ -129,7 +129,7 @@ package object models {
             "powerPlantName" -> o.name,
             "minPower" -> o.minPower,
             "maxPower" -> o.maxPower,
-            "powerPlantType" -> PowerPlantType.toString(o.powerPlantType)
+            "powerPlantType" -> PowerPlantType.asString(o.powerPlantType)
           )
         }
       }

@@ -20,6 +20,8 @@ package com.inland24.plantsim.config
 import java.io.File
 import com.typesafe.config.{Config, ConfigFactory}
 
+import java.util.Locale
+
 object ConfigUtil {
 
   sealed trait ConfigSource
@@ -39,7 +41,8 @@ object ConfigUtil {
 
         opt1.orElse(opt2) match {
           case Some(envName) =>
-            val name = s"application.${envName.toLowerCase}.conf"
+            val name =
+              s"application.${envName.toLowerCase(Locale.ENGLISH)}.conf"
             ConfigSource.FromResource(name)
           case None =>
             ConfigSource.FromResource("application.conf")

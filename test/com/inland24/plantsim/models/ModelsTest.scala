@@ -33,9 +33,9 @@ class ModelsTest extends AnyFlatSpec {
   behavior of "PowerPlantType"
 
   "PowerPlantType" should "fetch proper PowerPlantType instances" in {
-    PowerPlantType.toString(PowerPlantType.OnOffType) === "OnOffType"
-    PowerPlantType.toString(PowerPlantType.RampUpType) === "RampUpType"
-    PowerPlantType.toString(PowerPlantType.UnknownType) === "UnknownType"
+    PowerPlantType.asString(PowerPlantType.OnOffType) === "OnOffType"
+    PowerPlantType.asString(PowerPlantType.RampUpType) === "RampUpType"
+    PowerPlantType.asString(PowerPlantType.UnknownType) === "UnknownType"
 
     PowerPlantType.fromString("OnOffType") === PowerPlantType.OnOffType
     PowerPlantType.fromString("RampUpType") === PowerPlantType.RampUpType

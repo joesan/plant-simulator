@@ -22,6 +22,7 @@ import com.codahale.metrics.{MetricRegistry, MetricSet, Timer}
 import com.codahale.metrics.jvm._
 import play.api.libs.json.{JsObject, Json}
 
+import java.util.Locale
 import scala.collection.JavaConverters._
 
 object AppMetrics {
@@ -82,16 +83,17 @@ object AppMetrics {
 
     registry.getGauges.asScala.toSeq
       .groupBy {
-        case (key, _) => s"${splitFn(key).head}"
+        case (key, _) => s"${splitFn(key).headOption}"
       }
       .map {
         case (metricGroupKey, metricGauge) =>
           val metrics = metricGauge.map {
             case (metricName, gauge) =>
               Metric(
-                splitFn(metricName).tail
+                splitFn(metricName)
+                  .drop(1) // drop(1) is equivalent to tail, but does not blow up
                   .mkString("_")
-                  .toLowerCase
+                  .toLowerCase(Locale.ENGLISH)
                   .replace("-", "_"),
                 gauge.getValue.toString
               )

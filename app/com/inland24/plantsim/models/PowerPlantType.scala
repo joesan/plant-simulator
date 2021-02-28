@@ -22,12 +22,11 @@ package com.inland24.plantsim.models
   */
 sealed trait PowerPlantType
 object PowerPlantType {
-
   case object OnOffType extends PowerPlantType
   case object RampUpType extends PowerPlantType
   case object UnknownType extends PowerPlantType
 
-  def toString(powerPlantType: PowerPlantType): String = powerPlantType match {
+  def asString(powerPlantType: PowerPlantType): String = powerPlantType match {
     case OnOffType  => "OnOffType"
     case RampUpType => "RampUpType"
     case _          => "UnknownType"

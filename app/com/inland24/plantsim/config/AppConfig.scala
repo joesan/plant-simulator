@@ -60,9 +60,9 @@ final case class DBConfig(url: String,
 }
 object AppConfig {
   def load(): AppConfig =
-    load(ConfigUtil.loadFromEnv())
+    loadWithCfg(ConfigUtil.loadFromEnv())
 
-  def load(config: Config): AppConfig = {
+  def loadWithCfg(config: Config): AppConfig = {
     AppConfig(
       environment = config.getString("environment"),
       appName = config.getString("appName"),
