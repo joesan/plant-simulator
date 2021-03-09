@@ -15,6 +15,8 @@ env:
 # Script to skip CI builds when non-essential files are commited (like README.md)
 before_install:
   - sh scripts/before_install_check.sh
+install:
+  - sh scripts/travis_sbt_script.sh
 before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
   - find $HOME/.sbt        -name "*.lock"               -print -delete
@@ -34,10 +36,8 @@ ignore:
 jobs:
   include:
   - stage: test
-    install: sh scripts/travis_sbt_script.sh
     script: sbt clean coverage test coverageReport
   - stage: docker_push
-    install: sh scripts/travis_sbt_script.sh
     script: 
       - sbt "set test in assembly := {}" assembly
       #- ./docker/docker_travis.sh && echo "Success setting up Docker Registry credentials" && \
