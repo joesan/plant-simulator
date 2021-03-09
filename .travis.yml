@@ -34,10 +34,10 @@ ignore:
 jobs:
   include:
   - stage: test
-    install: scripts/travis_sbt_script.sh
+    install: sh scripts/travis_sbt_script.sh
     script: sbt clean coverage test coverageReport
   - stage: docker_push
-    install: scripts/travis_sbt_script.sh
+    install: sh scripts/travis_sbt_script.sh
     script: 
       - sbt "set test in assembly := {}" assembly
       #- ./docker/docker_travis.sh && echo "Success setting up Docker Registry credentials" && \
