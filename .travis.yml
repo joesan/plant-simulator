@@ -16,7 +16,14 @@ env:
 before_install:
   - sh scripts/before_install_check.sh
 install:
-  - sh scripts/travis_sbt_script.sh
+  - |
+   # update this only when sbt-the-bash-script needs to be updated
+   export SBT_LAUNCHER=1.4.8
+   export SBT_OPTS="-Dfile.encoding=UTF-8"
+   curl -L --silent "https://github.com/sbt/sbt/releases/download/v$SBT_LAUNCHER/sbt-$SBT_LAUNCHER.tgz" > $HOME/sbt.tgz
+   tar zxf $HOME/sbt.tgz -C $HOME
+   sudo rm /usr/local/bin/sbt
+   sudo ln -s $HOME/sbt/bin/sbt /usr/local/bin/sbt
 before_cache:
   - find $HOME/.ivy2/cache -name "ivydata-*.properties" -print -delete
   - find $HOME/.sbt        -name "*.lock"               -print -delete
