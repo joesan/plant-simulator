@@ -220,6 +220,10 @@ I added the possibility to do automated deployments using Travis CI after succes
 
 * [Travis CI](https://travis-ci.com/) - Hosted Continuous Integration
 
+* [Mergify](https://mergify.io/) - Automatically merge pull requests
+
+* [Scala-Steward](https://github.com/scala-steward-org/scala-steward) - Keep dependencies up-to-date
+
 ## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/joesan/plant-simulator/issues)
 
 For more information on how to contribute, have a look [here](https://github.com/joesan/plant-simulator/blob/master/CONTRIBUTING.md)
