@@ -1,0 +1,44 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  test:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache ivy2
+        uses: actions/cache@v1
+        with:
+          path: ~/.ivy2/cache
+
+      - name: sbt-test
+        run: sbt clean coverage test coverageReport
+
+  docker_push:
+    runs-on: ubuntu-20.04
+    needs: test
+    #if: github.ref == 'refs/heads/master'
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Cache ivy2
+        uses: actions/cache@v1
+        with:
+          path: ~/.ivy2/cache
+
+      - name: docker-push
+        env:
+          USER: joesan
+          PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME: Mona
+          GH_REPO: https://github.com/$USER/$PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME
+        run: |
+          ./scripts/tag_deployment
