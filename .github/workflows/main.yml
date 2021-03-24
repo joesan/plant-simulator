@@ -43,4 +43,7 @@ jobs:
           PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME: Mona
           GH_REPO: https://github.com/$USER/$PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME
         run: |
+          echo "Running sbt assembly"
+          sbt "set test in assembly := {}" assembly
+          echo "Pushing tag into Docker Registry"
           ./scripts/tag_deployment
