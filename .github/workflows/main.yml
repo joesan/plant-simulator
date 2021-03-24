@@ -18,6 +18,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.ivy2/cache
+          key: ${{ runner.os }}-sbt-ivy-cache-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
       - name: sbt-test
         run: sbt clean coverage test coverageReport
@@ -34,6 +35,7 @@ jobs:
         uses: actions/cache@v1
         with:
           path: ~/.ivy2/cache
+          key: ${{ runner.os }}-sbt-ivy-cache-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
       - name: docker-push
         env:
