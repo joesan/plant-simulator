@@ -42,11 +42,10 @@ jobs:
       - name: docker-push
         env:
           USER: joesan
-          PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME: plant-simulator-deployment
-          GH_REPO: https://github.com/$USER/$PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME
+          DEPLOYMENT_REPO_NAME: plant-simulator-deployment
+          GH_REPO: https://github.com/${{ env.USER }}"/${{ env.DEPLOYMENT_REPO_NAME }}"
         run: |
           echo "Running sbt assembly"
-          echo "${{ env.USER }}"
           echo $GITHUB_REF
           sbt "set test in assembly := {}" assembly
           echo $PWD
