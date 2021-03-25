@@ -43,7 +43,7 @@ jobs:
         env:
           USER: joesan
           DEPLOYMENT_REPO_NAME: plant-simulator-deployment
-          GH_REPO: https://github.com/${{ env.USER }}"/${{ env.DEPLOYMENT_REPO_NAME }}"
+          GH_REPO: https://github.com/${{ env.USER }}/${{ env.DEPLOYMENT_REPO_NAME }}"
         run: |
           echo "Running sbt assembly"
           echo $GITHUB_REF
