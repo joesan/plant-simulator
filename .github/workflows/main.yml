@@ -10,6 +10,10 @@ on:
     branches:
       - master
 
+env:
+  USER: joesan
+  DEPLOYMENT_REPO_NAME: plant-simulator-deployment
+
 jobs:
   #test:
    # runs-on: ubuntu-20.04
@@ -43,8 +47,6 @@ jobs:
 
       - name: docker-push
         env:
-          USER: joesan
-          DEPLOYMENT_REPO_NAME: plant-simulator-deployment
           GH_REPO: ${{ env.USER }}/${{ env.DEPLOYMENT_REPO_NAME }}
         run: |
           echo "Running sbt assembly"
