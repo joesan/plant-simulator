@@ -48,7 +48,7 @@ jobs:
           GH_REPO: https://github.com/${{ env.USER }}/${{ env.DEPLOYMENT_REPO_NAME }}
         run: |
           echo "Running sbt assembly"
-          echo $GITHUB_REF
+          echo $GH_REPO
           sbt "set test in assembly := {}" assembly
           echo $PWD
           echo "Pushing tag into Docker Registry"
