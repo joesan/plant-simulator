@@ -47,6 +47,6 @@ jobs:
         run: |
           echo "Running sbt assembly"
           sbt "set test in assembly := {}" assembly
-          echo $pwd
+          echo pwd
           echo "Pushing tag into Docker Registry"
           ./scripts/tag_deployment
