@@ -12,7 +12,7 @@ env:
   - DOCKER_APP_URL=${DOCKER_REGISTRY_URL}/${USER}/plant-simulator
   - IMAGE_VERSION_DEV=1.0-SNAPSHOT
   - PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME=plant-simulator-deployment
-# Script to skip CI builds when non-essential files are commited (like README.md)
+# Script to skip CI builds when non-essential files are commited (like notes.md)
 before_install:
   - sh scripts/before_install_check.sh
 install:
