@@ -42,8 +42,8 @@ jobs:
       - name: docker-push
         env:
           USER: joesan
-          PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME: Mona
-          GH_REPO: https://github.com/$USER/$PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME
+          PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME: plant-simulator-deployment
+          GH_REPO: github.com/$USER/$PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME
         run: |
           echo "Running sbt assembly"
           echo $GITHUB_REF
