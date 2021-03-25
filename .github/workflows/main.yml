@@ -50,4 +50,4 @@ jobs:
           sbt "set test in assembly := {}" assembly
           echo $PWD
           echo "Pushing tag into Docker Registry"
-          sh ./scripts/tag_deployment.sh
+          ./scripts/tag_deployment
