@@ -47,7 +47,7 @@ jobs:
 
       - name: docker-push
         env:
-          GH_REPO: ${{ env.USER }}/${{ env.DEPLOYMENT_REPO_NAME }}
+          GH_REPO: https://github.com/${{ env.USER }}/${{ env.DEPLOYMENT_REPO_NAME }}
         run: |
           echo "Running sbt assembly"
           echo $GH_REPO
