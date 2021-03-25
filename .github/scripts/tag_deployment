@@ -15,6 +15,8 @@ if [ -n "$GITHUB_REF"  ]; then
   rm deployment-version.txt    # Remove the file
   touch deployment-version.txt # Add the file
   echo plant-simulator.version=$GITHUB_REF >> deployment-version.txt
+  echo "Printing deployment txt file"
+  cat deployment-version.txt
   # Install yq (https://github.com/mikefarah/yq) for inline yaml editing
   sudo wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O /usr/bin/yq
   sudo chmod +x /usr/bin/yq
