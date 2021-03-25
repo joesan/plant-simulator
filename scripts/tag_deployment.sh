@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 if [ -n "$GITHUB_REF"  ]; then
-  git clone https://$GH_REPO
+  git clone "$GH_REPO"
   cd "$PLANT_SIMULATOR_DEPLOYMENT_REPO_NAME"
   # create a new branch with the TRAVIS_TAG as the name of the branch
   git checkout -b feature-$GITHUB_REF
