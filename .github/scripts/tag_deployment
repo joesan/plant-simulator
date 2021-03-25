@@ -8,7 +8,7 @@ echo "--------------------------------"
 echo
 
 if [ -n "$GITHUB_REF"  ]; then
-  git clone "$GH_REPO"
+  git clone "https://$GH_REPO"
   cd "$DEPLOYMENT_REPO_NAME" || exit
   # create a new branch with the TRAVIS_TAG as the name of the branch
   git checkout -b feature-$GITHUB_REF
