@@ -119,7 +119,7 @@ libraryDependencies ++= Seq(
   // For application Metrics
   "io.dropwizard.metrics" % "metrics-core" % DropWizardMetricsVersion,
   "io.dropwizard.metrics" % "metrics-jvm" % DropWizardMetricsVersion,
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.2",
+  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.3",
   "org.scala-lang.modules" % "scala-async_2.11" % "0.9.7",
   "com.typesafe" % "config" % "1.4.1",
   // For JSON parsing
