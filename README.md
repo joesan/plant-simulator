@@ -1,3 +1,7 @@
+You are on a deprecated branch [[ travis ]] - Switch to the master branch for the latest!
+
+For a history of travis builds, [have a look here](https://travis-ci.org/github/joesan/plant-simulator/builds)
+
 # ![plant-simulator-ui](images/logo.png)
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/996bef52feb148039c61f0db9cff9830)](https://www.codacy.com/app/joesan/plant-simulator?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=joesan/plant-simulator&amp;utm_campaign=Badge_Grade)
