@@ -18,6 +18,7 @@ env:
   DEPLOYMENT_REPO_NAME: plant-simulator-deployment
   DOCKER_REGISTRY_URL: hub.docker.com
   DOCKER_APP_NAME: plant-simulator
+  DOCKER_REGISTRY_USERNAME: joesan
 
 jobs:
   #test:
