@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 #if [ $TRAVIS_BRANCH == "master" ]; then
+
+echo "Pushing image to Docker Hub"
+echo "--------------------------------"
+echo "GH_REPO              = $GH_REPO"
+echo "DEPLOYMENT_REPO_NAME = $DEPLOYMENT_REPO_NAME"
+echo "RELEASE TAG VERSION  = $RELEASE_VERSION"
+echo "--------------------------------"
+echo
+
 if [ -n "$TRAVIS_TAG"  ]; then
   docker build . -t $DOCKER_APP_NAME -f docker/Dockerfile;
   docker images;

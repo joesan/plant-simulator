@@ -8,7 +8,7 @@ on:
     branches:
       - master
     tags:
-      - '*'
+      - 'v*.*.*'
   pull_request:
     branches:
       - master
@@ -47,14 +47,15 @@ jobs:
           path: ~/.ivy2/cache
           key: ${{ runner.os }}-sbt-ivy-cache-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
 
+      - name: Extract Tag
+        run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
       - name: docker-push
         env:
           GH_REPO: github.com/${{ env.USER }}/${{ env.DEPLOYMENT_REPO_NAME }}
           API_TOKEN: ${{ secrets.API_TOKEN }}
         run: |
-          echo "Running sbt assembly"
-          echo $GH_REPO
+          echo "Running sbt assembly for release version $RELEASE_VERSION"
           sbt "set test in assembly := {}" assembly
-          echo $PWD
-          echo "Pushing tag into Docker Registry"
-          sh ./.github/scripts/tag_deployment
+          bash docker/docker_push.sh && \
+          bash ./.github/scripts/tag_deployment
