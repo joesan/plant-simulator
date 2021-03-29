@@ -16,21 +16,21 @@ if [ -n "$RELEASE_VERSION"  ]; then
   git clone "https://$GH_REPO"
   cd "$DEPLOYMENT_REPO_NAME" || exit
   # create a new branch with the TRAVIS_TAG as the name of the branch
-  git checkout -b feature-$RELEASE_VERSION
+  git checkout -b feature-"$RELEASE_VERSION"
   rm deployment-version.txt    # Remove the file
   touch deployment-version.txt # Add the file
-  echo plant-simulator.version=$RELEASE_VERSION >> deployment-version.txt
+  echo plant-simulator.version="$RELEASE_VERSION" >> deployment-version.txt
   echo "Printing deployment txt file"
   cat deployment-version.txt
   # Install yq (https://github.com/mikefarah/yq) for inline yaml editing
   sudo wget https://github.com/mikefarah/yq/releases/download/3.4.1/yq_linux_amd64 -O /usr/bin/yq
   sudo chmod +x /usr/bin/yq
-  yq write --inplace helm-k8s/values.yaml 'app.version' $RELEASE_VERSION
-  git config user.email "travis@travis.org"
-  git config user.name $USER # this email and name can be set anything you like
+  yq write --inplace helm-k8s/values.yaml 'app.version' "$RELEASE_VERSION"
+  git config user.email "github-actions@github.com"
+  git config user.name "$USER" # this email and name can be set anything you like
   git add .
   git commit --allow-empty -m "deployment plant-simulator tagged with version $RELEASE_VERSION"
-  git push https://$API_TOKEN@$GH_REPO feature-$RELEASE_VERSION
+  git push https://"$API_TOKEN@$GH_REPO" feature-"$RELEASE_VERSION"
 else
   echo "Skipping writing image tag release version to plant-simulator-deployment"
 fi
