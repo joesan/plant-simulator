@@ -24,8 +24,8 @@ Key-Type: DSA
 Key-Length: 1024
 Subkey-Type: ELG-E
 Subkey-Length: 1024
-Name-Real: Travis CI
-Name-Email: travis@osism.io
+Name-Real: GitHub Actions CI
+Name-Email: github-actions@github.com
 Expire-Date: 0
 %commit
 %echo done

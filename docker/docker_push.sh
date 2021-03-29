@@ -19,7 +19,7 @@ if [ -n "$RELEASE_VERSION"  ]; then
   echo "Attempting log in to $DOCKER_REGISTRY_URL"
   # Use Credential store to avoid unencrypted password showing up in $HOME/.docker/config.json
   # See https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-  source docker/docker_credentials_helper.sh
+  source docker/docker_helper.sh
   echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin
   echo "Successfully logged into Docker hub $DOCKER_REGISTRY_URL"
 
