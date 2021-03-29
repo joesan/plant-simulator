@@ -3,12 +3,13 @@
 # exit when any command fails
 set -e
 
+echo
 echo "Writing Release Version to plant-simulator-deployment"
-echo "--------------------------------"
+echo "-----------------------------------------------------"
 echo "GH_REPO              = $GH_REPO"
 echo "DEPLOYMENT_REPO_NAME = $DEPLOYMENT_REPO_NAME"
 echo "RELEASE TAG VERSION  = $RELEASE_VERSION"
-echo "--------------------------------"
+echo "-----------------------------------------------------"
 echo
 
 if [ -n "$GITHUB_REF"  ]; then

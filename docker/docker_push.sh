@@ -3,13 +3,14 @@
 # exit when any command fails
 set -e
 
+echo
 echo "Pushing image to Docker Hub"
-echo "--------------------------------"
+echo "----------------------------------------------------"
 echo "DOCKER_APP_NAME          = $DOCKER_APP_NAME"
 echo "DOCKER_REGISTRY_USERNAME = $DOCKER_REGISTRY_USERNAME"
 echo "DOCKER_REGISTRY_URL      = $DOCKER_REGISTRY_URL"
 echo "RELEASE TAG VERSION      = $RELEASE_VERSION"
-echo "--------------------------------"
+echo "----------------------------------------------------"
 echo
 
 if [ -n "$RELEASE_VERSION"  ]; then
