@@ -13,26 +13,27 @@ echo "----------------------------------------------------"
 echo
 
 if [ -n "$RELEASE_VERSION"  ]; then
-  docker build . -t $DOCKER_APP_NAME -f docker/Dockerfile;
+  docker build . -t "$DOCKER_APP_NAME" -f docker/Dockerfile;
   docker images;
 
   echo "Attempting log in to $DOCKER_REGISTRY_URL"
-  #echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin docker.io
+  # Use Credential store to avoid unencrypted password showing un in $HOME/.docker/config.json
+  echo '{ "credsStore": "pass" }' | tee "$HOME".docker/config.json
   echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin
   echo "Successfully logged into Docker hub $DOCKER_REGISTRY_URL"
 
-  # Tag & push image for tag $TRAVIS_TAG
+  # Tag & push image for tag $RELEASE_VERSION
   echo "Tagging image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag $RELEASE_VERSION";
-  docker tag $DOCKER_APP_NAME $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME:$RELEASE_VERSION;
+  docker tag "$DOCKER_APP_NAME $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME:$RELEASE_VERSION";
   echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag $RELEASE_VERSION";
-  docker push $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME:$RELEASE_VERSION;
+  docker push "$DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME:$RELEASE_VERSION";
   echo "Successfully tagged and pushed image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag $RELEASE_VERSION"
 
   # Tag & push image for tag latest
-  echo "Tag image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag latest";
-  docker tag $DOCKER_APP_NAME $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME;
-  echo "Push image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag latest";
-  docker push $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME;
+  echo "Tagging image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag latest";
+  docker tag "$DOCKER_APP_NAME $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME";
+  echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag latest";
+  docker push "$DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME";
   echo "Successfully tagged and pushed image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag latest"
 
   docker logout
