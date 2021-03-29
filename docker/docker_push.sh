@@ -18,7 +18,8 @@ if [ -n "$RELEASE_VERSION"  ]; then
   docker images;
 
   echo "Attempting log in to $DOCKER_REGISTRY_URL"
-  echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin docker.io
+  #echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin docker.io
+  echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin
   echo "Successfully logged into Docker hub $DOCKER_REGISTRY_URL"
 
   # Tag & push image for tag $TRAVIS_TAG
