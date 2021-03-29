@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
+
 set -x
+
+echo
+echo "-----------------------------------------------------"
+echo "Setting up docker credential pass"
+echo "-----------------------------------------------------"
 
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
 sudo apt update
@@ -7,9 +13,9 @@ sudo apt -y install docker-ce pass
 echo 'DOCKER_OPTS="--experimental"' | sudo tee /etc/default/docker
 sudo service docker restart
 
-curl -fsSlL https://github.com/docker/docker-credential-helpers/releases/download/v0.6.0/docker-credential-pass-v0.6.0-amd64.tar.gz | sudo tar xf - -C /usr/local/bin
+curl -fsSlL https://github.com/docker/docker-credential-helpers/releases/tag/v0.6.3/docker-credential-pass-v0.6.3-amd64.tar.gz | sudo tar xf - -C /usr/local/bin
 mkdir -p /home/travis/.docker
-echo '{ "credsStore": "pass" }' | tee /home/travis/.docker/config.json
+echo '{ "credsStore": "pass" }' | tee "$HOME"/.docker/config.json
 gpg --batch --gen-key <<-EOF
 %echo generating a standard key
 Key-Type: DSA
@@ -23,7 +29,4 @@ Expire-Date: 0
 %echo done
 EOF
 key=$(gpg --no-auto-check-trustdb --list-secret-keys | grep ^sec | cut -d/ -f2 | cut -d" " -f1)
-pass init $key
-
-echo "$DOCKER_REGISTRY_PASSWORD" | docker login --username="$DOCKER_REGISTRY_USERNAME" --password-stdin
-docker info
+pass init "$key"
