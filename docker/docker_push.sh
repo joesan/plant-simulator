@@ -17,9 +17,9 @@ if [ -n "$RELEASE_VERSION"  ]; then
   echo "Successfully logged into Docker hub $DOCKER_REGISTRY_URL"
 
   # Tag & push image for tag $TRAVIS_TAG
-  echo "Tag image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag $RELEASE_VERSION";
+  echo "Tagging image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag $RELEASE_VERSION";
   docker tag $DOCKER_APP_NAME $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME:$RELEASE_VERSION;
-  echo "Push image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag $RELEASE_VERSION";
+  echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag $RELEASE_VERSION";
   docker push $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME:$RELEASE_VERSION;
   echo "Successfully tagged and pushed image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag $RELEASE_VERSION"
 
