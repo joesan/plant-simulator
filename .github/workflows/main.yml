@@ -57,6 +57,7 @@ jobs:
         env:
           GH_REPO: github.com/${{ env.USER }}/${{ env.DEPLOYMENT_REPO_NAME }}
           API_TOKEN: ${{ secrets.API_TOKEN }}
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
           DOCKER_APP_URL: ${{ env.DOCKER_REGISTRY_URL }}/${{ env.USER }}/plant-simulator
 
         run: |
