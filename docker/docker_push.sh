@@ -37,6 +37,7 @@ if [ -n "$RELEASE_VERSION"  ]; then
 
   docker logout
   echo "Logged out of docker"
+  rm -Rf "$HOME"/.docker/config.json
 else
   echo "Not a Tag, so not pushing anything to Docker Hub!"
 fi
