@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+# exit when any command fails
+set -e
+
 echo "Pushing image to Docker Hub"
 echo "--------------------------------"
 echo "DOCKER_APP_NAME          = $DOCKER_APP_NAME"
