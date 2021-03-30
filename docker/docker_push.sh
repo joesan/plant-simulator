@@ -32,7 +32,7 @@ if [ -n "$RELEASE_VERSION"  ]; then
 
   # Tag & push image for tag latest
   echo "Tagging image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag latest";
-  docker tag "$DOCKER_APP_NAME $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME";
+  docker tag $DOCKER_APP_NAME $DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME;
   echo "Pushing image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag latest";
   docker push "$DOCKER_REGISTRY_USERNAME/$DOCKER_APP_NAME";
   echo "Successfully tagged and pushed image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag latest"
