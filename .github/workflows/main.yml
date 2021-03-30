@@ -54,7 +54,7 @@ jobs:
       - name: Extract Release Tag Version
         run: echo "RELEASE_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - name: docker-push
+      - name: docker-login
         env:
           GH_REPO: github.com/${{ env.USER }}/${{ env.DEPLOYMENT_REPO_NAME }}
           API_TOKEN: ${{ secrets.API_TOKEN }}
@@ -64,6 +64,8 @@ jobs:
         with:
           username: ${{ env.DOCKER_REGISTRY_USERNAME }}
           password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
+
+      - name: docker-push
         run: |
           echo "Running sbt assembly for release version $RELEASE_VERSION"
           sbt "set test in assembly := {}" assembly
