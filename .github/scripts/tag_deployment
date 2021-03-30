@@ -4,8 +4,8 @@
 set -e
 
 echo
-echo "-----------------------------------------------------"
 echo "Writing Release Version to plant-simulator-deployment"
+echo "-----------------------------------------------------"
 echo "GH_REPO              = $GH_REPO"
 echo "DEPLOYMENT_REPO_NAME = $DEPLOYMENT_REPO_NAME"
 echo "RELEASE TAG VERSION  = $RELEASE_VERSION"

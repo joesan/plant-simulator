@@ -4,8 +4,8 @@
 set -e
 
 echo
-echo "----------------------------------------------------"
 echo "Pushing image to Docker Hub"
+echo "----------------------------------------------------"
 echo "DOCKER_APP_NAME          = $DOCKER_APP_NAME"
 echo "DOCKER_REGISTRY_URL      = $DOCKER_REGISTRY_URL"
 echo "RELEASE TAG VERSION      = $RELEASE_VERSION"
