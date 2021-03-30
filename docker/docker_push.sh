@@ -21,7 +21,7 @@ if [ -n "$RELEASE_VERSION"  ]; then
   # See https://docs.docker.com/engine/reference/commandline/login/#credentials-store
   # See https://github.com/joesan/plant-simulator/issues/110
   #bash docker/docker_helper.sh
-  echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin
+  #echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin
   echo "Successfully logged into Docker hub $DOCKER_REGISTRY_URL"
 
   # Tag & push image for tag $RELEASE_VERSION

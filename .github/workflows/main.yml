@@ -60,7 +60,10 @@ jobs:
           API_TOKEN: ${{ secrets.API_TOKEN }}
           DOCKER_REGISTRY_PASSWORD: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
           DOCKER_APP_URL: ${{ env.DOCKER_REGISTRY_URL }}/${{ env.USER }}/plant-simulator
-
+        uses: docker/login-action@v1
+        with:
+          username: ${{ env.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_REGISTRY_PASSWORD }}
         run: |
           echo "Running sbt assembly for release version $RELEASE_VERSION"
           sbt "set test in assembly := {}" assembly
