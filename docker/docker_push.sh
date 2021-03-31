@@ -16,13 +16,15 @@ if [ -n "$RELEASE_VERSION"  ]; then
   docker build . -t "$DOCKER_APP_NAME" -f docker/Dockerfile;
   docker images;
 
-  echo "Attempting log in to $DOCKER_REGISTRY_URL"
+  # The set of lines below is replaced by a GitHub Docker Login Action (see main.yaml file)
+  #echo "Attempting log in to $DOCKER_REGISTRY_URL"
   # Use Credential store to avoid unencrypted password showing up in $HOME/.docker/config.json
   # See https://docs.docker.com/engine/reference/commandline/login/#credentials-store
   # See https://github.com/joesan/plant-simulator/issues/110
-  #bash docker/docker_helper.sh
+  # See https://stackoverflow.com/questions/66857244/setup-docker-credential-helper-for-docker-login-with-github-actions
+  #bash docker/docker_credentials_helper_v2.sh
   #echo "$DOCKER_REGISTRY_PASSWORD" | docker login -u "$DOCKER_REGISTRY_USERNAME" --password-stdin
-  echo "Successfully logged into Docker hub $DOCKER_REGISTRY_URL"
+  #echo "Successfully logged into Docker hub $DOCKER_REGISTRY_URL"
 
   # Tag & push image for tag $RELEASE_VERSION
   echo "Tagging image $DOCKER_APP_NAME to repository $DOCKER_REGISTRY_URL with tag $RELEASE_VERSION";
