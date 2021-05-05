@@ -218,7 +218,7 @@ I added the possibility to do automated deployments using Travis CI after succes
 
 * [SBT](http://www.scala-sbt.org/) - Scala Build Tool
 
-* [Travis CI](https://travis-ci.com/) - Hosted Continuous Integration
+* [GitHub Actions](https://docs.github.com/en/actions) - Hosted Continuous Integration
 
 * [Mergify](https://mergify.io/) - Automatically merge pull requests
 
