@@ -16,5 +16,8 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 // For formatting Scala source code
 addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.16")
 
-// Build fat jar file
+// Build fat JAR file
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.15.0")
+
+// Check vulnerabilities in JAR's
+addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "3.1.3")
