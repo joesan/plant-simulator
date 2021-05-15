@@ -143,7 +143,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.2.9" % Test,
   "org.awaitility" % "awaitility" % "4.1.0" % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test exclude ("org.slf4j", "slf4j-simple"),
-  "com.github.andyglow" %% "websocket-scala-client" % "0.3.0" % Test exclude ("org.slf4j", "slf4j-simple")
+  "com.github.andyglow" %% "websocket-scala-client" % "0.4.0" % Test exclude ("org.slf4j", "slf4j-simple")
 )
 
 // Assembly of the fat jar file
