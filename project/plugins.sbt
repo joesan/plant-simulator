@@ -17,7 +17,7 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.16")
 
 // Build fat JAR file
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.15.0")
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "1.0.0")
 
 // Check vulnerabilities in JAR's
 addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "3.1.3")
