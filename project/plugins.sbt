@@ -2,7 +2,7 @@
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.8")
 
 // For removing warts, maintain code quality
-addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "2.4.15")
+addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "2.4.16")
 
 // The sbt native packager - needed for docker builds
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.8.1")
