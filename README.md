@@ -222,7 +222,7 @@ I added the possibility to do automated deployments using Travis CI after succes
 
 * [Mergify](https://mergify.io/) - Automatically merge pull requests
 
-* [Scala-Steward](https://github.com/scala-steward-org/scala-steward) - Keep dependencies up-to-date
+* [Scala-Steward](https://github.com/scala-steward-org/scala-steward) - Keep dependencies up-to-date (The best your project can have)
 
 ## Contributing [![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/joesan/plant-simulator/issues)
 
