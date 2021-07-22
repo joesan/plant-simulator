@@ -21,7 +21,7 @@ Here is what the operation of a PowerPlant would look like! A constant command a
 
 ![PowerPlant Command and Control](https://github.com/joesan/plant-simulator/blob/master/images/streaming_telemetry.png)
 
-With that little picture above, I hope you are interested to try the application! The instructions given below will get you a copy of the project up and running on your local machine for development and testing purposes. 
+With that little picture above, I hope you are interested to give the application a try! The instructions given below will get you a copy of the project up and running on your local machine for development and testing purposes. 
 
 ### Prerequisites
 
