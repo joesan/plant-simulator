@@ -8,7 +8,7 @@ addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "2.4.16")
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.5")
 
 // For code coverage test
-addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.0")
+addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.1")
 
 // For checkstyle
 addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
