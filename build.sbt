@@ -126,7 +126,7 @@ libraryDependencies ++= Seq(
   "com.typesafe.play" %% "play-json" % PlayJsonVersion,
   "com.typesafe.play" %% "play-json-joda" % PlayJsonVersion,
   // JDBC driver for MySQL & H2
-  "mysql" % "mysql-connector-java" % "8.0.26",
+  "mysql" % "mysql-connector-java" % "8.0.27",
   "com.h2database" % "h2" % "1.4.186",
   // Swagger UI API Docs
   //"io.swagger" %% "swagger-play2" % "1.6.0",
