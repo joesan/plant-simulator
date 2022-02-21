@@ -5,7 +5,7 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.13")
 addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "2.4.18")
 
 // The sbt native packager - needed for docker builds
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.8")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.9")
 
 // For code coverage test
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "1.9.3")
