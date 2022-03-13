@@ -13,7 +13,7 @@ Simulation of De-centralized command and control of electricty producing & consu
 
 ## Getting Started 
 
-For some background information on the project, please have a look [here](https://github.com/joesan/plant-simulator/wiki)
+For some background information on the project, please have a look at the Wiki documentation [here](https://github.com/joesan/plant-simulator/wiki)
 
 For the impatient you, I have a version up and running on Heroku [here](https://plant-simulator-ui.herokuapp.com/)! Please be soft on it as it is running on just 512MB RAM! But you will not be dissapointed! Give it a try! [Here is the API](https://github.com/joesan/plant-simulator/wiki/API-Documentation) that you can use to test the Command and Control of the Power Plant's
 
