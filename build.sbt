@@ -112,7 +112,7 @@ val PlayJsonVersion = "2.9.2"
 libraryDependencies ++= Seq(
   ws,
   // Our streaming library
-  "io.monix" %% "monix" % "3.4.0",
+  "io.monix" %% "monix" % "3.4.1",
   // Dependencies needed for Slick
   "com.typesafe.slick" %% "slick" % SlickVersion,
   "com.typesafe.slick" %% "slick-hikaricp" % SlickVersion,
