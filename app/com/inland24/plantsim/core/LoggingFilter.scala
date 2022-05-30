@@ -18,13 +18,13 @@
 package com.inland24.plantsim.core
 
 import akka.stream.Materializer
-import play.api.Logger
+import play.api.{Logger, Logging}
 import play.api.mvc.{Filter, RequestHeader, Result}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class LoggingFilter(implicit val mat: Materializer, ec: ExecutionContext)
-    extends Filter {
+    extends Filter with Logging {
 
   def apply(nextFilter: RequestHeader => Future[Result])(
       requestHeader: RequestHeader): Future[Result] = {
@@ -35,7 +35,7 @@ class LoggingFilter(implicit val mat: Materializer, ec: ExecutionContext)
       val endTime = System.currentTimeMillis
       val requestTime = endTime - startTime
 
-      Logger(this.getClass).info(
+      logger.info(
         s"${requestHeader.method} ${requestHeader.uri} took ${requestTime}ms HTTP status >> ${result.header.status}")
 
       result.withHeaders("Request-Time" -> requestTime.toString)
