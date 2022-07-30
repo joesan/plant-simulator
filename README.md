@@ -1,6 +1,6 @@
 # ![plant-simulator-ui](images/logo.png)
 
-[![Codacy Badge](https://api.codacy.com/project/badge/Grade/996bef52feb148039c61f0db9cff9830)](https://www.codacy.com/app/joesan/plant-simulator?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=joesan/plant-simulator&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/7a7484b6cdf248a8b8e34aedb4e4433e)](https://www.codacy.com/gh/joesan/plant-simulator/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=joesan/plant-simulator&amp;utm_campaign=Badge_Grade)
 [![codecov](https://codecov.io/gh/joesan/plant-simulator/branch/master/graph/badge.svg)](https://codecov.io/gh/joesan/plant-simulator)
 [![Build and Deploy](https://github.com/joesan/plant-simulator/actions/workflows/main.yml/badge.svg)](https://github.com/joesan/plant-simulator/actions/workflows/main.yml)
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/1185/badge)](https://bestpractices.coreinfrastructure.org/projects/1185)
