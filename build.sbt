@@ -105,7 +105,7 @@ scalafmtTestOnCompile in Compile := true // current project, specific configurat
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/public/"
 
 val AkkaVersion = "2.6.19"
-val SlickVersion = "3.3.3"
+val SlickVersion = "3.4.0"
 val DropWizardMetricsVersion = "4.2.11"
 val PlayJsonVersion = "2.9.2"
 
