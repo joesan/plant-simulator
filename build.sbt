@@ -106,7 +106,7 @@ resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositori
 
 val AkkaVersion = "2.6.19"
 val SlickVersion = "3.4.0"
-val DropWizardMetricsVersion = "4.2.11"
+val DropWizardMetricsVersion = "4.2.12"
 val PlayJsonVersion = "2.9.3"
 
 libraryDependencies ++= Seq(
