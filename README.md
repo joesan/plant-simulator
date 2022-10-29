@@ -9,7 +9,7 @@
 
 # plant-simulator (a.k.a Digital Twin a.k.a Virtual Power Plant command & control)
 
-Simulation of De-centralized command and control of electricty producing & consuming power plants that can be remotely steered and operated at scale!
+Simulation of De-centralized command and control of electricty producing & consuming power plant units that can be remotely steered and operated at scale!
 
 ## Getting Started 
 
