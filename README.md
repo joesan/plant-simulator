@@ -268,7 +268,10 @@ https://github.com/joesan/plant-simulator/wiki/Application-Architecture
 
 Keep visiting for updates!
 
-[![HitCount](http://hits.dwyl.com/joesan/plant-simulator.svg)](http://hits.dwyl.com/joesan/plant-simulator)
+Total Visits: [![HitCount](http://hits.dwyl.com/joesan/plant-simulator.svg)](http://hits.dwyl.com/joesan/plant-simulator)
+
+Unique Visits: [![HitCount](https://hits.dwyl.com/joesan/plant-simulator.svg?style=flat-square&show=unique)](http://hits.dwyl.com/joesan/plant-simulator)
+
 
 ##
 <sup>[![forthebadge](http://forthebadge.com/images/badges/powered-by-electricity.svg)](http://forthebadge.com)</sup>
