@@ -5,7 +5,7 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.16")
 
 // For removing warts, maintain code quality
-addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "2.4.20")
+addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "2.4.21")
 
 // The sbt native packager - needed for docker builds
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.11")
