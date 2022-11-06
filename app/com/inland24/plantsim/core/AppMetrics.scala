@@ -93,7 +93,8 @@ object AppMetrics {
                 splitFn(metricName)
                   .drop(1) // drop(1) is equivalent to tail, but does not blow up
                   .mkString("_")
-                  .toLowerCase(Locale.ENGLISH)                  .replace("-", "_"),
+                  .toLowerCase(Locale.ENGLISH)
+                  .replace("-", "_"),
                 gauge.getValue.toString
               )
           }

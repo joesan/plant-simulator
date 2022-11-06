@@ -24,7 +24,8 @@ import play.api.mvc.{Filter, RequestHeader, Result}
 import scala.concurrent.{ExecutionContext, Future}
 
 class LoggingFilter(implicit val mat: Materializer, ec: ExecutionContext)
-    extends Filter with Logging {
+    extends Filter
+    with Logging {
 
   def apply(nextFilter: RequestHeader => Future[Result])(
       requestHeader: RequestHeader): Future[Result] = {

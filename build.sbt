@@ -2,7 +2,7 @@ name := """plant-simulator"""
 
 version := "1.0-SNAPSHOT"
 
-ThisBuild / versionScheme      := Some("early-semver")
+ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / evictionErrorLevel := Level.Info
 
 lazy val root = (project in file("."))
@@ -75,16 +75,16 @@ javacOptions ++= Seq(
 logLevel := Level.Info
 
 // use logback.xml when running unit tests
-javaOptions in Test += "-Dlogger.file=conf/logback-test.xml"
+Test / javaOptions += "-Dlogger.file=conf/logback-test.xml"
 
 // Docker container configurations
 // We will use alpine os as out base image
 dockerBaseImage := "anapsix/alpine-java:8_server-jre_unlimited"
 
 // These values will be assigned the docker image name
-maintainer in Docker := "https://github.com/joesan"
-packageName in Docker := s"joesan/${name.value}"
-version in Docker := version.value
+Docker / maintainer := "https://github.com/joesan"
+Docker / packageName := s"joesan/${name.value}"
+Docker / version := version.value
 
 import com.typesafe.sbt.packager.docker._
 dockerCommands ++= Seq(
@@ -97,13 +97,13 @@ dockerCommands ++= Seq(
 )
 
 // Scala formatter settings
-scalafmtOnCompile in ThisBuild := true // all projects
+ThisBuild / scalafmtOnCompile := true // all projects
 scalafmtOnCompile := true // current project
-scalafmtOnCompile in Compile := true // current project, specific configuration
+Compile / scalafmtOnCompile := true // current project, specific configuration
 
-scalafmtTestOnCompile in ThisBuild := true // all projects
+ThisBuild / scalafmtTestOnCompile := true // all projects
 scalafmtTestOnCompile := true // current project
-scalafmtTestOnCompile in Compile := true // current project, specific configuration
+Compile / scalafmtTestOnCompile := true // current project, specific configuration
 
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/public/"
 
@@ -136,6 +136,10 @@ libraryDependencies ++= Seq(
   //"org.webjars" %% "webjars-play" % "2.6.0-M1",
   //"org.webjars" % "swagger-ui" % "2.2.0",
 
+  // This dependency is here because of this error:
+  // https://stackoverflow.com/questions/74335368/scala-sbt-version-dependency-binary-compatibility-error-scala-xml#74335368
+  // "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
+
   // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % AkkaVersion % Test,
   "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion % Test,
@@ -150,8 +154,8 @@ libraryDependencies ++= Seq(
 )
 
 // Assembly of the fat jar file
-mainClass in assembly := Some("play.core.server.ProdServerStart")
-fullClasspath in assembly += Attributed.blank(PlayKeys.playPackageAssets.value)
+assembly / mainClass := Some("play.core.server.ProdServerStart")
+assembly / fullClasspath += Attributed.blank(PlayKeys.playPackageAssets.value)
 
 assemblyMergeStrategy in assembly := {
   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
