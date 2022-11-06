@@ -143,10 +143,6 @@ libraryDependencies ++= Seq(
   //"org.webjars" %% "webjars-play" % "2.6.0-M1",
   //"org.webjars" % "swagger-ui" % "2.2.0",
 
-  // This dependency is here because of this error:
-  // https://stackoverflow.com/questions/74335368/scala-sbt-version-dependency-binary-compatibility-error-scala-xml#74335368
-  // "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
-
   // Test dependencies
   "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
   "com.typesafe.akka" %% "akka-slf4j" % akkaVersion % Test,
