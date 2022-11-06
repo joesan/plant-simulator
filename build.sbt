@@ -46,7 +46,7 @@ scalacOptions ++= Seq(
   "-Xlint:unsound-match" // Pattern match may not be typesafe
 )
 
-scalacOptions in Test ++= Seq("-Yrangepos")
+Test / scalacOptions ++= Seq("-Yrangepos")
 
 wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
   Wart.ImplicitParameter,
@@ -107,30 +107,37 @@ Compile / scalafmtTestOnCompile := true // current project, specific configurati
 
 resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositories/public/"
 
-val AkkaVersion = "2.6.20"
-val SlickVersion = "3.4.0"
-val DropWizardMetricsVersion = "4.2.12"
-val PlayJsonVersion = "2.9.3"
+val akkaVersion = "2.6.20"
+val slickVersion = "3.4.1"
+val dropWizardMetricsVersion = "4.2.12"
+val playJsonVersion = "2.9.3"
+val mySQLConnectorVersion = "8.0.31"
+val h2DatabaseVersion = "1.4.186"
+val typesafeConfigVersion = "1.4.2"
+val scalaLoggingVersion = "3.9.5"
+val scalaAsyncVersion = "0.9.7"
+val scalaTestVersion = "3.2.14"
+val awaitilityVersion = "4.2.0"
 
 libraryDependencies ++= Seq(
   ws,
   // Our streaming library
   "io.monix" %% "monix" % "3.4.1",
   // Dependencies needed for Slick
-  "com.typesafe.slick" %% "slick" % SlickVersion,
-  "com.typesafe.slick" %% "slick-hikaricp" % SlickVersion,
+  "com.typesafe.slick" %% "slick" % slickVersion,
+  "com.typesafe.slick" %% "slick-hikaricp" % slickVersion,
   // For application Metrics
-  "io.dropwizard.metrics" % "metrics-core" % DropWizardMetricsVersion,
-  "io.dropwizard.metrics" % "metrics-jvm" % DropWizardMetricsVersion,
-  "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5",
-  "org.scala-lang.modules" % "scala-async_2.11" % "0.9.7",
-  "com.typesafe" % "config" % "1.4.2",
+  "io.dropwizard.metrics" % "metrics-core" % dropWizardMetricsVersion,
+  "io.dropwizard.metrics" % "metrics-jvm" % dropWizardMetricsVersion,
+  "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion,
+  "org.scala-lang.modules" % "scala-async_2.11" % scalaAsyncVersion,
+  "com.typesafe" % "config" % typesafeConfigVersion,
   // For JSON parsing
-  "com.typesafe.play" %% "play-json" % PlayJsonVersion,
-  "com.typesafe.play" %% "play-json-joda" % PlayJsonVersion,
+  "com.typesafe.play" %% "play-json" % playJsonVersion,
+  "com.typesafe.play" %% "play-json-joda" % playJsonVersion,
   // JDBC driver for MySQL & H2
-  "mysql" % "mysql-connector-java" % "8.0.30",
-  "com.h2database" % "h2" % "1.4.186",
+  "mysql" % "mysql-connector-java" % mySQLConnectorVersion,
+  "com.h2database" % "h2" % h2DatabaseVersion,
   // Swagger UI API Docs
   //"io.swagger" %% "swagger-play2" % "1.6.0",
   //"org.webjars" %% "webjars-play" % "2.6.0-M1",
@@ -141,14 +148,14 @@ libraryDependencies ++= Seq(
   // "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always,
 
   // Test dependencies
-  "com.typesafe.akka" %% "akka-testkit" % AkkaVersion % Test,
-  "com.typesafe.akka" %% "akka-slf4j" % AkkaVersion % Test,
-  "com.typesafe.akka" %% "akka-protobuf-v3" % AkkaVersion % Test,
-  "com.typesafe.akka" %% "akka-serialization-jackson" % AkkaVersion % Test,
-  "com.typesafe.akka" %% "akka-stream" % AkkaVersion % Test,
-  "com.typesafe.akka" %% "akka-actor-typed" % AkkaVersion % Test,
-  "org.scalatest" %% "scalatest" % "3.2.13" % Test,
-  "org.awaitility" % "awaitility" % "4.2.0" % Test,
+  "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test,
+  "com.typesafe.akka" %% "akka-slf4j" % akkaVersion % Test,
+  "com.typesafe.akka" %% "akka-protobuf-v3" % akkaVersion % Test,
+  "com.typesafe.akka" %% "akka-serialization-jackson" % akkaVersion % Test,
+  "com.typesafe.akka" %% "akka-stream" % akkaVersion % Test,
+  "com.typesafe.akka" %% "akka-actor-typed" % akkaVersion % Test,
+  "org.scalatest" %% "scalatest" % scalaTestVersion % Test,
+  "org.awaitility" % "awaitility" % awaitilityVersion % Test,
   "org.scalatestplus.play" %% "scalatestplus-play" % "5.1.0" % Test exclude ("org.slf4j", "slf4j-simple"),
   "com.github.andyglow" %% "websocket-scala-client" % "0.4.0" % Test exclude ("org.slf4j", "slf4j-simple")
 )
