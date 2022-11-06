@@ -5,9 +5,6 @@ version := "1.0-SNAPSHOT"
 ThisBuild / versionScheme := Some("early-semver")
 ThisBuild / evictionErrorLevel := Level.Info
 
-// https://github.com/sbt/sbt/issues/6997
-ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
-
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, DockerPlugin)
 
