@@ -2,7 +2,8 @@ name := """plant-simulator"""
 
 version := "1.0-SNAPSHOT"
 
-ThisBuild / versionScheme        := Some("early-semver")
+ThisBuild / versionScheme      := Some("early-semver")
+ThisBuild / evictionErrorLevel := Level.Info
 
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, DockerPlugin)
