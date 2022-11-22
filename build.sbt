@@ -109,7 +109,7 @@ resolvers += "sonatype-releases" at "https://oss.sonatype.org/content/repositori
 
 val akkaVersion = "2.6.20"
 val slickVersion = "3.4.1"
-val dropWizardMetricsVersion = "4.2.12"
+val dropWizardMetricsVersion = "4.2.13"
 val playJsonVersion = "2.9.3"
 val mySQLConnectorVersion = "8.0.31"
 val h2DatabaseVersion = "1.4.186"
