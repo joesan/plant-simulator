@@ -8,7 +8,6 @@ ThisBuild / evictionErrorLevel := Level.Info
 lazy val root = (project in file("."))
   .enablePlugins(PlayScala, DockerPlugin)
 
-//scalaVersion := "2.12.17"
 scalaVersion := "2.13.2"
 //scalaVersion := "3.2.1"
 
