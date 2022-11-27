@@ -62,7 +62,7 @@ class EventsStreamTest
     with should.Matchers
     with BeforeAndAfterAll {
 
-  override def afterAll {
+  override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
   }
 

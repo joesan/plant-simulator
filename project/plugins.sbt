@@ -4,6 +4,9 @@ ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" 
 // The Play plugin
 addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.16")
 
+// Scala 3 Migration Plugin
+addSbtPlugin("ch.epfl.scala" % "sbt-scala3-migrate" % "0.4.2")
+
 // For removing warts, maintain code quality
 addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "2.4.21")
 

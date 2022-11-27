@@ -23,7 +23,8 @@ import com.codahale.metrics.jvm._
 import play.api.libs.json.{JsObject, Json}
 
 import java.util.Locale
-import scala.collection.JavaConverters._
+//import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 object AppMetrics {
 

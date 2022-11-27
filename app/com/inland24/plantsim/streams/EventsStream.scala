@@ -32,7 +32,7 @@ final class EventsStream(
     extends Actor
     with ActorLogging {
 
-  override def preStart: Unit = {
+  override def preStart(): Unit = {
     super.preStart()
   }
 

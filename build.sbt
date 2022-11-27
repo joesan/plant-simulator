@@ -9,7 +9,8 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala, DockerPlugin)
 
 //scalaVersion := "2.12.17"
-scalaVersion := "3.2.1"
+scalaVersion := "2.13.2"
+//scalaVersion := "3.2.1"
 
 scalacOptions ++= Seq(
   // Warnings propogates as errors
@@ -23,11 +24,11 @@ scalacOptions ++= Seq(
   "-unchecked",
   "-deprecation",
   "-feature",
-  "-Ywarn-adapted-args",
+  //"-Ywarn-adapted-args",
   "-Ywarn-dead-code",
-  "-Ywarn-inaccessible",
-  "-Ywarn-nullary-override",
-  "-Ywarn-nullary-unit",
+  //"-Ywarn-inaccessible",
+  //"-Ywarn-nullary-override",
+  //"-Ywarn-nullary-unit",
   "-Xlog-free-terms",
   // enables linter options
   "-Xlint:adapted-args", // warn if an argument list is modified to match the receiver
@@ -42,9 +43,9 @@ scalacOptions ++= Seq(
   "-Xlint:poly-implicit-overload", // parameterized overloaded implicit methods are not visible as view bounds
   "-Xlint:option-implicit", // Option.apply used implicit view
   "-Xlint:delayedinit-select", // Selecting member of DelayedInit
-  "-Xlint:by-name-right-associative", // By-name parameter of right associative operator
+  //"-Xlint:by-name-right-associative", // By-name parameter of right associative operator
   "-Xlint:package-object-classes", // Class or object defined in package object
-  "-Xlint:unsound-match" // Pattern match may not be typesafe
+  //"-Xlint:unsound-match" // Pattern match may not be typesafe
 )
 
 Test / scalacOptions ++= Seq("-Yrangepos")
@@ -54,6 +55,8 @@ wartremoverWarnings in (Compile, compile) ++= Warts.allBut(
   Wart.ImplicitConversion,
   Wart.Var, // Bloody, because of Play Routes
   Wart.ToString,
+  Wart.StringPlusAny,
+  Wart.JavaSerializable,
   Wart.AsInstanceOf,
   Wart.Overloading,
   Wart.Product,

@@ -31,7 +31,7 @@ import play.core.DefaultWebCommands
   */
 trait ApplicationTestFactory extends FakeApplicationFactory {
 
-  override def fakeApplication: Application = {
+  override def fakeApplication(): Application = {
     val env = Environment.simple(new File("."))
     val configuration = Configuration.load(env)
     val context = ApplicationLoader.Context.create(

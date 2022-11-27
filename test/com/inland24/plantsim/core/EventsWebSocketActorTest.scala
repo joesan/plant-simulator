@@ -45,7 +45,7 @@ class EventsWebSocketActorTest
     with BeforeAndAfterAll
     with DBServiceSpec {
 
-  override def beforeAll: Unit = {
+  override def beforeAll(): Unit = {
     // 1. Set up the Schemas
     super.h2SchemaSetup()
 
@@ -53,7 +53,7 @@ class EventsWebSocketActorTest
     super.populateTables()
   }
 
-  override def afterAll: Unit = {
+  override def afterAll(): Unit = {
     System.clearProperty("ENV")
     super.h2SchemaDrop()
     TestKit.shutdownActorSystem(system)
