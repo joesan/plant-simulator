@@ -9,7 +9,6 @@ lazy val root = (project in file("."))
   .enablePlugins(PlayScala, DockerPlugin)
 
 scalaVersion := "2.13.2"
-//scalaVersion := "3.2.1"
 
 scalacOptions ++= Seq(
   // Warnings propogates as errors
