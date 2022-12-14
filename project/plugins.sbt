@@ -2,7 +2,7 @@
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
 // The Play plugin
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.16")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.18")
 
 // Scala 3 Migration Plugin
 addSbtPlugin("ch.epfl.scala" % "sbt-scala3-migrate" % "0.4.6")
