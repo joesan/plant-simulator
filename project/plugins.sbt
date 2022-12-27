@@ -2,10 +2,10 @@
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
 
 // The Play plugin
-addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.16")
+addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.18")
 
 // Scala 3 Migration Plugin
-addSbtPlugin("ch.epfl.scala" % "sbt-scala3-migrate" % "0.4.2")
+addSbtPlugin("ch.epfl.scala" % "sbt-scala3-migrate" % "0.5.1")
 
 // For removing warts, maintain code quality
 addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "2.4.21")
@@ -23,7 +23,7 @@ addSbtPlugin("org.scalastyle" %% "scalastyle-sbt-plugin" % "1.0.0")
 addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.16")
 
 // Build fat JAR file
-addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "1.2.0")
+addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.1.0")
 
 // Check vulnerabilities in JAR's
 addSbtPlugin("net.vonbuchholtz" % "sbt-dependency-check" % "4.2.0")
