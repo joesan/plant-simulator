@@ -118,7 +118,7 @@ val h2DatabaseVersion = "1.4.186"
 val typesafeConfigVersion = "1.4.2"
 val scalaLoggingVersion = "3.9.5"
 val scalaAsyncVersion = "0.9.7"
-val scalaTestVersion = "3.2.14"
+val scalaTestVersion = "3.2.15"
 val awaitilityVersion = "4.2.0"
 
 libraryDependencies ++= Seq(
