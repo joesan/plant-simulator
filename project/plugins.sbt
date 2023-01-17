@@ -11,7 +11,7 @@ addSbtPlugin("ch.epfl.scala" % "sbt-scala3-migrate" % "0.5.1")
 addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "2.4.21")
 
 // The sbt native packager - needed for docker builds
-addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.11")
+addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.12")
 
 // For code coverage test
 addSbtPlugin("org.scoverage" % "sbt-scoverage" % "2.0.5")
