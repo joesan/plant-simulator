@@ -8,7 +8,7 @@ addSbtPlugin("com.typesafe.play" % "sbt-plugin" % "2.8.19")
 addSbtPlugin("ch.epfl.scala" % "sbt-scala3-migrate" % "0.5.1")
 
 // For removing warts, maintain code quality
-addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "2.4.21")
+addSbtPlugin("org.wartremover" %% "sbt-wartremover" % "3.0.9")
 
 // The sbt native packager - needed for docker builds
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.12")
